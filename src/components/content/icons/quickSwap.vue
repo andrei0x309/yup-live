@@ -22,9 +22,5 @@ import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'UniSwap',
-  props: {},
-  setup() {
-    return {}
-  }
 })
 </script>

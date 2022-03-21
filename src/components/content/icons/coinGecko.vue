@@ -41,9 +41,5 @@ import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'CoinGecko',
-  props: {},
-  setup() {
-    return {}
-  }
 })
 </script>
