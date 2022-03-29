@@ -31,7 +31,7 @@ export default defineComponent({
     const setPageNum = (pageNo: number) => {
       if (pageNo) {
         if (pageNo > 5 || pageNo < 1) {
-          router.push({ path: '/404' })
+          router.push({ path: '/error/code/404' })
         } else {
           pageNum.value = pageNo
         }
