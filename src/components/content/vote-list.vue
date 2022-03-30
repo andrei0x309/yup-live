@@ -34,10 +34,10 @@
         <div class="inline">
           <CatEmoji
             v-if="props.row.category"
-            :key="`${props.row.voter}-${props.row.like}-${props.row.category}`"
+            :key="`cat-${props.row.voter}-${props.row.like}-${props.row.category}`"
             :category="props.row.category"
           />
-          <Dots :key="`${props.row.voter}-${props.row.like}-${props.row.category}`" :vote="props.row" />
+          <Dots :key="`dot-${props.row.voter}-${props.row.like}-${props.row.category}-${props.row.rating}`" :vote="props.row" />
         </div>
       </o-table-column>
 
@@ -172,14 +172,12 @@ export default defineComponent({
         agg[item._id.postid] = { ...item }
         return agg
       }, {})
-      console.log(optPosts)
       const mergeVotes = votesData.map((item: Record<string, unknown & Record<string, string>>) => {
         return {
           ...item,
           post: optPosts[item.postid as unknown as string]
         }
       })
-      console.log(mergeVotes)
       return mergeVotes
     }
 
@@ -201,6 +199,19 @@ export default defineComponent({
       isTableLoading.value = false
     }
 
+    const urlHash = (url: string) => {
+      const hash = Array(9).fill(0)
+      const charArr = url.slice(url.indexOf('//') + 2).toLocaleLowerCase().split('')
+      let c = 0
+      while (charArr.length) {
+        const cat = charArr.shift()?.charCodeAt(0)
+        if(!cat) break
+        const char = cat % 26 + 97
+        hash[hash.length % c ] = char
+        c++
+      }
+    }
+
     store.$subscribe(() => {
       if (store.theme === 'dark') {
         iconsColor.value = '#ccc'
@@ -211,16 +222,13 @@ export default defineComponent({
 
     onMounted(async () => {
       getTableData(curPage.value)
-      console.log(store.theme)
     })
-
-    console.log('data', data)
 
     onUnmounted(() => {
       // do nothing
     })
 
-    return { data, isTableLoading, limitUrlSize, curPage, setCurentPage, iconsColor }
+    return { data, isTableLoading, limitUrlSize, curPage, setCurentPage, iconsColor,urlHash }
   }
 })
 </script>
