@@ -93,8 +93,9 @@ export default defineComponent({
         return 10000
       }
       const yearData = await import(/* @vite-ignore */ `/emissions/years/${today.getFullYear()}.js`)
-      const dateString = `${today.getFullYear()}-${('0' + String(today.getMonth())).slice(-2)}-${('0' + String(today.getDate())).slice(-2)}`
-      return yearData.data[dateString]
+      const dateString = `${today.getFullYear()}-${('0' + String(today.getMonth() + 1)).slice(-2)}-${('0' + String(today.getDate())).slice(-2)}`
+      const offsetContract = 5546
+      return yearData.data[dateString] - offsetContract
     }
 
     const getSupply = async () => {
@@ -154,19 +155,15 @@ export default defineComponent({
       // do nothing
       currentDayEmission().then((emission) => {
         dataEmissions.value = emission
-        console.log('emission', emission)
       })
       getSupply().then((supply) => {
         dataSupply.value = supply
-        console.log('supply', supply)
       })
       getGeckoData().then((gecko) => {
         dataGecko.value = gecko
-        console.log('geko', gecko)
       })
       getActionsCount().then((actionCount) => {
         dataActionCount.value = actionCount
-        console.log('actionCount', actionCount)
       })
     })
 
