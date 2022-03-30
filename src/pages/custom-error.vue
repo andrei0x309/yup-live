@@ -1,17 +1,17 @@
 <template>
   <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
-  <div class="main-error bg-color w-full">
+  <div :key="`${isMobile}-error`" :class="`main-error bg-color w-full ${isMobile? 'flex-column': ''}`">
   <div>
-    <div class="m-6">
+    <div :class="`${isMobile? 'm-14 error-fs-mobile': 'm-20 error-fs-desktop'}`">
       <span>error&nbsp;code:&nbsp;{{ code }}</span>
       <span>{{ message }}</span>
     </div>
   </div>
-  <svg class='crack m-16' viewBox='0 0 200 600'>
+  <svg :class="`crack ${isMobile? 'm-4 crack-rotate svg-mobile': 'm-16'}`" viewBox='0 0 200 600'>
     <polyline points='118.302698 8 59.5369448 66.7657528 186.487016 193.715824 14 366.202839 153.491505 505.694344 68.1413353 591.044514'></polyline>
   </svg>
   <div>
-    <div class="m-4">
+    <div :class="`${isMobile? 'm-4 error-fs-msg-mobile': 'm-2 error-fs-msg-desktop'}`" style="font-size:1.4rem">
       <span>sorry&nbsp;about&nbsp;that!</span>
       <span>
         <a @click="goHome()">
@@ -28,6 +28,7 @@
 import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref } from 'vue'
 import { useHead, HeadObject } from '@vueuse/head'
 import { useRoute, useRouter } from 'vue-router'
+import { useGrid } from 'vue-screen'
 
 export default defineComponent({
   name: 'HomePage',
@@ -36,6 +37,7 @@ export default defineComponent({
   setup() {
     const route = useRoute()
     const router = useRouter()
+	const grid = useGrid('tailwind')
 
     const internalErrors  : { [key: string]: { code: string, message: string } } = {
         '404': {
@@ -48,7 +50,12 @@ export default defineComponent({
         }
     }
 
-    const code = route.params.code as string
+	const isMobile = computed(() => {
+		return !grid['md']
+	})
+
+    let code = route.params.code as string
+	if(!code) code = '404'
     const message = internalErrors[code] ? internalErrors[code].message : 'Unknown error'
     
     const siteData = reactive({
@@ -76,13 +83,14 @@ export default defineComponent({
     return {
       goHome,
       message,
-      code
+      code,
+	  isMobile
     }
   }
 })
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 $grey: #343434;
 $red: #a8246d;
 $green: #43CB9D;
@@ -92,15 +100,15 @@ $f: "brandon-grotesque", "Brandon Grotesque", "Source Sans Pro", "Segoe UI", Fru
 
 $easeOutExpo: cubic-bezier(0.190, 1.000, 0.220, 1.000);
 
-*, *:before, *:after { box-sizing: border-box; }
-* { -webkit-tap-highlight-color: rgba(0,0,0,0); transform-style: preserve-3d; }
-*:focus { outline: none!important; }
+// *, *:before, *:after { box-sizing: border-box; }
+// * { -webkit-tap-highlight-color: rgba(0,0,0,0); transform-style: preserve-3d; }
+// *:focus { outline: none!important; }
  
 ::selection {
 	background: none;
 }
 
-a {
+.main-error a {
 	display: block;
 	cursor: pointer;
 	font-weight: 500;
@@ -118,6 +126,11 @@ a {
 
 svg {
 	width: 10rem;
+	height: auto;
+}
+
+.svg-mobile {
+	width: 6rem;
 	height: auto;
 }
 
@@ -142,6 +155,7 @@ svg {
 	align-items: center;
 	align-content: center;
 	justify-content: center;
+	margin-top: 5vh;
 	> div {
 		display: flex;
 		align-items: center;
@@ -151,9 +165,6 @@ svg {
 		svg {
 			position: relative;
 			z-index: 1;
-			polygon {
-				fill: $grey;
-			}
 		}
 		span {
 			display: block;
@@ -235,4 +246,35 @@ svg {
 	70.27% { transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -0.519, 0, 0, 1); }
 	100% { transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); opacity: 1; }
 }
+ 
+html[class='dark'] .main-error {
+  color: ghostwhite;
+  box-shadow: 0.2rem 0.5rem 0rem #1b1b1b;
+}
+
+.crack-rotate {
+	transform: rotate(88deg);
+}
+
+.flex-column {
+	flex-direction: column;
+}
+
+.error-fs-desktop {
+	font-size:2rem
+}
+
+.error-fs-mobile {
+	font-size:1.2rem
+}
+
+.error-fs-msg-desktop {
+	font-size:1.4rem
+}
+
+.error-fs-msg-mobile {
+	font-size:1rem
+}
+
+
 </style>

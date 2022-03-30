@@ -2,12 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '@/pages/home.vue'
 
 const routes = [
-  {
-    name: "ErrorPage",
-    path: "/:pathMatch(.*)*",
-    alias: "/error/code/:code",
-    component: () => import('@/pages/custom-error.vue')
-  },
   // {
   //   path: "/error",
   //   name: "CustmError",
@@ -57,6 +51,12 @@ const routes = [
     path: "/finance",
     href: "https://yup.finance/",
     redirect: 'https://app.yup.io/staking'
+  },
+  {
+    name: "ErrorPage",
+    path: "/:pathMatch(.*)*",
+    alias: "/error/code/:code",
+    component: () => import('@/pages/custom-error.vue')
   },
 ]
 
