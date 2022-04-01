@@ -2,7 +2,7 @@
   <div class="bg-color token-metrics w-full">
     <div>
       <span class="section-title">YUP price</span>
-      <template v-if="!dataGecko">
+      <template v-if="!dataGecko || !dataSupply">
         <o-skeleton :animated="true"></o-skeleton>
         <span class=""><o-skeleton :animated="true"></o-skeleton></span>
       </template>
@@ -15,7 +15,7 @@
         </sup>
         <span
           class="block font-088 faded-darker mt-2"
-          >{{`Mcap: $${numeral((dataGecko as any).market_data.market_cap.usd.toFixed(0))}`}}</span
+          >{{`Mcap: $${numeral((Number((dataSupply as any).totalSupply) * Number((dataGecko as any).market_data.current_price.usd?.toFixed(2))).toFixed(0))}`}}</span
         >
       </template>
     </div>
@@ -28,9 +28,9 @@
       </template>
       <template v-else>
         <h2>
-          {{`${numeral((dataSupply as any).YUP.supply?.split('.')[0])} YUP`}}
+          {{`${numeral((dataSupply as any).totalSupply)} YUP`}}
         </h2>
-        <span class="block font-088 faded-darker mt-2">{{`/${numeral((dataSupply as any).YUP.max_supply?.split('.')[0])} YUP`}}</span>
+        <span class="block font-088 faded-darker mt-2">{{`/${numeral((dataSupply as any).supplyWhenInfStop)} YUP`}}</span>
       </template>
     </div>
     <div>
@@ -99,15 +99,11 @@ export default defineComponent({
     }
 
     const getSupply = async () => {
-      const req = await fetch('https://api.eosn.io/v1/chain/get_currency_stats', {
-        method: 'POST',
+      const req = await fetch('https://api.yup.io/metrics/current-supply', {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json;charset=utf-8'
-        },
-        body: JSON.stringify({
-          code: 'token.yup',
-          symbol: 'YUP'
-        })
+        }
       })
       if (!req.ok) {
         throw new Error(`Request failed with status ${req.status}`)
