@@ -21,7 +21,7 @@ export default defineComponent({
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const pageNum = ref(1)
+    const pageNum = ref(route.params.pageNo ? Number(route.params.pageNo) : 1)
 
     const siteData = reactive({
       title: `YUP Live - Vote explorer`,
