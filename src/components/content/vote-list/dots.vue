@@ -34,8 +34,6 @@ export default defineComponent({
       const rating = props.vote.rating
       const like = props.vote.like
 
-      console.log(rating, like)
-
       const ratingMap: Record<number, number> = { 1: 3, 2: 4, 3: 5 }
       const ratingMapFalse: Record<number, number> = { 1: 2, 2: 1 }
       if (like) {

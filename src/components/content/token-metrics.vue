@@ -19,7 +19,6 @@
         >
       </template>
     </div>
-    <!-- SUPPLY DATA IS practically LOREM IPSUM token contract should implement supply -->
     <div>
       <span class="section-title">Supply</span>
       <template v-if="!dataSupply">
