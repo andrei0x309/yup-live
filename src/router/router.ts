@@ -19,6 +19,16 @@ const routes = [
     component: HomePage
   },
   {
+    path: '/rewards',
+    name: 'Rewards',
+    component: HomePage
+  },
+  {
+    path: '/rewards/type/:type/page/:pageNo',
+    name: 'RewardsWithTypeAndPage',
+    component: HomePage
+  },
+  {
     path: '/emissions',
     name: 'EmissionsPage',
     component: () => import('@/pages/emissions.vue')

@@ -122,7 +122,7 @@
               >
                 <div class="media">
                   <div class="media-content">
-                    <component :is="(buyIcons as { [k: string]: unknown })[menu.icon]" />
+                    <component :is="(buyIcons as Record<string,unknown> )[menu.icon]" />
                     {{ menu.text }}
                   </div>
                 </div>

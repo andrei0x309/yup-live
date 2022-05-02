@@ -10,7 +10,9 @@ import {
     Tabs,
     Table,
     Modal,
-    Skeleton
+    Skeleton,
+    Switch,
+    Radio
 } from "@oruga-ui/oruga-next";
 import "@oruga-ui/oruga-next/dist/oruga.min.css";
 import { createPinia } from 'pinia'
@@ -23,6 +25,8 @@ createApp(App)
     .use(Tabs)
     .use(Modal)
     .use(Skeleton)
+    .use(Switch)
+    .use(Radio)
     .use(Table)
     .use(createPinia())
     .provide('routes', routes)
