@@ -30,7 +30,11 @@ export default defineComponent({
       {
         name: 'Top Rewards',
         path: '/rewards'
-      }
+      },
+      {
+        name: 'Top Sellers',
+        path: '/sellers'
+      },
     ]
 
     const linksWithoutActive = links.filter((link) => link.name !== props.linkActive)

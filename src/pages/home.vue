@@ -1,9 +1,10 @@
 <template>
   <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
     <TokenMetrics />
-    <TableNav :key="`table-nav-${isRewards}`" :linkActive="isRewards ? 'Top Rewards' : 'Vote List'" />
-    <VoteList v-if="!isRewards" :key="`vote-list-${isRewards}`" :pageNum="pageNum" />
-    <Rewards v-if="isRewards" :key="`rewards-${isRewards}`" :pageNum="pageNum" :type="(type as string)" />
+    <TableNav :key="`table-nav-${pageActive}`" :linkActive="pageActive" />
+    <VoteList v-if="pages.default === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />
+    <Rewards v-if="pages.rewards === pageActive" :key="`rewards-${pageActive}`" :pageNum="pageNum" :type="(type as string)" />
+    <Sellers v-if="pages.topSellers === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />
   </div>
 </template>
 
@@ -12,6 +13,7 @@ import { onMounted, defineComponent, ref, reactive, computed, onUnmounted, Ref, 
 import { useHead, HeadObject } from '@vueuse/head'
 import TokenMetrics from '@/components/content/token-metrics.vue'
 import VoteList from '@/components/content/vote-list.vue'
+import Sellers from '@/components/content/top-sellers.vue'
 import TableNav from '@/components/content/table-nav.vue'
 import Rewards from '@/components/content/rewards-earners.vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -22,18 +24,33 @@ export default defineComponent({
     TokenMetrics,
     VoteList,
     Rewards,
+    Sellers,
     TableNav
   },
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const isRewards = ref(route.path.startsWith('/rewards'))
     const pageNum = ref(route.params.pageNo ? Number(route.params.pageNo) : 1)
     const type = ref(route.params.type ? (['week', 'month'].includes(route.params.type as string) ? route.params.type : 'week') : 'week')
+    
+    const pages = {
+      rewards: 'Top Rewards',
+      topSellers: 'Top Sellers',
+      default: 'Vote List'
+    }
+
+    const getPageActive = (path: string) => {
+      if (path.startsWith('/rewards')) return pages.rewards
+      if (path.startsWith('/sellers')) return pages.topSellers
+      return pages.default
+    }
+    
+    
+    const pageActive = ref(getPageActive(route.path))
 
     const siteData = reactive({
-      title: isRewards.value ? `YUP Live - Rewards explorer` : `YUP Live - Vote explorer`,
-      description: isRewards.value ? `Live rewards data for YUP DApp...` : `Live voting data for YUP DApp...`
+      title:  `YUP Live - ${pageActive.value} explorer`,
+      description: `Live ${pageActive.value} data for YUP DApp...` 
     })
 
     const setPageNum = (pageNo: number) => {
@@ -45,21 +62,7 @@ export default defineComponent({
         }
       }
     }
-
-    // const showAlertError = (title, message) => {
-    //   alertHidden.value = false;
-    //   alertTitle.value = title;
-    //   alertMessage.value = message;
-    //   alertType.value = "error";
-    // };
-
-    // const showAlertSuccess = (title, message) => {
-    //   alertHidden.value = false;
-    //   alertTitle.value = title;
-    //   alertMessage.value = message;
-    //   alertType.value = "success";
-    // };
-
+ 
     onMounted(async () => {
       setPageNum(Number(route.params.pageNo))
     })
@@ -76,18 +79,15 @@ export default defineComponent({
     watch(
       () => route.path,
       (newVal) => {
-        if (newVal.startsWith('/rewards')) {
-          isRewards.value = true
-        } else {
-          isRewards.value = false
-        }
+        pageActive.value = getPageActive(newVal)
       }
     )
 
     return {
       pageNum,
       type,
-      isRewards
+      pageActive,
+      pages
     }
   }
 })

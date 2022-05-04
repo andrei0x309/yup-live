@@ -12,7 +12,8 @@ import {
     Modal,
     Skeleton,
     Switch,
-    Radio
+    Radio,
+    Tooltip
 } from "@oruga-ui/oruga-next";
 import "@oruga-ui/oruga-next/dist/oruga.min.css";
 import { createPinia } from 'pinia'
@@ -28,6 +29,7 @@ createApp(App)
     .use(Switch)
     .use(Radio)
     .use(Table)
+    .use(Tooltip)
     .use(createPinia())
     .provide('routes', routes)
     .use(createHead())
