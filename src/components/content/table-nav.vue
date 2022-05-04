@@ -62,7 +62,7 @@ export default defineComponent({
   margin-top: 2rem;
   margin-bottom: 0.5rem;
   width: 10rem;
-  color: var(--glassTxt);
+  color: aliceblue;
   border: 1px solid rgba(204, 204, 204, 0.295);
   border-radius: 0.2rem;
 

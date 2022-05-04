@@ -204,6 +204,7 @@ export default defineComponent({
   word-break: break-all;
   min-width: 15rem;
   background-color: var(--glassBg);
+  color: aliceblue;
   border-radius: 4px;
   padding: 0.5rem;
 }
