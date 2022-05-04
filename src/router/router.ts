@@ -29,6 +29,16 @@ const routes = [
     component: HomePage
   },
   {
+    path: '/sellers',
+    name: 'Sellers',
+    component: HomePage
+  },
+  {
+    path: '/sellers/page/:pageNo',
+    name: 'SellersPaginated',
+    component: HomePage
+  },
+  {
     path: '/emissions',
     name: 'EmissionsPage',
     component: () => import('@/pages/emissions.vue')
