@@ -29,7 +29,7 @@
         </div>
       </o-table-column>
 
-      <o-table-column v-slot="props" field="ethRecived" label="YUP Sold">
+      <o-table-column v-slot="props" field="ethRecived" label="ETH Received">
         <div class="inline">
           <ETHIcon :key="iconsColor" :color="iconsColor" />
           {{ Number(props.row.eth_recived).toFixed(2) }}
