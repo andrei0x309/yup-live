@@ -160,11 +160,11 @@ export default defineComponent({
       switch (periodType.value) {
         case 'week':
           startDate.setDate(startDate.getDate() - 7 * Number(timePeriod.value))
-          endDate.setDate(endDate.getDate() - 7 * Number(timePeriod.value) - 1)
+          endDate.setDate(endDate.getDate() - 7 * (Number(timePeriod.value) - 1))
           break
         case 'month':
           startDate.setDate(startDate.getDate() - 30 * Number(timePeriod.value))
-          endDate.setDate(endDate.getDate() - 30 * Number(timePeriod.value) - 1)
+          endDate.setDate(endDate.getDate() - 30 * (Number(timePeriod.value) - 1))
           break
         default:
           break
