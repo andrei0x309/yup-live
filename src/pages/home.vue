@@ -67,7 +67,7 @@ export default defineComponent({
       setPageNum(Number(route.params.pageNo))
     })
 
-    onUnmounted(() => {
+    onUnmounted(async () => {
       // do nothing
     })
 

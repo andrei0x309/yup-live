@@ -149,14 +149,15 @@ export default defineComponent({
         throw new Error(`Request failed with status ${req.status}`)
       }
 
-      return (await req.json()).data.map((item: Record<string, string & number>) => {
+      return (await req.json()).data.map((item: Record<string, string | number>) => {
+        let relAcc = item?.related_accounts ?? "[]"
+        relAcc = (relAcc as string).length > 40 ? (relAcc as string).slice(0, 40) + '...' : relAcc
         return {
           address: item.address,
           yup_sold: item.yup_sold,
           eth_recived: item.eth_recived,
           account: item.account,
-          related_accounts:
-            (item.related_accounts as string).length > 40 ? `${(item.related_accounts as string).slice(0, 40)}...` : item.related_accounts,
+          related_accounts: relAcc,
           related_accounts_full: item.related_accounts,
         }
       })
