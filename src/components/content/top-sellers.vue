@@ -16,10 +16,18 @@
       </o-table-column>
 
       <o-table-column v-slot="props" field="account" label="USER">
-        <a :href="`https://app.yup.io/${props.row.account}`" rel="nofollow" target="_blank">
+        <div v-if="props.row.account === 'unknown'" class="inline">
+        <UserIcon :key="iconsColor" :color="iconsColor" />
+          {{ props.row.account }}
+        </div>
+        <div v-else class="inline">
+        <a v-if="!props.row.account.includes(',')" :href="`https://app.yup.io/${props.row.account}`" rel="nofollow" target="_blank">
           <UserIcon :key="iconsColor" :color="iconsColor" />
-          {{ props.row.account }}</a
-        >
+          {{ props.row.account }}</a>
+        <a v-for="acc of props.row.account.split(',')" v-else :key="acc" :href="`https://app.yup.io/${acc}`" rel="nofollow" target="_blank">
+          <UserIcon :key="iconsColor" :color="iconsColor" />
+          {{ acc }}</a>
+        </div>
       </o-table-column>
 
       <o-table-column v-slot="props" field="yupsold" label="YUP Sold">
