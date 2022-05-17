@@ -73,8 +73,8 @@ export default defineComponent({
   name: 'VoteList',
   components: { DangLoader },
   setup() {
-    // const API_BASE = import.meta.env.VITE_YUP_API_BASE
-    const API_BASE = "http://localhost:4001"
+    const API_BASE = import.meta.env.VITE_YUP_API_BASE
+    // const API_BASE = "http://localhost:4001"
 
     const weekText = ['Last Week']
     for(let i = 2; i <= 12; i++) {
