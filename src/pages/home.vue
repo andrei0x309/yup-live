@@ -5,6 +5,7 @@
     <VoteList v-if="pages.default === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />
     <Rewards v-if="pages.rewards === pageActive" :key="`rewards-${pageActive}`" :pageNum="pageNum" :type="(type as string)" />
     <Sellers v-if="pages.topSellers === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />
+    <GiniWeeks v-if="pages.gini === pageActive" :key="`gini-${pageActive}`"/>
   </div>
 </template>
 
@@ -16,6 +17,7 @@ import VoteList from '@/components/content/vote-list.vue'
 import Sellers from '@/components/content/top-sellers.vue'
 import TableNav from '@/components/content/table-nav.vue'
 import Rewards from '@/components/content/rewards-earners.vue'
+import GiniWeeks from '@/components/content/gini-weeks.vue'
 import { useRoute, useRouter } from 'vue-router'
 
 export default defineComponent({
@@ -25,7 +27,8 @@ export default defineComponent({
     VoteList,
     Rewards,
     Sellers,
-    TableNav
+    TableNav,
+    GiniWeeks
   },
   setup() {
     const route = useRoute()
@@ -36,13 +39,23 @@ export default defineComponent({
     const pages = {
       rewards: 'Top Rewards',
       topSellers: 'Top Sellers',
+      gini: 'Rewards Gini Index',
       default: 'Vote List'
     }
 
     const getPageActive = (path: string) => {
-      if (path.startsWith('/rewards')) return pages.rewards
-      if (path.startsWith('/sellers')) return pages.topSellers
-      return pages.default
+      path = `/${path.split('/')[1]}`
+      console.log(path)
+      switch (path) {
+        case '/rewards':
+          return pages.rewards
+        case '/sellers':
+          return pages.topSellers
+        case '/gini':
+          return pages.gini
+        default:
+          return pages.default
+      }
     }
     
     

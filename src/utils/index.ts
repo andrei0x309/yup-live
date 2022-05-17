@@ -2,4 +2,6 @@ import { getThemeMode } from './theme'
 
 import { postData, getData } from './request'
 
-export { getThemeMode, postData, getData }
+import { gini, exportFile, convertToCSV } from './misc'
+
+export { getThemeMode, postData, getData, gini, exportFile, convertToCSV }

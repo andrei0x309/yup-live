@@ -8,4 +8,12 @@ const useMainStore = defineStore('main', {
   }
 })
 
-export { useMainStore }
+const useGraphStore = defineStore('graph', {
+  state: () => {
+    return {
+      data: []
+    }
+  }
+})
+
+export { useMainStore, useGraphStore }

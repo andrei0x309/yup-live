@@ -39,9 +39,19 @@ const routes = [
     component: HomePage
   },
   {
+    path: '/gini',
+    name: 'GiniWeeks',
+    component: HomePage
+  },
+  {
     path: '/emissions',
     name: 'EmissionsPage',
     component: () => import('@/pages/emissions.vue')
+  },
+  {
+    path: '/gini/plot',
+    name: 'GiniPlot',
+    component: () => import('@/components/content/python-curve-modal.vue')
   },
   // {
   //   path: "/meeting-recording/:id",

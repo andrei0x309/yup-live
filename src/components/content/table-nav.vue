@@ -35,6 +35,10 @@ export default defineComponent({
         name: 'Top Sellers',
         path: '/sellers'
       },
+      {
+        name: 'Rewards Gini Index',
+        path: '/gini'
+      }
     ]
 
     const linksWithoutActive = links.filter((link) => link.name !== props.linkActive)
@@ -68,6 +72,10 @@ export default defineComponent({
 
   .o-drop__menu {
     background-color: var(--glassBg);
+    padding: 0.4rem 0.4rem 0.4rem 0.4rem;
   }
+
 }
+
+
 </style>

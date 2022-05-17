@@ -15,14 +15,10 @@
       >
 
       <div v-if="periodType === 'week'" class="block">
-        <o-radio v-model="timePeriod" native-value="1"> Last Week </o-radio>
-        <o-radio v-model="timePeriod" native-value="2"> 2 Weeks Ago </o-radio>
-        <o-radio v-model="timePeriod" native-value="3"> 3 Weeks Ago </o-radio>
-        <o-radio v-model="timePeriod" native-value="4"> 4 Weeks Ago </o-radio>
+        <o-radio v-for="(wText, i) in weekText" :key="i" v-model="timePeriod" :native-value="i+1">{{wText}}</o-radio>
       </div>
       <div v-else class="block">
-        <o-radio v-model="timePeriod" native-value="1"> Last Month </o-radio>
-        <o-radio v-model="timePeriod" native-value="2"> 2 Months Ago </o-radio>
+            <o-radio v-for="(mText, i) in monthText" :key="i" v-model="timePeriod" :native-value="i+1">{{mText}}</o-radio>
       </div>
     </div>
     <o-table :data="data" :tableClass="`${isTableLoading ? 'tableLoading' : ''}`" :loading="isTableLoading">
@@ -47,6 +43,13 @@
         </div>
       </o-table-column>
 
+      <o-table-column v-slot="props" field="influence" label="Raw Influence">
+        <div class="inline">
+          💪
+          {{ Number(props.row.influence).toFixed(2) }}
+        </div>
+      </o-table-column>
+
       <template #loading>
         <DangLoader v-if="isTableLoading" />
       </template>
@@ -63,7 +66,30 @@
         <o-button :class="`btn`" @click="curPage + 1 > 5 ? null : setCurentPage(curPage + 1)">⏵</o-button>
       </router-link>
     </div>
+    <div class="mt-2">
+    <button  type="button" class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 px-4 py-2 text-white m-2"  disabled @click="dwJson()">
+    <BtnSpinner />
+    <span class="font-medium font-bold">Get Gini for this perioad for all top 100 users</span>
+    </button>
+    <button  type="button"  class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 px-4 py-2 text-white m-2"  disabled @click="dwJson()">
+    <BtnSpinner />
+    <span class="font-medium font-bold">Plot population using python</span>
+    </button>
+        <button  type="button"  class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 px-4 py-2 text-white m-2"  disabled @click="dwJson()">
+    <BtnSpinner />
+    <span class="font-medium font-bold">Download CSV for this period forl all top 100 users</span>
+    </button>
+    <button  type="button"  class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 hover:to-yellow-500 px-4 py-2 text-white m-2"  disabled @click="dwJson()">
+    <BtnSpinner />
+    <span class="font-medium font-bold">Download CSV for this period forl all top 100 users</span>
+    </button>
+    </div>
   </div>
+    <o-modal v-model:active="giniDialog" contentClass="modalDefault">
+    <div class="mb-10 md:mb-16">
+ 
+    </div>
+  </o-modal>
 </template>
 
 <script lang="ts">
@@ -72,7 +98,9 @@ import DangLoader from '@/components/content/vote-list/loader.vue'
 import UserIcon from '@/components/content/icons/user.vue'
 import DateIcon from '@/components/content/icons/date.vue'
 import TokenIcon from '@/components/content/icons/tokenYup.vue'
+import BtnSpinner from '@/components/content/icons/btnSpinner.vue'
 import { useMainStore } from '@/store/main'
+import { gini, exportFile, convertToCSV } from '@/utils'
 
 import {
   onMounted,
@@ -88,7 +116,7 @@ import {
 
 export default defineComponent({
   name: 'VoteList',
-  components: { DangLoader, UserIcon, DateIcon, TokenIcon },
+  components: { DangLoader, UserIcon, DateIcon, TokenIcon, BtnSpinner },
   props: {
     pageNum: {
       required: true,
@@ -100,13 +128,28 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const API_BASE = import.meta.env.VITE_YUP_API_BASE
+    // const API_BASE = import.meta.env.VITE_YUP_API_BASE
+    const API_BASE = "http://localhost:4001"
+    
+    const weekText = ['Last Week']
+    for(let i = 2; i <= 12; i++) {
+      weekText.push(`${i} Weeks Ago`)
+    }
+    const monthText = ['Last Month']
+    for(let i = 2; i <= 4; i++) {
+      monthText.push(`${i} Months Ago`)
+    }
+    
+    
     const isTableLoading = ref(false)
     const curPage = ref(Number(props.pageNum))
     const periodType = ref(props.type)
     const store = useMainStore()
-    const timePeriod = ref('1')
+    const timePeriod = ref(1)
     const tableTimePeriod = ref('loading...')
+    const giniIndex = ref(0)
+    const giniDialog = ref(false)
+    const giniData: Ref<Array<unknown>> = ref([])
 
     const iconsColor = ref(store.theme === 'dark' ? '#ccc' : '#020201')
 
@@ -124,7 +167,8 @@ export default defineComponent({
       for (let i = 0; i < 20; i++) {
         data.push({
           account: 'loading...',
-          amount: 'loading...'
+          amount: 'loading...',
+          influence: 'loading...',
         })
       }
       return data
@@ -152,6 +196,39 @@ export default defineComponent({
       return await req.json()
     }
 
+    const getGiniData = async () => {
+        const reqs = []
+        for(let i = 1; i <= 5; i++) {
+          reqs.push(fetch(
+        `${API_BASE}/metrics/top-earners/${periodType.value}?limit=20&page=${i}&${periodType.value}=${timePeriod.value}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+          }
+        }
+      ))
+      }
+      const req = await Promise.allSettled(reqs)
+      const data: Array<Record<string, unknown>> = []
+      for(let i = 0; i < req.length; i++) {
+        if(req[i].status === 'fulfilled') {
+          data.push(...await (req[i] as unknown as { value: { json: () => [] } }).value.json())
+        }else {
+          console.log("API error")
+        }
+      }
+      return data
+    }
+
+    const calculateGiniIndex = async () => {
+      if(giniData.value.length === 0) {
+        giniData.value = await getGiniData()
+      }
+      const values = giniData.value.map( (item) => Number((item as unknown as {amount: string}).amount))
+      giniIndex.value = gini(values)
+    }
+
     const getTableData = async (pageNum: number) => {
       isTableLoading.value = true
       data.value = makeLoadingData()
@@ -171,7 +248,22 @@ export default defineComponent({
       }
       tableTimePeriod.value = `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
       data.value = await getVoteList(pageNum)
+      calculateGiniIndex()
       isTableLoading.value = false
+    }
+
+    const dwCSV = async () => {
+      if(giniData.value.length === 0) {
+        giniData.value = await getGiniData()
+      }
+      exportFile(`Rewards ${tableTimePeriod.value}.csv`, convertToCSV(data.value), 'csv')
+    }
+
+    const dwJson = async () => {
+      if(giniData.value.length === 0) {
+        giniData.value = await getGiniData()
+      }
+      exportFile(`Rewards ${tableTimePeriod.value}.json`, JSON.stringify(data.value), 'json')
     }
 
     store.$subscribe(() => {
@@ -193,6 +285,14 @@ export default defineComponent({
       }
       console.log(periodType.value)
     }
+
+    const openGiniDialog = () => {
+      giniDialog.value = true
+    }
+
+    const plotPopulation = () => {
+        openGiniDialog()
+    }
     
     watch(timePeriod, () => {
       getTableData(1)
@@ -206,7 +306,10 @@ export default defineComponent({
       // do nothing
     })
 
-    return { data, isTableLoading, curPage, setCurentPage, iconsColor, periodType, tableTimePeriod, changeType, timePeriod }
+    return { data, isTableLoading,
+     curPage, setCurentPage, weekText, monthText,
+     iconsColor, periodType, tableTimePeriod, 
+     changeType, timePeriod, dwCSV, dwJson, giniIndex, giniDialog, plotPopulation }
   }
 })
 </script>
@@ -246,5 +349,8 @@ export default defineComponent({
       background-color: var(--glassBg);
     }
   }
+}
+.acbtn {
+  opacity: 0.85;
 }
 </style>
