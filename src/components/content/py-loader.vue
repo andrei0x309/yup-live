@@ -68,24 +68,6 @@
        xlink:href="#linearGradient9515"
        inkscape:collect="always" />
   </defs>
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="0.24748737"
-     inkscape:cx="-260.46312"
-     inkscape:cy="316.02744"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
-     width="131.10236px"
-     height="184.25197px"
-     inkscape:window-width="872"
-     inkscape:window-height="624"
-     inkscape:window-x="5"
-     inkscape:window-y="48" />
   <g
      id="layer1"
      inkscape:label="Calque 1"

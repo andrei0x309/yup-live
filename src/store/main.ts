@@ -12,6 +12,8 @@ const useGraphStore = defineStore('graph', {
   state: () => {
     return {
       data: []
+    } as {
+      data: unknown[]
     }
   }
 })

@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-color table-list w-full mb-4">
+  <div class="bg-color modal w-full mb-4">
       <div v-show="pyIsLoading">
       <h2 class="block">Loading Python Envoirment</h2>
       <PyLoader />
       <pre>
-      <span v-for="line of loadingMsg" :key="line">
+      <span v-for="line of loadingMsg" :key="`${line}-${Math.random()}`">
         {{line}}
       </span>
       </pre>
@@ -18,14 +18,7 @@
 </template>
 
 <script lang="ts">
-// import { useRoute, useRouter } from 'vue-router'
-// import Dots from '@/components/content/vote-list/dots.vue'
-// import CatEmoji from '@/components/content/vote-list/category.vue'
-// import DangLoader from '@/components/content/vote-list/loader.vue'
-// import UserIcon from '@/components/content/icons/user.vue'
-// import DateIcon from '@/components/content/icons/date.vue'
 import PyLoader from '@/components/content/py-loader.vue'
-import { useGraphStore } from '@/store/main'
 
 import {
   onMounted,
@@ -43,11 +36,11 @@ export default defineComponent({
   components: { PyLoader },
   props: {
     data: {
-      type: String,
+      type: Array,
       required: true
     }
   },
-  setup() {
+  setup(props) {
     
     class CappedArray extends Array {
         constructor(length = 8) {
@@ -63,8 +56,6 @@ export default defineComponent({
           return 0
         }
       }
-
-    const graphStore = useGraphStore()
 
     // const store = useMainStore()
     const pyScriptContainer = ref(null)
@@ -83,7 +74,7 @@ export default defineComponent({
     const hookConsole = () => {
       const stdlog = console.log.bind(console);
         console.log = function(){
-        loadingMsg.value.push(Array.from(arguments));
+        loadingMsg.value.push(Array.from(arguments).join(' '));
         stdlog.apply(console, arguments as unknown as unknown[]);
     }
     }
@@ -124,7 +115,7 @@ ax.scatter(np.arange(X_lorenz.size)/(X_lorenz.size-1), X_lorenz,
             marker='*', color='white', s=100)
 ax.plot([0,1], [0,1], color='orange')
 ax.set_aspect('equal')
-ax.set_title('Gini Index: {0}'.format(gini(plotStrArr)))
+ax.set_title('Gini Index: {0}'.format(abs(gini(plotStrArr))))
 ax.set_facecolor((0.26, 0.26, 0.26))
 
 ax.tick_params(color='w', labelcolor='w')
@@ -150,7 +141,9 @@ fig
          pyIsLoading.value = false
        }
        // @ts-expect-error - possibly null
-       window.plotData = graphStore.data
+       window.plotData = props.data.join(',')
+       // @ts-expect-error - possibly null
+       console.log('plotData', window.plotData)
        const pythonScript =  window.document.createElement('script')
         pythonScript.src = 'https://pyscript.net/alpha/pyscript.js'
         pythonScript.defer = true
@@ -176,5 +169,20 @@ fig
 </script>
 
 <style lang="scss">
+.modal {
+  padding: 1rem;
+  margin-top: 0.2rem;
+  min-height: 18rem;
+  font-size: 0.96rem;
+  font-weight: bold;
+  text-align: center;
+  display: grid;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  grid-template-columns: 1fr;
+  max-width: 90vw;
+  margin: auto;
+}
 
 </style>
