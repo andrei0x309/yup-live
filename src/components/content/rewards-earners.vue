@@ -75,7 +75,7 @@
         @click="calculateGiniIndex()"
       >
         <BtnSpinner v-if="btnLoaders.gini" />
-        <span v-if="giniIndex===0" class="font-medium font-bold">Get Gini for this perioad for all top 100 users</span>
+        <span v-if="giniIndex===0" class="font-medium font-bold">Get Gini for this period for top 100 users</span>
         <span v-else class="font-medium font-bold">Gini Index: {{ giniIndex }}</span>
       </button>
       <button
@@ -95,7 +95,7 @@
       >
         <BtnSpinner v-if="btnLoaders.exportJson" />
         <FileDownloadIcon class="m-1" />
-        <span class="font-medium font-bold">Download JSON for this period forl all top 100 users</span>
+        <span class="font-medium font-bold">Download JSON for this period for top 100 users</span>
       </button>
       <button
         type="button"
@@ -105,7 +105,7 @@
       >
         <BtnSpinner v-if="btnLoaders.exportCSV" />
         <FileDownloadIcon  class="m-1" />
-        <span class="font-medium font-bold">Download CSV for this period forl all top 100 users</span>
+        <span class="font-medium font-bold">Download CSV for this period for top 100 users</span>
       </button>
     </div>
   </template>
