@@ -41,7 +41,7 @@
 					Error
 				</div>
 				<div class="alert-description text-sm text-red-600">
-					API didn't give any data, maybe API is down or you slected an period that dosen't have data.
+					API didn't give any data, maybe API is down or you selected a period that doesn't have data.
 				</div>
 			</div>
 		</div>
