@@ -21,6 +21,8 @@
     "@oruga-ui/oruga-next": "^0.5.4",
     "@vueuse/head": "^0.7.5",
     "d3": "^7.3.0",
+    "d3-scale-chromatic": "^3.0.0",
+    "gini": "^1.1.7",
     "pinia": "^2.0.12",
     "vue": "^3.2.25",
     "vue-router": "^4.0.14",

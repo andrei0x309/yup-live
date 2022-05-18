@@ -1,9 +1,14 @@
 <template>
+  <template v-if="!isSingle">
   <Header />
   <main class="content">
     <router-view />
   </main>
   <Footer />
+  </template>
+  <template v-else>
+  <router-view />
+  </template>
 </template>
 
 <script lang="ts">
@@ -11,7 +16,8 @@ import { defineComponent } from 'vue'
 import Header from '@/components/theme/header.vue'
 import Footer from '@/components/theme/footer.vue'
 import { getThemeMode } from './utils'
-
+import { ref, onBeforeMount } from 'vue'
+  
 export default defineComponent({
   name: 'App',
   components: {
@@ -22,8 +28,19 @@ export default defineComponent({
     ;(function setTheme() {
       document.documentElement.setAttribute('class', getThemeMode())
     })()
+    const isSingle = ref(false)
+    onBeforeMount(() => {
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+      get: (searchParams, prop) => searchParams.get(prop as unknown as string),
+    })
+      // @ts-expect-error single doesn't exist
+      isSingle.value = params.single === '1'
+    })
+      
 
-    return {}
+    return {
+      isSingle
+    }
   }
 })
 </script>

@@ -15,16 +15,13 @@
       >
 
       <div v-if="periodType === 'week'" class="block">
-        <o-radio v-model="timePeriod" native-value="1"> Last Week </o-radio>
-        <o-radio v-model="timePeriod" native-value="2"> 2 Weeks Ago </o-radio>
-        <o-radio v-model="timePeriod" native-value="3"> 3 Weeks Ago </o-radio>
-        <o-radio v-model="timePeriod" native-value="4"> 4 Weeks Ago </o-radio>
+        <o-radio v-for="(wText, i) in weekText" :key="i" v-model="timePeriod" :native-value="i + 1">{{ wText }}</o-radio>
       </div>
       <div v-else class="block">
-        <o-radio v-model="timePeriod" native-value="1"> Last Month </o-radio>
-        <o-radio v-model="timePeriod" native-value="2"> 2 Months Ago </o-radio>
+        <o-radio v-for="(mText, i) in monthText" :key="i" v-model="timePeriod" :native-value="i + 1">{{ mText }}</o-radio>
       </div>
     </div>
+    <template v-if="!apiError">
     <o-table :data="data" :tableClass="`${isTableLoading ? 'tableLoading' : ''}`" :loading="isTableLoading">
       <o-table-column field="timestamp" label="Time Interval">
         <div class="inline">
@@ -47,6 +44,13 @@
         </div>
       </o-table-column>
 
+      <o-table-column v-slot="props" field="influence" label="Raw Influence">
+        <div class="inline">
+          💪
+          {{ Number(props.row.influence).toFixed(2) === '0.00' ? 'BANNED' : Number(props.row.influence).toFixed(2) }}
+        </div>
+      </o-table-column>
+
       <template #loading>
         <DangLoader v-if="isTableLoading" />
       </template>
@@ -63,7 +67,78 @@
         <o-button :class="`btn`" @click="curPage + 1 > 5 ? null : setCurentPage(curPage + 1)">⏵</o-button>
       </router-link>
     </div>
+    <div class="mt-2">
+      <button
+        type="button"
+        class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 px-4 py-2 text-white m-2"
+        :disabled="btnLoaders.gini"
+        @click="calculateGiniIndex()"
+      >
+        <BtnSpinner v-if="btnLoaders.gini" />
+        <span v-if="giniIndex===0" class="font-medium font-bold">Get Gini for this perioad for all top 100 users</span>
+        <span v-else class="font-medium font-bold">Gini Index: {{ giniIndex }}</span>
+      </button>
+      <button
+        type="button"
+        class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 px-4 py-2 text-white m-2"
+        :disabled="btnLoaders.plotPop"
+        @click="openGiniDialog()"
+      >
+        <BtnSpinner v-if="btnLoaders.plotPop" />
+        <span class="font-medium font-bold">🗠 Plot population using python</span>
+      </button>
+      <button
+        type="button"
+        class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 px-4 py-2 text-white m-2"
+        :disabled="btnLoaders.exportJson"
+        @click="dwJson()"
+      >
+        <BtnSpinner v-if="btnLoaders.exportJson" />
+        <FileDownloadIcon class="m-1" />
+        <span class="font-medium font-bold">Download JSON for this period forl all top 100 users</span>
+      </button>
+      <button
+        type="button"
+        class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 hover:to-yellow-500 px-4 py-2 text-white m-2"
+        :disabled="btnLoaders.exportCSV"
+        @click="dwCSV()"
+      >
+        <BtnSpinner v-if="btnLoaders.exportCSV" />
+        <FileDownloadIcon  class="m-1" />
+        <span class="font-medium font-bold">Download CSV for this period forl all top 100 users</span>
+      </button>
+    </div>
+  </template>
+  <template v-else>
+   <div style="max-width: 40rem; margin: auto" class="alert flex flex-row items-center bg-red-200 p-5 rounded border-b-2 border-red-300">
+			<div class="alert-icon flex items-center bg-red-100 border-2 border-red-500 justify-center h-10 w-10 flex-shrink-0 rounded-full">
+				<span class="text-red-500">
+					<svg
+                         fill="currentColor"
+						 viewBox="0 0 20 20"
+						 class="h-6 w-6">
+						<path
+                                fill-rule="evenodd"
+							  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							  clip-rule="evenodd"></path>
+					</svg>
+				</span>
+			</div>
+			<div class="alert-content ml-4">
+				<div class="alert-title font-semibold text-lg text-red-800">
+					Error
+				</div>
+				<div class="alert-description text-sm text-red-600">
+					API didn't give any data, maybe API is down or you slected an period that dosen't have data.
+				</div>
+			</div>
+		</div>
+  </template>
   </div>
+  <o-modal v-model:active="giniDialog" contentClass="pyModal">
+       <DangLoader v-if="pyCompNotLoaded" />
+      <component :is="!pyCompNotLoaded ? refDynComp : undefined" :data="giniDataValues" />
+  </o-modal>
 </template>
 
 <script lang="ts">
@@ -72,7 +147,10 @@ import DangLoader from '@/components/content/vote-list/loader.vue'
 import UserIcon from '@/components/content/icons/user.vue'
 import DateIcon from '@/components/content/icons/date.vue'
 import TokenIcon from '@/components/content/icons/tokenYup.vue'
+import BtnSpinner from '@/components/content/icons/btnSpinner.vue'
+import FileDownloadIcon from '@/components/content/icons/fileDownload.vue'
 import { useMainStore } from '@/store/main'
+import { gini, exportFile, convertToCSV } from '@/utils'
 
 import {
   onMounted,
@@ -83,12 +161,13 @@ import {
   //   computed,
   watch,
   onUnmounted,
-  Ref
+  Ref,
+  shallowRef
 } from 'vue'
 
 export default defineComponent({
   name: 'VoteList',
-  components: { DangLoader, UserIcon, DateIcon, TokenIcon },
+  components: { DangLoader, UserIcon, DateIcon, TokenIcon, BtnSpinner, FileDownloadIcon },
   props: {
     pageNum: {
       required: true,
@@ -101,12 +180,38 @@ export default defineComponent({
   },
   setup(props) {
     const API_BASE = import.meta.env.VITE_YUP_API_BASE
+    // const API_BASE = "http://localhost:4001"
+
+    const weekText = ['Last Week']
+    for (let i = 2; i <= 12; i++) {
+      weekText.push(`${i} Weeks Ago`)
+    }
+    const monthText = ['Last Month']
+    for (let i = 2; i <= 4; i++) {
+      monthText.push(`${i} Months Ago`)
+    }
+
     const isTableLoading = ref(false)
     const curPage = ref(Number(props.pageNum))
     const periodType = ref(props.type)
     const store = useMainStore()
-    const timePeriod = ref('1')
+    const timePeriod = ref(1)
     const tableTimePeriod = ref('loading...')
+    const giniIndex = ref(0)
+    const giniDialog = ref(false)
+    const giniData: Ref<Array<unknown>> = ref([])
+    const giniDataValues: Ref<Array<number>> = ref([])
+    type dComponent = undefined | ReturnType<typeof defineComponent>
+    const refDynComp: Ref<dComponent> = shallowRef(undefined)
+    const pyCompNotLoaded = ref(true)
+    const apiError = ref(false)
+
+    const btnLoaders = ref({
+      gini: false,
+      exportJson: false,
+      exportCSV: false,
+      plotPop: false
+    })
 
     const iconsColor = ref(store.theme === 'dark' ? '#ccc' : '#020201')
 
@@ -124,13 +229,16 @@ export default defineComponent({
       for (let i = 0; i < 20; i++) {
         data.push({
           account: 'loading...',
-          amount: 'loading...'
+          amount: 'loading...',
+          influence: 'loading...'
         })
       }
       return data
     }
 
     const getVoteList = async (page: number) => {
+      apiError.value = false
+      
       if (!page || page < 1) {
         page = 1
       }
@@ -146,10 +254,47 @@ export default defineComponent({
       )
 
       if (!req.ok) {
+        apiError.value = true
         throw new Error(`Request failed with status ${req.status}`)
       }
 
-      return await req.json()
+      return await req.json() || []
+    }
+
+    const getGiniData = async () => {
+      apiError.value = false
+      const reqs = []
+      for (let i = 1; i <= 5; i++) {
+        reqs.push(
+          fetch(`${API_BASE}/metrics/top-earners/${periodType.value}?limit=20&page=${i}&${periodType.value}=${timePeriod.value}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json;charset=utf-8'
+            }
+          })
+        )
+      }
+      const req = await Promise.allSettled(reqs)
+      const data: Array<Record<string, unknown>> = []
+      for (let i = 0; i < req.length; i++) {
+        if (req[i].status === 'fulfilled') {
+          data.push(...(await (req[i] as unknown as { value: { json: () => [] } }).value.json()))
+        } else {
+          apiError.value = true
+          throw new Error(`Request failed with status ${req[i].status}`)
+        }
+      }
+      return data || []
+    }
+
+    const calculateGiniIndex = async () => {
+      btnLoaders.value.gini = true
+      if (giniData.value.length === 0) {
+        giniData.value = await getGiniData()
+      }
+      giniDataValues.value = giniData.value.map((item) => Number((item as unknown as { amount: string }).amount))
+      giniIndex.value = gini(giniDataValues.value)
+      btnLoaders.value.gini = false
     }
 
     const getTableData = async (pageNum: number) => {
@@ -171,7 +316,28 @@ export default defineComponent({
       }
       tableTimePeriod.value = `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
       data.value = await getVoteList(pageNum)
+      if(data.value.length === 0) {
+        apiError.value = true
+      }
       isTableLoading.value = false
+    }
+
+    const dwCSV = async () => {
+      btnLoaders.value.exportCSV = true
+      if (giniData.value.length === 0) {
+        giniData.value = await getGiniData()
+      }
+      exportFile(`Rewards ${tableTimePeriod.value}.csv`, convertToCSV(giniData.value), 'csv')
+      btnLoaders.value.exportCSV = false
+    }
+
+    const dwJson = async () => {
+      btnLoaders.value.exportJson = true
+      if (giniData.value.length === 0) {
+        giniData.value = await getGiniData()
+      }
+      exportFile(`Rewards ${tableTimePeriod.value}.json`, JSON.stringify(giniData.value, null, 2 ), 'json')
+      btnLoaders.value.exportJson = false
     }
 
     store.$subscribe(() => {
@@ -191,10 +357,26 @@ export default defineComponent({
         periodType.value = dic[type]
         getTableData(1)
       }
-      console.log(periodType.value)
     }
-    
+
+    const openGiniDialog = async () => {
+      giniDialog.value = true
+      btnLoaders.value.plotPop = true
+      pyCompNotLoaded.value = true
+      if (giniData.value.length === 0) {
+        giniData.value = await getGiniData()
+      }
+      if(giniDataValues.value.length === 0) {
+        giniDataValues.value = giniData.value.map((item) => Number((item as unknown as { amount: string }).amount))
+      }
+      refDynComp.value = (await import('@/components/content/python-curve-modal.vue')).default
+      pyCompNotLoaded.value = false
+      btnLoaders.value.plotPop = false
+    }
+
     watch(timePeriod, () => {
+      giniData.value = []
+      giniIndex.value = 0
       getTableData(1)
     })
 
@@ -206,7 +388,31 @@ export default defineComponent({
       // do nothing
     })
 
-    return { data, isTableLoading, curPage, setCurentPage, iconsColor, periodType, tableTimePeriod, changeType, timePeriod }
+    return {
+      data,
+      isTableLoading,
+      curPage,
+      setCurentPage,
+      weekText,
+      monthText,
+      giniData,
+      refDynComp,
+      btnLoaders,
+      iconsColor,
+      periodType,
+      tableTimePeriod,
+      calculateGiniIndex,
+      pyCompNotLoaded,
+      changeType,
+      timePeriod,
+      dwCSV,
+      dwJson,
+      giniIndex,
+      giniDialog,
+      openGiniDialog,
+      apiError,
+      giniDataValues
+    }
   }
 })
 </script>
@@ -246,5 +452,15 @@ export default defineComponent({
       background-color: var(--glassBg);
     }
   }
+}
+.acbtn {
+  opacity: 0.85;
+}
+.pyModal {
+  background: transparent;
+  min-width: 60vw;
+  max-width: 90vw;
+  min-height: 50vh;
+  color: var(--textColor);
 }
 </style>
