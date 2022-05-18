@@ -137,7 +137,7 @@
   </div>
   <o-modal v-model:active="giniDialog" contentClass="pyModal">
        <DangLoader v-if="pyCompNotLoaded" />
-      <component :is="!pyCompNotLoaded ? refDynComp : undefined" :data="giniDataValues" />
+      <component :is="!pyCompNotLoaded ? refDynComp : undefined" :key="periodType" :data="giniDataValues" />
   </o-modal>
 </template>
 
@@ -376,6 +376,7 @@ export default defineComponent({
 
     watch(timePeriod, () => {
       giniData.value = []
+      giniDataValues.value = []
       giniIndex.value = 0
       getTableData(1)
     })
