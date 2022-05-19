@@ -46,8 +46,7 @@
 
       <o-table-column v-slot="props" field="influence" label="Raw Influence">
         <div class="inline">
-          💪
-          {{ Number(props.row.influence).toFixed(2) === '0.00' ? 'BANNED' : Number(props.row.influence).toFixed(2) }}
+          {{ Number(props.row.influence).toFixed(2) === '0.00' ?  (async () => await checkReallyBanned(props.row.account)) ? 'BANNED' : 'N/A' : Number(props.row.influence).toFixed(2) }}
         </div>
       </o-table-column>
 
@@ -339,6 +338,27 @@ export default defineComponent({
       exportFile(`Rewards ${tableTimePeriod.value}.json`, JSON.stringify(giniData.value, null, 2 ), 'json')
       btnLoaders.value.exportJson = false
     }
+    
+    const checkReallyBanned = async (account: string) => {
+             const req = await fetch(
+        `${API_BASE}/accounts/${account}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+          }
+        }
+      )
+
+      if (!req.ok) {
+         return false
+      }
+      const acc = await req.json()
+      if (acc.weights < 20) {
+        return true
+      }
+       return false
+    }
 
     store.$subscribe(() => {
       if (store.theme === 'dark') {
@@ -384,7 +404,7 @@ export default defineComponent({
     onMounted(async () => {
       getTableData(curPage.value)
     })
-
+    
     onUnmounted(() => {
       // do nothing
     })
@@ -412,7 +432,8 @@ export default defineComponent({
       giniDialog,
       openGiniDialog,
       apiError,
-      giniDataValues
+      giniDataValues,
+      checkReallyBanned
     }
   }
 })
