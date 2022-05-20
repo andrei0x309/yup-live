@@ -45,8 +45,8 @@
       </o-table-column>
 
       <o-table-column v-slot="props" field="influence" label="Raw Influence">
-        <div class="inline">
-          {{ Number(props.row.influence).toFixed(2) === '0.00' ?  (async () => await checkReallyBanned(props.row.account)) ? 'BANNED' : 'N/A' : Number(props.row.influence).toFixed(2) }}
+        <div :key="`${Number(props.row.influence).toFixed(2)}-${props.row.account}`" class="inline">
+         {{ Number(props.row.influence).toFixed(2) === '0.00'? void checkReallyBanned(props.row.account) && 'loading...': isNaN(Number(Number(props.row.influence).toFixed(2))) ? props.row.influence : `💪 ${Number(props.row.influence).toFixed(2)}` }}
         </div>
       </o-table-column>
 
@@ -157,11 +157,10 @@ import {
   // inject,
   ref,
   //   reactive,
-  //   computed,
   watch,
   onUnmounted,
   Ref,
-  shallowRef
+  shallowRef,
 } from 'vue'
 
 export default defineComponent({
@@ -340,7 +339,9 @@ export default defineComponent({
     }
     
     const checkReallyBanned = async (account: string) => {
-             const req = await fetch(
+      const arrAcc = data.value.find((item) => account === item.account) as unknown as Record<string, string | number | boolean>
+        arrAcc.influence = 'loading...'
+        const req = await fetch(
         `${API_BASE}/accounts/${account}`,
         {
           method: 'GET',
@@ -351,13 +352,16 @@ export default defineComponent({
       )
 
       if (!req.ok) {
-         return false
+         arrAcc.influence = '🤔 N/A'
+         console.log(`Request failed with status ${req.status}`)
       }
       const acc = await req.json()
-      if (acc.weights < 20) {
-        return true
+      console.log(Number(acc.weight))
+      if (Number(acc.weight) < 20) {
+        arrAcc.influence = '🥀 Banned'
+        return
       }
-       return false
+      arrAcc.influence = '🤔 N/A'
     }
 
     store.$subscribe(() => {
@@ -433,7 +437,7 @@ export default defineComponent({
       openGiniDialog,
       apiError,
       giniDataValues,
-      checkReallyBanned
+      checkReallyBanned,
     }
   }
 })
