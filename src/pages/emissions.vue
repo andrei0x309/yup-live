@@ -30,10 +30,10 @@
       <h2 class="text-2xl lg:text-3xl font-bold text-center mb-4 md:mb-6 p-12">YUP Final Phase Emissions:</h2>
       <div class="blob-space">
         <div :class="`blob ${blobAnim ? 'blob-anim' : ''}`" @click="toggleBlob()">
-          <div class="blob-text"><span class="sum">10K</span><span>Daily</span><span class="-mt-6">Infaltion</span></div>
+          <div class="blob-text"><span class="sum">10K</span><span>Daily</span><span class="-mt-6">Inflation</span></div>
         </div>
       </div>
-      <p class="chart-ins -mt-6">Click blob to toggle stop/start animmation.</p>
+      <p class="chart-ins -mt-6">Click blob to toggle stop/start animation.</p>
     </section>
   </div>
 </template>
