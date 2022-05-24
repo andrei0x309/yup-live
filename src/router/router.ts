@@ -49,9 +49,9 @@ const routes = [
     component: () => import('@/pages/emissions.vue')
   },
   {
-    path: '/gini/plot',
-    name: 'GiniPlot',
-    component: () => import('@/components/content/python-curve-modal.vue')
+    path: '/raw-influence',
+    name: 'RawInfluence',
+    component: () => import('@/pages/raw-influnece.vue')
   },
   // {
   //   path: "/meeting-recording/:id",

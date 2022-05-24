@@ -58,6 +58,11 @@ export default defineComponent({
       required: false,
       type: String,
       default: '3rem'
+    },
+    unset: {
+      required: false,
+      type: Boolean,
+      default: false
     }
   },
   setup() {
@@ -89,7 +94,7 @@ $time: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: absolute;
+  position: v-bind("unset ? 'unset' : 'absolute'");
   top: 40%;
   left: 45%;
   opacity: 1;
