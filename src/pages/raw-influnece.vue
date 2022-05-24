@@ -91,6 +91,7 @@ export default defineComponent({
 
     const searchRawInf = async () => {
       isDataLoading.value = true
+      apiError.value = false
       const reqAcc = await fetch(
         `${API_BASE}/accounts/${search.value}`,
         {
@@ -126,7 +127,6 @@ export default defineComponent({
       const rawInf = await reqRawInf.json()
       influence.value = rawInf.influence
       isDataLoading.value = false
-
     }
 
 
