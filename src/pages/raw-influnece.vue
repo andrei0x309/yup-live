@@ -68,7 +68,7 @@ export default defineComponent({
   const apiErrorMsg = ref('')
   const userId = ref('')
   const isDataLoading = ref(false)
-  const influence = ref(null)
+  const influence: Ref<null|string> = ref(null)
 
   const siteData = reactive({
       title: `YUP Live - Check your raw influence`,
@@ -125,7 +125,7 @@ export default defineComponent({
         return
       }
       const rawInf = await reqRawInf.json()
-      influence.value = rawInf.influence
+      influence.value = Number(rawInf.influence).toFixed(2)
       isDataLoading.value = false
     }
 
