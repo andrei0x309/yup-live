@@ -235,6 +235,10 @@ export default defineComponent({
         href: '/'
       },
       {
+        text: 'Check Raw Influence',
+        href: '/raw-influence'
+      },
+      {
         text: 'POAP App',
         href: 'https://yup-poap.pages.dev'
       },

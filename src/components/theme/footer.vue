@@ -10,7 +10,7 @@
           <a href="https://docs.yup.io" class="text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
             >YUP Docs</a
           >
-          <a href="https://yup.live/" class="text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
+          <a href="https://yup-live.pages.dev/" class="text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
             >YUP Live</a
           >
           <a href="https://forum.yup.io" class="text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
