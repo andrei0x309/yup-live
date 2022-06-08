@@ -325,7 +325,14 @@ export default defineComponent({
       if (giniData.value.length === 0) {
         giniData.value = await getGiniData()
       }
-      exportFile(`Rewards ${tableTimePeriod.value}.csv`, convertToCSV(giniData.value), 'csv')
+
+      const withHeader = [{
+        acc: 'Account',
+        reward_received: 'YUP Reward Received',
+        raw_influence: 'Raw Influence',
+      }, ...giniData.value]
+
+      exportFile(`Rewards ${tableTimePeriod.value}.csv`, convertToCSV(withHeader), 'csv')
       btnLoaders.value.exportCSV = false
     }
 
