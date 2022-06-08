@@ -70,15 +70,17 @@ import {
 } from 'vue'
 
 export default defineComponent({
-  name: 'VoteList',
+  name: 'GiniWeeks',
   components: { DangLoader },
   setup() {
     const API_BASE = import.meta.env.VITE_YUP_API_BASE
     // const API_BASE = "http://localhost:4001"
 
-    const weekText = ['Last Week']
-    for(let i = 2; i <= 12; i++) {
-      weekText.push(`${i} Weeks Ago`)
+  const makeDateString = (dateStart: Date, dateEnd: Date) => `D:${dateStart.getUTCDate()} M:${dateStart.getUTCMonth() + 1} - D:${dateEnd.getUTCDate()} M:${dateEnd.getUTCMonth() + 1}`
+
+    const weekText = [makeDateString(new Date(), new Date(Date.now() - 7*8.64e+7))]
+    for(let i = 1; i <= 11; i++) {
+      weekText.push(makeDateString(new Date(Date.now() - (7*8.64e+7*i)), new Date(Date.now() - (7*8.64e+7*(i+1)))))
     }
     
     const apiError = ref(false)
