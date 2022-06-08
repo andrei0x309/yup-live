@@ -2,7 +2,7 @@
   <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
     <section class="bg-color emission-section mt-4">
       <h2 class="text-2xl lg:text-3xl font-bold text-center mb-4 md:mb-6 p-12">Yup Phase I Emissions:</h2>
-      <EmissionChart
+      <ChartD3
         :key="`${grid.breakpoint}-phase-one-${gradient.toString()}`"
         :svgWidth="svgWidth"
         :svgHeight="svgHeight"
@@ -15,7 +15,7 @@
 
     <section class="bg-color emission-section mt-4">
       <h2 class="text-2xl lg:text-3xl font-bold text-center mb-4 md:mb-6 p-12">Yup Phase II Emissions:</h2>
-      <EmissionChart
+      <ChartD3
         :key="`${grid.breakpoint}-phase-two-${gradient.toString()}`"
         :svgWidth="svgWidth"
         :svgHeight="svgHeight"
@@ -41,14 +41,14 @@
 <script lang="ts">
 import { onMounted, defineComponent, ref, reactive, computed, onUnmounted, Ref, watch } from 'vue'
 import { useHead, HeadObject } from '@vueuse/head'
-import EmissionChart from '@/components/content/emission-graph.vue'
+import ChartD3 from '@/components/content/chart-d3.vue'
 import { useMainStore } from '@/store/main'
 import { useGrid } from 'vue-screen'
 
 export default defineComponent({
   name: 'EmissionsPage',
   components: {
-    EmissionChart
+    ChartD3
   },
   setup() {
     const chartText = 'Select with mouse on chart to Zoom. DbClick to reset chart state.'

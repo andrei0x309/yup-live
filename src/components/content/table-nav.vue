@@ -38,9 +38,12 @@ export default defineComponent({
       {
         name: 'Rewards Gini Index',
         path: '/gini'
+      },
+      {
+        name: 'Recent Gini Trend',
+        path: '/gini-trend'
       }
     ]
-
     const linksWithoutActive = links.filter((link) => link.name !== props.linkActive)
     const dropActive = ref(false)
     const act = ref(props.linkActive)

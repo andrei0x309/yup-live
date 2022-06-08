@@ -8,7 +8,7 @@ import * as d3 from 'd3'
 import { onMounted, defineComponent, ref, Ref } from 'vue'
 
 export default defineComponent({
-  name: 'EmissionGraph',
+  name: 'ChartD3',
   props: {
     gradient: {
       required: true,
@@ -19,8 +19,14 @@ export default defineComponent({
       type: Number
     },
     csv: {
-      required: true,
-      type: String
+      required: false,
+      type: String,
+      default: ''
+    },
+    chartData: {
+      required: false,
+      type: Array,
+      default: () => []
     },
     svgWidth: {
       required: true,
@@ -34,8 +40,9 @@ export default defineComponent({
   setup(props) {
     const graphRef = ref(null) as unknown as Ref<HTMLElement>
 
-    const mountGraph = () => {
-      if (props.csv && graphRef.value) {
+    const mountGraph = async () => {
+       console.log('test data', props.chartData, props.maxPoint)
+      if (( props.csv || props.chartData.length) && graphRef.value) {
         if (graphRef.value != null) {
           graphRef.value.innerHTML = ''
         }
@@ -51,8 +58,10 @@ export default defineComponent({
           .attr('height', height + margin.top + margin.bottom)
           .append('g')
           .attr('transform', `translate(${margin.left},${margin.top})`)
-
-        d3.csv(
+        
+        let data: unknown
+        if (props.csv) {
+          data = await d3.csv(
           props.csv,
 
           (d: { date: unknown; value: unknown }) => {
@@ -61,7 +70,17 @@ export default defineComponent({
               value: d.value
             }
           }
-        ).then(function (data: unknown) {
+        )
+        } else {
+          data = props.chartData
+          data = (data as Array<{ date: Date, value: unknown }>).map((d: { date: unknown; value: unknown }) => {
+            return {
+              date: d3.timeParse('%Y-%m-%d')(d.date as string),
+              value: d.value
+            }
+          })
+        }
+ 
           const x = d3
             .scaleTime()
             .domain(d3.extent(data as never, (d: { date: string }) => d.date) as unknown as [Date, number])
@@ -70,7 +89,8 @@ export default defineComponent({
 
           const y = d3
             .scaleLinear()
-            .domain([0, d3.max(data as never, (d: { value: number }) => +d.value)] as unknown as [number, number])
+            // .domain([0, d3.max(data as never, (d: { value: number }) => +d.value)] as unknown as [number, number])
+            .domain([0, props.maxPoint] as unknown as [number, number])
             .range([height, 0])
           svg.append('g').call(d3.axisLeft(y))
 
@@ -110,6 +130,30 @@ export default defineComponent({
               return d.color
             } as unknown as string)
 
+          let idleTimeout: ReturnType<typeof setTimeout> | null = null
+          const idled = () => {
+            idleTimeout = null
+          }
+
+          const updateChart = (event: { selection: unknown }) => {
+            const extent = event.selection
+
+            if (!extent) {
+              if (!idleTimeout) return (idleTimeout = setTimeout(idled, 350))
+              x.domain([4, 8])
+            } else {
+              x.domain([x.invert((extent as unknown as number[])[0]), x.invert((extent as unknown as number[])[1])])
+              area.select('.brush').call((brush as unknown as { move: () => void }).move, null)
+            }
+
+            xAxis.transition().duration(1000).call(d3.axisBottom(x))
+            area
+              .select('.myArea')
+              .transition()
+              .duration(1000)
+              .attr('d', areaGenerator as unknown as () => string)
+          }
+
           const brush = d3
             .brushX()
             .extent([
@@ -137,30 +181,6 @@ export default defineComponent({
 
           area.append('g').attr('class', 'brush').call(brush)
 
-          let idleTimeout: ReturnType<typeof setTimeout> | null = null
-          function idled() {
-            idleTimeout = null
-          }
-
-          function updateChart(event: { selection: unknown }) {
-            const extent = event.selection
-
-            if (!extent) {
-              if (!idleTimeout) return (idleTimeout = setTimeout(idled, 350))
-              x.domain([4, 8])
-            } else {
-              x.domain([x.invert((extent as unknown as number[])[0]), x.invert((extent as unknown as number[])[1])])
-              area.select('.brush').call((brush as unknown as { move: () => void }).move, null)
-            }
-
-            xAxis.transition().duration(1000).call(d3.axisBottom(x))
-            area
-              .select('.myArea')
-              .transition()
-              .duration(1000)
-              .attr('d', areaGenerator as unknown as () => string)
-          }
-
           svg.on('dblclick', function () {
             x.domain(d3.extent(data as never, (d: { date: string }) => d.date) as unknown as [Date, number])
             xAxis.transition().call(d3.axisBottom(x))
@@ -169,7 +189,7 @@ export default defineComponent({
               .transition()
               .attr('d', areaGenerator as unknown as () => string)
           })
-        })
+         
       }
     }
 

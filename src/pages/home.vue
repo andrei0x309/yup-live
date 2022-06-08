@@ -6,6 +6,7 @@
     <Rewards v-if="pages.rewards === pageActive" :key="`rewards-${pageActive}`" :pageNum="pageNum" :type="(type as string)" />
     <Sellers v-if="pages.topSellers === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />
     <GiniWeeks v-if="pages.gini === pageActive" :key="`gini-${pageActive}`"/>
+    <GiniTrend v-if="pages.giniTrend === pageActive" :key="`gini-trend-${pageActive}`"/>
   </div>
 </template>
 
@@ -18,7 +19,9 @@ import Sellers from '@/components/content/top-sellers.vue'
 import TableNav from '@/components/content/table-nav.vue'
 import Rewards from '@/components/content/rewards-earners.vue'
 import GiniWeeks from '@/components/content/gini-weeks.vue'
+import GiniTrend from '@/components/content/gini-trend.vue'
 import { useRoute, useRouter } from 'vue-router'
+
 
 export default defineComponent({
   name: 'HomePage',
@@ -28,8 +31,9 @@ export default defineComponent({
     Rewards,
     Sellers,
     TableNav,
-    GiniWeeks
-  },
+    GiniWeeks,
+    GiniTrend
+},
   setup() {
     const route = useRoute()
     const router = useRouter()
@@ -40,6 +44,7 @@ export default defineComponent({
       rewards: 'Top Rewards',
       topSellers: 'Top Sellers',
       gini: 'Rewards Gini Index',
+      giniTrend: 'Recent Gini Trend',
       default: 'Vote List'
     }
 
@@ -53,6 +58,8 @@ export default defineComponent({
           return pages.topSellers
         case '/gini':
           return pages.gini
+        case '/gini-trend':
+          return pages.giniTrend
         default:
           return pages.default
       }

@@ -44,6 +44,11 @@ const routes = [
     component: HomePage
   },
   {
+    path: '/gini-trend',
+    name: 'Gini Trend',
+    component: HomePage
+  },
+  {
     path: '/emissions',
     name: 'EmissionsPage',
     component: () => import('@/pages/emissions.vue')
