@@ -259,7 +259,7 @@ export default defineComponent({
         yup_sold: 'YUP Sold',
         eth_recived: 'ETH Recived',
         account: 'Account',
-        related_accounts: 'Related Accounts'
+        related_accounts_full: 'Related Accounts'
       }, ...allSellers.value]
 
       exportFile(`TOP Sellers.csv`, convertToCSV(withHeader.map( v => {
