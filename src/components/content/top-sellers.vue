@@ -21,7 +21,7 @@
           {{ props.row.account }}
         </div>
         <div v-else class="inline">
-          <a v-if="!props.row.account.includes(',')" :href="`https://app.yup.io/${props.row.account}`" rel="nofollow" target="_blank">
+          <a v-if="!props.row.account.includes(',')" :href="`https://app.yup.io/account/${props.row.account}`" rel="nofollow" target="_blank">
             <UserIcon :key="iconsColor" :color="iconsColor" />
             {{ props.row.account }}</a
           >

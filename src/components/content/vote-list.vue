@@ -18,7 +18,7 @@
       </o-table-column>
 
       <o-table-column v-slot="props" field="voter" label="USER">
-        <a :href="`https://app.yup.io/${props.row.voter}`" rel="nofollow" target="_blank">
+        <a :href="`https://app.yup.io/account/${props.row.voter}`" rel="nofollow" target="_blank">
           <UserIcon :key="iconsColor" :color="iconsColor" />
           {{ props.row.voter }}</a
         >
