@@ -31,14 +31,14 @@
         >
       </o-table-column>
 
-      <o-table-column v-slot="props" field="rating" label="RATING">
+      <o-table-column v-slot="props" field="rating" label="SENTIMENT">
         <div class="inline">
-          <CatEmoji
+          <!-- <CatEmoji
             v-if="props.row.category"
             :key="`cat-${props.row.voter}-${props.row.like}-${props.row.category}`"
             :category="props.row.category"
-          />
-          <Dots :key="`dot-${props.row.voter}-${props.row.like}-${props.row.category}-${props.row.rating}`" :vote="props.row" />
+          /> -->
+          <Thumbs :key="`dot-${props.row.voter}-${props.row.like}-${props.row.rating}`" :vote="props.row" />
         </div>
       </o-table-column>
 
@@ -66,8 +66,8 @@
 
 <script lang="ts">
 // import { useRoute, useRouter } from 'vue-router'
-import Dots from '@/components/content/vote-list/dots.vue'
-import CatEmoji from '@/components/content/vote-list/category.vue'
+import Thumbs from '@/components/content/vote-list/thumbs.vue'
+// import CatEmoji from '@/components/content/vote-list/category.vue'
 import DangLoader from '@/components/content/vote-list/loader.vue'
 import UserIcon from '@/components/content/icons/user.vue'
 import DateIcon from '@/components/content/icons/date.vue'
@@ -87,7 +87,7 @@ import {
 
 export default defineComponent({
   name: 'VoteList',
-  components: { CatEmoji, Dots, DangLoader, UserIcon, DateIcon, LinkIcon },
+  components: { Thumbs, DangLoader, UserIcon, DateIcon, LinkIcon },
   props: {
     pageNum: {
       required: true,
