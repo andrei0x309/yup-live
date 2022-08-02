@@ -191,7 +191,7 @@ export default defineComponent({
           timestamp: new Date(Number((vote as { timestamp: string }).timestamp)).toLocaleString(),
           rating: (vote as { rating: number }).rating,
           tag: (vote as { post: { tag: string } }).post.tag,
-          url: (vote as { post: { caption: string } }).post.caption,
+          url: (vote as { post: { url: string } }).post.url,
           category: (vote as { category: string }).category,
           voter: (vote as { voter: string }).voter,
           like: (vote as { like: boolean }).like
