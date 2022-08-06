@@ -8,7 +8,7 @@ export default class EthereumRpc {
         this.provider = provider;
     }
 
-    async getChainId (): Promise<any> {
+    async getChainId (): Promise<unknown> {
         try {
             const ethersProvider = new ethers.providers.Web3Provider(this.provider);
             // Get the connected Chain's ID
@@ -19,7 +19,7 @@ export default class EthereumRpc {
         }
     }
 
-    async getAccounts (): Promise<any> {
+    async getAccounts (): Promise<unknown> {
         try {
             const ethersProvider = new ethers.providers.Web3Provider(this.provider);
             const signer = ethersProvider.getSigner();
@@ -52,7 +52,7 @@ export default class EthereumRpc {
         }
     }
 
-    async sendTransaction (): Promise<any> {
+    async sendTransaction (): Promise<unknown> {
         try {
             const ethersProvider = new ethers.providers.Web3Provider(this.provider);
             const signer = ethersProvider.getSigner();

@@ -38,13 +38,13 @@
 
 <script lang="ts">
 
-import { ref, onMounted } from "vue";
+import { ref, onMounted, Ref, defineComponent } from "vue";
 import { Web3Auth } from "@web3auth/web3auth";
 import { WALLET_ADAPTERS, CHAIN_NAMESPACES, SafeEventEmitterProvider } from "@web3auth/base";
 import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
-import RPC from "./ethersRPC";
+import RPC from "../utils/ethersRPC";
 
-export default {
+export default defineComponent({
   name: "Home",
   props: {
     msg: {
@@ -56,7 +56,7 @@ export default {
     const loading = ref<boolean>(false);
     const loginButtonStatus = ref<string>("");
     const connecting = ref<boolean>(false);
-    let provider = ref<SafeEventEmitterProvider | any>(null);
+    let provider = ref<SafeEventEmitterProvider | unknown>(null) as Ref<SafeEventEmitterProvider>;
     const clientId = "BF7Vr3M1qOC2-EIkKL0Nce8VRdhtD4EHKSQ23bVRqzbMOmbczledc7Tu1_Tj9uugqobyjSiGuROQX5mz1dhIzko"; // get from https://dashboard.web3auth.io
     const log =ref<string>("");
 
@@ -127,7 +127,7 @@ export default {
         console.log("web3auth not initialized yet");
         return;
       }
-      provider.value = await web3auth.connect();
+      provider.value = await web3auth.connect() as SafeEventEmitterProvider;
     };
 
     const getUserInfo = async () => {
@@ -145,7 +145,7 @@ export default {
         return;
       }
       await web3auth.logout();
-      provider.value = null;
+      provider.value = null as unknown as SafeEventEmitterProvider;
       log.value = "";
     };
 
@@ -225,7 +225,7 @@ export default {
       log
     };
   },
-};
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
