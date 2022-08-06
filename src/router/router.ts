@@ -58,6 +58,11 @@ const routes = [
     name: 'RawInfluence',
     component: () => import('@/pages/raw-influnece.vue')
   },
+  {
+    path: '/web3',
+    name: 'Web3Auth',
+    component: () => import('@/pages/web3Auth.vue')
+  },
   // {
   //   path: "/meeting-recording/:id",
   //   name: "SingleMeetingRecording",

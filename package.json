@@ -20,13 +20,21 @@
   "dependencies": {
     "@oruga-ui/oruga-next": "^0.5.4",
     "@vueuse/head": "^0.7.5",
+    "@web3auth/base": "^1.1.4",
+    "@web3auth/openlogin-adapter": "^1.1.4",
+    "@web3auth/web3auth": "^1.1.4",
+    "add": "^2.0.6",
     "d3": "^7.3.0",
     "d3-scale-chromatic": "^3.0.0",
+    "ethers": "^5.6.9",
     "gini": "^1.1.7",
     "pinia": "^2.0.12",
+    "rollup-plugin-polyfill-node": "^0.10.2",
+    "stream-browserify": "^3.0.0",
     "vue": "^3.2.25",
     "vue-router": "^4.0.14",
-    "vue-screen": "^2.1.0-beta.1"
+    "vue-screen": "^2.1.0-beta.1",
+    "yarn": "^1.22.19"
   },
   "devDependencies": {
     "@types/d3": "^7.1.0",
