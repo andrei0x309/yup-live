@@ -17,34 +17,27 @@
 
       <o-table-column v-slot="props" field="accounts" label="USER">
         <div class="inline">
-        <template v-if="props.row.accounts[0] === 'loading...'">
-          {{ props.row.accounts[0] }}
-        </template>
-        <a v-else-if="props.row.accounts !== 'unknown'" :href="`https://app.yup.io/account/${props.row.accounts[0]}`" rel="nofollow" target="_blank">
-          <UserIcon :key="iconsColor" class="sIcon" :color="iconsColor" />
-          {{ props.row.accounts[0] }}
-        </a>
-         <template v-else>
-          <UserIcon :key="iconsColor" class="sIcon" :color="iconsColor" />
+          <template v-if="props.row.accounts[0] === 'loading...'">
+            {{ props.row.accounts[0] }}
+          </template>
+          <a v-else-if="props.row.accounts !== 'unknown'" :href="`/profile/${props.row.accounts[0]}`" rel="nofollow" target="_blank">
+            <UserIcon :key="iconsColor" class="sIcon" :color="iconsColor" />
+            {{ props.row.accounts[0] }}
+          </a>
+          <template v-else>
+            <UserIcon :key="iconsColor" class="sIcon" :color="iconsColor" />
             {{ props.row.accounts[0] }}
           </template>
           <span v-if="props.row.accounts.length > 1">
-                  <o-tooltip
-          v-if="props.row.related_accounts.no > 0"
-          :triggers="['click']"
-          :autoClose="['outside', 'escape']"
-          :multiline="true"
-        >
-          <template #content>
-            <div class="inline" style="font-size: 0.81rem">
-              <p class="p-2">Other accounts asociated with this address: </p>
-              <p v-for="acc of props.row.accounts.slice(1)" :key="acc">{{acc}}</p>
-            </div>
-          </template>
-          <div role="button" class="inline">
-           &nbsp;<InfoIcon :key="iconsColor" class="sIcon" :color="iconsColor" />
-          </div>
-        </o-tooltip>
+            <o-tooltip v-if="props.row.related_accounts.no > 0" :triggers="['click']" :autoClose="['outside', 'escape']" :multiline="true">
+              <template #content>
+                <div class="inline" style="font-size: 0.81rem">
+                  <p class="p-2">Other accounts asociated with this address:</p>
+                  <p v-for="acc of props.row.accounts.slice(1)" :key="acc">{{ acc }}</p>
+                </div>
+              </template>
+              <div role="button" class="inline">&nbsp;<InfoIcon :key="iconsColor" class="sIcon" :color="iconsColor" /></div>
+            </o-tooltip>
           </span>
         </div>
       </o-table-column>
@@ -64,46 +57,36 @@
       </o-table-column>
 
       <o-table-column v-slot="props" field="relatedAcc" label="Related Acc">
-        <o-tooltip
-          v-if="props.row.related_accounts.no > 0"
-          :triggers="['click']"
-          :autoClose="['outside', 'escape']"
-          :multiline="true"
-        >
+        <o-tooltip v-if="props.row.related_accounts.no > 0" :triggers="['click']" :autoClose="['outside', 'escape']" :multiline="true">
           <template #content>
             <div class="inline" style="font-size: 0.81rem">
-              <p class="p-2">Accounts that have sent/recived yup from this account: </p>
-              <p v-for="acc of props.row.related_accounts.items" :key="acc">{{acc}}</p>
+              <p class="p-2">Accounts that have sent/recived yup from this account:</p>
+              <p v-for="acc of props.row.related_accounts.items" :key="acc">{{ acc }}</p>
             </div>
           </template>
           <div role="button" class="inline">
-          {{ props.row.related_accounts.no }} <InfoIcon :key="iconsColor" class="sIcon" :color="iconsColor" />
+            {{ props.row.related_accounts.no }} <InfoIcon :key="iconsColor" class="sIcon" :color="iconsColor" />
           </div>
         </o-tooltip>
         <div v-else class="inline">
-          {{ props.row.related_accounts.no }} 
+          {{ props.row.related_accounts.no }}
         </div>
       </o-table-column>
 
-            <o-table-column v-slot="props" field="relatedAddr" label="Related Addr">
-        <o-tooltip
-          v-if="props.row.related_addresses.no > 0"
-          :triggers="['click']"
-          :autoClose="['outside', 'escape']"
-          :multiline="true"
-        >
+      <o-table-column v-slot="props" field="relatedAddr" label="Related Addr">
+        <o-tooltip v-if="props.row.related_addresses.no > 0" :triggers="['click']" :autoClose="['outside', 'escape']" :multiline="true">
           <template #content>
             <div class="inline" style="font-size: 0.81rem">
-              <p class="p-2">Addresses that have sent/recived yup from this account: </p>
-              <p v-for="addr of props.row.related_addresses.items" :key="addr">{{addr}}</p>
+              <p class="p-2">Addresses that have sent/recived yup from this account:</p>
+              <p v-for="addr of props.row.related_addresses.items" :key="addr">{{ addr }}</p>
             </div>
           </template>
           <div role="button" class="inline">
-          {{ props.row.related_addresses.no }} <InfoIcon :key="iconsColor" class="sIcon" :color="iconsColor" />
+            {{ props.row.related_addresses.no }} <InfoIcon :key="iconsColor" class="sIcon" :color="iconsColor" />
           </div>
         </o-tooltip>
         <div v-else class="inline">
-          {{ props.row.related_addresses.no }} 
+          {{ props.row.related_addresses.no }}
         </div>
       </o-table-column>
 
@@ -113,18 +96,20 @@
     </o-table>
     <hr class="hr" />
     <div class="pag">
-    <p v-if="lastBlockProcesed && blockTime" class="time" style="top: 1rem;right: 20rem"
-    ><QuickSwapIcon class="sIcon" style="width: 1.14rem" /> QuickSwap sells get processed from time to time, last block processed: <b>{{ lastBlockProcesed }}</b> at <b>{{ blockTime }}</b></p>
+      <p v-if="lastBlockProcesed && blockTime" class="time" style="top: 1rem; right: 20rem">
+        <QuickSwapIcon class="sIcon" style="width: 1.14rem" /> QuickSwap sells get processed from time to time, last block processed:
+        <b>{{ lastBlockProcesed }}</b> at <b>{{ blockTime }}</b>
+      </p>
       <div class="pages">
-      <router-link :to="`/sellers/page/${curPage - 1 > 0 ? curPage - 1 : 1}`">
-        <o-button :class="`btn`" @click="curPage - 1 > 0 ? setCurentPage(curPage - 1) : null">⏴</o-button>
-      </router-link>
-      <router-link v-for="i in 5" :key="i" :to="`/sellers/page/${i}`">
-        <o-button :class="`btn ${i === curPage ? 'active' : ''}`" @click="setCurentPage(i)">{{ i }}</o-button>
-      </router-link>
-      <router-link :to="`/sellers/page/${curPage + 1 > 4 ? 5 : curPage + 1}`">
-        <o-button :class="`btn`" @click="curPage + 1 > 5 ? null : setCurentPage(curPage + 1)">⏵</o-button>
-      </router-link>
+        <router-link :to="`/sellers/page/${curPage - 1 > 0 ? curPage - 1 : 1}`">
+          <o-button :class="`btn`" @click="curPage - 1 > 0 ? setCurentPage(curPage - 1) : null">⏴</o-button>
+        </router-link>
+        <router-link v-for="i in 5" :key="i" :to="`/sellers/page/${i}`">
+          <o-button :class="`btn ${i === curPage ? 'active' : ''}`" @click="setCurentPage(i)">{{ i }}</o-button>
+        </router-link>
+        <router-link :to="`/sellers/page/${curPage + 1 > 4 ? 5 : curPage + 1}`">
+          <o-button :class="`btn`" @click="curPage + 1 > 5 ? null : setCurentPage(curPage + 1)">⏵</o-button>
+        </router-link>
       </div>
     </div>
     <div class="mt-2">
@@ -225,13 +210,21 @@ export default defineComponent({
     }
 
     const prepareSellersObj = (item: Record<string, string | number>) => {
-      let relAcc = ((item?.related_accounts ?? '[]') as string).replace('[', '').replace(']', '').split(',').filter((item) => item !== '')
+      const relAcc = ((item?.related_accounts ?? '[]') as string)
+        .replace('[', '')
+        .replace(']', '')
+        .split(',')
+        .filter((item) => item !== '')
       let relAccProc
-      let relAddr = ((item?.related_addresses ?? '[]') as string).replace('[', '').replace(']', '').split(',').filter((item) => item !== '')
+      const relAddr = ((item?.related_addresses ?? '[]') as string)
+        .replace('[', '')
+        .replace(']', '')
+        .split(',')
+        .filter((item) => item !== '')
       let relAddrProc
-      if (relAcc.length > 0){
+      if (relAcc.length > 0) {
         relAccProc = {
-          items: relAcc.map(acc => acc.trim()),
+          items: relAcc.map((acc) => acc.trim()),
           no: relAcc.length
         }
       } else {
@@ -242,9 +235,9 @@ export default defineComponent({
       }
       console.log(relAccProc)
 
-      if (relAddr.length > 0){
+      if (relAddr.length > 0) {
         relAddrProc = {
-          items: relAddr.map(acc => acc.trim()),
+          items: relAddr.map((acc) => acc.trim()),
           no: relAddr.length
         }
       } else {
@@ -254,12 +247,12 @@ export default defineComponent({
         }
       }
 
-      let accounts =  [] as string[]
+      let accounts = [] as string[]
       const accs = item.account as string
       if (accs.includes(',')) {
         accounts = accs.split(',')
-        if(accounts.length > 1) {
-          if( accounts.includes('unknown')) {
+        if (accounts.length > 1) {
+          if (accounts.includes('unknown')) {
             accounts.splice(accounts.indexOf('unknown'), 1)
           }
         }
@@ -290,7 +283,6 @@ export default defineComponent({
 
       return (await req.json()).data[0]
     }
-
 
     const getSellers = async (page: number) => {
       if (!page || page < 1) {
@@ -351,26 +343,35 @@ export default defineComponent({
         await getAllTopSellers()
       }
 
-      const withHeader = [{
-        address: 'Address',
-        yup_sold: 'YUP Sold',
-        eth_recived: 'ETH Recived',
-        account: 'Account',
-        related_accounts: 'Related Accounts'
-      }, ...allSellers.value]
+      const withHeader = [
+        {
+          address: 'Address',
+          yup_sold: 'YUP Sold',
+          eth_recived: 'ETH Recived',
+          account: 'Account',
+          related_accounts: 'Related Accounts'
+        },
+        ...allSellers.value
+      ]
 
-      exportFile(`TOP Sellers.csv`, convertToCSV(withHeader.map( v => {
-        v.account = (v.account as string).replace(/,/gm, ' ')
-        v.related_accounts_full = (v.related_accounts_full as string).replace(/,/gm, ' ')
-        return {
-          address: v.address,
-          yup_sold: v.yup_sold,
-          eth_recived: v.eth_recived,
-          account: v.account,
-          related_accounts: v.related_accounts_full,
-          related_addresss: v.related_addresss
-        }
-      })), 'csv')
+      exportFile(
+        `TOP Sellers.csv`,
+        convertToCSV(
+          withHeader.map((v) => {
+            v.account = (v.account as string).replace(/,/gm, ' ')
+            v.related_accounts_full = (v.related_accounts_full as string).replace(/,/gm, ' ')
+            return {
+              address: v.address,
+              yup_sold: v.yup_sold,
+              eth_recived: v.eth_recived,
+              account: v.account,
+              related_accounts: v.related_accounts_full,
+              related_addresss: v.related_addresss
+            }
+          })
+        ),
+        'csv'
+      )
       btnLoaders.value.exportCSV = false
     }
 
@@ -403,12 +404,12 @@ export default defineComponent({
 <style lang="scss">
 .table-list.sellers {
   font-size: 0.8rem;
-  
+
   .sIcon {
     position: relative;
     top: -0.1rem;
   }
-  
+
   .pag {
     display: flex;
     justify-content: space-between;
@@ -427,15 +428,6 @@ export default defineComponent({
   }
   .o-table__td {
     text-align: center;
-  }
-
-  .o-tip__content {
-    word-break: normal;
-    min-width: 15rem;
-    background-color: var(--glassBg);
-    color: aliceblue;
-    border-radius: 4px;
-    padding: 0.5rem;
   }
 }
 </style>

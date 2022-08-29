@@ -28,16 +28,17 @@
 import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref } from 'vue'
 import { useHead, HeadObject } from '@vueuse/head'
 import { useRoute, useRouter } from 'vue-router'
-import { useGrid } from 'vue-screen'
+// import { useGrid } from 'vue-screen'
 
 export default defineComponent({
-  name: 'HomePage',
+  name: 'ErrorPage',
   components: {
   },
   setup() {
     const route = useRoute()
     const router = useRouter()
-	const grid = useGrid('tailwind')
+	// const grid = useGrid('tailwind')
+	const isMobile = false
 
     const internalErrors  : { [key: string]: { code: string, message: string } } = {
         '404': {
@@ -50,9 +51,9 @@ export default defineComponent({
         }
     }
 
-	const isMobile = computed(() => {
-		return !grid['md']
-	})
+	// const isMobile = computed(() => {
+	// 	return !grid['md']
+	// })
 
     let code = route.params.code as string
 	if(!code) code = '404'

@@ -1,5 +1,5 @@
 <template>
-<span>{{ thumbs }}</span>
+<span style="opacity: 0.7;">{{ thumbs }}</span>
 </template>
 
 <script lang="ts">

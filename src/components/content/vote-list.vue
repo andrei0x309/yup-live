@@ -8,7 +8,6 @@
       :mobile-cards="hasMobileCards" -->
 
   <div class="bg-color table-list w-full mb-4">
-    <TableNav linkActive="Vote List" />
     <o-table :data="data" :tableClass="`lg:pl-8 ${isTableLoading ? 'tableLoading' : ''}`" :loading="isTableLoading">
       <o-table-column v-slot="props" field="timestamp" label="TIME">
         <div class="inline">
@@ -18,7 +17,7 @@
       </o-table-column>
 
       <o-table-column v-slot="props" field="voter" label="USER">
-        <a :href="`https://app.yup.io/account/${props.row.voter}`" rel="nofollow" target="_blank">
+        <a :href="`/profile/${props.row.voter}`" target="_blank">
           <UserIcon :key="iconsColor" :color="iconsColor" />
           {{ props.row.voter }}</a
         >

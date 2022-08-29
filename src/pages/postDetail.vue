@@ -1,0 +1,103 @@
+<template>
+  <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
+    <div class="bg-color table-list w-full mb-4">
+      <h2>Post: {{ postId }}</h2>
+      <DangLoader v-if="isDataLoading" />
+      <Post v-else :id="postId" :post="processedPost" />
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref, ref } from 'vue'
+import { useHead, HeadObject } from '@vueuse/head'
+import DangLoader from '@/components/content/vote-list/loader.vue'
+import { useRoute } from 'vue-router'
+import Post from '@/components/content/post/post.vue'
+
+// import { useMainStore } from '@/store/main'
+
+export default defineComponent({
+  name: 'PostDetail',
+  components: {
+    DangLoader,
+    Post
+  },
+  props: {
+    post: {
+      type: Object,
+      required: false,
+      default: () => ({})
+    }
+  },
+  setup(props) {
+    const API_BASE = import.meta.env.VITE_YUP_API_BASE
+    const route = useRoute()
+    const postId = ref(route.params.postId as string)
+    // const store = useMainStore()
+    const isDataLoading = ref(true)
+    const processedPost = ref(props.post)
+
+    const siteData = reactive({
+      title: `YUP Post: ${processedPost.value.title}`,
+      description: `${processedPost.value.title}`
+    })
+
+    useHead({
+      title: computed(() => siteData.title),
+      description: computed(() => siteData.description)
+    } as unknown as Ref<HeadObject>)
+
+    const getPostbyId = async (postId: string) => {
+      const req = await fetch(`${API_BASE}/posts/post/${postId}`)
+      if (req.ok) {
+        return await req.json()
+      } else {
+        console.error(req)
+      }
+    }
+
+    onMounted(async () => {
+      if (!props?.post?._id?.postid) {
+        processedPost.value = await getPostbyId(postId.value)
+        console.log(processedPost.value)
+        postId.value = processedPost.value._id.postid
+        isDataLoading.value = false
+      } else {
+        isDataLoading.value = false
+      }
+    })
+
+    onUnmounted(() => {
+      // do nothing
+    })
+
+    return {
+      isDataLoading,
+      processedPost,
+      postId
+    }
+  }
+})
+</script>
+
+<style lang="scss">
+.table-list {
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-top: 2rem;
+  }
+
+  table {
+    margin-top: 2rem;
+  }
+
+  table tr td {
+    padding-bottom: 0.7rem;
+    padding-top: 0.7rem;
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
+  }
+}
+</style>

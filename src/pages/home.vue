@@ -129,7 +129,7 @@ export default defineComponent({
   min-height: 18rem;
   color: #1b1b1b;
   font-size: 0.96rem;
-  font-weight: bold;
+  font-weight: 200;
   text-align: center;
   display: grid;
   flex-direction: column;
@@ -179,7 +179,7 @@ export default defineComponent({
   margin-top: 0.5rem;
 }
 
-html[class='dark'] .table-list {
+html[class='dark'] .table-list, html[class='dark'] .bg-color  {
   color: #d9d9d9;
   box-shadow: 0.2rem 0.5rem 0rem #1b1b1b;
 

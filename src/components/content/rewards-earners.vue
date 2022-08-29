@@ -31,7 +31,7 @@
       </o-table-column>
 
       <o-table-column v-slot="props" field="account" label="USER">
-        <a :href="`https://app.yup.io/account/${props.row.account}`" rel="nofollow" target="_blank">
+        <a :href="`/profile/${props.row.account}`" target="_blank">
           <UserIcon :key="iconsColor" :color="iconsColor" />
           {{ props.row.account }}</a
         >
@@ -134,7 +134,7 @@
 		</div>
   </template>
   </div>
-  <o-modal v-model:active="giniDialog" contentClass="pyModal">
+  <o-modal v-model:active="giniDialog" contentClass="modal-body">
        <DangLoader v-if="pyCompNotLoaded" />
       <component :is="!pyCompNotLoaded ? refDynComp : undefined" :key="periodType" :data="giniDataValues" />
   </o-modal>
@@ -150,6 +150,7 @@ import BtnSpinner from '@/components/content/icons/btnSpinner.vue'
 import FileDownloadIcon from '@/components/content/icons/fileDownload.vue'
 import { useMainStore } from '@/store/main'
 import { gini, exportFile, convertToCSV } from '@/utils'
+import type { dComponent } from '@/types/vue'
 
 import {
   onMounted,
@@ -199,7 +200,6 @@ export default defineComponent({
     const giniDialog = ref(false)
     const giniData: Ref<Array<unknown>> = ref([])
     const giniDataValues: Ref<Array<number>> = ref([])
-    type dComponent = undefined | ReturnType<typeof defineComponent>
     const refDynComp: Ref<dComponent> = shallowRef(undefined)
     const pyCompNotLoaded = ref(true)
     const apiError = ref(false)
@@ -298,8 +298,8 @@ export default defineComponent({
     const getTableData = async (pageNum: number) => {
       isTableLoading.value = true
       data.value = makeLoadingData()
-      let startDate = new Date()
-      let endDate = new Date()
+      const startDate = new Date()
+      const endDate = new Date()
       switch (periodType.value) {
         case 'week':
           startDate.setDate(startDate.getDate() - 7 * Number(timePeriod.value))
@@ -488,12 +488,5 @@ export default defineComponent({
 }
 .acbtn {
   opacity: 0.85;
-}
-.pyModal {
-  background: transparent;
-  min-width: 60vw;
-  max-width: 90vw;
-  min-height: 50vh;
-  color: var(--textColor);
 }
 </style>

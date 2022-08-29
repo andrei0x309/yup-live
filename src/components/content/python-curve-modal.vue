@@ -74,7 +74,9 @@ export default defineComponent({
     const hookConsole = () => {
       const stdlog = console.log.bind(console);
         console.log = function(){
+        // eslint-disable-next-line prefer-rest-params
         loadingMsg.value.push(Array.from(arguments).join(' '));
+        // eslint-disable-next-line prefer-rest-params
         stdlog.apply(console, arguments as unknown as unknown[]);
     }
     }
@@ -174,7 +176,7 @@ fig
   margin-top: 0.2rem;
   min-height: 18rem;
   font-size: 0.96rem;
-  font-weight: bold;
+  font-weight: 200;
   text-align: center;
   display: grid;
   flex-direction: column;

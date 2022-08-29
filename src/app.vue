@@ -1,46 +1,53 @@
 <template>
-  <template v-if="!isSingle">
-  <Header />
+  <HeaderComp />
   <main class="content">
     <router-view />
   </main>
-  <Footer />
-  </template>
-  <template v-else>
-  <router-view />
-  </template>
+  <FooterCom />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Header from '@/components/theme/header.vue'
-import Footer from '@/components/theme/footer.vue'
+import HeaderComp from '@/components/theme/header.vue'
+import FooterCom from '@/components/theme/footer.vue'
 import { getThemeMode } from './utils'
-import { ref, onBeforeMount } from 'vue'
-  
+import { onBeforeMount } from 'vue'
+import { useMainStore } from '@/store/main'
+import { useCollectionStore, getCollections } from './store/collections'
+import type { ICollection } from '@/types/store'
+
 export default defineComponent({
   name: 'App',
   components: {
-    Header,
-    Footer
+    HeaderComp,
+    FooterCom
   },
   setup() {
     ;(function setTheme() {
       document.documentElement.setAttribute('class', getThemeMode())
     })()
-    const isSingle = ref(false)
-    onBeforeMount(() => {
-    const params = new Proxy(new URLSearchParams(window.location.search), {
-      get: (searchParams, prop) => searchParams.get(prop as unknown as string),
-    })
-      // @ts-expect-error single doesn't exist
-      isSingle.value = params.single === '1'
-    })
-      
+    const mainStore = useMainStore()
+    const collectionStore = useCollectionStore()
 
-    return {
-      isSingle
-    }
+    onBeforeMount(() => {
+      try {
+        if (localStorage.getItem('address')) {
+          mainStore.userData.address = localStorage.getItem('address') as string
+          mainStore.userData.account = localStorage.getItem('account') || ''
+          mainStore.userData.signature = localStorage.getItem('signature') || ''
+          mainStore.userData.avatar = localStorage.getItem('avatar') || ''
+          mainStore.isLoggedIn = true
+          collectionStore.collectionsPromise = getCollections(collectionStore, mainStore.userData.account) as Promise<ICollection[]>
+        }
+      } catch (error) {
+        console.error('Failed, to set store', error)
+      }
+    })
+
+    // onMounted(() => {
+    //   console.log('isAuth', isLoggedIn.value)
+    //   console.log(instance)
+    // })
   }
 })
 </script>
@@ -48,10 +55,16 @@ export default defineComponent({
 <style lang="scss">
 html {
   transition: all 0.2s ease;
+
+  body {
+    background-color: var(--bg-content);
+  }
 }
 
 html {
-  --bg-color: #fff;
+  --bg-color: #c7bfb8eb;
+  --bg-content: #222222ba;
+  --logoBg: #ffffffcf;
 
   --headerColor1: #1f2937;
   --headerColor2: #9ca3af;
@@ -60,16 +73,19 @@ html {
   --glassTxt: #222;
   --glass-menu-bg: #fafafa7a;
   --heroShadow: rgba(31, 38, 135, 0.37);
+
   --bg: #333333;
   --bg-panel: #434343;
   --color-heading: #0077ff;
   --color-text: #b5b5b5;
-  --color-text-faded: #b5b5b5;
-  --color-text-faded2: #8a8a8a;
+  --color-text-faded: #565656;
+  --color-text-faded2: #4c4c4c;
 }
 
 html[class='dark'] {
   --bg-color: #111;
+  --bg-content: #222;
+  --logoBg: #080808cf;
 
   --headerColor1: #131313;
   --headerColor2: #151515;
@@ -88,14 +104,25 @@ html[class='dark'] {
 }
 
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Lora', serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  background-color: var(--bg-content);
+
+  .o-tip__content {
+    word-break: normal;
+    max-width: 15rem;
+    background-color: var(--glassBg);
+    color: aliceblue;
+    border-radius: 4px;
+    padding: 0.5rem;
+    opacity: 0.9;
+  }
 }
 
-.glass {
+.glass,
+#app .o-modal__content {
   background: var(--glassBg);
   color: var(--glassTxt);
   box-shadow: 0 8px 32px 0 var(--glassShadow);
@@ -127,7 +154,7 @@ html[class='dark'] {
 
 .content {
   min-height: 80vh;
-  background-color: #222;
+  padding-top: 4rem;
 }
 
 .page {
@@ -139,5 +166,15 @@ html[class='dark'] {
 .bg-color {
   background-color: var(--bg-color);
   transition: all 0.4s ease-in;
+}
+
+#app .o-modal__content {
+  background: var(--glass-menu-bg);
+  min-height: 50vh;
+  min-width: 40rem;
+  @media screen and (max-width: 768px) {
+    min-height: 80vh;
+    min-width: 100%;
+  }
 }
 </style>

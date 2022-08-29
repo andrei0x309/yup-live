@@ -1,22 +1,34 @@
 <template>
-  <div class="bg-color dark:text-white pt-4 sm:pt-10 lg:pt-12">
+  <div v-if="!disabledFooter" class="bg-color dark:text-white pt-4 sm:pt-10 lg:pt-12">
     <footer class="max-w-screen-2xl px-4 md:px-8 mx-auto">
-      <div class="footer-content flex flex-col md:flex-row justify-between items-center border-t border-b gap-4 py-6">
+      <div
+        class="footer-content flex flex-col md:flex-row justify-between items-center border-t border-b gap-4 py-6 border-gray-400 dark:border-gray-200"
+      >
         <!-- nav - start -->
         <nav class="flex flex-wrap justify-center md:justify-start gap-x-4 gap-y-2 md:gap-6">
-          <a href="https://app.yup.io" class="text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
+          <a
+            href="https://app.yup.io"
+            class="text-gray-600 dark:text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
             >YUP APP</a
           >
-          <a href="https://docs.yup.io" class="text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
+          <a
+            href="https://docs.yup.io"
+            class="text-gray-600 dark:text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
             >YUP Docs</a
           >
-          <a href="https://yup-live.pages.dev/" class="text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
+          <a
+            href="https://yup-live.pages.dev/"
+            class="text-gray-600 dark:text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
             >YUP Live</a
           >
-          <a href="https://forum.yup.io" class="text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
+          <a
+            href="https://forum.yup.io"
+            class="text-gray-600 dark:text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
             >YUP Forum</a
           >
-          <a href="https://app.yup.io/staking" class="text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
+          <a
+            href="https://app.yup.io/staking"
+            class="text-gray-600 dark:text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
             >YUP Staking</a
           >
         </nav>
@@ -24,10 +36,42 @@
 
         <!-- social - start -->
         <div class="flex gap-4">
+          <div class="flex flex-col items-center sm:flex-row sm:justify-center lg:justify-start gap-2.5 -ml-8">
+            <button
+              id="theme-switch"
+              class="ml-5 w-16 h-6 rounded-full flex items-center transition duration-300 focus:outline-none shadow"
+              :style="`${themeDark ? 'background-color: #363636;opacity: 0.6;' : 'background-color: #363636a1;opacity: 0.6;'}`"
+            >
+              <div
+                id="svg-theme-switch"
+                :class="`
+                border border-gray-400 dark:border-white
+                w-8
+                h-8
+                relative
+                rounded-full
+                transition
+                duration-500
+                transform
+                switch-icon
+                ${
+                  themeDark
+                    ? `
+                translate-x-full`
+                    : `
+                -translate-x-2`
+                } 
+                text-white`"
+                @click="themeSwitch"
+                v-html="themeSwitchIcon"
+              ></div>
+            </button>
+          </div>
           <a
             href="https://www.instagram.com/yup.io_/"
             target="_blank"
             class="text-gray-400 hover:text-gray-500 active:text-gray-600 transition duration-100"
+            aria-label="YUP on Instagram"
           >
             <svg class="w-5 h-5" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -40,6 +84,7 @@
             href="https://twitter.com/yup_io"
             target="_blank"
             class="text-gray-400 hover:text-gray-500 active:text-gray-600 transition duration-100"
+            aria-label="YUP on Twitter"
           >
             <svg class="w-5 h-5" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -51,6 +96,7 @@
             href="https://github.com/Yup-io"
             target="_blank"
             class="text-gray-400 hover:text-gray-500 active:text-gray-600 transition duration-100"
+            aria-label="YUP on Github"
           >
             <svg class="w-5 h-5" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -62,7 +108,7 @@
         <!-- social - end -->
       </div>
 
-      <div class="text-gray-400 text-sm text-center py-8">
+      <div class="text-gray-500 text-sm text-center py-8">
         <p>-- {{ year }} --</p>
         <p>
           <a target="_blank" href="https://www.coingecko.com/en/coins/yup" rel="nofollow">Check on CoinGecko <CoinGeckoIcon /></a>
@@ -73,17 +119,69 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import CoinGeckoIcon from '@/components/content/icons/coinGecko.vue'
+import { getThemeMode } from '../../utils'
+import { useMainStore } from '../../store/main'
+import { useRoute } from 'vue-router'
 
 export default defineComponent({
   name: 'FooterTemplate',
   components: { CoinGeckoIcon },
   setup() {
     const year = new Date().getFullYear()
+    const isSwitchingTheme = ref(false)
+    const isDarkTheme = () => store.theme === 'dark'
+    const route = useRoute()
+
+    const store = useMainStore()
+    store.theme = getThemeMode()
+
+    const themeDark = ref(isDarkTheme())
+    const darkIcon = `🌙`
+
+    const lightIcon = `🔆`
+    const themeSwitchIcon = ref(isDarkTheme() ? darkIcon : lightIcon)
+    const disabledPaths = ['/profile', '/notifications']
+    const isDisabled = (paths: string[], currentPath: string) => paths.some((path: string) => currentPath.startsWith(path))
+    const disabledFooter = ref(isDisabled(disabledPaths, route.path))
+
+    watch(
+      () => route.path,
+      (newPath) => {
+        disabledFooter.value = isDisabled(disabledPaths, newPath)
+      }
+    )
+
+    const themeSwitch = async () => {
+      if (!isSwitchingTheme.value) {
+        const isDarkmode = document.documentElement.classList.contains('dark')
+        isSwitchingTheme.value = true
+        if (isDarkmode) {
+          themeDark.value = false
+          document.documentElement.classList.remove('dark')
+          document.documentElement.classList.add('light')
+          themeSwitchIcon.value = lightIcon
+          localStorage.setItem('theme', 'light')
+          store.theme = 'light'
+        } else {
+          themeDark.value = true
+          document.documentElement.classList.remove('light')
+          document.documentElement.classList.add('dark')
+          themeSwitchIcon.value = darkIcon
+          localStorage.setItem('theme', 'dark')
+          store.theme = 'dark'
+        }
+        isSwitchingTheme.value = false
+      }
+    }
 
     return {
-      year
+      year,
+      themeDark,
+      themeSwitchIcon,
+      themeSwitch,
+      disabledFooter
     }
   }
 })

@@ -74,4 +74,34 @@ const exportFile = (fileName: string, content: string, type = 'csv') => {
     document.body.removeChild(link);
 }
 
-export { gini, exportFile, convertToCSV }
+const getNormalizedValue = (val: number, min: number, max: number) => {
+    return Math.floor(((val - min) / (max - min)) * 100);
+}
+
+const getMaxVote = (balance: number) => {
+    return balance >= 100 ? 125 : balance >= 0.5 ? 95 : 65;
+}
+
+const makePercentage = (val: number) => {
+    return `${val}%`;
+}
+
+const MAX_DELETE_VOTE = 600
+const MAX_FOLLOW_USAGE = 60
+
+const makeRandAvatar = (seed: string) => `https://avatars.dicebear.com/api/avataaars/${seed}.svg`
+
+const makeRandomPreview = () => `/picsum/${Math.floor(Math.random() * 99)}.webp`
+
+export {
+    gini,
+    exportFile,
+    convertToCSV,
+    getNormalizedValue,
+    getMaxVote,
+    MAX_DELETE_VOTE,
+    MAX_FOLLOW_USAGE,
+    makePercentage,
+    makeRandAvatar,
+    makeRandomPreview
+}
