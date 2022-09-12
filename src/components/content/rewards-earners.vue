@@ -22,121 +22,123 @@
       </div>
     </div>
     <template v-if="!apiError">
-    <o-table :data="data" :tableClass="`${isTableLoading ? 'tableLoading' : ''}`" :loading="isTableLoading">
-      <o-table-column field="timestamp" label="Time Interval">
-        <div class="inline">
-          <DateIcon :key="iconsColor" :color="iconsColor" />
-          {{ tableTimePeriod }}
-        </div>
-      </o-table-column>
+      <o-table :data="data" :tableClass="`${isTableLoading ? 'tableLoading' : ''}`" :loading="isTableLoading">
+        <o-table-column field="timestamp" label="Time Interval">
+          <div class="inline">
+            <DateIcon :key="iconsColor" :color="iconsColor" />
+            {{ tableTimePeriod }}
+          </div>
+        </o-table-column>
 
-      <o-table-column v-slot="props" field="account" label="USER">
-        <a :href="`/profile/${props.row.account}`" target="_blank">
-          <UserIcon :key="iconsColor" :color="iconsColor" />
-          {{ props.row.account }}</a
+        <o-table-column v-slot="props" field="account" label="USER">
+          <a :href="`/profile/${props.row.account}`" target="_blank">
+            <UserIcon :key="iconsColor" :color="iconsColor" />
+            {{ props.row.account }}</a
+          >
+        </o-table-column>
+
+        <o-table-column v-slot="props" field="amount" label="Rewards Amount">
+          <div class="inline">
+            <TokenIcon :key="iconsColor" :color="iconsColor" />
+            {{ Number(props.row.amount).toFixed(2) }}
+          </div>
+        </o-table-column>
+
+        <o-table-column v-slot="props" field="influence" label="Raw Influence">
+          <div :key="`${Number(props.row.influence).toFixed(2)}-${props.row.account}`" class="inline">
+            {{
+              Number(props.row.influence).toFixed(2) === '0.00'
+                ? void checkReallyBanned(props.row.account) && 'loading...'
+                : isNaN(Number(Number(props.row.influence).toFixed(2)))
+                ? props.row.influence
+                : `💪 ${Number(props.row.influence).toFixed(2)}`
+            }}
+          </div>
+        </o-table-column>
+
+        <template #loading>
+          <DangLoader v-if="isTableLoading" />
+        </template>
+      </o-table>
+      <hr class="hr" />
+      <div class="pag">
+        <router-link :to="`/rewards/type/${type}/page/${curPage - 1 > 0 ? curPage - 1 : 1}`">
+          <o-button :class="`btn`" @click="curPage - 1 > 0 ? setCurentPage(curPage - 1) : null">⏴</o-button>
+        </router-link>
+        <router-link v-for="i in 5" :key="i" :to="`/rewards/type/${type}/page/${i}`">
+          <o-button :class="`btn ${i === curPage ? 'active' : ''}`" @click="setCurentPage(i)">{{ i }}</o-button>
+        </router-link>
+        <router-link :to="`/rewards/type/${type}/page/${curPage + 1 > 4 ? 5 : curPage + 1}`">
+          <o-button :class="`btn`" @click="curPage + 1 > 5 ? null : setCurentPage(curPage + 1)">⏵</o-button>
+        </router-link>
+      </div>
+      <div class="mt-2">
+        <button
+          type="button"
+          class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 px-4 py-2 text-white m-2"
+          :disabled="btnLoaders.gini"
+          @click="calculateGiniIndex()"
         >
-      </o-table-column>
-
-      <o-table-column v-slot="props" field="amount" label="Rewards Amount">
-        <div class="inline">
-          <TokenIcon :key="iconsColor" :color="iconsColor" />
-          {{ Number(props.row.amount).toFixed(2) }}
+          <BtnSpinner v-if="btnLoaders.gini" />
+          <span v-if="giniIndex === 0" class="font-medium font-bold">Get Gini for this period for top 100 users</span>
+          <span v-else class="font-medium font-bold">Gini Index: {{ giniIndex }}</span>
+        </button>
+        <button
+          type="button"
+          class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 px-4 py-2 text-white m-2"
+          :disabled="btnLoaders.plotPop"
+          @click="openGiniDialog()"
+        >
+          <BtnSpinner v-if="btnLoaders.plotPop" />
+          <span class="font-medium font-bold">🗠 Plot population using python</span>
+        </button>
+        <button
+          type="button"
+          class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 px-4 py-2 text-white m-2"
+          :disabled="btnLoaders.exportJson"
+          @click="dwJson()"
+        >
+          <BtnSpinner v-if="btnLoaders.exportJson" />
+          <FileDownloadIcon class="m-1" />
+          <span class="font-medium font-bold">Download JSON for this period for top 100 users</span>
+        </button>
+        <button
+          type="button"
+          class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 hover:to-yellow-500 px-4 py-2 text-white m-2"
+          :disabled="btnLoaders.exportCSV"
+          @click="dwCSV()"
+        >
+          <BtnSpinner v-if="btnLoaders.exportCSV" />
+          <FileDownloadIcon class="m-1" />
+          <span class="font-medium font-bold">Download CSV for this period for top 100 users</span>
+        </button>
+      </div>
+    </template>
+    <template v-else>
+      <div style="max-width: 40rem; margin: auto" class="alert flex flex-row items-center bg-red-200 p-5 rounded border-b-2 border-red-300">
+        <div class="alert-icon flex items-center bg-red-100 border-2 border-red-500 justify-center h-10 w-10 flex-shrink-0 rounded-full">
+          <span class="text-red-500">
+            <svg fill="currentColor" viewBox="0 0 20 20" class="h-6 w-6">
+              <path
+                fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+          </span>
         </div>
-      </o-table-column>
-
-      <o-table-column v-slot="props" field="influence" label="Raw Influence">
-        <div :key="`${Number(props.row.influence).toFixed(2)}-${props.row.account}`" class="inline">
-         {{ Number(props.row.influence).toFixed(2) === '0.00'? void checkReallyBanned(props.row.account) && 'loading...': isNaN(Number(Number(props.row.influence).toFixed(2))) ? props.row.influence : `💪 ${Number(props.row.influence).toFixed(2)}` }}
+        <div class="alert-content ml-4">
+          <div class="alert-title font-semibold text-lg text-red-800">Error</div>
+          <div class="alert-description text-sm text-red-600">
+            API didn't give any data, maybe API is down or you selected a period that doesn't have data.
+          </div>
         </div>
-      </o-table-column>
-
-      <template #loading>
-        <DangLoader v-if="isTableLoading" />
-      </template>
-    </o-table>
-    <hr class="hr" />
-    <div class="pag">
-      <router-link :to="`/rewards/type/${type}/page/${curPage - 1 > 0 ? curPage - 1 : 1}`">
-        <o-button :class="`btn`" @click="curPage - 1 > 0 ? setCurentPage(curPage - 1) : null">⏴</o-button>
-      </router-link>
-      <router-link v-for="i in 5" :key="i" :to="`/rewards/type/${type}/page/${i}`">
-        <o-button :class="`btn ${i === curPage ? 'active' : ''}`" @click="setCurentPage(i)">{{ i }}</o-button>
-      </router-link>
-      <router-link :to="`/rewards/type/${type}/page/${curPage + 1 > 4 ? 5 : curPage + 1}`">
-        <o-button :class="`btn`" @click="curPage + 1 > 5 ? null : setCurentPage(curPage + 1)">⏵</o-button>
-      </router-link>
-    </div>
-    <div class="mt-2">
-      <button
-        type="button"
-        class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 px-4 py-2 text-white m-2"
-        :disabled="btnLoaders.gini"
-        @click="calculateGiniIndex()"
-      >
-        <BtnSpinner v-if="btnLoaders.gini" />
-        <span v-if="giniIndex===0" class="font-medium font-bold">Get Gini for this period for top 100 users</span>
-        <span v-else class="font-medium font-bold">Gini Index: {{ giniIndex }}</span>
-      </button>
-      <button
-        type="button"
-        class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 px-4 py-2 text-white m-2"
-        :disabled="btnLoaders.plotPop"
-        @click="openGiniDialog()"
-      >
-        <BtnSpinner v-if="btnLoaders.plotPop" />
-        <span class="font-medium font-bold">🗠 Plot population using python</span>
-      </button>
-      <button
-        type="button"
-        class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 px-4 py-2 text-white m-2"
-        :disabled="btnLoaders.exportJson"
-        @click="dwJson()"
-      >
-        <BtnSpinner v-if="btnLoaders.exportJson" />
-        <FileDownloadIcon class="m-1" />
-        <span class="font-medium font-bold">Download JSON for this period for top 100 users</span>
-      </button>
-      <button
-        type="button"
-        class="acbtn inline-flex items-center rounded-lg bg-yellow-500 hover:bg-pink-500 hover:to-yellow-500 px-4 py-2 text-white m-2"
-        :disabled="btnLoaders.exportCSV"
-        @click="dwCSV()"
-      >
-        <BtnSpinner v-if="btnLoaders.exportCSV" />
-        <FileDownloadIcon  class="m-1" />
-        <span class="font-medium font-bold">Download CSV for this period for top 100 users</span>
-      </button>
-    </div>
-  </template>
-  <template v-else>
-   <div style="max-width: 40rem; margin: auto" class="alert flex flex-row items-center bg-red-200 p-5 rounded border-b-2 border-red-300">
-			<div class="alert-icon flex items-center bg-red-100 border-2 border-red-500 justify-center h-10 w-10 flex-shrink-0 rounded-full">
-				<span class="text-red-500">
-					<svg
-                         fill="currentColor"
-						 viewBox="0 0 20 20"
-						 class="h-6 w-6">
-						<path
-                                fill-rule="evenodd"
-							  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-							  clip-rule="evenodd"></path>
-					</svg>
-				</span>
-			</div>
-			<div class="alert-content ml-4">
-				<div class="alert-title font-semibold text-lg text-red-800">
-					Error
-				</div>
-				<div class="alert-description text-sm text-red-600">
-					API didn't give any data, maybe API is down or you selected a period that doesn't have data.
-				</div>
-			</div>
-		</div>
-  </template>
+      </div>
+    </template>
   </div>
   <o-modal v-model:active="giniDialog" contentClass="modal-body">
-       <DangLoader v-if="pyCompNotLoaded" />
-      <component :is="!pyCompNotLoaded ? refDynComp : undefined" :key="periodType" :data="giniDataValues" />
+    <DangLoader v-if="pyCompNotLoaded" />
+    <component :is="!pyCompNotLoaded ? refDynComp : undefined" :key="periodType" :data="giniDataValues" />
   </o-modal>
 </template>
 
@@ -161,7 +163,7 @@ import {
   watch,
   onUnmounted,
   Ref,
-  shallowRef,
+  shallowRef
 } from 'vue'
 
 export default defineComponent({
@@ -236,7 +238,7 @@ export default defineComponent({
 
     const getVoteList = async (page: number) => {
       apiError.value = false
-      
+
       if (!page || page < 1) {
         page = 1
       }
@@ -256,7 +258,7 @@ export default defineComponent({
         throw new Error(`Request failed with status ${req.status}`)
       }
 
-      return await req.json() || []
+      return (await req.json()) || []
     }
 
     const getGiniData = async () => {
@@ -314,7 +316,7 @@ export default defineComponent({
       }
       tableTimePeriod.value = `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
       data.value = await getVoteList(pageNum)
-      if(data.value.length === 0) {
+      if (data.value.length === 0) {
         apiError.value = true
       }
       isTableLoading.value = false
@@ -326,11 +328,14 @@ export default defineComponent({
         giniData.value = await getGiniData()
       }
 
-      const withHeader = [{
-        acc: 'Account',
-        reward_received: 'YUP Reward Received',
-        raw_influence: 'Raw Influence',
-      }, ...giniData.value]
+      const withHeader = [
+        {
+          acc: 'Account',
+          reward_received: 'YUP Reward Received',
+          raw_influence: 'Raw Influence'
+        },
+        ...giniData.value
+      ]
 
       exportFile(`Rewards ${tableTimePeriod.value}.csv`, convertToCSV(withHeader), 'csv')
       btnLoaders.value.exportCSV = false
@@ -341,26 +346,23 @@ export default defineComponent({
       if (giniData.value.length === 0) {
         giniData.value = await getGiniData()
       }
-      exportFile(`Rewards ${tableTimePeriod.value}.json`, JSON.stringify(giniData.value, null, 2 ), 'json')
+      exportFile(`Rewards ${tableTimePeriod.value}.json`, JSON.stringify(giniData.value, null, 2), 'json')
       btnLoaders.value.exportJson = false
     }
-    
+
     const checkReallyBanned = async (account: string) => {
       const arrAcc = data.value.find((item) => account === item.account) as unknown as Record<string, string | number | boolean>
-        arrAcc.influence = 'loading...'
-        const req = await fetch(
-        `${API_BASE}/accounts/${account}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-          }
+      arrAcc.influence = 'loading...'
+      const req = await fetch(`${API_BASE}/accounts/${account}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
         }
-      )
+      })
 
       if (!req.ok) {
-         arrAcc.influence = '🤔 N/A'
-         console.log(`Request failed with status ${req.status}`)
+        arrAcc.influence = '🤔 N/A'
+        console.log(`Request failed with status ${req.status}`)
       }
       const acc = await req.json()
       console.log(Number(acc.weight))
@@ -397,7 +399,7 @@ export default defineComponent({
       if (giniData.value.length === 0) {
         giniData.value = await getGiniData()
       }
-      if(giniDataValues.value.length === 0) {
+      if (giniDataValues.value.length === 0) {
         giniDataValues.value = giniData.value.map((item) => Number((item as unknown as { amount: string }).amount))
       }
       refDynComp.value = (await import('@/components/content/python-curve-modal.vue')).default
@@ -415,7 +417,7 @@ export default defineComponent({
     onMounted(async () => {
       getTableData(curPage.value)
     })
-    
+
     onUnmounted(() => {
       // do nothing
     })
@@ -444,7 +446,7 @@ export default defineComponent({
       openGiniDialog,
       apiError,
       giniDataValues,
-      checkReallyBanned,
+      checkReallyBanned
     }
   }
 })

@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import { onMounted, defineComponent } from 'vue'
-import ImagePreview from '@/components/content/post/ImagePreview.vue'
+import ImagePreview from '@/components/content/post/imagePreview.vue'
 import FavIco from '@/components/content/post/favIco.vue'
 import ClockIcon from '@/components/content/icons/clock.vue'
 import VideoPlayer from '@/components/content/post/videoPlayer.vue'

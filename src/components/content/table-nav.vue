@@ -78,8 +78,5 @@ export default defineComponent({
     background-color: var(--glassBg);
     padding: 0.4rem 0.4rem 0.4rem 0.4rem;
   }
-
 }
-
-
 </style>

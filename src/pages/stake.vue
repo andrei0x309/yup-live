@@ -170,7 +170,7 @@ import { uniPoolPABI } from '@/partial-abis/uni-pool'
 import { yupRewardsPABI } from '@/partial-abis/yup-rewards'
 import { useMainStore } from '@/store/main'
 import { providerOptions } from '@/utils/evm'
-import Web3Modal from 'web3modal'
+import W3Modal from 'web3modal'
 import YUPCollectIcon from '@/components/content/icons/yup-collect.vue'
 import { stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
 
@@ -203,7 +203,10 @@ export default defineComponent({
     const loading = ref(true)
     const activeTab = ref('0') as Ref<string>
     const activeTabStake = ref('0') as Ref<string>
-    const aprs = ref({}) as Ref<Record<string, string>>
+    const aprs = ref({
+      poly: 0,
+      eth: 0
+    }) as Ref<Record<string, number>>
     const rewards = ref(0)
     const polyStaked = ref(0)
     const polyUnstaked = ref(0)
@@ -213,14 +216,12 @@ export default defineComponent({
     const inputValue = ref('0')
     const historicETHReward = ref(0)
     const historicPolyReward = ref(0)
-    const web3Modal = ref(
-      new Web3Modal({
-        network: 'polygon', // optional
-        cacheProvider: true, // optional
-        providerOptions, // required
-        theme: store.theme
-      })
-    ) as unknown as Ref<Web3Modal>
+    const w3Modal = new W3Modal({
+      network: 'polygon', // optional
+      cacheProvider: true, // optional
+      providerOptions, // required
+      theme: store.theme
+    })
     let rewardRateEth = 0
     let rewardRatePoly = 0
     let totalStakeEth = 0
@@ -268,7 +269,7 @@ export default defineComponent({
     const onStake = async (chain: string) => {
       if (!userProvider) {
         try {
-          const inst = await web3Modal.value.connect()
+          const inst = await w3Modal.connect()
           userProvider = new ethersLib.providers.Web3Provider(inst)
         } catch {
           stackAlertWarning('User rejected connection')
@@ -301,7 +302,7 @@ export default defineComponent({
     const onUnstake = async (chain: string) => {
       if (!userProvider) {
         try {
-          const inst = await web3Modal.value.connect()
+          const inst = await w3Modal.connect()
           userProvider = new ethersLib.providers.Web3Provider(inst)
         } catch {
           stackAlertWarning('User rejected connection')
@@ -336,7 +337,7 @@ export default defineComponent({
     const onReward = async () => {
       if (!userProvider) {
         try {
-          const inst = await web3Modal.value.connect()
+          const inst = await w3Modal.connect()
           userProvider = new ethersLib.providers.Web3Provider(inst)
         } catch {
           stackAlertWarning('User rejected connection')
@@ -381,10 +382,9 @@ export default defineComponent({
         } catch {
           localStorage.removeItem('historicRewards')
         }
-        console.log(historicRewards)
         if (historicRewards) {
-          historicETHReward.value = historicRewards.eth
-          historicPolyReward.value = historicRewards.poly
+          historicETHReward.value = historicRewards?.eth
+          historicPolyReward.value = historicRewards?.poly
           return
         }
 
@@ -427,7 +427,8 @@ export default defineComponent({
     onMounted(async () => {
       getAprs().then(async (res) => {
         console.log(res)
-        aprs.value = res
+        aprs.value.eth = Number(res.eth)
+        aprs.value.poly = Number(res.poly)
         loading.value = false
       })
       ethers.then(async (lib) => {
@@ -440,8 +441,8 @@ export default defineComponent({
         const utils = ethersLib.utils
 
         let address = localStorage.getItem('address')
-        if (!address && web3Modal.value.cachedProvider) {
-          userProvider = new ethersLib.providers.Web3Provider(await web3Modal.value.connect())
+        if (!address && w3Modal.cachedProvider) {
+          userProvider = new ethersLib.providers.Web3Provider(await w3Modal.connect())
           address = await userProvider.getSigner().getAddress()
         }
         if (address) {

@@ -113,29 +113,29 @@ const routes = [
     redirect: 'https://app.yup.io'
   },
   {
-    type: "yup",
-    text: "YUP DOCS",
-    path: "/docs",
-    href: "https://docs.yup.io",
+    type: 'yup',
+    text: 'YUP DOCS',
+    path: '/docs',
+    href: 'https://docs.yup.io',
     redirect: 'https://docs.yup.io'
   },
   {
-    type: "yup",
-    text: "YUP Staking",
-    path: "/finance",
-    href: "https://yup.finance/",
+    type: 'yup',
+    text: 'YUP Staking',
+    path: '/finance',
+    href: 'https://yup.finance/',
     redirect: 'https://app.yup.io/staking'
   },
   {
-    name: "ErrorPage",
-    path: "/error/code/:code",
+    name: 'ErrorPage',
+    path: '/error/code/:code',
     component: () => import('@/pages/custom-error.vue')
   },
   {
-    name: "ErrorPage",
-    path: "/:pathMatch(.*)",
+    name: 'ErrorPage',
+    path: '/:pathMatch(.*)',
     component: () => import('@/pages/custom-error.vue')
-  },
+  }
 ]
 
 const router = createRouter({

@@ -51,17 +51,17 @@ export default defineConfig({
     //   addComponents(buttons)
     // }),
     plugin(({ addDynamic, variants }) => {
-      addDynamic('max-width', ({ Utility }) => {
-        return Utility.handler
-          .handleNumber(0, 130, 'int', number => `${number}rem`)
-          .createProperty('max-width')
-      }, {
-        group: 'max-width',
-        completions: [
-          'max-width-{int}',
-        ],
-        variants: variants('max-width')
-      })
-    }),
-  ],
+      addDynamic(
+        'max-width',
+        ({ Utility }) => {
+          return Utility.handler.handleNumber(0, 130, 'int', (number) => `${number}rem`).createProperty('max-width')
+        },
+        {
+          group: 'max-width',
+          completions: ['max-width-{int}'],
+          variants: variants('max-width')
+        }
+      )
+    })
+  ]
 })

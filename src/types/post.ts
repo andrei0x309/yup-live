@@ -1,11 +1,11 @@
 export interface OpenGraphPreview {
-    title: string
-    img: string
-    url: string
-    description: string
+  title: string
+  img: string
+  url: string
+  description: string
 }
 
 export interface mediaType {
-    type: string
-    url: string
+  type: string
+  url: string
 }
