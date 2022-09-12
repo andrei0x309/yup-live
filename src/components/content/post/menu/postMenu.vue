@@ -15,6 +15,7 @@
           </li>
           <li class="pt-1 cursor-pointer" @click="sharePost"><ShareIcon class="w-5 inline -mt-1 mr-1" />Share Post</li>
           <li class="pt-1 cursor-pointer" @click="goToPost"><GoToIcon class="w-5 inline -mt-1 mr-1" />Post Details</li>
+          <li class="pt-1 cursor-pointer" @click="refreshPreview"><RetryIcon class="w-6 -ml-1 inline -mt-1 mr-1" />Refresh Data</li>
         </ul>
       </template>
       <PostMenuIcon role="button" class="w-6" />
@@ -50,7 +51,6 @@ import { onMounted, defineComponent, ref, Ref, PropType } from 'vue'
 import PostMenuIcon from '@/components/content/icons/postMenuIcon.vue'
 import { useMainStore, openConnectModal } from '@/store/main'
 import DangLoader from '@/components/content/vote-list/loader.vue'
-import { PartialAccountInfo } from '@/types/account'
 import AvatarBtn from '@/components/content/connect/avatarBtn.vue'
 import { timeAgo } from '@/utils/time'
 import { useRouter } from 'vue-router'
@@ -58,10 +58,15 @@ import RadarIcon from '@/components/content/icons/radar.vue'
 import ShareIcon from '@/components/content/icons/share.vue'
 import DeleteIcon from '@/components/content/icons/delete.vue'
 import GoToIcon from '@/components/content/icons/goTo.vue'
+import RetryIcon from '@/components/content/icons/retry.vue'
 import { wait } from '@/utils/time'
 import { fetchWAuth } from '@/utils/auth'
-import { Vote } from '@/types/vote'
-import { stackAlertError } from '@/store/alertStore'
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
+
+import type { PartialAccountInfo } from '@/types/account'
+import type { Vote } from '@/types/vote'
+
+const API_BASE = import.meta.env.VITE_YUP_API_BASE
 
 interface Voter {
   a: PartialAccountInfo
@@ -77,7 +82,8 @@ export default defineComponent({
     DeleteIcon,
     GoToIcon,
     DangLoader,
-    AvatarBtn
+    AvatarBtn,
+    RetryIcon
   },
   props: {
     postId: {
@@ -96,7 +102,6 @@ export default defineComponent({
   },
   emits: ['update:vote', 'deletedvote'],
   setup(props, ctx) {
-    const API_BASE = import.meta.env.VITE_YUP_API_BASE
     const router = useRouter()
     const store = useMainStore()
     const isError = ref(false)
@@ -143,6 +148,29 @@ export default defineComponent({
 
     const goToPost = () => {
       router.push(`/post/${props.postId}`)
+    }
+
+    const refreshPreview = async () => {
+      try {
+        const reqReFetch = await fetch(`${API_BASE}/posts/re-fetch/preview`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            postid: props.postId
+          })
+        })
+        if (reqReFetch.ok) {
+          stackAlertSuccess('Refresh request successful, reload after a few seconds.')
+        } else {
+          stackAlertWarning('Refresh data was requested already recently.')
+        }
+        menuOpen.value = false
+      } catch {
+        stackAlertError('API not available, please try again later.')
+        menuOpen.value = false
+      }
     }
 
     const deleteVote = async () => {
@@ -240,7 +268,8 @@ export default defineComponent({
       goToPost,
       menuOpen,
       delLoading,
-      refHasVote
+      refHasVote,
+      refreshPreview
     }
   }
 })
@@ -248,13 +277,14 @@ export default defineComponent({
 
 <style lang="scss">
 .postMenu {
+  font-size: 0.9rem;
   li:hover {
-    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    transform: scale(1.1) translateX(-1rem);
+    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transform: scale(1.03) translateX(-0.6rem);
     background-color: var(--glassBg);
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    padding-left: 0.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 0.3rem;
     opacity: 1;
   }
 
