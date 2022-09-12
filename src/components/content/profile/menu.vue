@@ -1,7 +1,7 @@
 <template>
   <div ref="nav" class="nav">
     <div class="nav__item">
-      <button :ref="(el) => (buttons[MENU_BUTTONS.FEED] = el as Element)" class="active" @click="onClick(MENU_BUTTONS.FEED)">
+      <button :ref="(el) => (buttons[MENU_BUTTONS.feed] = el as Element)" class="active" @click="onClick(MENU_BUTTONS.feed)">
         <svg class="icon" viewBox="0 0 24 24">
           <path fill="currentColor" d="M9,13H15V19H18V10L12,5.5L6,10V19H9V13M4,21V9L12,3L20,9V21H4Z" />
         </svg>
@@ -11,9 +11,9 @@
 
     <div class="nav__item">
       <button
-        :ref="(el) => (buttons[MENU_BUTTONS.COLLECTIONS] = el as Element)"
+        :ref="(el) => (buttons[MENU_BUTTONS.collections] = el as Element)"
         class="menu-button"
-        @click="onClick(MENU_BUTTONS.COLLECTIONS)"
+        @click="onClick(MENU_BUTTONS.collections)"
       >
         <svg class="icon" viewBox="0 0 24 24">
           <path
@@ -26,7 +26,7 @@
     </div>
 
     <div class="nav__item">
-      <button :ref="(el) => (buttons[MENU_BUTTONS.FOLLOWERS] = el as Element)" class="menu-button" @click="onClick(MENU_BUTTONS.FOLLOWERS)">
+      <button :ref="(el) => (buttons[MENU_BUTTONS.followers] = el as Element)" class="menu-button" @click="onClick(MENU_BUTTONS.followers)">
         <svg class="icon" viewBox="0 0 24 24">
           <path
             fill="currentColor"
@@ -38,7 +38,7 @@
     </div>
 
     <div class="nav__item">
-      <button :ref="(el) => (buttons[MENU_BUTTONS.STATS] = el as Element)" class="menu-button" @click="onClick(MENU_BUTTONS.STATS)">
+      <button :ref="(el) => (buttons[MENU_BUTTONS.web3] = el as Element)" class="menu-button" @click="onClick(MENU_BUTTONS.web3)">
         <svg class="icon" viewBox="0 0 24 24">
           <path
             fill="currentColor"
@@ -50,7 +50,7 @@
     </div>
 
     <div class="nav__item">
-      <button :ref="(el) => (buttons[MENU_BUTTONS.SETTINGS] = el as Element)" class="menu-button" @click="onClick(MENU_BUTTONS.SETTINGS)">
+      <button :ref="(el) => (buttons[MENU_BUTTONS.settings] = el as Element)" class="menu-button" @click="onClick(MENU_BUTTONS.settings)">
         <svg class="icon" viewBox="0 0 24 24">
           <path
             fill="currentColor"
@@ -68,11 +68,14 @@
 <script lang="ts">
 import { onMounted, defineComponent, ref, Ref } from 'vue'
 import { MENU_BUTTONS, BUTTONS_ORDER } from './menuButtonEnums'
+import { useRouter } from 'vue-router'
+
+const invObj = (obj: Record<string, string>) => Object.fromEntries(Object.entries(obj).map((a) => a.reverse()))
 
 export default defineComponent({
   name: 'ProfileMenu',
   props: {
-    buttonActive: {
+    currentMenuTab: {
       type: String,
       default: 'feedButton'
     }
@@ -80,13 +83,15 @@ export default defineComponent({
   emits: ['change'],
   setup(props, ctx) {
     const { emit } = ctx
+    const INV_MENU_BUTTONS = invObj(MENU_BUTTONS)
+    console.log(INV_MENU_BUTTONS[MENU_BUTTONS.feed], MENU_BUTTONS.feed)
     const buttons = {} as { [key: string]: Element }
-    const isActive = ref((BUTTONS_ORDER as { [key: string]: number })[props.buttonActive])
+    const isActive = ref((BUTTONS_ORDER as { [key: string]: number })[MENU_BUTTONS.feed])
     const nav = ref(null) as unknown as Ref<HTMLElement>
     const activeIndicator = ref(null) as unknown as Ref<HTMLElement>
+    const router = useRouter()
 
-    const onClick = (button: string) => {
-      emit('change', button)
+    const activeTabChange = (button: string) => {
       const changeingActive = (BUTTONS_ORDER as { [key: string]: number })[button]
       if (isActive.value > changeingActive) {
         nav.value.classList.remove('slide-right')
@@ -99,10 +104,26 @@ export default defineComponent({
       buttons[Object.keys(BUTTONS_ORDER)[isActive.value]].classList.remove('active')
       isActive.value = changeingActive
       buttons[Object.keys(BUTTONS_ORDER)[isActive.value]].classList.add('active')
+      const pathFragments = router.currentRoute.value.fullPath.split('/').slice(0, 3)
+      history.pushState(
+        {},
+        `YUP LIVE ${pathFragments[2]}`,
+        [
+          window.location.origin,
+          pathFragments[1],
+          pathFragments[2],
+          (INV_MENU_BUTTONS as { [key: string]: string })[Object.keys(BUTTONS_ORDER)[isActive.value]]
+        ].join('/')
+      )
+    }
+
+    const onClick = (button: string) => {
+      emit('change', button)
+      activeTabChange(button)
     }
 
     onMounted(() => {
-      console.log('-----', buttons)
+      activeTabChange(props.currentMenuTab)
     })
 
     return {
@@ -146,7 +167,10 @@ export default defineComponent({
   position: relative;
   margin: auto;
   top: -1rem;
-  left: -1.5rem;
+
+  @media (min-width: 400px) {
+    left: -1.5rem;
+  }
 }
 
 .nav__active-indicator {

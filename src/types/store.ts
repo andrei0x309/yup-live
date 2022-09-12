@@ -1,8 +1,9 @@
 export interface IUserData {
-    account: string;
-    signature: string;
-    address: string;
-    avatar: string;
+    account: string
+    signature: string
+    address: string
+    avatar: string
+    weight: number
 }
 
 export interface IMainStore {

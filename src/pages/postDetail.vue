@@ -3,7 +3,7 @@
     <div class="bg-color table-list w-full mb-4">
       <h2>Post: {{ postId }}</h2>
       <DangLoader v-if="isDataLoading" />
-      <Post v-else :id="postId" :post="processedPost" />
+      <Post v-else :id="postId" :full="true" :post="processedPost" :postTypesPromises="postTypesPromises" @updatepostinfo="openInfoModal" />
     </div>
   </div>
 </template>
@@ -14,6 +14,7 @@ import { useHead, HeadObject } from '@vueuse/head'
 import DangLoader from '@/components/content/vote-list/loader.vue'
 import { useRoute } from 'vue-router'
 import Post from '@/components/content/post/post.vue'
+import { postTypesPromises } from '@/utils/post'
 
 // import { useMainStore } from '@/store/main'
 
@@ -37,10 +38,15 @@ export default defineComponent({
     // const store = useMainStore()
     const isDataLoading = ref(true)
     const processedPost = ref(props.post)
+    const infoModalOpen = ref(false)
+
+    const openInfoModal = () => {
+      infoModalOpen.value = true
+    }
 
     const siteData = reactive({
-      title: `YUP Post: ${processedPost.value.title}`,
-      description: `${processedPost.value.title}`
+      title: '',
+      description: ''
     })
 
     useHead({
@@ -66,6 +72,8 @@ export default defineComponent({
       } else {
         isDataLoading.value = false
       }
+      siteData.description = processedPost.value.previewData?.description
+      siteData.title = `YUP LIVE - ${processedPost.value.previewData?.title}`
     })
 
     onUnmounted(() => {
@@ -75,7 +83,9 @@ export default defineComponent({
     return {
       isDataLoading,
       processedPost,
-      postId
+      postId,
+      postTypesPromises,
+      openInfoModal
     }
   }
 })

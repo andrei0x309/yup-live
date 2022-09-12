@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, ref } from 'vue'
-import { makeRandomPreview } from '@/utils/misc'
+import { makeRandomPreview } from '@/utils/post'
 import YoutubeIcon from '@/components/content/icons/youtube.vue'
 
 export default defineComponent({

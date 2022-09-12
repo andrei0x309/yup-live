@@ -57,13 +57,12 @@
 import { onMounted, defineComponent, ref, Ref } from 'vue'
 import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
-import WalletConnectProvider from '@walletconnect/web3-provider'
 import Alert from '@/components/functional/alert.vue'
 import { useMainStore } from '@/store/main'
 import { fetchWAuth } from '@/utils/auth'
-import type { PartialAccountInfo } from '@/types/common'
+import { providerOptions } from '@/utils/evm'
+import type { PartialAccountInfo } from '@/types/account'
 
-const INFURA_ID = import.meta.env.VITE_INFURA_ID
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
 
 export default defineComponent({
@@ -97,15 +96,6 @@ export default defineComponent({
     const fullname = ref('')
     const username = ref('')
     const bio = ref('')
-
-    const providerOptions = {
-      walletconnect: {
-        package: WalletConnectProvider,
-        options: {
-          infuraId: INFURA_ID
-        }
-      }
-    }
 
     const onBack = () => {
       formRegister.value.style.display = 'none'
@@ -153,11 +143,13 @@ export default defineComponent({
         localStorage.setItem('account', account._id)
         localStorage.setItem('signature', signature)
         localStorage.setItem('avatar', account.avatar)
+        localStorage.setItem('weight', String(account.weight))
         mainStore.userData = {
           address,
           account: account._id,
           signature,
-          avatar: account.avatar
+          avatar: account.avatar,
+          weight: account.weight as number
         }
         mainStore.isLoggedIn = true
       } catch (error) {
@@ -165,7 +157,7 @@ export default defineComponent({
       }
     }
 
-    const web3ModalInstanciate = async () => {
+    const web3ModalInstantiate = async () => {
       try {
         return await web3Modal.value.connect()
       } catch (error) {
@@ -278,7 +270,7 @@ export default defineComponent({
 
     const onSignup = async () => {
       props.loadState('start')
-      const inst = await web3ModalInstanciate()
+      const inst = await web3ModalInstantiate()
       provider.value = new ethers.providers.Web3Provider(inst)
       const signer = provider.value.getSigner()
       const address = await signer.getAddress()
@@ -300,7 +292,8 @@ export default defineComponent({
         address,
         account: {
           _id: account.account._id,
-          avatar: account.avatar
+          avatar: account.avatar,
+          weight: account.weight
         },
         signature
       })
@@ -309,7 +302,7 @@ export default defineComponent({
 
     const onLogin = async () => {
       props.loadState('start')
-      const inst = await web3ModalInstanciate()
+      const inst = await web3ModalInstantiate()
       provider.value = new ethers.providers.Web3Provider(inst)
       const signer = provider.value.getSigner()
       const address = await signer.getAddress()
@@ -322,7 +315,8 @@ export default defineComponent({
         address,
         account: {
           _id: account._id,
-          avatar: account.avatar
+          avatar: account.avatar,
+          weight: account.weight
         },
         signature
       })
@@ -331,7 +325,7 @@ export default defineComponent({
 
     onMounted(() => {
       web3Modal.value = new Web3Modal({
-        network: 'mainnet', // optional
+        network: 'polygon', // optional
         cacheProvider: true, // optional
         providerOptions, // required
         theme: mainStore.theme

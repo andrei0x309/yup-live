@@ -74,34 +74,19 @@ const exportFile = (fileName: string, content: string, type = 'csv') => {
     document.body.removeChild(link);
 }
 
-const getNormalizedValue = (val: number, min: number, max: number) => {
-    return Math.floor(((val - min) / (max - min)) * 100);
+const formatNumber = (num: number) => {
+    return Intl.NumberFormat('en-US', {
+        notation: 'compact',
+        maximumFractionDigits: 0
+    }).format(num)
 }
 
-const getMaxVote = (balance: number) => {
-    return balance >= 100 ? 125 : balance >= 0.5 ? 95 : 65;
-}
-
-const makePercentage = (val: number) => {
-    return `${val}%`;
-}
-
-const MAX_DELETE_VOTE = 600
-const MAX_FOLLOW_USAGE = 60
-
-const makeRandAvatar = (seed: string) => `https://avatars.dicebear.com/api/avataaars/${seed}.svg`
-
-const makeRandomPreview = () => `/picsum/${Math.floor(Math.random() * 99)}.webp`
+const truncteEVMAddr = (addr: string) => ((addr ?? '').length > 4 ? (addr.substring(0, 5) + '...' + addr.substring(addr.length - 3)) : '')
 
 export {
     gini,
     exportFile,
     convertToCSV,
-    getNormalizedValue,
-    getMaxVote,
-    MAX_DELETE_VOTE,
-    MAX_FOLLOW_USAGE,
-    makePercentage,
-    makeRandAvatar,
-    makeRandomPreview
+    formatNumber,
+    truncteEVMAddr
 }

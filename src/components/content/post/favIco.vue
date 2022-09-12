@@ -1,16 +1,16 @@
 <template>
-<img 
-            v-if="!isError"
-            :key="source"
-            class="rounded-lg rounded-b-none nftPreview"
-            :src="source"
-            :alt="alt"
-            loading="lazy"
-            @error="onError"
-            @load="onLoad"
-          />
+  <img
+    v-if="!isError"
+    :key="source"
+    class="rounded-lg rounded-b-none nftPreview"
+    :src="source"
+    :alt="alt"
+    loading="lazy"
+    @error="onError"
+    @load="onLoad"
+  />
   <template v-if="!isLoading && isError">
-    <NoFavIco :color="color" :loading="isLoading" />
+    <NoFavIco :loading="isLoading" />
   </template>
   <BtnSpinner v-else-if="isLoading" />
 </template>
@@ -41,19 +41,19 @@ export default defineComponent({
       required: false,
       type: String,
       default: 'thumbnail'
-    },
+    }
   },
   setup(props) {
     const isError = ref(false)
     const isLoading = ref(true)
     const source = ref(null) as unknown as Ref<string>
-    
+
     const makeFavIcoLink = () => {
       if (props?.link) {
-        try{
-            const url = new URL(props.link)
-            source.value = `${url.origin}/favicon.ico`
-            console.log('sourr', source.value)
+        try {
+          const url = new URL(props.link)
+          source.value = `${url.origin}/favicon.ico`
+          console.log('sourr', source.value)
         } catch (e) {
           isError.value = true
           isLoading.value = false
@@ -74,7 +74,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
-        makeFavIcoLink()
+      makeFavIcoLink()
     })
 
     return {

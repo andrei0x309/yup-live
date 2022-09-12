@@ -2,7 +2,7 @@
   <div v-if="!hiddenLocal" class="shadow-md p-4 flex flex-row rounded-lg relative alertCmp">
     <div
       :class="`${
-        typeLocal === 'warrning' ? 'bg-yellow-500' : typeLocal === 'error' ? 'bg-red-500' : 'bg-green-500'
+        typeLocal === 'warning' ? 'bg-yellow-500' : typeLocal === 'error' ? 'bg-red-500' : 'bg-green-500'
       } inline-block rounded-lg p-1 mr-1`"
     ></div>
     <b class="p-1 flex items-center">{{ titleLocal }}</b>
@@ -71,7 +71,6 @@ export default defineComponent({
     const showErr = (err: string) => {
       showMsg('Error', err)
       typeLocal.value = 'error'
-      console.log('ssss')
     }
 
     const showWarn = (warn: string) => {
@@ -106,5 +105,7 @@ export default defineComponent({
 .alertCmp {
   border: 1px solid #777;
   margin-top: 2rem;
+  background-color: var(--glass-menu-bg);
+  color: var(--glassTxt);
 }
 </style>

@@ -1,21 +1,7 @@
 <template>
-  <o-sidebar
-    v-model:open="sidebarOpen"
-    :fullheight="true"
-    :fullwidth="false"
-    :overlay="true"
-    :right="true"
-    contentClass="sidebar"
-  >
+  <o-sidebar v-model:open="sidebarOpen" :fullheight="true" :fullwidth="false" :overlay="true" :right="true" contentClass="sidebar">
     <o-button
-      style="
-        width: 2rem;
-        position: absolute;
-        right: 1rem;
-        top: 1rem;
-        padding-right: 0.5rem;
-        background-color: #1f2937;
-      "
+      style="width: 2rem; position: absolute; right: 1rem; top: 1rem; padding-right: 0.5rem; background-color: #1f2937"
       icon-left="times"
       label="X"
       @click="sidebarOpen = false"
@@ -28,16 +14,8 @@
         fill="#f04545"
         d="M 0,6.0039 C 0,5.60937 0.0391,5.21875 0.11328,4.83203 0.19138,4.44531 0.30469,4.07031 0.45703,3.70312 0.60547,3.33984 0.79297,2.99609 1.01172,2.66797 1.23047,2.33984 1.48047,2.03515 1.75781,1.75781 2.03516,1.47656 2.33984,1.23047 2.66797,1.01172 2.99609,0.79297 3.33984,0.60547 3.70703,0.45703 4.07031,0.30469 4.44531,0.1914 4.83203,0.11328 5.21875,0.03518 5.60937,0 6.00391,0 h 15.00781 c 0.39453,0 0.78515,0.0352 1.17187,0.11328 0.38672,0.0781 0.76172,0.19141 1.125,0.34375 0.36719,0.14844 0.71094,0.33594 1.03907,0.55469 0.32812,0.21875 0.63281,0.46484 0.91015,0.74609 0.27735,0.27734 0.52735,0.58203 0.7461,0.91016 0.21875,0.32812 0.40625,0.67187 0.55468,1.03515 0.15235,0.36719 0.26563,0.74219 0.34375,1.12891 0.0742,0.38672 0.11328,0.77734 0.11328,1.17187 0,0.39063 -0.0391,0.78125 -0.11328,1.16797 -0.0781,0.38672 -0.1914,0.76172 -0.34375,1.12891 -0.14843,0.36328 -0.33593,0.71094 -0.55468,1.03516 -0.21875,0.32812 -0.46875,0.63281 -0.7461,0.91015 -0.27734,0.28125 -0.58203,0.52735 -0.91015,0.7461 -0.32813,0.22265 -0.67188,0.40625 -1.03907,0.55859 -0.36328,0.14844 -0.73828,0.26172 -1.125,0.33984 -0.38672,0.0781 -0.77734,0.11719 -1.17187,0.11719 H 6.00391 c -0.39454,0 -0.78516,-0.0391 -1.17188,-0.11719 -0.38672,-0.0781 -0.76172,-0.1914 -1.125,-0.33984 C 3.33984,11.39844 2.99609,11.21484 2.66797,10.99609 2.33984,10.77344 2.03516,10.52734 1.75781,10.24609 1.48047,9.96875 1.23047,9.66406 1.01172,9.33594 0.79297,9.01172 0.60547,8.66406 0.45703,8.30078 0.30469,7.93359 0.19141,7.55859 0.11328,7.17187 0.03908,6.78515 0,6.39453 0,6.0039 Z m 0,0"
       />
-      <path
-        id="live-2"
-        fill="#fff"
-        d="m 8.8538666,9.0041491 h -3.4375 v -6.203125 h 1.203125 v 5.140625 h 2.0625 z m 0,0"
-      />
-      <path
-        id="live-3"
-        fill="#fff"
-        d="M 10.966965,9.0041491 H 9.7638397 v -6.203125 h 1.2031253 z m 0,0"
-      />
+      <path id="live-2" fill="#fff" d="m 8.8538666,9.0041491 h -3.4375 v -6.203125 h 1.203125 v 5.140625 h 2.0625 z m 0,0" />
+      <path id="live-3" fill="#fff" d="M 10.966965,9.0041491 H 9.7638397 v -6.203125 h 1.2031253 z m 0,0" />
       <path
         id="live-4"
         fill="#fff"
@@ -54,9 +32,9 @@
 
     <ul>
       <li v-for="(menu, index) in menuDropDownLinks.links" :key="index">
-        <a class="menu-pill" :href="(menu.href as unknown as string)">
+        <router-link class="menu-pill" :to="(menu.path as unknown as string)">
           {{ menu.text }}
-        </a>
+        </router-link>
       </li>
     </ul>
   </o-sidebar>
@@ -64,17 +42,9 @@
     <div class="max-w-screen-2xl px-2 md:px-4 lg:px-8 mx-auto">
       <header class="flex justify-between items-center py-4">
         <!-- logo - start -->
-        <a
-          href="/"
-          class="logo inline-flex items-center text-black-800 text-xl md:text-3xl font-bold gap-2.5"
-          aria-label="logo"
-        >
+        <a href="/" class="logo inline-flex items-center text-black-800 text-xl md:text-3xl font-bold gap-2.5" aria-label="logo">
           <h1 class="inline gradient-text">YUP</h1>
-          <svg
-            class="w-10"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 27.015619 12.00781"
-          >
+          <svg class="w-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 27.015619 12.00781">
             <use xlink:href="#live-1"></use>
             <use xlink:href="#live-2"></use>
             <use xlink:href="#live-3"></use>
@@ -85,11 +55,21 @@
         <!-- logo - end -->
 
         <!-- nav - start -->
-        <nav class="hidden lg:flex gap-12">
+        <nav class="hidden lg:flex gap-6 text-[0.8rem]">
+          <router-link
+            class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 font-semibold transition duration-100 flex items-center"
+            to="/feeds"
+            ><FeedsIcon class="inline w-4 mr-2" />Feeds
+          </router-link>
+          <router-link
+            class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 font-semibold transition duration-100"
+            to="/staking"
+            ><StakeIcon class="inline w-6 mr-2" />Staking
+          </router-link>
           <o-dropdown v-model="menuDropDownLinks" aria-role="list">
             <template #trigger>
               <o-button style="background-color: transparent">
-                <span class="dr-menu inline-flex items-center text-lg font-semibold gap-1"
+                <span class="dr-menu inline-flex items-center font-semibold gap-1"
                   >{{ menuDropDownLinks.text }}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -108,13 +88,14 @@
               </o-button>
             </template>
 
-            <a
+            <router-link
               v-for="(menu, index) in menuDropDownLinks.links"
               :key="index"
               class="menu-link"
-              :href="(menu.href as unknown as string)"
+              :to="(menu.path as unknown as string)"
             >
               <o-dropdown-item
+                v-if="menu.text !== menuDropDownLinks.text"
                 :value="menu"
                 aria-role="listitem"
                 class="gap-1 p-1 hover:text-gray-700 hover:dark:text-gray-200 dark:text-gray-300"
@@ -125,14 +106,12 @@
                   </div>
                 </div>
               </o-dropdown-item>
-            </a>
+            </router-link>
           </o-dropdown>
           <o-dropdown v-model="menuDropDownBuyYUP" aria-role="list">
             <template #trigger>
               <o-button style="background-color: transparent">
-                <span
-                  class="dr-menu inline-flex items-center text-lg font-semibold gap-1"
-                >
+                <span class="dr-menu inline-flex items-center font-semibold gap-1">
                   {{ menuDropDownBuyYUP.text }}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -151,12 +130,7 @@
               </o-button>
             </template>
 
-            <a
-              v-for="(menu, index) in menuDropDownBuyYUP.links"
-              :key="index"
-              class="menu-link"
-              :href="(menu.href as unknown as string)"
-            >
+            <a v-for="(menu, index) in menuDropDownBuyYUP.links" :key="index" class="menu-link" :href="(menu.href as unknown as string)">
               <o-dropdown-item
                 :value="menu"
                 aria-role="listitem"
@@ -171,19 +145,12 @@
               </o-dropdown-item>
             </a>
           </o-dropdown>
-          <router-link
-            class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 text-lg font-semibold transition duration-100"
-            :to="`/emissions`"
-          >
-            Emissions
-          </router-link>
         </nav>
         <!-- nav - end -->
         <div class="flex flex-row">
-          <ConnectButton class="mr-8" />
+          <ConnectButton />
 
           <!-- buttons - start -->
-         
         </div>
 
         <button
@@ -191,12 +158,7 @@
           class="inline-flex items-center lg:hidden text-sm md:text-base font-semibold rounded-lg gap-2 px-2.5 py-2 headerMenuBtn"
           @click="toggleSidebar()"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
             <path
               fill-rule="evenodd"
               d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
@@ -214,79 +176,88 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
-import UniSwapIcon from "@/components/content/icons/uniSwap.vue";
-import QuickSwapIcon from "@/components/content/icons/quickSwap.vue";
-import ConnectButton from "@/components/content/connect/connectBtn.vue";
+import { defineComponent, ref, onMounted, watch } from 'vue'
+import UniSwapIcon from '@/components/content/icons/uniSwap.vue'
+import QuickSwapIcon from '@/components/content/icons/quickSwap.vue'
+import ConnectButton from '@/components/content/connect/connectBtn.vue'
+import StakeIcon from '@/components/content/icons/stake.vue'
+import FeedsIcon from '@/components/content/icons/feeds.vue'
 
 export default defineComponent({
-  name: "HeaderTemplate",
+  name: 'HeaderTemplate',
   components: {
     UniSwapIcon,
     QuickSwapIcon,
-    ConnectButton,
+    StakeIcon,
+    FeedsIcon,
+    ConnectButton
   },
   setup(props) {
     const buyIcons = {
       uniswap: UniSwapIcon,
-      quickswap: QuickSwapIcon,
-    };
+      quickswap: QuickSwapIcon
+    }
 
     // const routes: Record<string, unknown>[] = inject('routes')
-    const sidebarOpen = ref(false);
+    const sidebarOpen = ref(false)
 
     const linksFs = [
       {
-        text: "Vote Explorer",
-        href: "/",
+        text: 'Vote Explorer',
+        path: '/'
       },
       {
-        text: "Check Raw Influence",
-        href: "/raw-influence",
+        text: 'Check Raw Influence',
+        path: '/raw-influence'
       },
       {
-        text: "POAP App",
-        href: "https://yup-poap.pages.dev",
-      },
-      {
-        text: "Meeting Recordings",
-        href: "https://yup-poap.pages.dev/meeting-recordings",
-      },
-    ];
+        text: 'Emissions',
+        path: '/emissions'
+      }
+      // {
+      //   text: 'POAP App',
+      //   href: 'https://yup-poap.pages.dev'
+      // },
+      // {
+      //   text: 'Meeting Recordings',
+      //   href: 'https://yup-poap.pages.dev/meeting-recordings'
+      // }
+    ]
 
     const menuDropDownLinks = ref({
       links: linksFs,
-      text: "YUP",
-    });
+      text: 'YUP'
+    })
+
+    watch(menuDropDownLinks, () => {
+      menuDropDownLinks.value.links = linksFs
+    })
 
     const linksBuyYup = [
       {
-        text: "Buy on QuickSwap",
-        href:
-          "https://quickswap.exchange/#/swap?inputCurrency=ETH&outputCurrency=0x086373fad3447f7f86252fb59d56107e9e0faafa",
-        icon: "quickswap",
+        text: 'Buy on QuickSwap',
+        href: 'https://quickswap.exchange/#/swap?inputCurrency=ETH&outputCurrency=0x086373fad3447f7f86252fb59d56107e9e0faafa',
+        icon: 'quickswap'
       },
       {
-        text: "Buy on Uniswap",
-        href:
-          "https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x69bBC3F8787d573F1BBDd0a5f40C7bA0Aee9BCC9&chain=mainnet",
-        icon: "uniswap",
-      },
-    ];
+        text: 'Buy on Uniswap',
+        href: 'https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x69bBC3F8787d573F1BBDd0a5f40C7bA0Aee9BCC9&chain=mainnet',
+        icon: 'uniswap'
+      }
+    ]
 
     const menuDropDownBuyYUP = ref({
       links: linksBuyYup,
-      text: "Buy YUP",
-    });
+      text: 'Buy YUP'
+    })
 
- 
     const toggleSidebar = () => {
-      sidebarOpen.value = !sidebarOpen.value;
-    };
+      sidebarOpen.value = !sidebarOpen.value
+    }
 
     onMounted(() => {
       // do nothing.
-    });
+    })
 
     return {
       menuDropDownLinks,
@@ -295,9 +266,9 @@ export default defineComponent({
       toggleSidebar,
       props,
       buyIcons
-    };
-  },
-});
+    }
+  }
+})
 </script>
 
 <style lang="scss">
@@ -321,11 +292,11 @@ export default defineComponent({
   text-shadow: 1px 0px 1px #222;
 }
 
-html[class="dark"] .media-content {
+html[class='dark'] .media-content {
   color: gainsboro;
 }
 
-html[class="dark"] .dr-menu {
+html[class='dark'] .dr-menu {
   color: #cecece;
   text-shadow: #080808 0px 1px 4px;
 }
@@ -359,15 +330,14 @@ nav .o-drop__menu {
   min-width: 8.5rem;
 }
 .hero {
-   max-height: 4rem;
-   width: 100vw;
-   position: fixed;
-   z-index: 10;
+  max-height: 4rem;
+  width: 100vw;
+  position: fixed;
+  z-index: 10;
 }
 
 .sidebar {
-  background: url(/img/res/header-waves.svg),
-    linear-gradient(180deg, #212529 0%, #36354a 61.98%, #3b3c68 100%);
+  background: url(/img/res/header-waves.svg), linear-gradient(180deg, #212529 0%, #36354a 61.98%, #3b3c68 100%);
   background-position: 50% 200px, top;
   background-repeat: no-repeat;
   background-size: cover, auto;
@@ -383,7 +353,7 @@ nav .o-drop__menu {
   }
 
   & > div > div::before {
-    content: "";
+    content: '';
     position: absolute;
     bottom: 0;
     left: 0;
@@ -493,14 +463,14 @@ h1 {
 }
 
 .headerMenuBtn {
-    background: #222;
-    color: aliceblue;
-    border: 1px solid #ffffff24;
+  background: #222;
+  color: aliceblue;
+  border: 1px solid #ffffff24;
 }
 
 .logo {
-    box-shadow: inset -1px -1px 3rem 2px var(--logoBg);
-    padding: 0rem 0.4rem;
-    border-radius: 0.3rem;
+  box-shadow: inset -1px -1px 3rem 2px var(--logoBg);
+  padding: 0rem 0.4rem;
+  border-radius: 0.3rem;
 }
 </style>

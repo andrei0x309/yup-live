@@ -11,10 +11,10 @@
     <LogOutBtn class="mr-2" />
   </button>
   <o-modal v-model:active="refConnectMod" contentClass="modal-body" @close="modalWasClosed">
-    <template  v-if="libWallLoading">
-    <p class="p-4">{{ loadingMessage }}</p>
-    <DangLoader />
-  </template>
+    <template v-if="libWallLoading">
+      <p class="p-4">{{ loadingMessage }}</p>
+      <DangLoader />
+    </template>
     <component
       :is="!libWallLoading ? refDynLogComp : undefined"
       :key="libWallLoading"
@@ -44,7 +44,6 @@ export default defineComponent({
     NotifBtn,
     LogOutBtn
   },
-  props: {},
   setup() {
     const refConnectMod = ref(false)
     const libWallLoading = ref(false)

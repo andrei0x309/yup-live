@@ -3,8 +3,10 @@
     <div class="bg-color flex flex-col">
       <div class="profile w-full mb-4 flex flex-row">
         <DangLoader v-if="isLoadingUser" class="mt-28" :unset="true" />
-        <ProfileCard v-else :userData="userData" :color="iconsColor" />
-        <ProfileInfoCard class="mt-8" :bio="userData.bio" :fields="userFields" />
+        <template v-else>
+          <ProfileCard :userData="userData" />
+          <ProfileInfoCard class="mt-8" :bio="userData.bio" :fields="userFields" />
+        </template>
         <div
           v-if="apiError && !isLoadingUser"
           style="max-width: 40rem; margin: auto"
@@ -29,26 +31,84 @@
           </div>
         </div>
       </div>
-      <ProfileMenu @change="menuChange" />
+      <ProfileMenu :currentMenuTab="currentMenuTab" @change="menuChange" />
     </div>
-    <div class="bg-color table-list profile w-full mb-4 flex flex-column">
-      <InfScroll v-if="currentMenuTab === MENU_BUTTONS.FEED" :key="`${postLoaded}-loaded`" :postLoaded="postLoaded" @hit="onHit">
+    <div class="bg-color table-list profile w-full mb-4 flex flex-col">
+      <template v-if="currentMenuTab === MENU_BUTTONS.feed && !postLoaded">
+        <p>Loading user feed</p>
+        <DangLoader :unset="true" />
+      </template>
+      <InfScroll
+        v-if="currentMenuTab === MENU_BUTTONS.feed && postLoaded"
+        :key="`${postLoaded}-loaded`"
+        :postLoaded="postLoaded"
+        @hit="onHit"
+      >
         <template #content>
-          <template v-for="post of posts" :key="post._id.postid">
-            <Post
-              :id="(post  as Record<string, any>)._id.postid"
-              :post="(post as Record<string, any>)"
-              :postTypesPromises="postTypesPromises"
+          <div v-if="posts.length > 0" class="flex flex-row mx-auto">
+            <div class="flex flex-col">
+              <Post
+                v-for="post of posts"
+                :id="(post as Record<string, any>)._id.postid"
+                :key="(post  as Record<string, any>)._id.postid"
+                :post="(post as Record<string, any>)"
+                :postTypesPromises="postTypesPromises"
+                :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
+                @updatepostinfo="
+                  (postid: string) => {
+                    postInfo = posts.find((p: any): boolean => postid === p._id.postid)
+                  }
+                "
+              />
+              <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
+            </div>
+            <PostInfo
+              :key="(postInfo as Record<string, any>)._id.postid"
+              class="hidden lg:flex"
+              :post="(postInfo as Record<string, any>)"
             />
-          </template>
+          </div>
         </template>
       </InfScroll>
       <CollectionsPage
-        v-if="currentMenuTab === MENU_BUTTONS.COLLECTIONS"
+        v-if="currentMenuTab === MENU_BUTTONS.collections"
         :accountId="userId"
         :collections="collectionsPageCollections"
         :collectionPromise="collectionsPagePromise"
       />
+      <FollowersPage v-if="currentMenuTab === MENU_BUTTONS.followers" :followersList="followers" :account="userData.username" />
+      <InfScroll
+        v-if="currentMenuTab === MENU_BUTTONS.web3 && postLoaded"
+        :key="`${postLoaded}-loaded`"
+        :postLoaded="postLoaded"
+        @hit="onHit"
+      >
+        <template #content>
+          <div v-if="posts.length > 0" class="flex flex-row mx-auto">
+            <div class="flex flex-col">
+              <Post
+                v-for="post of posts"
+                :id="(post as Record<string, any>)._id.postid"
+                :key="(post  as Record<string, any>)._id.postid"
+                :post="(post as Record<string, any>)"
+                :postTypesPromises="postTypesPromises"
+                :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
+                @updatepostinfo="
+                  (postid: string) => {
+                    postInfo = posts.find((p: any): boolean => postid === p._id.postid)
+                  }
+                "
+              />
+              <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
+            </div>
+            <PostInfo
+              :key="(postInfo as Record<string, any>)._id.postid"
+              class="hidden lg:flex"
+              :post="(postInfo as Record<string, any>)"
+            />
+          </div>
+        </template>
+      </InfScroll>
     </div>
   </div>
 </template>
@@ -63,20 +123,20 @@ import InfScroll from '@/components/functional/inf-scroll/infScroll.vue'
 import ProfileMenu from '@/components/content/profile/menu.vue'
 import { useMainStore } from '@/store/main'
 import { useRoute } from 'vue-router'
-import { getNormalizedValue, getMaxVote, MAX_DELETE_VOTE, MAX_FOLLOW_USAGE, makePercentage, makeRandAvatar } from '../utils/misc'
 import Post from '@/components/content/post/post.vue'
-import type { NameValue } from '@/types/common'
-import type { ICollection } from '@/types/store'
 import { wait } from '@/utils/time'
 import { useCollectionStore, useCollectionStoreEx, getCollections } from '@/store/collections'
 import { MENU_BUTTONS } from '@/components/content/profile/menuButtonEnums'
 import CollectionsPage from '@/components/content/profile/collectionsPage.vue'
+import { postTypesPromises } from '@/utils/post'
+import PostInfo from '@/components/content/post/postInfo.vue'
+import LineLoader from '@/components/functional/lineLoader.vue'
+import { getUserFollowers, createActionUsage, createUserData } from '@/utils/requests/accounts'
+import type { NameValue } from '@/types/account'
+import type { ICollection } from '@/types/store'
+import FollowersPage from '../components/content/profile/followersPage.vue'
 
-const postTypesPromises = {
-  preloadGeneral: import(`@/components/content/post/post-types/general.vue`),
-  preloadYoutube: import(`@/components/content/post/post-types/youtube.vue`),
-  preLoadTweet: import(`@/components/content/post/post-types/tweet.vue`)
-}
+const API_BASE = import.meta.env.VITE_YUP_API_BASE
 
 export default defineComponent({
   name: 'ProfilePage',
@@ -87,10 +147,15 @@ export default defineComponent({
     ProfileMenu,
     Post,
     InfScroll,
-    CollectionsPage
+    CollectionsPage,
+    PostInfo,
+    LineLoader,
+    FollowersPage
   },
   setup() {
-    const API_BASE = import.meta.env.VITE_YUP_API_BASE
+    const route = useRoute()
+    const userId = route.params.userId as string
+    const accountRoute = route.params.accountRoute as string
     const search = ref('')
     const store = useMainStore()
     const apiError = ref(false)
@@ -99,16 +164,23 @@ export default defineComponent({
     const influence: Ref<null | string> = ref(null)
     const historicInfluence: Ref<Array<Record<string, string | number>>> = ref([])
     const iconsColor = ref(store.theme === 'dark' ? '#ccc' : '#020201')
-    const route = useRoute()
     const userFields = ref([]) as Ref<Array<NameValue>>
     const posts = ref([]) as Ref<Array<unknown>>
     const postsIndex = ref(0)
     const postLoaded = ref(false)
-    const currentMenuTab = ref(MENU_BUTTONS.FEED)
+    const feedLoading = ref(false)
+    const currentMenuTab = ref(
+      Object.keys(MENU_BUTTONS).includes(accountRoute) ? (MENU_BUTTONS as { [key: string]: string })[accountRoute] : MENU_BUTTONS.feed
+    )
+
+    console.log(Object.values(MENU_BUTTONS), accountRoute, currentMenuTab)
+
     const collections = useCollectionStore()
     const collectionsEx = useCollectionStoreEx()
+    const postInfo = ref(null) as Ref<unknown>
+    const followers = ref([]) as Ref<string[]>
 
-    const userData = reactive({
+    const userData = ref({
       username: '',
       followers: 0,
       following: 0,
@@ -126,12 +198,11 @@ export default defineComponent({
         deleteVote: '',
         follow: ''
       }
-    })
+    }) as unknown as Ref<Awaited<ReturnType<typeof createUserData>>['data']['userData']>
     // const router = useRouter()
-    const userId = route.params.userId as string
 
     const siteData = reactive({
-      title: `YUP Profile - ${userData.username}`,
+      title: `YUP Profile - ${userData.value?.username ?? ''}`,
       description: `Check my web3 YUP social profile --- yup.info.gf`
     })
 
@@ -163,131 +234,15 @@ export default defineComponent({
       // }
     })
 
-    const noBio = (username: string) => `Hi there I am ${username} I signed up on YUP DApp but I haven't written anything about myself yet.`
-
-    const getUserData = async (userId: string) => {
-      const res = await fetch(`${API_BASE}/accounts/${userId}`)
-      const data = await res.json()
-      const {
-        _id,
-        username,
-        balance,
-        total_vote_value,
-        total_claimed_rewards,
-        weight,
-        lastAddRewardTxDateCreator,
-        lastAddRewardTxDateCurator,
-        score,
-        avatar,
-        twitterInfo,
-        cum_deposit_time,
-        bio,
-        createdAt,
-        ethInfo
-      } = data
-      userData.username = username
-      userData.balance = formatNumber(balance.YUP)
-      userData.balanceNum = balance.YUP
-      userData.weight = formatNumber(weight)
-      userData.score = formatNumber(score)
-      userData.avatar = avatar ? (avatar.startsWith('https://ipfs2.yup.io') ? makeRandAvatar(_id) : avatar) : makeRandAvatar(_id)
-      userData.cum_deposit_time = cum_deposit_time
-      !bio ? (userData.bio = noBio(username)) : (userData.bio = bio)
-      const userInfoFields = [
-        {
-          name: 'Created At:',
-          value: createdAt
-        },
-        {
-          name: 'Cumulative Deposit Time',
-          value: formatNumber(cum_deposit_time)
-        },
-        {
-          name: 'Total Rewards Claimed',
-          value: formatNumber(total_claimed_rewards)
-        },
-        {
-          name: 'Total Vote Value',
-          value: formatNumber(total_vote_value)
-        },
-        {
-          name: 'Last Curator Reward',
-          value: lastAddRewardTxDateCurator
-        },
-        {
-          name: 'Total Creator Reward',
-          value: lastAddRewardTxDateCreator
-        }
-      ]
-      if (ethInfo?.address) {
-        userInfoFields.splice(1, 0, {
-          name: 'Linked ETH Address',
-          value: ethInfo.address.substring(0, 5) + '...' + ethInfo.address.substring(ethInfo.address.length - 3)
-        })
-      } else {
-        userInfoFields.splice(1, 0, {
-          name: 'Linked ETH Address',
-          value: 'Not linked'
-        })
-      }
-      if (ethInfo?.isMirror) {
-        userInfoFields.splice(2, 0, {
-          name: 'Mirror Account',
-          value: 'Yes'
-        })
-      } else {
-        userInfoFields.splice(2, 0, {
-          name: 'Mirror Account',
-          value: 'No'
-        })
-      }
-      if (twitterInfo?.userId) {
-        userInfoFields.push({
-          name: 'Twitter ID',
-          value: twitterInfo.userId
-        })
-      } else {
-        userInfoFields.push({
-          name: 'Twitter ID',
-          value: 'Not linked'
-        })
-      }
-      userFields.value = userInfoFields
-    }
-
-    const formatNumber = (num: number) => {
-      return Intl.NumberFormat('en-US', {
-        notation: 'compact',
-        maximumFractionDigits: 0
-      }).format(num)
-    }
-
-    const getUserFollowers = (userId: string) => {
-      fetch(`${API_BASE}/followers/${userId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          userData.followers = data.length
-        })
-    }
-
     const getActionUsage = (userId: string) => {
-      fetch(`${API_BASE}/accounts/actionusage/${userId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          userData.nextReset = new Date(data.lastReset + 864e5).toLocaleString()
-          userData.actionBars.deleteVote = makePercentage(getNormalizedValue(MAX_DELETE_VOTE - data.deleteVoteCount, 0, MAX_DELETE_VOTE))
-          userData.actionBars.follow = makePercentage(getNormalizedValue(MAX_FOLLOW_USAGE - data.followCount, 0, MAX_FOLLOW_USAGE))
-          const MAX_VOTE = getMaxVote(userData.balanceNum)
-          userData.actionBars.vote = makePercentage(getNormalizedValue(MAX_VOTE - data.createVoteCount, 0, MAX_VOTE))
-          console.log(
-            userData.actionBars,
-            data,
-            makePercentage(getNormalizedValue(data.createVoteCount, 0, MAX_VOTE)),
-            MAX_VOTE,
-            data.createVoteCount,
-            getNormalizedValue(MAX_VOTE - data.createVoteCount, 0, 100)
-          )
-        })
+      createActionUsage(userId, userData.value.balanceNum).then((d) => {
+        if (!d.error) {
+          userData.value.nextReset = d.nextReset as string
+          userData.value.actionBars.deleteVote = d.actionBars?.deleteVote as string
+          userData.value.actionBars.follow = d.actionBars?.follow as string
+          userData.value.actionBars.vote = d.actionBars?.vote as string
+        }
+      })
     }
 
     const getHomeFeedPosts = async (start = 0) => {
@@ -295,6 +250,14 @@ export default defineComponent({
       const data = await res.json()
       return data.posts
     }
+
+    const getCreatedFeedPosts = async (start = 0) => {
+      const res = await fetch(`${API_BASE}/feed/account/${userId}/web3?start=${start}&limit=10`)
+      const data = await res.json()
+      return data.posts
+    }
+
+    let getFeedPosts = getHomeFeedPosts
 
     const scrollIntoView = (id: string) => {
       const el = document.getElementById(id)
@@ -307,6 +270,7 @@ export default defineComponent({
     }
 
     const onHit = async (type: string) => {
+      feedLoading.value = true
       if (type === 'up' && posts.value.length <= 30) {
         return
       } else if (type === 'up' && postsIndex.value >= 30) {
@@ -327,11 +291,30 @@ export default defineComponent({
         const newPosts = await getHomeFeedPosts(postsIndex.value)
         posts.value = [...posts.value.slice(10), ...newPosts]
       }
-      // console.log(postsIndex.value, (posts.value[0] as {_id: any})._id, posts.value.length)
+      feedLoading.value = false
+    }
+
+    const resetPosts = async () => {
+      posts.value = []
+      postLoaded.value = false
+      getFeedPosts().then((res) => {
+        posts.value = res
+        if (!postInfo.value) {
+          postInfo.value = posts.value[0]
+        }
+        postLoaded.value = true
+      })
     }
 
     const menuChange = (tabId: string) => {
       currentMenuTab.value = tabId
+      if (currentMenuTab.value === MENU_BUTTONS.feed) {
+        getFeedPosts = getHomeFeedPosts
+        resetPosts()
+      } else if (currentMenuTab.value === MENU_BUTTONS.web3) {
+        getFeedPosts = getCreatedFeedPosts
+        resetPosts()
+      }
     }
 
     const collectionsPageCollections = computed(() => {
@@ -351,27 +334,37 @@ export default defineComponent({
     })
 
     onMounted(async () => {
-      getUserFollowers(userId)
-      getUserData(userId).then(() => {
-        getActionUsage(userId)
+      getUserFollowers(userId).then((r) => {
+        if (!r.error) {
+          userData.value.followers = r?.data?.length
+          followers.value = r?.data ?? []
+        } else {
+          console.error(r.msg)
+        }
+      })
+      createUserData(userId, true).then((uD) => {
+        if (uD.error) {
+          console.error('API error')
+        } else {
+          userData.value = Object.assign(userData.value, uD.data?.userData)
+          userFields.value = uD.data?.userFields ?? []
+          getActionUsage(userId)
+        }
         isLoadingUser.value = false
       })
-      getHomeFeedPosts().then((res) => {
-        posts.value = res
-        console.log(res)
-        postLoaded.value = true
-      })
+
       if (userId !== store.userData.account) {
-        collectionsEx.collectionsPromise = getCollections(collectionsEx, userId) as Promise<ICollection[]>
+        collectionsEx.collectionsPromise = getCollections(collectionsEx, userId, true) as Promise<ICollection[]>
       } else {
         collections.collectionsPromise = getCollections(collections, userId) as Promise<ICollection[]>
       }
-      console.log(collectionsPageCollections)
-      console.log(collectionsPagePromise)
-    })
-
-    onUnmounted(() => {
-      // do nothing
+      if (currentMenuTab.value === MENU_BUTTONS.feed) {
+        getFeedPosts = getHomeFeedPosts
+      } else if (currentMenuTab.value === MENU_BUTTONS.web3) {
+        getFeedPosts = getCreatedFeedPosts
+      }
+      resetPosts()
+      console.log(accountRoute)
     })
 
     useHead({
@@ -388,10 +381,14 @@ export default defineComponent({
         },
         {
           name: 'og:image',
-          content: computed(() => userData.avatar)
+          content: computed(() => userData.value?.avatar)
         }
       ]
     } as unknown as Ref<HeadObject>)
+
+    onUnmounted(() => {
+      // do nothing
+    })
 
     return {
       search,
@@ -412,7 +409,10 @@ export default defineComponent({
       MENU_BUTTONS,
       collectionsPageCollections,
       collectionsPagePromise,
-      postTypesPromises
+      postTypesPromises,
+      postInfo,
+      feedLoading,
+      followers
     }
   }
 })

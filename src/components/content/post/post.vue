@@ -1,68 +1,68 @@
 <template>
-  <div class="flex justify-between m-6 flex-row pPost">
-    <div class="flex flex-col max-w-lg mx-auto rounded-b-none postCard w-full">
-      <component :is="!postTypeLoading ? postTypeCom : undefined" :key="`post-loaded-${postTypeLoading}`" :post="processedPost" />
+  <div :class="`flex justify-between m-1 md:m-6 flex-row pPost ${postTypeClass}`">
+    <div class="flex flex-col max-w-2xl mx-auto rounded-b-none postCard w-full">
+      <component
+        :is="!postTypeLoading ? postTypeCom : undefined"
+        :key="`post-loaded-${postTypeLoading}`"
+        :full="full"
+        :post="processedPost"
+      />
       <div class="flex flex-row items-end w-full px-4 mt-4">
         <div class="flex border-t border-gray-700 w-full py-4">
-          <div class="flex items-center space-x-3 border-r border-gray-700 w-full">
-            <!-- <img
-                  class="object-cover w-8 h-8 border-2 border-white rounded-full"
-                  src="https://storageapi.fleek.co/kamaludin21-team-bucket/portfolio/avatar.jpg"
-                  alt="profile users"
-                  loading="lazy"
-                />
-                <div class="">
-                  <p class="text-sm font-semibold tracking-wide text-gray-200">
-                    Author
-                  </p>
-                  <p class="text-xs font-light tracking-wider text-gray-300">
-                    2 Hours ago
-                  </p>
-                </div> -->
+          <div class="flex items-center gap-x-2 border-r border-gray-700 w-full pl-2">
             <Voting
-              :key="processedPost.title"
+              :key="`${processedPost.title}${votingKey}`"
+              v-model:vote="refHasVote"
               :postId="processedPost.id"
               :positiveWeight="processedPost.positiveWeight"
               :negativeWeight="processedPost.negativeWeight"
+              :hasVote="refHasVote"
             />
+            <InfoIcon v-if="!isHidenInfo" class="ml-auto hidden lg:flex mr-4 cursor-pointer" @click="updatePostInfo" />
           </div>
           <div class="flex items-center flex-shrink-0 px-2">
             <div class="flex items-center space-x-1">
-              <CollectMenu collections="" />
-              <PostMenu :postInfo="postInfo" :postId="processedPost.id" :postShareInfo="postShareInfo" />
+              <CollectMenu :postId="processedPost.id" />
+              <PostMenu
+                :key="menuKey"
+                v-model:vote="refHasVote"
+                :postId="processedPost.id"
+                :postShareInfo="postShareInfo"
+                :hasVote="refHasVote"
+                @deletedvote="hasVoteDeleted"
+              />
             </div>
           </div>
         </div>
       </div>
     </div>
-    <PostInfo class="hidden lg:flex" :postInfo="postInfo" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive, ref, Ref, shallowRef } from 'vue'
-
+import { defineComponent, onMounted, reactive, ref, Ref, shallowRef, watch } from 'vue'
 import ImagePreview from '@/components/content/post/imagePreview.vue'
-import PostInfo from '@/components/content/post/postInfo.vue'
 import Voting from '@/components/content/post/voting.vue'
 import FavIco from './favIco.vue'
 import ClockIcon from '@/components/content/icons/clock.vue'
 import PostMenu from './menu/postMenu.vue'
 import CollectMenu from './menu/collectMenu.vue'
 import { useMainStore } from '@/store/main'
-import type { NameValue } from '@/types/common'
 import { timeAgo } from '@/utils/time'
+import InfoIcon from '@/components/content/icons/infoIcon.vue'
+import { hasVote } from '@/utils/requests/vote'
+import type { Vote } from '@/types/vote'
 
 export default defineComponent({
   name: 'Post',
   components: {
     ImagePreview,
-    PostInfo,
     ClockIcon,
     Voting,
     FavIco,
     PostMenu,
-    CollectMenu
+    CollectMenu,
+    InfoIcon
   },
   props: {
     post: {
@@ -70,12 +70,21 @@ export default defineComponent({
       type: Object,
       default: () => ({})
     },
+    isHidenInfo: {
+      type: Boolean,
+      default: false
+    },
     postTypesPromises: {
       type: Object,
       required: true
+    },
+    full: {
+      type: Boolean,
+      required: false
     }
   },
-  setup(props) {
+  emits: ['updatepostinfo'],
+  setup(props, ctx) {
     const postTypeCom: Ref<ReturnType<typeof defineComponent>> = shallowRef(undefined)
 
     const processedPost = reactive({
@@ -89,16 +98,24 @@ export default defineComponent({
       videoType: '',
       positiveWeight: 0,
       negativeWeight: 0,
-      tweetInfo: {}
+      tweetInfo: {},
+      web3Preview: {}
       //   isMirror: false,
       //   isWeb3: false,
       //   isTwitter: false,
     })
-    const postInfo = ref([]) as unknown as Ref<Array<NameValue>>
     const store = useMainStore()
     const iconsColor = ref(store.theme === 'dark' ? '#ccc' : '#020201')
     const postTypeLoading = ref(true)
     const postShareInfo = reactive({}) as unknown as { url: string; title: string; text: string }
+    const postTypeClass = ref('')
+    const refHasVote = ref(store.isLoggedIn ? hasVote(props.post._id.postid, store.userData.account) : Promise.resolve([])) as Ref<
+      Promise<Vote[]>
+    >
+    const cloneWeights = {} as unknown as { positiveWeight: number; negativeWeight: number }
+
+    const votingKey = ref(0)
+    const menuKey = ref(0)
 
     store.$subscribe(() => {
       if (store.theme === 'dark') {
@@ -106,6 +123,11 @@ export default defineComponent({
       } else {
         iconsColor.value = '#020201'
       }
+    })
+
+    watch(refHasVote, (newVal) => {
+      refHasVote.value = newVal
+      menuKey.value++
     })
 
     const processPost = () => {
@@ -125,44 +147,47 @@ export default defineComponent({
       }
       processedPost.createdAt = timeAgo(props.post.createdAt)
       processedPost.url = props.post.url
-      processedPost.positiveWeight = props.post.positiveWeight
-      processedPost.negativeWeight = props.post.negativeWeight
-
-      postInfo.value = [
-        {
-          name: 'Post Id',
-          value: props.post._id.postid
-        },
-        {
-          name: 'URL',
-          value: `<a href="${props.post.url}">Link</a>`
-        },
-        {
-          name: 'Positive Weight',
-          value: props.post.positiveWeight
-        },
-        {
-          name: 'Negative Weight',
-          value: props.post.negativeWeight
-        },
-        {
-          name: 'Total Creator Rewards',
-          value: props.post.totalCreatorRewards.toFixed(2)
-        }
-      ]
-      // console.log(props.post)
+      processedPost.positiveWeight = props.post.rawPositiveWeight ?? props.post.positiveWeight ?? 0
+      processedPost.negativeWeight = props.post.rawNegativeWeight ?? props.post.negativeWeight ?? 0
+      cloneWeights.positiveWeight = props.post.rawPositiveWeight ?? props.post.positiveWeight ?? 0
+      cloneWeights.negativeWeight = props.post.rawNegativeWeight ?? props.post.negativeWeight ?? 0
 
       postShareInfo.title = processedPost.title
       postShareInfo.url = (window as unknown as { location: { origin: string } }).location.origin + '/post/' + processedPost.id
       postShareInfo.text = processedPost.content
     }
 
+    const updatePostInfo = () => {
+      ctx.emit('updatepostinfo', props.post._id.postid)
+    }
+
     onMounted(() => {
-      checkPostType(props.post.url).then(async (type) => {
+      checkPostType(props.post as unknown as { url: string; tag: string }).then(async (type) => {
+        postTypeClass.value = type
         switch (type) {
           case 'tweet':
             processedPost.tweetInfo = props.post.tweetInfo
             postTypeCom.value = (await props.postTypesPromises.preLoadTweet).default
+            break
+          case 'farcaster':
+            processedPost.web3Preview = props.post.web3Preview
+            postTypeCom.value = (await props.postTypesPromises.preloadFarcaster).default
+            break
+          case 'lens':
+            processedPost.web3Preview = props.post.web3Preview
+            postTypeCom.value = (await props.postTypesPromises.preloadLens).default
+            break
+          case 'poap':
+            processedPost.web3Preview = props.post.web3Preview
+            postTypeCom.value = (await props.postTypesPromises.preloadPoap).default
+            break
+          case 'mirror':
+            processedPost.web3Preview = props.post.web3Preview
+            postTypeCom.value = (await props.postTypesPromises.preloadMirror).default
+            break
+          case 'snapshot':
+            processedPost.web3Preview = props.post.web3Preview
+            postTypeCom.value = (await props.postTypesPromises.preloadSnapshot).default
             break
           case 'youtubeVideo':
             postTypeCom.value = (await props.postTypesPromises.preloadYoutube).default
@@ -176,10 +201,24 @@ export default defineComponent({
       processPost()
     })
 
-    const checkPostType = async (url: string) => {
-      if (url.match(/https?:\/\/(mobile.|www.)?twitter\.com\/.*?status/i)) return 'tweet'
-      if (url.toLocaleLowerCase().includes('youtube.com/watch?')) return 'youtubeVideo'
+    const checkPostType = async (post: { url: string; tag: string }) => {
+      if (post.tag === 'mirror') return 'mirror'
+      if (post.tag === 'poap') return 'poap'
+      if (post.tag === 'farcaster') return 'farcaster'
+      if (post.tag === 'lens') return 'lens'
+      if (post.tag === 'snapshot') return 'snapshot'
+      if (post.tag === 'twitter') return 'tweet'
+      if (post?.url.match(/https?:\/\/(mobile.|www.)?twitter\.com\/.*?status/i)) return 'tweet'
+      if (post?.url.startsWith('farcaster://')) return 'farcaster'
+      if (post?.url.toLocaleLowerCase().includes('youtube.com/watch?')) return 'youtubeVideo'
+
       return 'general'
+    }
+
+    const hasVoteDeleted = () => {
+      processedPost.positiveWeight = cloneWeights.positiveWeight
+      processedPost.negativeWeight = cloneWeights.negativeWeight
+      votingKey.value++
     }
 
     // onBeforeMount(() => {
@@ -188,11 +227,16 @@ export default defineComponent({
 
     return {
       processedPost,
-      postInfo,
       iconsColor,
       postTypeCom,
       postTypeLoading,
-      postShareInfo
+      postShareInfo,
+      updatePostInfo,
+      postTypeClass,
+      refHasVote,
+      hasVoteDeleted,
+      votingKey,
+      menuKey
     }
   }
 })
@@ -216,26 +260,25 @@ html[class='dark'] {
 }
 
 .favIco {
-  background: radial-gradient(ellipse at bottom, #1d2024f3 0%, rgba(31, 31, 31, 0.829) 100%);
-  box-shadow: 9px 8px 25px 5px rgba(0, 0, 0, 0.473);
+  display: flex;
+  background: radial-gradient(ellipse at bottom, rgb(231 230 189 / 59%) 0%, rgb(27 197 189 / 7%) 100%);
+  box-shadow: 2px 0px 10px 3px rgb(0 0 0 / 16%);
   border-radius: 50%;
   width: 2.5rem;
   height: 2.5rem;
-  padding: 0.2rem;
   justify-content: center;
   align-items: center;
   position: relative;
   top: -0.3rem;
   border: 1px solid rgba(107, 107, 107, 0.26);
-  padding: 1.55%;
   img {
     filter: brightness(0) invert(1);
   }
 }
 
 .time {
-  background: radial-gradient(ellipse at bottom, #1d2024f3 0%, rgba(31, 31, 31, 0.438) 100%);
-  box-shadow: 9px 8px 25px 5px rgb(0 0 0 / 79%);
+  background: radial-gradient(ellipse at bottom, rgba(231, 230, 189, 0.59) 0%, rgba(27, 197, 189, 0.07) 100%);
+  box-shadow: 2px 0px 10px 3px rgb(0 0 0 / 16%);
   width: 8.5rem;
   padding: 0.2rem;
   justify-content: center;
@@ -251,5 +294,32 @@ html[class='dark'] {
   opacity: 1;
   transition: opacity 700ms linear;
   align-items: center;
+}
+
+.pPost.mirror div {
+  max-width: 60rem;
+}
+
+div.w3TweetTypeBody {
+  text-align: left;
+  word-break: break-all;
+
+  .reply-line {
+    border-left: 2px solid rgba(255, 127, 80, 0.699);
+  }
+
+  a {
+    filter: brightness(1.2) sepia(2);
+    border-bottom: 1px solid rgba(184, 184, 184, 0.096);
+  }
+  a:hover {
+    transform: skewX(20deg);
+  }
+
+  .indent {
+    width: 1rem;
+    margin-left: 1.5rem;
+    margin-right: 1rem;
+  }
 }
 </style>

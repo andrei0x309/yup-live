@@ -21,3 +21,13 @@ export const loadTwitterFactory = async (window: any) => {
     }(document, "script"))
   })
 }
+
+export const createTweetEmbed = async (id: string, theme = 'dark') => {
+    await (window as any).twttr.widgets.createTweet(
+        id,
+        document.getElementById('container'),
+        {
+            theme
+        }
+    );
+}

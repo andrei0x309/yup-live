@@ -2,6 +2,7 @@ import { useMainStore } from '@/store/main'
 
 const store = useMainStore()
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fetchWAuth = async (endpoint: string, options?: any) => {
     if (!options) options = {}
     if (!options.body) options.body = {}

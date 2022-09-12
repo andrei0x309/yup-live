@@ -36,7 +36,7 @@ import ClockIcon from '@/components/content/icons/clock.vue'
 import BtnSpinner from '../../icons/btnSpinner.vue'
 
 export default defineComponent({
-  name: 'PostTypeYoutube',
+  name: 'PostYoutube',
   components: {
     YoutubeIcon,
     ClockIcon,
@@ -51,10 +51,10 @@ export default defineComponent({
   },
   setup(props) {
     const loading = ref(false)
-    const videoId = ref('ss')
+    const videoId = ref('')
     onMounted(() => {
       console.log('pppp', props.post.url)
-      const match = /v=(.*?)&?$/.exec(props.post.url)
+      const match = /v=(.*?)$/.exec(props.post.url.split('&')[0])
       if (match) {
         videoId.value = match[1]
       }

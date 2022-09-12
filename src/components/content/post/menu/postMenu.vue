@@ -10,7 +10,7 @@
       <template #content>
         <ul class="w-30 text-justify postMenu">
           <li class="pt-1 cursor-pointer" @click="showVoters"><RadarIcon class="w-5 inline -mt-1 mr-1" />View Voters</li>
-          <li class="pt-1 cursor-pointer" @click="deleteVote">
+          <li v-if="refHasVote" class="pt-1 cursor-pointer" @click="deleteVote">
             <DeleteIcon :class="`w-5 inline -mt-1 mr-1 ${delLoading ? 'rotate' : ''}`" />Delete Vote
           </li>
           <li class="pt-1 cursor-pointer" @click="sharePost"><ShareIcon class="w-5 inline -mt-1 mr-1" />Share Post</li>
@@ -46,11 +46,11 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref } from 'vue'
+import { onMounted, defineComponent, ref, Ref, PropType } from 'vue'
 import PostMenuIcon from '@/components/content/icons/postMenuIcon.vue'
 import { useMainStore, openConnectModal } from '@/store/main'
 import DangLoader from '@/components/content/vote-list/loader.vue'
-import { PartialAccountInfo } from '@/types/common'
+import { PartialAccountInfo } from '@/types/account'
 import AvatarBtn from '@/components/content/connect/avatarBtn.vue'
 import { timeAgo } from '@/utils/time'
 import { useRouter } from 'vue-router'
@@ -60,6 +60,8 @@ import DeleteIcon from '@/components/content/icons/delete.vue'
 import GoToIcon from '@/components/content/icons/goTo.vue'
 import { wait } from '@/utils/time'
 import { fetchWAuth } from '@/utils/auth'
+import { Vote } from '@/types/vote'
+import { stackAlertError } from '@/store/alertStore'
 
 interface Voter {
   a: PartialAccountInfo
@@ -78,10 +80,6 @@ export default defineComponent({
     AvatarBtn
   },
   props: {
-    postInfo: {
-      type: Object,
-      required: true
-    },
     postId: {
       type: String,
       required: true
@@ -90,9 +88,14 @@ export default defineComponent({
       type: Object,
       required: false,
       default: () => ({})
+    },
+    hasVote: {
+      type: Promise as PropType<Promise<Vote[]>>,
+      required: true
     }
   },
-  setup(props) {
+  emits: ['update:vote', 'deletedvote'],
+  setup(props, ctx) {
     const API_BASE = import.meta.env.VITE_YUP_API_BASE
     const router = useRouter()
     const store = useMainStore()
@@ -105,6 +108,8 @@ export default defineComponent({
     const voters = ref([]) as Ref<Voter[]>
     const menuOpen = ref(false)
     const delLoading = ref(false)
+    const refHasVote = ref(false)
+    const vote = ref({}) as unknown as Ref<Vote>
 
     store.$subscribe(() => {
       isAuth.value = store.isLoggedIn
@@ -152,9 +157,12 @@ export default defineComponent({
           const p2 = wait(350)
           await Promise.all([p1, p2])
           store.deletePost = props.postId
+          ctx.emit('update:vote', Promise.resolve([]))
+          ctx.emit('deletedvote')
           delLoading.value = false
         } catch (error) {
           console.log('error', error)
+          stackAlertError('The vote could not be deleted!')
         }
 
         menuOpen.value = false
@@ -208,7 +216,12 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      // nothing
+      props.hasVote.then((v) => {
+        if (v.length > 0) {
+          vote.value = v[0]
+          refHasVote.value = true
+        }
+      })
     })
 
     return {
@@ -226,7 +239,8 @@ export default defineComponent({
       timeAgo,
       goToPost,
       menuOpen,
-      delLoading
+      delLoading,
+      refHasVote
     }
   }
 })

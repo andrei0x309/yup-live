@@ -11,10 +11,10 @@
     <div class="name">
       {{ userData.username }}
       <h6 title="Followers">
-        <FollowersIcon :key="color" :color="color" /><span class="followers">{{ userData.followers }}</span>
+        <FollowersIcon /><span class="followers">{{ userData.followers }}</span>
       </h6>
     </div>
-    <button class="button">FOLLOW <AddFollow :key="color" :color="color" /></button>
+    <button class="button">FOLLOW <AddFollow /></button>
     <div class="ds-info">
       <div class="ds pens">
         <h6 title="Number of pens created by the user">Tokens</h6>
@@ -46,8 +46,8 @@ import { onMounted, defineComponent, ref, PropType } from 'vue'
 import ProfileUseBar from '@/components/content/profile/useBar.vue'
 import FollowersIcon from '@/components/content/icons/followers.vue'
 import AddFollow from '@/components/content/icons/addFollow.vue'
-import type { NameValue } from '@/types/common'
-import { makeRandAvatar } from '@/utils/misc'
+import { makeRandAvatar } from '@/utils/accounts'
+import type { NameValue } from '@/types/account'
 
 export default defineComponent({
   name: 'PostInfo',
@@ -65,11 +65,6 @@ export default defineComponent({
           value: ''
         }
       ]
-    },
-    color: {
-      required: false,
-      type: String,
-      default: '#020201'
     },
     userData: {
       type: Object,
@@ -146,17 +141,6 @@ html[class='dark'] {
   box-shadow: 0 10px 25px 5px rgb(0 0 0 / 20%);
   background: var(--profile-card-bg);
   overflow: hidden;
-  //   .ds-top {
-  //     position: absolute;
-  //     margin: auto;
-  //     top: 0;
-  //     right: 0;
-  //     left: 0;
-  //     width: 300px;
-  //     height: 80px;
-  //     background: crimson;
-  //     animation: dsTop 1.5s;
-  //   }
 
   @function multiple-box-shadow($n) {
     $value: '#{random(2000)}px #{random(2000)}px #FFF';
@@ -305,18 +289,18 @@ html[class='dark'] {
     border-radius: 1rem;
     letter-spacing: 0.02em;
     transition: all 1s;
-    border: 1px solid #134b61c4;
+    border: 1px solid rgb(114 83 213 / 77%);
     font-size: 0.7rem;
     font-weight: 600;
     line-height: 1.3rem;
     &:hover {
-      background: #24799b;
+      background: #4e2adfa6;
     }
   }
   .ds-info {
     position: relative;
     top: 4rem;
-    left: 1.4rem;
+    left: 8%;
     display: flex;
 
     .pens,

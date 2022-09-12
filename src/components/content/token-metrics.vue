@@ -8,15 +8,12 @@
       </template>
       <template v-else>
         <h2>
-          {{`$${dataGecko.value.price}`}}
+          {{ `$${dataGecko.value.price}` }}
         </h2>
-        <sup :class="`p-1 font-06 ${dataGecko.value.priceChangeRaw < 0 ? 'price-red' : 'price-green' }`">
-          {{dataGecko.value.priceChange}}%
+        <sup :class="`p-1 font-06 ${dataGecko.value.priceChangeRaw < 0 ? 'price-red' : 'price-green'}`">
+          {{ dataGecko.value.priceChange }}%
         </sup>
-        <span
-          class="block font-088 faded-darker mt-2"
-          >{{`Mcap: $${dataSupply.value.mcap}`}}</span
-        >
+        <span class="block font-088 faded-darker mt-2">{{ `Mcap: $${dataSupply.value.mcap}` }}</span>
       </template>
     </div>
     <div>
@@ -27,9 +24,9 @@
       </template>
       <template v-else>
         <h2>
-          {{`${dataSupply.value.supply} YUP`}}
+          {{ `${dataSupply.value.supply} YUP` }}
         </h2>
-        <span class="block font-088 faded-darker mt-2">{{`/ ${dataSupply.value.maxSupply} YUP`}}</span>
+        <span class="block font-088 faded-darker mt-2">{{ `/ ${dataSupply.value.maxSupply} YUP` }}</span>
       </template>
     </div>
     <div>
@@ -42,7 +39,7 @@
         <h2>
           {{ `${dataActionCount.value.actCount} ` }}
         </h2>
-        <span class="block font-088 faded-darker mt-2">This month: {{dataActionCount.value.actCountMonth}}</span>
+        <span class="block font-088 faded-darker mt-2">This month: {{ dataActionCount.value.actCountMonth }}</span>
       </template>
     </div>
     <div>
@@ -55,10 +52,7 @@
         <h2>
           {{ `${dataEmissions.value.emissions} YUP` }}
         </h2>
-        <span
-          class="block font-088 faded-darker mt-2"
-          >{{`$${dataEmissions.value.emissionsValue}`}}</span
-        >
+        <span class="block font-088 faded-darker mt-2">{{ `$${dataEmissions.value.emissionsValue}` }}</span>
       </template>
     </div>
   </div>
@@ -84,13 +78,12 @@ export default defineComponent({
   name: 'TokenMetrics',
   components: {},
   setup() {
+    type GeckoData = Ref<ComputedRef<{ price: string; priceRaw: number; priceChangeRaw: number; priceChange: string }>>
+    type DataEmissions = Ref<ComputedRef<{ emissions: string; emissionsValue: string }>>
+    type DataActCount = Ref<ComputedRef<{ actCount: string; actCountMonth: string }>>
+    type DataSupply = Ref<ComputedRef<{ supply: string; mcap: string; maxSupply: string }>>
 
-    type GeckoData = Ref<ComputedRef<{ price: string, priceRaw:number, priceChangeRaw: number, priceChange: string  }>>
-    type DataEmissions = Ref<ComputedRef<{emissions: string, emissionsValue: string}>>
-    type DataActCount = Ref<ComputedRef<{actCount: string, actCountMonth: string}>>
-    type DataSupply = Ref<ComputedRef<{supply: string, mcap: string, maxSupply: string}>>
-
-    const dataEmissions:  DataEmissions = ref(null) as unknown as DataEmissions 
+    const dataEmissions: DataEmissions = ref(null) as unknown as DataEmissions
     const dataSupply: DataSupply = ref(null) as unknown as DataSupply
     const dataGecko: GeckoData = ref(null) as unknown as GeckoData
     const dataActionCount: DataActCount = ref(null) as unknown as DataActCount
@@ -100,8 +93,10 @@ export default defineComponent({
       if (today.getFullYear() > 2024 && today.getMonth() > 8 && today.getDate() > 21) {
         return 10000
       }
-      const yearData = await import(/* @vite-ignore */`/emissions/years/${today.getFullYear()}.js`)
-      const dateString = `${today.getFullYear()}-${('0' + String(today.getMonth() + 1)).slice(-2)}-${('0' + String(today.getDate())).slice(-2)}`
+      const yearData = await import(/* @vite-ignore */ `/emissions/years/${today.getFullYear()}.js`)
+      const dateString = `${today.getFullYear()}-${('0' + String(today.getMonth() + 1)).slice(-2)}-${('0' + String(today.getDate())).slice(
+        -2
+      )}`
       const offsetContract = 5546
       return yearData.data[dateString] - offsetContract
     }
@@ -129,7 +124,7 @@ export default defineComponent({
     }
 
     const getActionsCount = async () => {
-      const req =  fetch('https://api.yup.io/metrics/total-votes')
+      const req = fetch('https://api.yup.io/metrics/total-votes')
       const req2 = fetch('https://api.yup.io/metrics/total-votes/last-month')
       const [res, res2] = await Promise.all([req, req2])
       if (!res.ok || !res2.ok) {
@@ -154,41 +149,43 @@ export default defineComponent({
     //   alertMessage.value = message;
     //   alertType.value = "success";
     // };
-    
+
     onMounted(async () => {
       // do nothing
       currentDayEmission().then((emission) => {
-        dataEmissions.value = computed (() => {
+        dataEmissions.value = computed(() => {
           return {
-            emissions: formatNum(emission,0),
-            emissionsValue: formatNum(emission * dataGecko.value.value.priceRaw,2)
+            emissions: formatNum(emission, 0),
+            emissionsValue: formatNum(emission * dataGecko.value.value.priceRaw, 2)
           }
         })
       })
-      getSupply().then((supply) => {
-        dataSupply.value = computed(() => {
-          return { 
-                  supply: formatNum(supply.totalSupply, 0),
-                  maxSupply: formatNum(supply.supplyWhenInfStop, 0),
-                  mcap: formatNum(supply.totalSupply * dataGecko.value.value.priceRaw, 0)
-          }
-        })
-      })
-      getGeckoData().then((gecko) => {
+      const gKP = getGeckoData().then((gecko) => {
         dataGecko.value = computed(() => {
           return {
             price: formatNum(gecko.market_data.current_price.usd, 2),
             priceRaw: gecko.market_data.current_price.usd,
             priceChangeRaw: gecko.market_data.current_price.usd_change_24h,
-            priceChange: Math.abs((gecko.market_data.price_change_percentage_24h)).toFixed(2),
+            priceChange: Math.abs(gecko.market_data.price_change_percentage_24h).toFixed(2)
           }
+        })
+      })
+      getSupply().then((supply) => {
+        gKP.then(() => {
+          dataSupply.value = computed(() => {
+            return {
+              supply: formatNum(supply.totalSupply, 0),
+              maxSupply: formatNum(supply.supplyWhenInfStop, 0),
+              mcap: formatNum(supply.totalSupply * dataGecko.value.value.priceRaw, 0)
+            }
+          })
         })
       })
       getActionsCount().then((actionCount) => {
         dataActionCount.value = computed(() => {
           return {
             actCount: formatNum(actionCount.total, 0),
-            actCountMonth: formatNum(actionCount.lastMonth,0)
+            actCountMonth: formatNum(actionCount.lastMonth, 0)
           }
         })
       })
@@ -209,17 +206,15 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-
 html {
   --priceGreen: #0a4e1f;
   --priceRed: #b70000;
 }
 
-html[class="dark"] {
+html[class='dark'] {
   --priceGreen: #1bc5bd;
   --priceRed: #ff5252;
 }
-
 
 .token-metrics {
   padding: 1rem;

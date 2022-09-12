@@ -1,9 +1,10 @@
 <template>
   <HeaderComp />
   <main class="content">
-    <router-view />
+    <router-view :key="route.path" />
   </main>
   <FooterCom />
+  <AlertStack />
 </template>
 
 <script lang="ts">
@@ -15,12 +16,15 @@ import { onBeforeMount } from 'vue'
 import { useMainStore } from '@/store/main'
 import { useCollectionStore, getCollections } from './store/collections'
 import type { ICollection } from '@/types/store'
+import { useRoute } from 'vue-router'
+import AlertStack from '@/components/functional/alertStack.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
     HeaderComp,
-    FooterCom
+    FooterCom,
+    AlertStack
   },
   setup() {
     ;(function setTheme() {
@@ -28,6 +32,7 @@ export default defineComponent({
     })()
     const mainStore = useMainStore()
     const collectionStore = useCollectionStore()
+    const route = useRoute()
 
     onBeforeMount(() => {
       try {
@@ -36,6 +41,7 @@ export default defineComponent({
           mainStore.userData.account = localStorage.getItem('account') || ''
           mainStore.userData.signature = localStorage.getItem('signature') || ''
           mainStore.userData.avatar = localStorage.getItem('avatar') || ''
+          mainStore.userData.weight = Number(localStorage.getItem('weight')) || 1
           mainStore.isLoggedIn = true
           collectionStore.collectionsPromise = getCollections(collectionStore, mainStore.userData.account) as Promise<ICollection[]>
         }
@@ -43,6 +49,10 @@ export default defineComponent({
         console.error('Failed, to set store', error)
       }
     })
+
+    return {
+      route
+    }
 
     // onMounted(() => {
     //   console.log('isAuth', isLoggedIn.value)
@@ -80,6 +90,7 @@ html {
   --color-text: #b5b5b5;
   --color-text-faded: #565656;
   --color-text-faded2: #4c4c4c;
+  --stake-counter: #64570b;
 }
 
 html[class='dark'] {
@@ -101,6 +112,7 @@ html[class='dark'] {
   --color-text: #b5b5b5;
   --color-text-faded: #b5b5b5;
   --color-text-faded2: #8a8a8a;
+  --stake-counter: #b6b326a1;
 }
 
 #app {
@@ -118,6 +130,11 @@ html[class='dark'] {
     border-radius: 4px;
     padding: 0.5rem;
     opacity: 0.9;
+  }
+
+  .o-drop__item--active {
+    background-color: inherit;
+    color: inherit;
   }
 }
 
@@ -175,6 +192,18 @@ html[class='dark'] {
   @media screen and (max-width: 768px) {
     min-height: 80vh;
     min-width: 100%;
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0.1;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.1;
   }
 }
 </style>

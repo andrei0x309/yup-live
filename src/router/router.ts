@@ -68,9 +68,34 @@ const routes = [
     component: () => import('@/pages/profile.vue')
   },
   {
+    path: '/profile/:userId/:accountRoute',
+    name: 'ProfileWithRoute',
+    component: () => import('@/pages/profile.vue')
+  },
+  {
     path: '/notifications/:userId',
     name: 'Notifications',
     component: () => import('@/pages/notifications.vue')
+  },
+  {
+    path: '/collection/:collectionId',
+    name: 'CollectionDetail',
+    component: () => import('@/pages/collection.vue')
+  },
+  {
+    path: '/staking',
+    name: 'Staking',
+    component: () => import('@/pages/stake.vue')
+  },
+  {
+    path: '/feeds/:feedId',
+    name: 'FeedsWithId',
+    component: () => import('@/pages/feeds.vue')
+  },
+  {
+    path: '/feeds',
+    name: 'Feeds',
+    component: () => import('@/pages/feeds.vue')
   },
   // {
   //   path: "/meeting-recording/:id",

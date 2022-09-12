@@ -4,14 +4,22 @@
     :triggers="['click', 'contextmenu']"
     :autoClose="['outside', 'escape']"
     :multiline="true"
+    position="bottom"
     @click="showAddCollections"
   >
     <template #content>
       <ul class="w-30 text-justify collectMenu">
-        <li class="pt-1 cursor-pointer"><AddIcon class="inline w-5 mr-2" />New collection</li>
+        <li class="pt-1 cursor-pointer"><AddIcon class="inline w-5 mr-2 text-[0.9rem]" />New collection</li>
         <li class="w-55 border-b-1 h-1 mt-1 mb-1">&nbsp;</li>
-        <li v-for="collection in collectionsStore.collections" :key="collection._id" class="pt-1 cursor-pointer">
-          <AddIcon class="inline w-5 mr-2" />{{ collection.name.length > 32 ? collection.name.slice(0, 29) + '...' : collection.name }}
+        <li
+          v-for="collection in collectionsStore.collections"
+          :key="collection._id"
+          class="pt-1 cursor-pointer text-[0.84rem]"
+          @click="onAction(collection._id)"
+        >
+          <AddIcon v-if="isAdd[collection._id]" :key="`is-${inCollKey}`" class="inline ml-1 mr-1 colDmenuIcon" />
+          <AddIcon v-else class="inline w-4 ml-1 mr-1" />
+          {{ collection.name.length > 32 ? collection.name.slice(0, 29) + '...' : collection.name }}
         </li>
       </ul>
     </template>
@@ -20,12 +28,15 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref } from 'vue'
+import { defineComponent, ref, Ref, watch } from 'vue'
 import CollectIcon from '@/components/content/icons/collect.vue'
 import { useMainStore, openConnectModal } from '@/store/main'
 import { useCollectionStore } from '@/store/collections'
 import AddIcon from '@/components/content/icons/add.vue'
-// import DeleteIcon from '@/components/content/icons/delete.vue'
+import { fetchWAuth } from '@/utils/auth'
+import { stackAlertError, stackAlertSuccess } from '@/store/alertStore'
+
+const API_BASE = import.meta.env.VITE_YUP_API_BASE
 
 export default defineComponent({
   name: 'CollectMenu',
@@ -40,13 +51,15 @@ export default defineComponent({
       default: ''
     }
   },
-  setup() {
+  setup(props) {
     const isError = ref(false)
     const isLoading = ref(true)
     const store = useMainStore()
     const isAuth = ref(store.isLoggedIn)
     const collectionOpen = ref(false)
     const collectionsStore = useCollectionStore()
+    const isAdd = ref({}) as Ref<Record<string, boolean>>
+    const inCollKey = ref(0)
 
     store.$subscribe(() => {
       isAuth.value = store.isLoggedIn
@@ -58,20 +71,80 @@ export default defineComponent({
       console.log('error', isError.value)
     }
 
+    const closeMenu = () => {
+      setTimeout(() => {
+        collectionOpen.value = false
+      }, 50)
+    }
+
     const onLoad = () => {
       isLoading.value = false
       console.log('onload', isLoading.value)
     }
+    const checkIfInCollection = async (): Promise<Record<string, boolean>> => {
+      const isInCollection = {} as Record<string, boolean>
+      for (const colection of collectionsStore.collections) {
+        isInCollection[colection._id] = colection.postIds.some((e) => e === props.postId)
+      }
+      return isInCollection
+    }
 
-    onMounted(() => {
-      // nothing
+    const onAdd = (id: string) => {
+      try {
+        fetchWAuth(`${API_BASE}/collections/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            postId: props.postId
+          })
+        })
+        isAdd.value[id] = true
+        stackAlertSuccess('Post was added to the collection')
+        closeMenu()
+      } catch {
+        stackAlertError('API went down')
+      }
+    }
+
+    watch(collectionsStore, () => {
+      checkIfInCollection().then((res) => {
+        isAdd.value = res
+        inCollKey.value += 1
+      })
     })
+
+    const onDelete = async (id: string) => {
+      try {
+        fetchWAuth(`${API_BASE}/collections/remove/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            postId: props.postId
+          })
+        })
+        isAdd.value[id] = false
+        stackAlertSuccess('Post was removed from the collection')
+        closeMenu()
+      } catch {
+        stackAlertError('API went down')
+      }
+    }
+
+    const onAction = async (id: string) => {
+      if (isAdd.value[id]) {
+        onDelete(id)
+      } else {
+        onAdd(id)
+      }
+    }
 
     const showAddCollections = async () => {
       if (isAuth.value) {
         collectionOpen.value = true
         if (!collectionsStore.collections) {
           await collectionsStore.collectionsPromise
+        }
+        if (Object.keys(isAdd.value).length < 1) {
+          isAdd.value = await checkIfInCollection()
+          inCollKey.value += 1
         }
       } else {
         openConnectModal(store)
@@ -85,7 +158,10 @@ export default defineComponent({
       isError,
       showAddCollections,
       collectionOpen,
-      collectionsStore
+      collectionsStore,
+      isAdd,
+      inCollKey,
+      onAction
     }
   }
 })
@@ -93,13 +169,19 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .collectMenu {
-  height: 26rem;
+  max-height: 26rem;
   max-width: 16rem;
   min-width: 14.5rem;
-  font-size: 0.9rem;
   overflow-y: scroll;
   overflow-x: hidden;
   text-align: left;
+
+  .colDmenuIcon {
+    transform: rotate(45deg);
+    color: rgba(214, 40, 40, 0.918);
+    width: 1.1rem;
+    margin-left: 0.2rem;
+  }
 
   li:hover {
     transform: translatex(0.3rem);

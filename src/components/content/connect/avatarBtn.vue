@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col content-center justify-center items-center">
     <BtnSpinner v-if="isLoading" />
-    <router-link v-if="!isTwitter" :to="`/profile/${user}`">
+    <router-link v-if="!isTwitter" class="contents" :to="`/profile/${user}`">
       <img :key="source" class="avatarImg" :src="source" :alt="altImg" loading="lazy" @error="onError" @load="onLoad" />
     </router-link>
     <img v-else :key="source" class="avatarImg" :src="source" :alt="altImg" loading="lazy" @error="onError" @load="onLoad" />
@@ -12,7 +12,7 @@
 import { onMounted, defineComponent, ref } from 'vue'
 import { useMainStore } from '@/store/main'
 import BtnSpinner from '@/components/content/icons/btnSpinner.vue'
-import { makeRandAvatar } from '@/utils/misc'
+import { makeRandAvatar } from '@/utils/accounts'
 
 export default defineComponent({
   name: 'AvatarBtn',
@@ -79,6 +79,7 @@ export default defineComponent({
 <style lang="scss">
 .avatarImg {
   width: 2.3rem;
+  height: 2.3rem;
   border-radius: 50%;
   border: 2px solid;
   max-height: 2.3rem;

@@ -142,7 +142,7 @@ export default defineComponent({
 
     const lightIcon = `🔆`
     const themeSwitchIcon = ref(isDarkTheme() ? darkIcon : lightIcon)
-    const disabledPaths = ['/profile', '/notifications']
+    const disabledPaths = ['/profile', '/notifications', '/collection']
     const isDisabled = (paths: string[], currentPath: string) => paths.some((path: string) => currentPath.startsWith(path))
     const disabledFooter = ref(isDisabled(disabledPaths, route.path))
 
