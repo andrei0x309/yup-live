@@ -7,46 +7,44 @@
       :focusable="isFocusable"
       :mobile-cards="hasMobileCards" -->
 
-<div class="bg-color table-list w-full mb-4 m-auto">    
+  <div class="bg-color table-list w-full mb-4 m-auto">
     <div class="control">
-        <o-radio v-for="(wText, i) in weekText" :key="i" v-model="timePeriod" :native-value="i+1">{{wText}}</o-radio>
+      <o-radio v-for="(wText, i) in weekText" :key="i" v-model="timePeriod" :native-value="i + 1">{{ wText }}</o-radio>
     </div>
     <DangLoader v-if="isDataLoading" />
     <div v-else>
-    <template v-if="!apiError">
-    <p class="p-2">Gini Index For all users that made more than 5 YUP/Week</p>
-    <p class="p-4 bold">{{ giniIndex }}</p>
-    <p class="p-2" >Population Aproximation:</p>
-    </template>
+      <template v-if="!apiError">
+        <p class="p-2">Gini Index For all users that made more than 5 YUP/Week</p>
+        <p class="p-4 bold">{{ giniIndex }}</p>
+        <p class="p-2">Population Aproximation:</p>
+      </template>
     </div>
     <div :key="timePeriod" ref="graphRef" class="d3-component" />
 
-
-    <div v-if="apiError && !isDataLoading" style="max-width: 40rem; margin: auto" class="alert flex flex-row items-center bg-red-200 p-5 rounded border-b-2 border-red-300">
-			<div class="alert-icon flex items-center bg-red-100 border-2 border-red-500 justify-center h-10 w-10 flex-shrink-0 rounded-full">
-				<span class="text-red-500">
-					<svg
-                         fill="currentColor"
-						 viewBox="0 0 20 20"
-						 class="h-6 w-6">
-						<path
-                                fill-rule="evenodd"
-							  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-							  clip-rule="evenodd"></path>
-					</svg>
-				</span>
-			</div>
-			<div class="alert-content ml-4">
-				<div class="alert-title font-semibold text-lg text-red-800">
-					Error
-				</div>
-				<div class="alert-description text-sm text-red-600">
-					API didn't give any data, maybe API is down or you selected a period that doesn't have data.
-				</div>
-			</div>
-		</div>
-    
-</div>
+    <div
+      v-if="apiError && !isDataLoading"
+      style="max-width: 40rem; margin: auto"
+      class="alert flex flex-row items-center bg-red-200 p-5 rounded border-b-2 border-red-300"
+    >
+      <div class="alert-icon flex items-center bg-red-100 border-2 border-red-500 justify-center h-10 w-10 flex-shrink-0 rounded-full">
+        <span class="text-red-500">
+          <svg fill="currentColor" viewBox="0 0 20 20" class="h-6 w-6">
+            <path
+              fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </span>
+      </div>
+      <div class="alert-content ml-4">
+        <div class="alert-title font-semibold text-lg text-red-800">Error</div>
+        <div class="alert-description text-sm text-red-600">
+          API didn't give any data, maybe API is down or you selected a period that doesn't have data.
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -76,13 +74,14 @@ export default defineComponent({
     const API_BASE = import.meta.env.VITE_YUP_API_BASE
     // const API_BASE = "http://localhost:4001"
 
-  const makeDateString = (dateStart: Date, dateEnd: Date) => `D:${dateStart.getUTCDate()} M:${dateStart.getUTCMonth() + 1} - D:${dateEnd.getUTCDate()} M:${dateEnd.getUTCMonth() + 1}`
+    const makeDateString = (dateStart: Date, dateEnd: Date) =>
+      `D:${dateStart.getUTCDate()} M:${dateStart.getUTCMonth() + 1} - D:${dateEnd.getUTCDate()} M:${dateEnd.getUTCMonth() + 1}`
 
-    const weekText = [makeDateString(new Date(), new Date(Date.now() - 7*8.64e+7))]
-    for(let i = 1; i <= 11; i++) {
-      weekText.push(makeDateString(new Date(Date.now() - (7*8.64e+7*i)), new Date(Date.now() - (7*8.64e+7*(i+1)))))
+    const weekText = [makeDateString(new Date(), new Date(Date.now() - 7 * 8.64e7))]
+    for (let i = 1; i <= 11; i++) {
+      weekText.push(makeDateString(new Date(Date.now() - 7 * 8.64e7 * i), new Date(Date.now() - 7 * 8.64e7 * (i + 1))))
     }
-    
+
     const apiError = ref(false)
     const isDataLoading = ref(false)
     const store = useMainStore()
@@ -123,91 +122,80 @@ export default defineComponent({
     )
 
     const getGiniData = async () => {
- 
-      const req1Promise = fetch(
-        `${API_BASE}/metrics/gini-index/week?week=${timePeriod.value}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-          }
+      const req1Promise = fetch(`${API_BASE}/metrics/gini-index/week?week=${timePeriod.value}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
         }
-      )
+      })
 
-      const req2Promise = fetch(
-        `${API_BASE}/metrics/lorenz-curve/week?week=${timePeriod.value}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-          }
+      const req2Promise = fetch(`${API_BASE}/metrics/lorenz-curve/week?week=${timePeriod.value}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
         }
-      )
+      })
 
-      const [ req1, req2 ] = await Promise.all([req1Promise, req2Promise])
+      const [req1, req2] = await Promise.all([req1Promise, req2Promise])
 
       if (!req1.ok || !req2.ok) {
         apiError.value = true
         isDataLoading.value = false
         throw new Error(`Request failed with status req1=${req1.status} req2=${req2.status}`)
       }
-      
-      const [ giniData, lorenzData ] = await Promise.all([req1.json(), req2.json()])
+
+      const [giniData, lorenzData] = await Promise.all([req1.json(), req2.json()])
       apiError.value = false
       return { giniData, lorenzData }
     }
 
     const makeGraphPop = (data: unknown[] | Iterable<unknown> | d3.ValueFn<SVGGElement, unknown, unknown[] | Iterable<unknown>>) => {
-        
-        console.log('g', data)
-        
-        const margin = { top: 20, right: 20, bottom: 20, left: 30 }
-        const width = Number(svgWidth.value) - margin.left - margin.right
-        const height = Number(svgHeight.value) + margin.top + margin.bottom
+      console.log('g', data)
 
-        console.log(height)
+      const margin = { top: 20, right: 20, bottom: 20, left: 30 }
+      const width = Number(svgWidth.value) - margin.left - margin.right
+      const height = Number(svgHeight.value) + margin.top + margin.bottom
 
-        const xScale = d3.scaleLinear()
-			.domain([0, 1])
-			.range([margin.left, width])
+      console.log(height)
 
-        const yScale = d3.scaleLinear()
-			.domain([0, 1])
-			.range([height, margin.top])
-         
-         const xAxis = d3.axisBottom(xScale)
-         const yAxis = d3.axisLeft(yScale)
+      const xScale = d3.scaleLinear().domain([0, 1]).range([margin.left, width])
 
-         const fillScale = d3.scaleSequential(interpolateRainbow)
+      const yScale = d3.scaleLinear().domain([0, 1]).range([height, margin.top])
 
-          const svg = d3.select(graphRef.value)
-          .append('svg').attr('width', width + height / (margin.right / 2 ))
-            .attr('height', height +  height / (margin.top / 2 ))
-          
-  
-  svg.append('g')
-  		.attr('transform', `translate(0, ${height + height / (margin.top + margin.bottom)})`)
-    	.call(xAxis);
-  svg.append('g')
-    	.attr('transform', `translate(${margin.left}, 0)`)
-    	.call(yAxis);
-    
-  svg.append("g")
-      .attr("stroke", "#000")
-      .attr("stroke-opacity", 0.7)
-    .selectAll("circle")
-    .data(data)
-    .enter().append("circle")
-      .attr("cx", d => xScale((d as unknown as { x: number }).x))
-      .attr("cy", d => yScale((d as unknown as { y: number }).y))
-  	  .attr('fill', d => fillScale((d as unknown as { y: number }).y))
-      .attr("r", 1.5);
+      const xAxis = d3.axisBottom(xScale)
+      const yAxis = d3.axisLeft(yScale)
+
+      const fillScale = d3.scaleSequential(interpolateRainbow)
+
+      const svg = d3
+        .select(graphRef.value)
+        .append('svg')
+        .attr('width', width + height / (margin.right / 2))
+        .attr('height', height + height / (margin.top / 2))
+
+      svg
+        .append('g')
+        .attr('transform', `translate(0, ${height + height / (margin.top + margin.bottom)})`)
+        .call(xAxis)
+      svg.append('g').attr('transform', `translate(${margin.left}, 0)`).call(yAxis)
+
+      svg
+        .append('g')
+        .attr('stroke', '#000')
+        .attr('stroke-opacity', 0.7)
+        .selectAll('circle')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('cx', (d) => xScale((d as unknown as { x: number }).x))
+        .attr('cy', (d) => yScale((d as unknown as { y: number }).y))
+        .attr('fill', (d) => fillScale((d as unknown as { y: number }).y))
+        .attr('r', 1.5)
     }
- 
 
     const loadGiniData = async () => {
       isDataLoading.value = true
-      const {giniData, lorenzData }  = await getGiniData()
+      const { giniData, lorenzData } = await getGiniData()
       giniIndex.value = giniData.gini
       makeGraphPop(lorenzData.pcurve)
       console.log(giniData)
@@ -235,24 +223,17 @@ export default defineComponent({
       // do nothing
     })
 
-    return { data,
-     iconsColor, tableTimePeriod,
-     timePeriod, giniIndex,
-     weekText, isDataLoading,
-     graphRef, apiError
-     }
+    return { data, iconsColor, tableTimePeriod, timePeriod, giniIndex, weekText, isDataLoading, graphRef, apiError }
   }
 })
-
- 
 </script>
 
 <style lang="scss">
- .d3-component {
-     svg {
-         margin: auto;
-     }
- }
+.d3-component {
+  svg {
+    margin: auto;
+  }
+}
 .control {
   text-align: left;
   padding: 2rem;

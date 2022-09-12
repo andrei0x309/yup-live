@@ -72,13 +72,11 @@ export default defineComponent({
   color: aliceblue;
   border: 1px solid rgba(204, 204, 204, 0.295);
   border-radius: 0.2rem;
+  cursor: pointer;
 
   .o-drop__menu {
     background-color: var(--glassBg);
     padding: 0.4rem 0.4rem 0.4rem 0.4rem;
   }
-
 }
-
-
 </style>

@@ -8,7 +8,6 @@
       :mobile-cards="hasMobileCards" -->
 
   <div class="bg-color table-list w-full mb-4">
-    <TableNav linkActive="Vote List" />
     <o-table :data="data" :tableClass="`lg:pl-8 ${isTableLoading ? 'tableLoading' : ''}`" :loading="isTableLoading">
       <o-table-column v-slot="props" field="timestamp" label="TIME">
         <div class="inline">
@@ -18,10 +17,10 @@
       </o-table-column>
 
       <o-table-column v-slot="props" field="voter" label="USER">
-        <a :href="`https://app.yup.io/account/${props.row.voter}`" rel="nofollow" target="_blank">
+        <router-link :to="`/profile/${props.row.voter}`">
           <UserIcon :key="iconsColor" :color="iconsColor" />
-          {{ props.row.voter }}</a
-        >
+          {{ props.row.voter }}
+        </router-link>
       </o-table-column>
 
       <o-table-column v-slot="props" field="url" label="CONTENT">
@@ -202,13 +201,16 @@ export default defineComponent({
 
     const urlHash = (url: string) => {
       const hash = Array(9).fill(0)
-      const charArr = url.slice(url.indexOf('//') + 2).toLocaleLowerCase().split('')
+      const charArr = url
+        .slice(url.indexOf('//') + 2)
+        .toLocaleLowerCase()
+        .split('')
       let c = 0
       while (charArr.length) {
         const cat = charArr.shift()?.charCodeAt(0)
-        if(!cat) break
-        const char = cat % 26 + 97
-        hash[hash.length % c ] = char
+        if (!cat) break
+        const char = (cat % 26) + 97
+        hash[hash.length % c] = char
         c++
       }
     }
@@ -229,11 +231,9 @@ export default defineComponent({
       // do nothing
     })
 
-    return { data, isTableLoading, limitUrlSize, curPage, setCurentPage, iconsColor,urlHash }
+    return { data, isTableLoading, limitUrlSize, curPage, setCurentPage, iconsColor, urlHash }
   }
 })
 </script>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>

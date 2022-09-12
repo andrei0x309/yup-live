@@ -32,17 +32,17 @@
 
     <ul>
       <li v-for="(menu, index) in menuDropDownLinks.links" :key="index">
-        <a class="menu-pill" :href="(menu.href as unknown as string)">
+        <router-link class="menu-pill" :to="(menu.path as unknown as string)">
           {{ menu.text }}
-        </a>
+        </router-link>
       </li>
     </ul>
   </o-sidebar>
   <div class="bg-color hero">
-    <div class="max-w-screen-2xl px-4 md:px-8 mx-auto">
+    <div class="max-w-screen-2xl px-2 md:px-4 lg:px-8 mx-auto">
       <header class="flex justify-between items-center py-4">
         <!-- logo - start -->
-        <a href="/" class="inline-flex items-center text-black-800 text-xl md:text-3xl font-bold gap-2.5" aria-label="logo">
+        <a href="/" class="logo inline-flex items-center text-black-800 text-xl md:text-3xl font-bold gap-2.5" aria-label="logo">
           <h1 class="inline gradient-text">YUP</h1>
           <svg class="w-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 27.015619 12.00781">
             <use xlink:href="#live-1"></use>
@@ -55,11 +55,21 @@
         <!-- logo - end -->
 
         <!-- nav - start -->
-        <nav class="hidden lg:flex gap-12">
+        <nav class="hidden lg:flex gap-6 text-[0.8rem]">
+          <router-link
+            class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 font-semibold transition duration-100 flex items-center"
+            to="/feeds"
+            ><FeedsIcon class="inline w-4 mr-2" />Feeds
+          </router-link>
+          <router-link
+            class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 font-semibold transition duration-100"
+            to="/staking"
+            ><StakeIcon class="inline w-6 mr-2" />Staking
+          </router-link>
           <o-dropdown v-model="menuDropDownLinks" aria-role="list">
             <template #trigger>
               <o-button style="background-color: transparent">
-                <span class="dr-menu inline-flex items-center text-lg font-semibold gap-1"
+                <span class="dr-menu inline-flex items-center font-semibold gap-1"
                   >{{ menuDropDownLinks.text }}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -78,8 +88,14 @@
               </o-button>
             </template>
 
-            <a v-for="(menu, index) in menuDropDownLinks.links" :key="index" class="menu-link" :href="(menu.href as unknown as string)">
+            <router-link
+              v-for="(menu, index) in menuDropDownLinks.links"
+              :key="index"
+              class="menu-link"
+              :to="(menu.path as unknown as string)"
+            >
               <o-dropdown-item
+                v-if="menu.text !== menuDropDownLinks.text"
                 :value="menu"
                 aria-role="listitem"
                 class="gap-1 p-1 hover:text-gray-700 hover:dark:text-gray-200 dark:text-gray-300"
@@ -90,12 +106,12 @@
                   </div>
                 </div>
               </o-dropdown-item>
-            </a>
+            </router-link>
           </o-dropdown>
           <o-dropdown v-model="menuDropDownBuyYUP" aria-role="list">
             <template #trigger>
               <o-button style="background-color: transparent">
-                <span class="dr-menu inline-flex items-center text-lg font-semibold gap-1">
+                <span class="dr-menu inline-flex items-center font-semibold gap-1">
                   {{ menuDropDownBuyYUP.text }}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -129,51 +145,17 @@
               </o-dropdown-item>
             </a>
           </o-dropdown>
-          <router-link
-            class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 text-lg font-semibold transition duration-100"
-            :to="`/emissions`"
-          >
-            Emissions
-          </router-link>
         </nav>
         <!-- nav - end -->
+        <div class="flex flex-row">
+          <ConnectButton />
 
-        <!-- buttons - start -->
-        <div class="flex flex-col sm:flex-row sm:justify-center lg:justify-start gap-2.5 -ml-8">
-          <button
-            id="theme-switch"
-            class="ml-5 w-16 h-6 rounded-full bg-gray-200 flex items-center transition duration-300 focus:outline-none shadow dark:bg-gray-700"
-          >
-            <div
-              id="svg-theme-switch"
-              :class="`
-                border border-gray-400 dark:border-white
-                w-8
-                h-8
-                relative
-                rounded-full
-                transition
-                duration-500
-                transform
-                switch-icon
-                ${
-                  themeDark
-                    ? `
-                translate-x-full`
-                    : `
-                -translate-x-2`
-                } 
-                text-white`"
-              @click="themeSwitch"
-              v-html="themeSwitchIcon"
-            ></div>
-          </button>
+          <!-- buttons - start -->
         </div>
 
         <button
           type="button"
-          class="inline-flex items-center lg:hidden bg-gray-200 hover:bg-gray-300 focus-visible:ring ring-indigo-300 text-gray-500 active:text-gray-700 text-sm md:text-base font-semibold rounded-lg gap-2 px-2.5 py-2"
-          style="background: #ffffffde"
+          class="inline-flex items-center lg:hidden text-sm md:text-base font-semibold rounded-lg gap-2 px-2.5 py-2 headerMenuBtn"
           @click="toggleSidebar()"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -194,63 +176,61 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { getThemeMode } from '../../utils'
-import { useMainStore } from '../../store/main'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import UniSwapIcon from '@/components/content/icons/uniSwap.vue'
 import QuickSwapIcon from '@/components/content/icons/quickSwap.vue'
+import ConnectButton from '@/components/content/connect/connectBtn.vue'
+import StakeIcon from '@/components/content/icons/stake.vue'
+import FeedsIcon from '@/components/content/icons/feeds.vue'
 
 export default defineComponent({
   name: 'HeaderTemplate',
   components: {
     UniSwapIcon,
-    QuickSwapIcon
+    QuickSwapIcon,
+    StakeIcon,
+    FeedsIcon,
+    ConnectButton
   },
   setup(props) {
-    const route = useRoute()
-    const isHome = computed(() => route.path.match(/(\/$|\/page\/\d+)/g))
-    const store = useMainStore()
-    store.theme = getThemeMode()
-    const isDarkTheme = () => store.theme === 'dark'
-
-    const themeDark = ref(isDarkTheme())
-    const darkIcon = `🌗`
-
-    const lightIcon = `☀️`
-    const themeSwitchIcon = ref(isDarkTheme() ? darkIcon : lightIcon)
-
     const buyIcons = {
       uniswap: UniSwapIcon,
       quickswap: QuickSwapIcon
     }
 
     // const routes: Record<string, unknown>[] = inject('routes')
-    let sidebarOpen = ref(false)
-    const isSwitchingTheme = ref(false)
+    const sidebarOpen = ref(false)
 
     const linksFs = [
       {
         text: 'Vote Explorer',
-        href: '/'
+        path: '/'
       },
       {
         text: 'Check Raw Influence',
-        href: '/raw-influence'
+        path: '/raw-influence'
       },
       {
-        text: 'POAP App',
-        href: 'https://yup-poap.pages.dev'
-      },
-      {
-        text: 'Meeting Recordings',
-        href: 'https://yup-poap.pages.dev/meeting-recordings'
+        text: 'Emissions',
+        path: '/emissions'
       }
+      // {
+      //   text: 'POAP App',
+      //   href: 'https://yup-poap.pages.dev'
+      // },
+      // {
+      //   text: 'Meeting Recordings',
+      //   href: 'https://yup-poap.pages.dev/meeting-recordings'
+      // }
     ]
 
     const menuDropDownLinks = ref({
       links: linksFs,
       text: 'YUP'
+    })
+
+    watch(menuDropDownLinks, () => {
+      menuDropDownLinks.value.links = linksFs
     })
 
     const linksBuyYup = [
@@ -271,29 +251,6 @@ export default defineComponent({
       text: 'Buy YUP'
     })
 
-    const themeSwitch = async () => {
-      if (!isSwitchingTheme.value) {
-        const isDarkmode = document.documentElement.classList.contains('dark')
-        isSwitchingTheme.value = true
-        if (isDarkmode) {
-          themeDark.value = false
-          document.documentElement.classList.remove('dark')
-          document.documentElement.classList.add('light')
-          themeSwitchIcon.value = lightIcon
-          localStorage.setItem('theme', 'light')
-          store.theme = 'light'
-        } else {
-          themeDark.value = true
-          document.documentElement.classList.remove('light')
-          document.documentElement.classList.add('dark')
-          themeSwitchIcon.value = darkIcon
-          localStorage.setItem('theme', 'dark')
-          store.theme = 'dark'
-        }
-        isSwitchingTheme.value = false
-      }
-    }
-
     const toggleSidebar = () => {
       sidebarOpen.value = !sidebarOpen.value
     }
@@ -308,10 +265,6 @@ export default defineComponent({
       sidebarOpen,
       toggleSidebar,
       props,
-      themeDark,
-      themeSwitchIcon,
-      themeSwitch,
-      isHome,
       buyIcons
     }
   }
@@ -378,6 +331,9 @@ nav .o-drop__menu {
 }
 .hero {
   max-height: 4rem;
+  width: 100vw;
+  position: fixed;
+  z-index: 10;
 }
 
 .sidebar {
@@ -496,7 +452,6 @@ nav .o-drop__menu {
 }
 
 h1 {
-  font-family: 'Archivo Black', sans-serif;
   font-weight: normal;
   font-size: 1.8rem;
   text-align: center;
@@ -505,5 +460,17 @@ h1 {
   margin-left: auto;
   margin-right: auto;
   cursor: pointer;
+}
+
+.headerMenuBtn {
+  background: #222;
+  color: aliceblue;
+  border: 1px solid #ffffff24;
+}
+
+.logo {
+  box-shadow: inset -1px -1px 3rem 2px var(--logoBg);
+  padding: 0rem 0.4rem;
+  border-radius: 0.3rem;
 }
 </style>

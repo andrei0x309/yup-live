@@ -5,8 +5,8 @@
     <VoteList v-if="pages.default === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />
     <Rewards v-if="pages.rewards === pageActive" :key="`rewards-${pageActive}`" :pageNum="pageNum" :type="(type as string)" />
     <Sellers v-if="pages.topSellers === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />
-    <GiniWeeks v-if="pages.gini === pageActive" :key="`gini-${pageActive}`"/>
-    <GiniTrend v-if="pages.giniTrend === pageActive" :key="`gini-trend-${pageActive}`"/>
+    <GiniWeeks v-if="pages.gini === pageActive" :key="`gini-${pageActive}`" />
+    <GiniTrend v-if="pages.giniTrend === pageActive" :key="`gini-trend-${pageActive}`" />
   </div>
 </template>
 
@@ -22,7 +22,6 @@ import GiniWeeks from '@/components/content/gini-weeks.vue'
 import GiniTrend from '@/components/content/gini-trend.vue'
 import { useRoute, useRouter } from 'vue-router'
 
-
 export default defineComponent({
   name: 'HomePage',
   components: {
@@ -33,13 +32,13 @@ export default defineComponent({
     TableNav,
     GiniWeeks,
     GiniTrend
-},
+  },
   setup() {
     const route = useRoute()
     const router = useRouter()
     const pageNum = ref(route.params.pageNo ? Number(route.params.pageNo) : 1)
     const type = ref(route.params.type ? (['week', 'month'].includes(route.params.type as string) ? route.params.type : 'week') : 'week')
-    
+
     const pages = {
       rewards: 'Top Rewards',
       topSellers: 'Top Sellers',
@@ -64,13 +63,12 @@ export default defineComponent({
           return pages.default
       }
     }
-    
-    
+
     const pageActive = ref(getPageActive(route.path))
 
     const siteData = reactive({
-      title:  `YUP Live - ${pageActive.value} explorer`,
-      description: `Live ${pageActive.value} data for YUP DApp...` 
+      title: `YUP Live - ${pageActive.value} explorer`,
+      description: `Live ${pageActive.value} data for YUP DApp...`
     })
 
     const setPageNum = (pageNo: number) => {
@@ -82,7 +80,7 @@ export default defineComponent({
         }
       }
     }
- 
+
     onMounted(async () => {
       setPageNum(Number(route.params.pageNo))
     })
@@ -129,7 +127,7 @@ export default defineComponent({
   min-height: 18rem;
   color: #1b1b1b;
   font-size: 0.96rem;
-  font-weight: bold;
+  font-weight: 200;
   text-align: center;
   display: grid;
   flex-direction: column;
@@ -179,7 +177,8 @@ export default defineComponent({
   margin-top: 0.5rem;
 }
 
-html[class='dark'] .table-list {
+html[class='dark'] .table-list,
+html[class='dark'] .bg-color {
   color: #d9d9d9;
   box-shadow: 0.2rem 0.5rem 0rem #1b1b1b;
 

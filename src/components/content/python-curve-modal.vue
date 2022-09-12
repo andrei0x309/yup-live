@@ -1,6 +1,6 @@
 <template>
   <div class="bg-color modal w-full mb-4">
-      <div v-show="pyIsLoading">
+    <div v-show="pyIsLoading">
       <h2 class="block">Loading Python Envoirment</h2>
       <PyLoader />
       <pre>
@@ -8,12 +8,12 @@
         {{line}}
       </span>
       </pre>
-      </div>
-      <div v-show="!pyIsLoading">
+    </div>
+    <div v-show="!pyIsLoading">
       <div id="plot"></div>
       <div ref="pyScriptContainer" class="py-script"></div>
-      </div>
-      <div id="test"> </div>
+    </div>
+    <div id="test"></div>
   </div>
 </template>
 
@@ -27,7 +27,7 @@ import {
   ref,
   //   reactive,
   //   computed,
-  onUnmounted,
+  onUnmounted
   // Ref
 } from 'vue'
 
@@ -41,26 +41,25 @@ export default defineComponent({
     }
   },
   setup(props) {
-    
     class CappedArray extends Array {
-        constructor(length = 8) {
-          super(length)
-          this.length = length
-        }
-
-        push(...args: unknown[]) {
-          super.push(...args)
-          if (this.length > 8) {
-            this.shift()
-          }
-          return 0
-        }
+      constructor(length = 8) {
+        super(length)
+        this.length = length
       }
+
+      push(...args: unknown[]) {
+        super.push(...args)
+        if (this.length > 8) {
+          this.shift()
+        }
+        return 0
+      }
+    }
 
     // const store = useMainStore()
     const pyScriptContainer = ref(null)
     const pyIsLoading = ref(true)
-    const loadingMsg =  ref(new CappedArray(8))
+    const loadingMsg = ref(new CappedArray(8))
 
     const getPyEnv = () => {
       const el = window.document.createElement('py-env')
@@ -72,20 +71,22 @@ export default defineComponent({
     }
 
     const hookConsole = () => {
-      const stdlog = console.log.bind(console);
-        console.log = function(){
-        loadingMsg.value.push(Array.from(arguments).join(' '));
-        stdlog.apply(console, arguments as unknown as unknown[]);
-    }
+      const stdlog = console.log.bind(console)
+      console.log = function () {
+        // eslint-disable-next-line prefer-rest-params
+        loadingMsg.value.push(Array.from(arguments).join(' '))
+        // eslint-disable-next-line prefer-rest-params
+        stdlog.apply(console, arguments as unknown as unknown[])
+      }
     }
 
     const getPyScript = () => {
-      const customEl = window.customElements.get('py-script') 
+      const customEl = window.customElements.get('py-script')
       if (customEl) {
-      const el =  new customEl()
-      // @ts-expect-error - output does not exist
-      el.output = 'plot'
-el.innerHTML = `
+        const el = new customEl()
+        // @ts-expect-error - output does not exist
+        el.output = 'plot'
+        el.innerHTML = `
 import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
@@ -127,43 +128,42 @@ fig.patch.set_facecolor('#222')
 pyCallback()
 fig
 `
-      return el
+        return el
       }
       return document.createElement('py-script')
     }
 
     onMounted(async () => {
-       hookConsole()
-       const docHead = window.document.head
-       docHead.appendChild(getPyEnv())
+      hookConsole()
+      const docHead = window.document.head
+      docHead.appendChild(getPyEnv())
+      // @ts-expect-error - possibly null
+      window['pyCallback'] = () => {
+        pyIsLoading.value = false
+      }
+      // @ts-expect-error - possibly null
+      window.plotData = props.data.join(',')
+      // @ts-expect-error - possibly null
+      console.log('plotData', window.plotData)
+      const pythonScript = window.document.createElement('script')
+      pythonScript.src = 'https://pyscript.net/alpha/pyscript.js'
+      pythonScript.defer = true
+      pythonScript.onload = async () => {
+        console.log('python script loaded')
+        const pyScript = getPyScript()
         // @ts-expect-error - possibly null
-       window['pyCallback'] = () => {
-         pyIsLoading.value = false
-       }
-       // @ts-expect-error - possibly null
-       window.plotData = props.data.join(',')
-       // @ts-expect-error - possibly null
-       console.log('plotData', window.plotData)
-       const pythonScript =  window.document.createElement('script')
-        pythonScript.src = 'https://pyscript.net/alpha/pyscript.js'
-        pythonScript.defer = true
-        pythonScript.onload = async () => {
-          console.log('python script loaded')
-          const pyScript = getPyScript()
-          // @ts-expect-error - possibly null
-          pyScriptContainer.value.appendChild(pyScript)
-          // @ts-expect-error - evaluate does not exist
-          pyScript.evaluate() 
-        }
-        docHead.appendChild(pythonScript)
-
+        pyScriptContainer.value.appendChild(pyScript)
+        // @ts-expect-error - evaluate does not exist
+        pyScript.evaluate()
+      }
+      docHead.appendChild(pythonScript)
     })
 
     onUnmounted(() => {
       // do nothing
     })
 
-    return { pyScriptContainer, pyIsLoading, loadingMsg  }
+    return { pyScriptContainer, pyIsLoading, loadingMsg }
   }
 })
 </script>
@@ -174,7 +174,7 @@ fig
   margin-top: 0.2rem;
   min-height: 18rem;
   font-size: 0.96rem;
-  font-weight: bold;
+  font-weight: 200;
   text-align: center;
   display: grid;
   flex-direction: column;
@@ -184,5 +184,4 @@ fig
   max-width: 90vw;
   margin: auto;
 }
-
 </style>

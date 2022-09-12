@@ -1,7 +1,7 @@
 <template>
   <svg class="inline w-4" viewBox="0 0 357.576 357.576" style="enable-background: new 0 0 357.576 357.576" xml:space="preserve">
     <path
-       fill="currentColor"
+      fill="currentColor"
       d="M300.807,88.652l-94.235-77.447C198.809,4.817,185.218,0,174.958,0h-108.5C53.223,0,42.456,10.602,42.456,23.636
 	c0.002,3.121,0.168,312.155,0.168,313.775c0,11.805,8.258,20.05,20.082,20.05c7.5,0,229.139,0.115,229.139,0.115
 	c12.835,0,23.276-10.726,23.276-23.909V119.673C315.121,108.7,308.967,95.364,300.807,88.652z M66.444,1c0.005,0,0.009,0,0.014,0h0
@@ -20,13 +20,11 @@ import { onMounted, defineComponent } from 'vue'
 export default defineComponent({
   name: 'FileDownloadIcon',
   setup() {
-
     onMounted(() => {
       // nothing
     })
 
-    return {
-    }
+    return {}
   }
 })
 </script>

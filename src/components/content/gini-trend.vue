@@ -7,48 +7,46 @@
       :focusable="isFocusable"
       :mobile-cards="hasMobileCards" -->
 
-<div class="bg-color table-list w-full mb-4 m-auto">    
+  <div class="bg-color table-list w-full mb-4 m-auto">
     <DangLoader v-if="isDataLoading" />
     <div v-else>
-    <template v-if="!apiError">
-    <p class="p-2" >Gini Recent trend:</p>
-    </template>
+      <template v-if="!apiError">
+        <p class="p-2">Gini Recent trend:</p>
+      </template>
     </div>
     <ChartD3
-        :key="`${grid.breakpoint}-${giniTrend.length}-${gradient.toString()}`"
-        :svgWidth="svgWidth"
-        :svgHeight="svgHeight"
-        :gradient="gradient"
-        :chartData="giniTrend"
-        :maxPoint="1"
-      />
+      :key="`${grid.breakpoint}-${giniTrend.length}-${gradient.toString()}`"
+      :svgWidth="svgWidth"
+      :svgHeight="svgHeight"
+      :gradient="gradient"
+      :chartData="giniTrend"
+      :maxPoint="1"
+    />
 
-
-    <div v-if="apiError && !isDataLoading" style="max-width: 40rem; margin: auto" class="alert flex flex-row items-center bg-red-200 p-5 rounded border-b-2 border-red-300">
-			<div class="alert-icon flex items-center bg-red-100 border-2 border-red-500 justify-center h-10 w-10 flex-shrink-0 rounded-full">
-				<span class="text-red-500">
-					<svg
-                         fill="currentColor"
-						 viewBox="0 0 20 20"
-						 class="h-6 w-6">
-						<path
-                                fill-rule="evenodd"
-							  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-							  clip-rule="evenodd"></path>
-					</svg>
-				</span>
-			</div>
-			<div class="alert-content ml-4">
-				<div class="alert-title font-semibold text-lg text-red-800">
-					Error
-				</div>
-				<div class="alert-description text-sm text-red-600">
-					API didn't give any data, maybe API is down or you selected a period that doesn't have data.
-				</div>
-			</div>
-		</div>
-    
-</div>
+    <div
+      v-if="apiError && !isDataLoading"
+      style="max-width: 40rem; margin: auto"
+      class="alert flex flex-row items-center bg-red-200 p-5 rounded border-b-2 border-red-300"
+    >
+      <div class="alert-icon flex items-center bg-red-100 border-2 border-red-500 justify-center h-10 w-10 flex-shrink-0 rounded-full">
+        <span class="text-red-500">
+          <svg fill="currentColor" viewBox="0 0 20 20" class="h-6 w-6">
+            <path
+              fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </span>
+      </div>
+      <div class="alert-content ml-4">
+        <div class="alert-title font-semibold text-lg text-red-800">Error</div>
+        <div class="alert-description text-sm text-red-600">
+          API didn't give any data, maybe API is down or you selected a period that doesn't have data.
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -78,10 +76,10 @@ export default defineComponent({
     // const API_BASE = "http://localhost:4001"
 
     const weekText = ['Last Week']
-    for(let i = 2; i <= 12; i++) {
+    for (let i = 2; i <= 12; i++) {
       weekText.push(`${i} Weeks Ago`)
     }
-    
+
     const apiError = ref(false)
     const isDataLoading = ref(false)
     const store = useMainStore()
@@ -125,35 +123,34 @@ export default defineComponent({
     )
 
     const getGiniData = async () => {
-      
       const giniDataReqP = []
-      
-      for(let i=1; i<=11; i++) {
+
+      for (let i = 1; i <= 11; i++) {
         giniDataReqP.push(fetch(`${API_BASE}/metrics/gini-index/week?week=${i}`))
       }
 
       const giniDataReq = await Promise.all(giniDataReqP)
       console.log(giniDataReq)
-      if(giniDataReq.some(r => r.status !== 200)) {
+      if (giniDataReq.some((r) => r.status !== 200)) {
         apiError.value = true
         isDataLoading.value = false
         throw new Error(`At least one request failed`)
       }
 
-      const giniRaw = await Promise.all(giniDataReq.map(r => r.json()))
+      const giniRaw = await Promise.all(giniDataReq.map((r) => r.json()))
       let int = 0
-      giniTrend.value = giniRaw.map(r => {
+      giniTrend.value = giniRaw.map((r) => {
         int++
-        const date = new Date(Date.now() - (7*8.64e+7*(int+1)))
+        const date = new Date(Date.now() - 7 * 8.64e7 * (int + 1))
         return {
-          date:  `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
+          date: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
           value: Number(Number(r.gini).toFixed(4))
         }
-      }) 
+      })
       console.log(giniTrend.value)
       apiError.value = false
     }
- 
+
     const loadGiniData = async () => {
       isDataLoading.value = true
       await getGiniData()
@@ -180,28 +177,33 @@ export default defineComponent({
       // do nothing
     })
 
-    return { data,
-     iconsColor, tableTimePeriod,
-     timePeriod, giniTrend,
-     weekText, isDataLoading,
-     graphRef, apiError,
-     svgWidth, svgHeight,
-     gradient, grid,
-     }
+    return {
+      data,
+      iconsColor,
+      tableTimePeriod,
+      timePeriod,
+      giniTrend,
+      weekText,
+      isDataLoading,
+      graphRef,
+      apiError,
+      svgWidth,
+      svgHeight,
+      gradient,
+      grid
+    }
   }
 })
-
- 
 </script>
 
 <style lang="scss">
- .myArea {
+.myArea {
   fill: url(#area-gradient);
   stroke-width: 0px;
 }
- .d3-component {
-     svg {
-         margin: auto;
-     }
- }
+.d3-component {
+  svg {
+    margin: auto;
+  }
+}
 </style>
