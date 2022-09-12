@@ -28,7 +28,7 @@ import { onMounted, defineComponent, ref, Ref, PropType } from 'vue'
 import ThumbsUp from '../icons/thumbsUp.vue'
 import ThumbsDown from '../icons/thumbsDown.vue'
 import { formatNum } from '@/utils/format'
-import { useMainStore } from '@/store/main'
+import { useMainStore, openConnectModal } from '@/store/main'
 import { fetchWAuth } from '@/utils/auth'
 import type { Vote } from '@/types/vote'
 import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
@@ -124,6 +124,10 @@ export default defineComponent({
     }
 
     const doVote = (voteType: boolean) => {
+      if (!isAuth.value) {
+        openConnectModal(store)
+        return
+      }
       if (timer && !doingVote.value) {
         clearTimeout(timer)
       }

@@ -70,11 +70,11 @@ export default defineComponent({
           },
           {
             name: 'Positive Weight',
-            value: props.post?.positiveWeight ?? 0
+            value: props.post?.rawPositiveWeight ?? props.post?.positiveWeight ?? 0
           },
           {
             name: 'Negative Weight',
-            value: props.post?.negativeWeight ?? 0
+            value: props.post?.rawNegativeWeight ?? props.post?.negativeWeight ?? 0
           },
           {
             name: 'Total Likes',

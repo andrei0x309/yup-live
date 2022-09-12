@@ -61,7 +61,7 @@ export default defineComponent({
     mainStore.$subscribe(() => {
       isAuth.value = mainStore.isLoggedIn
       if (mainStore.openConnectModal) {
-        refConnectMod.value = true
+        connectModal()
       }
     })
 
@@ -96,6 +96,7 @@ export default defineComponent({
 
     const modalWasClosed = () => {
       alertProps.hidden = true
+      mainStore.openConnectModal = false
     }
 
     onUnmounted(() => {
