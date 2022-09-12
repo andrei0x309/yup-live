@@ -1,6 +1,6 @@
 # YUP.LIVE
 
-Temp depoyed at https://yup-live.pages.dev/
+Depoyed at https://yup.info.gf/
 
 ## Main Techstack - Vue 3/Typescript/Vite/Oruga
 
