@@ -42,7 +42,7 @@
       </template>
       <InfScroll v-else :key="`${loading}-loaded`" :postLoaded="true" @hit="onHit">
         <template #content>
-          <div class="flex flex-row mx-auto">
+          <div v-if="posts.length > 0" class="flex flex-row mx-auto">
             <div class="flex flex-col">
               <Post
                 v-for="post of posts"
@@ -57,12 +57,17 @@
                   }
                 "
               />
+              <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
             </div>
             <PostInfo
               :key="(postInfo as Record<string, any>)._id.postid"
               class="hidden lg:flex"
               :post="(postInfo as Record<string, any>)"
             />
+          </div>
+          <div v-else>
+            <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
+            <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
           </div>
         </template>
       </InfScroll>
@@ -122,8 +127,11 @@ export default defineComponent({
     const activeFeed = ref(defaultFeed) as Ref<string>
     const postsIndex = ref(0)
     const postInfo = ref(null) as Ref<unknown>
+    const feedLoading = ref(false)
+    const catComp = ref(null) as Ref<unknown>
 
     const getFeedPosts = async (start = 0) => {
+      try {
       const res = await fetch(`${FEED_APIS[activeFeed.value]}?start=${start}&limit=10`, {
         headers: {
           'Content-Type': 'application/json'
@@ -131,9 +139,13 @@ export default defineComponent({
       })
       const data = await res.json()
       return data
+     } catch {
+      return []
+    }
     }
 
     const onHit = async (type: string) => {
+      feedLoading.value = true
       if (type === 'up' && posts.value.length <= 30) {
         return
       } else if (type === 'up' && postsIndex.value >= 30) {
@@ -149,7 +161,7 @@ export default defineComponent({
         const newPosts = await getFeedPosts(postsIndex.value)
         posts.value = [...posts.value.slice(10), ...newPosts]
       }
-      // console.log(postsIndex.value, (posts.value[0] as {_id: any})._id, posts.value.length)
+      feedLoading.value = false
     }
 
     const feedChange = async (feed: string) => {
@@ -166,11 +178,15 @@ export default defineComponent({
     })
 
     onMounted(async () => {
-      posts.value = await getFeedPosts(postsIndex.value)
-      if (!postInfo.value) {
+     getFeedPosts(postsIndex.value).then(
+      res => {
+        posts.value  = res
+        if (!postInfo.value) {
         postInfo.value = posts.value[0]
       }
       loading.value = false
+      }
+     )
     })
 
     onUnmounted(() => {
@@ -191,7 +207,9 @@ export default defineComponent({
       posts,
       FEED_APIS,
       postInfo,
-      activeFeed
+      activeFeed,
+      feedLoading,
+      catComp
     }
   }
 })
