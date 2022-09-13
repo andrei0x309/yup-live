@@ -42,7 +42,7 @@
     <div class="max-w-screen-2xl px-2 md:px-4 lg:px-8 mx-auto">
       <header class="flex justify-between items-center py-4">
         <!-- logo - start -->
-        <a href="/" class="logo inline-flex items-center text-black-800 text-xl md:text-3xl font-bold gap-2.5" aria-label="logo">
+        <router-link to="/" class="logo inline-flex items-center text-black-800 text-xl md:text-3xl font-bold gap-2.5" aria-label="logo">
           <h1 class="inline gradient-text">YUP</h1>
           <svg class="w-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 27.015619 12.00781">
             <use xlink:href="#live-1"></use>
@@ -51,7 +51,7 @@
             <use xlink:href="#live-4"></use>
             <use xlink:href="#live-5"></use>
           </svg>
-        </a>
+        </router-link>
         <!-- logo - end -->
 
         <!-- nav - start -->
