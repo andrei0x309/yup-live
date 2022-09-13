@@ -68,6 +68,10 @@
               :post="(postInfo as Record<string, any>)"
             />
           </div>
+          <div v-else>
+            <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
+            <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
+          </div>
         </template>
       </InfScroll>
       <CollectionsPage
@@ -107,6 +111,10 @@
               :post="(postInfo as Record<string, any>)"
             />
           </div>
+          <div v-else>
+            <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
+            <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
+          </div>
         </template>
       </InfScroll>
     </div>
@@ -134,7 +142,7 @@ import LineLoader from '@/components/functional/lineLoader.vue'
 import { getUserFollowers, createActionUsage, createUserData } from '@/utils/requests/accounts'
 import type { NameValue } from '@/types/account'
 import type { ICollection } from '@/types/store'
-import FollowersPage from '../components/content/profile/followersPage.vue'
+import FollowersPage from '@/components/content/profile/followersPage.vue'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
 
@@ -172,8 +180,7 @@ export default defineComponent({
     const currentMenuTab = ref(
       Object.keys(MENU_BUTTONS).includes(accountRoute) ? (MENU_BUTTONS as { [key: string]: string })[accountRoute] : MENU_BUTTONS.feed
     )
-
-    console.log(Object.values(MENU_BUTTONS), accountRoute, currentMenuTab)
+    const catComp = ref(null) as Ref<unknown>
 
     const collections = useCollectionStore()
     const collectionsEx = useCollectionStoreEx()
@@ -363,7 +370,11 @@ export default defineComponent({
       } else if (currentMenuTab.value === MENU_BUTTONS.web3) {
         getFeedPosts = getCreatedFeedPosts
       }
-      resetPosts()
+      resetPosts().then(async () => {
+        if (posts.value.length < 1) {
+          catComp.value = (await import('@/components/content/icons/catEmpty.vue')).default
+        }
+      })
       console.log(accountRoute)
     })
 
@@ -412,7 +423,8 @@ export default defineComponent({
       postTypesPromises,
       postInfo,
       feedLoading,
-      followers
+      followers,
+      catComp
     }
   }
 })
