@@ -94,8 +94,8 @@
     </span>
   </div>
 </template>
-
 <script lang="ts">
+// https://api.farcaster.xyz/indexer/threads/0xb3ecd2e9367c5ada51eed6999d8a41454ad1bbf526b3a8637135c5478aed1327?viewer_address=0xe68C06cf27dFEE5bD440A47b3CE4b3Cd96627Bd8&include_deleted_casts=true&version=2
 // import { useMainStore } from '@/store/main'
 import { onMounted, defineComponent, ref, Ref } from 'vue'
 import AvatarBtn from '@/components/content/connect/avatarBtn.vue'

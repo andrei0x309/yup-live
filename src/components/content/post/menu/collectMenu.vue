@@ -9,7 +9,7 @@
   >
     <template #content>
       <ul class="w-30 text-justify collectMenu">
-        <li class="pt-1 cursor-pointer"><AddIcon class="inline w-5 mr-2 text-[0.9rem]" />New collection</li>
+        <li class="pt-1 cursor-pointer" @click="onNewCollection"><AddIcon class="inline w-5 mr-2 text-[0.9rem]" />New collection</li>
         <li class="w-55 border-b-1 h-1 mt-1 mb-1">&nbsp;</li>
         <li
           v-for="collection in collectionsStore.collections"
@@ -25,24 +25,36 @@
     </template>
     <button class="p-2 m-2 colbutton">Collect <CollectIcon class="w-6 inline mr-2" /></button>
   </o-tooltip>
+  <o-modal v-model:active="newCollectionModal" contentClass="modal-body grid grid-cols-1 gap-4 content-center" @close="modalWasClosed">
+    <h2 class="mt-2 p-4 text-[1.3rem]">Create New Collection</h2>
+    <Alert ref="alertComp" class="mx-4" />
+    <input v-model="colName" type="text" name="text" placeholder="Collection Name" />
+    <textarea v-model="colDesc" name="text" class="mx-auto" placeholder="Description"></textarea>
+    <CustomButton class="mx-auto" :icon="refAddIcon" text="Create Collection" @click="onCreateNewCollection" />
+  </o-modal>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, Ref, watch } from 'vue'
 import CollectIcon from '@/components/content/icons/collect.vue'
 import { useMainStore, openConnectModal } from '@/store/main'
-import { useCollectionStore } from '@/store/collections'
+import { getCollections, useCollectionStore } from '@/store/collections'
 import AddIcon from '@/components/content/icons/add.vue'
 import { fetchWAuth } from '@/utils/auth'
 import { stackAlertError, stackAlertSuccess } from '@/store/alertStore'
+import CustomButton from '@/components/functional/customButton.vue'
+import Alert from '@/components/functional/alert.vue'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
+const refAddIcon = AddIcon
 
 export default defineComponent({
   name: 'CollectMenu',
   components: {
     CollectIcon,
-    AddIcon
+    AddIcon,
+    CustomButton,
+    Alert
   },
   props: {
     postId: {
@@ -60,6 +72,10 @@ export default defineComponent({
     const collectionsStore = useCollectionStore()
     const isAdd = ref({}) as Ref<Record<string, boolean>>
     const inCollKey = ref(0)
+    const newCollectionModal = ref(false)
+    const colName = ref('')
+    const colDesc = ref('')
+    const alertComp = ref(null) as unknown as Ref<typeof Alert>
 
     store.$subscribe(() => {
       isAuth.value = store.isLoggedIn
@@ -151,6 +167,42 @@ export default defineComponent({
       }
     }
 
+    const onCreateNewCollection = async () => {
+      if (!colName.value && !colDesc.value) {
+        alertComp.value?.showErr("If you don't put a description that's on you but name is required!")
+        return
+      } else if (!colName.value) {
+        alertComp.value?.showErr('Name is required for new collection!')
+        return
+      }
+      if (store.userData.account) {
+        const createReq = await fetchWAuth(`${API_BASE}/collections/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eosname: store.userData.account,
+            name: colName.value,
+            descriptions: colDesc.value ?? ''
+          })
+        })
+        if (createReq.ok) {
+          newCollectionModal.value = false
+          stackAlertSuccess('Collection Created')
+          getCollections(collectionsStore, store.userData.account)
+        } else {
+          alertComp.value?.showErr('API' + (await createReq.text()))
+        }
+      }
+    }
+
+    const modalWasClosed = async () => {
+      newCollectionModal.value = false
+    }
+
+    const onNewCollection = async () => {
+      newCollectionModal.value = true
+    }
+
     return {
       onError,
       onLoad,
@@ -161,13 +213,22 @@ export default defineComponent({
       collectionsStore,
       isAdd,
       inCollKey,
-      onAction
+      onAction,
+      modalWasClosed,
+      onNewCollection,
+      newCollectionModal,
+      refAddIcon,
+      onCreateNewCollection,
+      colName,
+      colDesc,
+      alertComp
     }
   }
 })
 </script>
 
 <style scoped lang="scss">
+@use '@/assets/inputs';
 .collectMenu {
   max-height: 26rem;
   max-width: 16rem;
@@ -208,5 +269,9 @@ export default defineComponent({
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #111;
+}
+
+.modal-body {
+  @include inputs.inputsShare;
 }
 </style>
