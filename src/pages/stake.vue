@@ -266,16 +266,29 @@ export default defineComponent({
       }, 400) as unknown as number
     }
 
-    const onStake = async (chain: string) => {
+    const prepareForTransaction = async () => {
       if (!userProvider) {
         try {
           const inst = await w3Modal.connect()
           userProvider = new ethersLib.providers.Web3Provider(inst)
         } catch {
           stackAlertWarning('User rejected connection')
-          return
+          return false
+        }
+        const { chainId } = await userProvider.getNetwork()
+        if (chainId !== 137) {
+          stackAlertWarning(`You are on wrong network(${chainId}), please switchto polygon(137)`)
+          return false
         }
       }
+      return true
+    }
+
+    const onStake = async (chain: string) => {
+      if (!(await prepareForTransaction())) {
+        return
+      }
+
       try {
         const signer = await userProvider.getSigner()
         let contractLP
@@ -300,15 +313,10 @@ export default defineComponent({
     }
 
     const onUnstake = async (chain: string) => {
-      if (!userProvider) {
-        try {
-          const inst = await w3Modal.connect()
-          userProvider = new ethersLib.providers.Web3Provider(inst)
-        } catch {
-          stackAlertWarning('User rejected connection')
-          return
-        }
+      if (!(await prepareForTransaction())) {
+        return
       }
+
       try {
         const signer = await userProvider.getSigner()
         let contractRewards
@@ -335,17 +343,13 @@ export default defineComponent({
     }
 
     const onReward = async () => {
-      if (!userProvider) {
-        try {
-          const inst = await w3Modal.connect()
-          userProvider = new ethersLib.providers.Web3Provider(inst)
-        } catch {
-          stackAlertWarning('User rejected connection')
-          return
-        }
+      if (!(await prepareForTransaction())) {
+        return
       }
+
       try {
         const signer = await userProvider.getSigner()
+        signer.get
 
         if (rewardsEth > 0) {
           const contractRewardsEth = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
