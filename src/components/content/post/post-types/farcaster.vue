@@ -1,131 +1,46 @@
 <template>
   <div v-if="postType === 'single'" ref="postWrap" class="p-4">
-    <div class="flex p-2">
-      <AvatarBtn
-        :key="mainPost.userAvatar"
-        class="w-9 h-9"
-        :pSource="mainPost.userAvatar"
-        :isSelf="false"
-        :isTwitter="true"
-        :pAccount="mainPost.userHandle"
-      />
-      <div class="flex flex-col text-justify pl-3">
-        <span>{{ mainPost.userName }}</span>
-        <span class="mainPost-70">@{{ mainPost.userHandle }} <VerifiedIcon v-if="mainPost.verified" class="verIcon" /></span>
-      </div>
-      <span class="inline-block favIco ml-auto"><FarcasterIcon class="w-8 h-8" /></span>
-    </div>
-    <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
-      <div class="indent"></div>
-      <div class="pl-4">
-        <p v-html="mainPost.body"></p>
-        <template v-for="media of mainPost.mediaEntities" :key="media.url">
-          <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
-          <ImagePreview v-if="media.type === 'image'" :source="media.url" class="py-4 rounded-lg" />
-        </template>
-      </div>
-    </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end">
-      <ClockIcon class="w-4 h-4" />
-      <p class="text-xs">
-        {{ post.createdAt }}
-      </p>
-    </span>
+    <FarcasterPostBody :mainPost="mainPost" :postId="post.id" />
   </div>
   <div v-else-if="postType === 'reply'" ref="postWrap" class="p-4">
-    <div class="relative mb-6">
-      <div class="flex p-2">
-        <AvatarBtn
-          :key="mainPost.userAvatar"
-          class="w-9 h-9"
-          :pSource="mainPost.userAvatar"
-          :isSelf="false"
-          :isTwitter="true"
-          :pAccount="mainPost.userHandle"
-        />
-        <div class="flex flex-col text-justify pl-3">
-          <span>{{ mainPost.userName }}</span>
-          <span class="opacity-70">@{{ mainPost.userHandle }} <VerifiedIcon v-if="mainPost.verified" class="verIcon" /></span>
-        </div>
-        <span class="inline-block favIco ml-auto"><FarcasterIcon class="w-8 h-8" /></span>
-      </div>
-      <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
-        <div class="indent reply-line"></div>
-        <div class="pl-1">
-          <p v-html="mainPost.body"></p>
-          <template v-for="media of mainPost.mediaEntities" :key="media.url">
-            <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
-            <ImagePreview v-if="media.type === 'image'" :source="media.url" class="py-4 rounded-lg" />
-          </template>
-        </div>
-      </div>
+    <FarcasterPostBody :mainPost="mainPost" :postId="post.id" :isReply="true" />
+    <FarcasterPostBody :mainPost="replyPost" :postId="post.id" />
+  </div>
+  <div v-else-if="postType === 'full'" ref="postWrap" class="p-4">
+    <FarcasterPostBody :mainPost="mainPost" :postId="post.id" />
+    <div v-if="comments.length > 0" class="p-2 flex-col">
+      <h2 class="pl-4 text-left">Comments:</h2>
+      <FarcasterPostBody v-for="comment in comments" :key="comment.thread" class="mb-4 comBorder" :mainPost="comment" :isCom="true" />
     </div>
-    <div>
-      <div class="flex px-2">
-        <AvatarBtn
-          :key="replyPost.userAvatar"
-          class="w-9 h-9"
-          :pSource="replyPost.userAvatar"
-          :isSelf="false"
-          :isTwitter="true"
-          :pAccount="replyPost.userHandle"
-        />
-        <div class="flex flex-col text-justify pl-3">
-          <span>{{ replyPost.userName }}</span>
-          <span class="opacity-70">@{{ replyPost.userHandle }} <VerifiedIcon v-if="mainPost.verified" class="verIcon" /></span>
-        </div>
-      </div>
-      <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
-        <div class="indent"></div>
-        <div class="pl-1">
-          <p v-html="replyPost.body"></p>
-          <template v-for="media of replyPost.mediaEntities" :key="media.url">
-            <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
-            <ImagePreview v-if="media.type === 'image'" :source="media.url" class="py-4 rounded-lg" />
-          </template>
-        </div>
-      </div>
-    </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end">
-      <ClockIcon class="w-4 h-4" />
-      <p class="text-xs">
-        {{ post.createdAt }}
-      </p>
-    </span>
   </div>
 </template>
-
 <script lang="ts">
+// threads/0xb3ecd2e9367c5ada51eed6999d8a41454ad1bbf526b3a8637135c5478aed1327?viewer_address=0xe68C06cf27dFEE5bD440A47b3CE4b3Cd96627Bd8&include_deleted_casts=true&version=2
 // import { useMainStore } from '@/store/main'
 import { onMounted, defineComponent, ref, Ref } from 'vue'
-import AvatarBtn from '@/components/content/connect/avatarBtn.vue'
-// import { loadTwitterFactory } from '@/utils/twitter'
-import FarcasterIcon from '@/components/content/icons/farcaster.vue'
-import VideoPlayer from '@/components/content/post/videoPlayer.vue'
-import ClockIcon from '@/components/content/icons/clock.vue'
-import ImagePreview from '../imagePreview.vue'
-// import { timeAgo } from '@/utils/time'
 import { isImage } from '@/utils/post'
-import VerifiedIcon from '@/components/content/icons/verified.vue'
+import { timeAgo } from '@/utils/time'
 import type { mediaType } from '@/types/post'
 import type { Web3Media } from '@/types/web3/media'
 import type { Web3PostFarcaster, Web3FarcasterRaw, Web3FarcasterRawReply } from '@/types/web3/farcaster'
+import FarcasterPostBody from '@/components/content/post/post-types/lens/farcasterPostBody.vue'
+
+const FARCASTER_INDEXER_THREADS = `https://yup-farcaster-thread.deno.dev/`
 
 export default defineComponent({
   name: 'PostFarcaster',
   components: {
-    AvatarBtn,
-    FarcasterIcon,
-    VideoPlayer,
-    ClockIcon,
-    ImagePreview,
-    VerifiedIcon
+    FarcasterPostBody
   },
   props: {
     post: {
       required: false,
       type: Object,
       default: () => ({})
+    },
+    full: {
+      type: Boolean,
+      default: false
     }
   },
   setup(props) {
@@ -140,7 +55,9 @@ export default defineComponent({
       userAvatar: '',
       body: '',
       isVerified: '',
-      mediaEntities: [] as mediaType[]
+      mediaEntities: [] as mediaType[],
+      createdAt: '',
+      thread: ''
     }) as Ref<Web3PostFarcaster>
 
     const replyPost = ref({
@@ -149,11 +66,16 @@ export default defineComponent({
       userAvatar: '',
       body: '',
       isVerified: false,
-      mediaEntities: [] as mediaType[]
+      mediaEntities: [] as mediaType[],
+      createdAt: '',
+      thread: ''
     }) as Ref<Web3PostFarcaster>
 
+    const comments = ref([]) as Ref<Array<Web3PostFarcaster>>
+
     const getWeb3Type = () => {
-      if (props.post?.web3Preview?.meta?.parents?.length > 0) postType.value = 'reply'
+      if (props.post?.web3Preview?.meta?.parents?.length > 0) return 'reply'
+      return 'single'
     }
 
     // const checkMedia = (filler: Web3Raw) => {
@@ -213,7 +135,20 @@ export default defineComponent({
       return retArr
     }
 
-    const fillPost = (filler: Web3FarcasterRaw, post: Ref<Web3PostFarcaster>) => {
+    const getComments = async (thread: string) => {
+      const req = await fetch(FARCASTER_INDEXER_THREADS, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ thread })
+      })
+      if (req.ok) {
+        return await req.json()
+      } else {
+        return []
+      }
+    }
+
+    const fillPost = (filler: Web3FarcasterRaw): Web3PostFarcaster => {
       const postBuilder = {} as Web3PostFarcaster
       postBuilder.userAvatar = filler?.creator?.avatarUrl as string
       postBuilder.userHandle = filler?.creator?.handle as string
@@ -221,11 +156,12 @@ export default defineComponent({
       postBuilder.body = parseBody(filler.content ?? '')
       postBuilder.mediaEntities = parseMedia(filler?.attachments ?? [])
       postBuilder.verified = filler?.meta?.isVerifiedAvatar
-      console.log(postBuilder.mediaEntities)
-      post.value = postBuilder
+      postBuilder.createdAt = timeAgo(filler?.createdAt)
+      postBuilder.thread = filler?.meta?.threadMerkleRoot as string
+      return postBuilder
     }
 
-    const fillReply = (filler: Web3FarcasterRawReply, post: Ref<Web3PostFarcaster>) => {
+    const fillReply = (filler: Web3FarcasterRawReply): Web3PostFarcaster => {
       const postBuilder = {} as Web3PostFarcaster
       postBuilder.userAvatar = filler?.meta?.avatar as string
       postBuilder.userHandle = filler?.body?.username as string
@@ -233,20 +169,34 @@ export default defineComponent({
       postBuilder.body = parseBody(filler?.body?.data?.text as string)
       postBuilder.verified = filler?.meta?.isVerifiedAvatar
       postBuilder.mediaEntities = parseMediaOpenGraph(filler?.attachments.openGraph ?? [])
-      console.log(postBuilder.mediaEntities)
-      post.value = postBuilder
+      postBuilder.createdAt = timeAgo(new Date(filler?.body?.publishedAt ?? Date.now() - Math.random() * 35000).toISOString())
+      postBuilder.thread = filler?.threadMerkleRoot
+      return postBuilder
     }
 
     onMounted(() => {
-      getWeb3Type()
+      postType.value = getWeb3Type()
       switch (postType.value) {
         case 'single': {
-          fillPost(props.post.web3Preview, mainPost)
+          mainPost.value = fillPost(props.post.web3Preview)
           break
         }
         case 'reply': {
-          fillReply(props.post.web3Preview.meta.parents[0], mainPost)
-          fillPost(props.post.web3Preview, replyPost)
+          mainPost.value = fillReply(props.post.web3Preview.meta.parents[0])
+          if (props.full) {
+            postType.value = 'full'
+            console.log('ssssssssssssssssssssssssssss', mainPost.value?.thread)
+            getComments(mainPost.value?.thread).then((r) => {
+              const lCom = []
+              for (const e of r?.result ?? []) {
+                lCom.push(fillReply(e))
+              }
+              console.log(lCom)
+              comments.value = lCom
+            })
+          } else {
+            replyPost.value = fillPost(props.post.web3Preview)
+          }
           break
         }
       }
@@ -256,16 +206,17 @@ export default defineComponent({
       postWrap,
       mainPost,
       replyPost,
-      postType
+      postType,
+      comments
     }
   }
 })
 </script>
 
 <style scoped lang="scss">
-.verIcon {
-  width: 0.8rem;
-  fill: rgb(187 85 255);
-  display: inline;
+.comBorder {
+  border: 1px solid rgba(82, 82, 82, 0.425);
+  border-radius: 0.3rem;
+  padding: 0.7rem;
 }
 </style>

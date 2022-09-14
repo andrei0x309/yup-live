@@ -350,6 +350,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+@use '@/assets/inputs';
+
 .login-form {
   margin: 0;
   padding-bottom: 1rem;
@@ -393,63 +395,7 @@ export default defineComponent({
     color: rgba(255, 255, 255, 0.5);
   }
 
-  input,
-  .login-btn {
-    font-family: 'Open Sans', sans-serif;
-    position: relative;
-    display: block;
-    margin: 20px auto;
-    padding: 10px;
-    width: 84%;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-  }
-
-  input,
-  textarea {
-    border: none;
-    border-left: 5px solid;
-    background: none;
-    font-weight: 300;
-    font-size: 1.2rem;
-    -webkit-transition: all 0.2s ease-in-out;
-    -moz-transition: all 0.2s ease-in-out;
-    -o-transition: all 0.2s ease-in-out;
-    transition: all 0.2s ease-in-out;
-    max-width: 26rem;
-  }
-
-  textarea {
-    resize: none;
-    height: 6rem;
-    width: 100%;
-  }
-
-  input:focus,
-  textarea:focus {
-    outline: 0;
-    background: rgba(40, 1, 104, 0.514);
-    border-radius: 20px;
-    border-color: transparent;
-    color: #fff;
-  }
-
-  input:focus::placeholder,
-  textarea:focus::placeholder {
-    color: #fff;
-  }
-
-  textarea {
-    padding: 1rem;
-  }
-
-  input::placeholder,
-  textarea::placeholder {
-    font-weight: bold;
-    opacity: 0.9;
-    color: var(--color-text-faded);
-  }
+  @include inputs.inputsShare;
 
   .login-btn {
     border-radius: 4px;

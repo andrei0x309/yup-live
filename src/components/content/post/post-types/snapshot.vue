@@ -1,105 +1,70 @@
 <template>
-  <div v-if="postType === 'original'" ref="postWrap" class="p-4">
-    <div class="flex p-2">
-      <AvatarBtn
-        :key="mainPost.userAvatar"
-        class="w-9 h-9"
-        :pSource="mainPost.userAvatar"
-        :isSelf="false"
-        :isTwitter="true"
-        :pAccount="mainPost.userHandle"
-      />
-      <div class="flex flex-col text-justify pl-3">
-        <span>{{ mainPost.userName }}</span>
-        <span class="mainPost-70">@{{ mainPost.userHandle }}</span>
-      </div>
-      <span class="inline-block favIco ml-auto"><FarcasterIcon class="w-6 h-6 fIcon" /></span>
+  <div>
+    <div class="flex justify-between -mt-2 px-4 poap" style="z-index: 1">
+      <span class="inline-block favIco">
+        <router-link v-if="post.id" :to="`/post/${post.id}`">
+          <PoapIcon class="w-8" />
+        </router-link>
+        <PoapIcon v-else class="w-8" />
+      </span>
+      <span class="flex time h-min space-x-1 items-center rounded-full text-xs font-medium">
+        <ClockIcon class="w-5 h-5" />
+        <p class="font-semibold text-xs">Minted</p>
+        <p class="font-semibold text-xs">
+          {{ post.createdAt }}
+        </p>
+      </span>
     </div>
-    <div class="pl-10 p-t2 text-justify pr-2 tBody">
-      <p v-html="mainPost.body"></p>
-      <template v-for="media of mainPost.mediaEntities" :key="media.url">
-        <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
-      </template>
-    </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end">
-      <ClockIcon class="w-4 h-4" />
-      <p class="text-xs">
-        {{ post.createdAt }}
-      </p>
-    </span>
-  </div>
-  <div v-else-if="postType === 'reply'" ref="tweet" class="p-4">
-    <div class="relative mb-6">
+    <div class="py-2 px-2">
       <div class="flex p-2">
         <AvatarBtn
-          :key="mainPost.userAvatar"
+          :key="`${mainPost.userAvatar}`"
           class="w-9 h-9"
           :pSource="mainPost.userAvatar"
           :isSelf="false"
           :isTwitter="true"
-          :pAccount="mainPost.userHandle"
+          :pAccount="mainPost.userAddr"
         />
         <div class="flex flex-col text-justify pl-3">
-          <span>{{ mainPost.userName }}</span>
-          <span class="opacity-70">@{{ mainPost.userHandle }}</span>
-        </div>
-        <span class="inline-block favIco ml-auto"><TwitterIcon class="w-6 h-6" /></span>
-      </div>
-      <!-- <div class="pl-10 p-t2 text-justify pr-2 tBody">
-        <p v-html="mainPost.body"></p>
-        <template v-for="media of mainPost.mediaEntities" :key="media.url">
-          <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
-        </template>
-      </div> -->
-      <span role="image" class="replyBar"></span>
-    </div>
-    <div>
-      <div class="flex px-2">
-        <AvatarBtn
-          :key="replyPost.userAvatar"
-          class="w-9 h-9"
-          :pSource="replyPost.userAvatar"
-          :isSelf="false"
-          :isTwitter="true"
-          :pAccount="replyPost.userHandle"
-        />
-        <div class="flex flex-col text-justify pl-3">
-          <span>{{ replyPost.userName }}</span>
-          <span class="opacity-70">@{{ replyPost.userHandle }}</span>
+          <span>{{ mainPost.yupAccount.username ?? mainPost.userEns ?? truncteEVMAddr(mainPost.userAddr) }}</span>
+          <span v-if="mainPost.yupAccount.username && mainPost.userEns" class="opacity-70">@{{ mainPost.userEns }}</span>
         </div>
       </div>
-      <!-- <div class="pl-10 p-t2 text-justify pr-2 tBody">
-        <p v-html="replyPost.body"></p>
-        <template v-for="media of replyPost.mediaEntities" :key="media.url">
-          <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
-        </template>
-      </div> -->
     </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end">
-      <ClockIcon class="w-4 h-4" />
-      <p class="text-xs">
-        {{ post.createdAt }}
-      </p>
-    </span>
+    <p class="w-full text-left pl-14">Claimed POAP:</p>
+    <div class="py-1 px-4 flex" style="margin: 0.9rem 1rem 1rem 1rem; font-size: 1.1rem">
+      <ImagePreview
+        :key="mainPost.eventImage"
+        :noPreviewParagraph="false"
+        :source="mainPost.eventImage"
+        imgClass="rounded-full min-h-35 min-w-35 max-h-45 max-w-45"
+        noPreviewClass="rounded-full min-h-35 min-w-35 max-h-45 max-w-45"
+      />
+      <div>
+        <p class="ml-2">{{ mainPost.eventName }}</p>
+        <p class="pt-4 px-4 ml-2 text-[0.9rem] leading-7 text-left indent-4">{{ mainPost.eventDescription }}</p>
+        <p class="pt-6 ml-2 text-[0.85rem] opacity-70">Took place on: {{ mainPost.eventStarted }}</p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-// import { useMainStore } from '@/store/main'
-import { onMounted, defineComponent, ref, Ref } from 'vue'
-import AvatarBtn from '@/components/content/connect/avatarBtn.vue'
-// import { loadTwitterFactory } from '@/utils/twitter'
-import FarcasterIcon from '@/components/content/icons/farcaster.vue'
-import VideoPlayer from '@/components/content/post/videoPlayer.vue'
+import { onMounted, defineComponent, Ref, ref } from 'vue'
 import ClockIcon from '@/components/content/icons/clock.vue'
+import PoapIcon from '@/components/content/icons/poap.vue'
+import { truncteEVMAddr } from '@/utils/misc'
+import ImagePreview from '../imagePreview.vue'
+import AvatarBtn from '@/components/content/connect/avatarBtn.vue'
+import type { Web3PostPOAP, Web3POAPRaw } from '@/types/web3/poap'
 
 export default defineComponent({
-  name: 'PostSnapshot',
+  name: 'PostPOAP',
   components: {
-    AvatarBtn,
-    FarcasterIcon,
-    VideoPlayer,
-    ClockIcon
+    ClockIcon,
+    ImagePreview,
+    PoapIcon,
+    AvatarBtn
   },
   props: {
     post: {
@@ -108,147 +73,59 @@ export default defineComponent({
       default: () => ({})
     }
   },
-  setup() {
-    // const store = useMainStore()
-    interface mediaType {
-      type: string
-      url: string
-    }
-
-    interface TweetData {
-      userName: string
-      userHandle: string
-      userAvatar: string
-      body: string
-      mediaEntities: mediaType[]
-    }
-
-    // interface TweetRaw {
-    //   text?: string
-    //   full_text?: string
-    //   user: {
-    //     name?: string
-    //     screen_name?: string
-    //     profile_image_url_https?: string
-    //   }
-    //   extended_entities?: {
-    //     media: Array<{
-    //       video_info?: {
-    //         variants: Array<{
-    //           url: string
-    //         }>
-    //       }
-    //       type?: string
-    //     }>
-    //   }
-    // }
-
-    const postWrap = ref(null)
-    const postType = ref('single')
-
+  setup(props) {
     const mainPost = ref({
-      userName: '',
-      userHandle: '',
       userAvatar: '',
-      body: '',
-      mediaEntities: [] as mediaType[]
-    }) as Ref<TweetData>
+      userAddr: '',
+      userEns: '',
+      userEnsAvatar: '',
+      eventDescription: '',
+      eventName: '',
+      eventStarted: '',
+      eventImage: '',
+      eventUrl: '',
+      yupAccount: {
+        avatar: '',
+        username: '',
+        _id: ''
+      }
+    }) as unknown as Ref<Web3PostPOAP>
 
-    const replyPost = ref({
-      userName: '',
-      userHandle: '',
-      userAvatar: '',
-      body: '',
-      mediaEntities: [] as mediaType[]
-    }) as Ref<TweetData>
-
-    // const getTweetType = () => {
-    //   if (props.post.tweetInfo.retweeted_status) postType.value = 'hasReply'
-    // }
-
-    // const checkMedia = (filler: TweetRaw) => {
-    //   const mediaEntities: mediaType[] = []
-    //   if ((filler?.extended_entities?.media?.length ?? 0) > 0) {
-    //     const twMediaEntities = filler?.extended_entities?.media
-    //     twMediaEntities?.forEach((e) => {
-    //       if (e?.type === 'video') {
-    //         mediaEntities.push({ type: 'video', url: e?.video_info?.variants[0].url ?? '' })
-    //       }
-    //     })
-    //   }
-    //   return mediaEntities
-    // }
-
-    // const parseBody = (text: string) => {
-    //   return text
-    //     .replace(/(http|https)(.*)( \n|\t|\s|$){1}/gi, "<a href='$1$2' rel='noFollow' target='_blank'>$1$2</a>$3")
-    //     .replace(/@(.*?)($|\s|\t|\n)/g, "<a href='https://twitter.com/$1' rel='noFollow' target='_blank'>@$1</a>$2")
-    // }
-
-    // const fillPost = (filler: TweetRaw, tweet: Ref<TweetData>) => {
-    //   const tweetBuilder = {} as TweetData
-    //   tweetBuilder.userAvatar = filler.user.profile_image_url_https as string
-    //   tweetBuilder.userHandle = filler.user.screen_name as string
-    //   tweetBuilder.userName = filler.user.name as string
-    //   tweetBuilder.body = parseBody(filler.full_text ?? (filler.text as string))
-    //   tweetBuilder.mediaEntities = checkMedia(filler)
-    //   tweet.value = tweetBuilder
-    // }
+    const fillPost = (filler: Web3POAPRaw) => {
+      const postBuilder = {} as Web3PostPOAP
+      postBuilder.yupAccount = {}
+      postBuilder.userAddr = filler?.creator?.address ?? ''
+      postBuilder.userEns = filler?.creator?.ens ?? ''
+      postBuilder.yupAccount.username = filler?.creator?.meta?.username ?? ''
+      postBuilder.yupAccount.avatar = filler?.creator?.meta?.avatar ?? ''
+      postBuilder.yupAccount._id = filler?.creator?.meta?._id ?? ''
+      postBuilder.eventDescription = filler?.content ?? ''
+      postBuilder.eventName = filler?.title ?? ''
+      postBuilder.eventStarted = filler?.meta?.event?.start_date ?? ''
+      postBuilder.eventImage = filler?.meta?.event?.image_url ?? ''
+      postBuilder.eventUrl = filler?.meta?.event?.event_url ?? ''
+      postBuilder.userAvatar = filler?.creator?.meta?.avatar ?? filler?.creator?.meta?.ensAvatar ?? ''
+      return postBuilder
+    }
 
     onMounted(() => {
-      //   getTweetType()
-      //   switch (postType.value) {
-      //     case 'original': {
-      //       fillPost(props.post.tweetInfo, mainPost)
-      //       break
-      //     }
-      //     case 'retweet': {
-      //       break
-      //     }
-      //     case 'quoted': {
-      //       break
-      //     }
-      //     case 'reply': {
-      //       fillPost(props.post.tweetInfo.reply_status, mainPost)
-      //       fillPost(props.post.tweetInfo, replyPost)
-      //       break
-      //     }
-      //   }
+      const poap = Object.assign({}, props.post.web3Preview, { createdAt: props?.post?.createdAt })
+      mainPost.value = fillPost(poap)
     })
 
     return {
-      postWrap,
       mainPost,
-      replyPost,
-      postType
+      truncteEVMAddr
     }
   }
 })
 </script>
 
 <style scoped lang="scss">
-.replyBar {
-  border-left: 3px solid rgba(153, 8, 8, 0.7411764706);
-  height: max-content;
-  width: 3px;
-  position: absolute;
-  top: 3.5rem;
-  left: 1.55rem;
-}
-
-div.tBody {
-  text-align: left;
-  a {
-    filter: brightness(1.2) sepia(2);
+div.poap {
+  .time {
+    width: 100%;
+    max-width: 10.5rem;
   }
-  a:hover {
-    transform: skewX(20deg);
-  }
-}
-
-.fIcon {
-  position: absolute;
-  left: 19%;
-  top: 16%;
 }
 </style>

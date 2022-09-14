@@ -21,7 +21,7 @@
       </template>
       <InfScroll v-else :key="`${loading}-loaded`" :postLoaded="true" @hit="onHit">
         <template #content>
-          <div class="flex flex-row mx-auto">
+          <div v-if="posts.length > 0" class="flex flex-row mx-auto">
             <div class="flex flex-col">
               <Post
                 v-for="post of posts"
@@ -36,12 +36,17 @@
                   }
                 "
               />
+              <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
             </div>
             <PostInfo
               :key="(postInfo as Record<string, any>)._id.postid"
               class="hidden lg:flex"
               :post="(postInfo as Record<string, any>)"
             />
+          </div>
+          <div v-else>
+            <h2 class="text-[1.3rem] mt-4 uppercase">This collection is empty :(</h2>
+            <component :is="catComp" v-if="catComp !== null" class="max-w-120 w-10 mx-auto" />
           </div>
         </template>
       </InfScroll>
@@ -74,6 +79,8 @@ export default defineComponent({
     const API_BASE = import.meta.env.VITE_YUP_API_BASE
     const loading = ref(true)
     const collectionData = ref({}) as unknown as Ref<{ ownerId: string; ownerAvatar: string; name: string }>
+    const catComp = ref(null) as Ref<unknown>
+    const feedLoading = ref(false)
     // const search = ref("");
     // const store = useMainStore();
 
@@ -112,7 +119,7 @@ export default defineComponent({
     }
 
     const onHit = async (type: string) => {
-      console.log(getJsPaginatedPosts(postsIndex.value))
+      feedLoading.value = true
       if (type === 'up' && posts.value.length <= 30) {
         return
       } else if (type === 'up' && postsIndex.value >= 30) {
@@ -129,14 +136,18 @@ export default defineComponent({
         posts.value = [...posts.value.slice(10), ...newPosts]
       }
       // console.log(postsIndex.value, (posts.value[0] as { _id: any })._id, posts.value.length)
-      console.log(posts.value.length)
+      feedLoading.value = false
     }
 
     onMounted(async () => {
       allPosts = await getCollectionPosts()
       posts.value = getJsPaginatedPosts(postsIndex.value)
-      if (!postInfo.value) {
-        postInfo.value = posts.value[0]
+      if (posts.value.length < 1) {
+        catComp.value = (await import('@/components/content/icons/catEmpty.vue')).default
+      } else {
+        if (!postInfo.value) {
+          postInfo.value = posts.value[0]
+        }
       }
       loading.value = false
     })
@@ -147,7 +158,9 @@ export default defineComponent({
       postTypesPromises,
       posts,
       collectionData,
-      postInfo
+      postInfo,
+      feedLoading,
+      catComp
     }
   }
 })

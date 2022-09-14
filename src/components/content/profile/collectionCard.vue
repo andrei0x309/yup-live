@@ -20,7 +20,9 @@
       </div>
       <div v-if="isOwner" class="flex mt-1">
         <button class="p-2 pointer w-20"><SettingsIcon class="w-4 inline mr-1" />Edit</button>
-        <button class="p- pointer w-20"><DeleteIcon class="w-5 inline mr-1" />Delete</button>
+        <button class="p- pointer w-20" @click="deletecol(collectionInfo?._id, collectionInfo?.name)">
+          <DeleteIcon class="w-5 inline mr-1" />Delete
+        </button>
       </div>
       <div class="flex flex-row mt-5">
         <p v-if="collectionInfo?.createdAt" class="text-[0.9rem] opacity-70">
@@ -53,7 +55,8 @@ export default defineComponent({
       required: true
     }
   },
-  setup(props) {
+  emits: ['deletecol'],
+  setup(props, ctx) {
     const isError = ref(false)
     const isLoading = ref(true)
     const store = useMainStore()
@@ -70,6 +73,10 @@ export default defineComponent({
       console.log('onload', isLoading.value)
     }
 
+    const deletecol = (id: string, name: string) => {
+      ctx.emit('deletecol', id, name)
+    }
+
     onMounted(async () => {
       // do nothing
     })
@@ -79,7 +86,8 @@ export default defineComponent({
       onLoad,
       isLoading,
       isError,
-      isOwner
+      isOwner,
+      deletecol
     }
   }
 })
