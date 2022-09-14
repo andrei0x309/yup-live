@@ -188,7 +188,7 @@ export default defineComponent({
         if (createReq.ok) {
           newCollectionModal.value = false
           stackAlertSuccess('Collection Created')
-          getCollections(collectionsStore, store.userData.account)
+          getCollections(collectionsStore, store.userData.account, true)
         } else {
           alertComp.value?.showErr('API' + (await createReq.text()))
         }

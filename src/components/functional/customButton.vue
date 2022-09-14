@@ -1,6 +1,6 @@
 <template>
   <button :class="`customBtn px-4 py-2 rounded-lg flex  ${size}`">
-    <component :is="icon" :class="`w-8 inline mr-3 -ml-1 ${size}`" />
+    <component :is="icon" :class="`w-8 inline mr-3 -ml-1 ${size} ${iconClass}`" />
     <span :class="`pl-1 table ${size}`" v-html="text"></span>
   </button>
 </template>
@@ -20,6 +20,10 @@ export default defineComponent({
       default: ''
     },
     size: {
+      type: String,
+      default: ''
+    },
+    iconClass: {
       type: String,
       default: ''
     }

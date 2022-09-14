@@ -2,7 +2,12 @@
   <VideoPlayer v-if="post.isVideo" :key="`${post.image}-video`" :videoSource="post.image" />
   <ImagePreview v-else :key="post.image" :source="post.image" imgClass="min-w-60" />
   <div class="flex justify-between -mt-2 px-4" style="z-index: 1">
-    <span class="inline-block favIco"><FavIco :key="post.url" :link="post.url" /> </span>
+    <span class="inline-block favIco">
+      <router-link v-if="post.id" :to="`/post/${post.id}`">
+        <FavIco :key="post.url" :link="post.url" />
+      </router-link>
+      <FavIco :key="post.url" :link="post.url" />
+    </span>
     <span class="flex time h-min space-x-1 items-center rounded-full text-xs font-medium">
       <ClockIcon class="w-5 h-5" />
       <p class="font-semibold text-xs">
