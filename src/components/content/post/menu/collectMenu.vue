@@ -182,7 +182,7 @@ export default defineComponent({
           body: JSON.stringify({
             eosname: store.userData.account,
             name: colName.value,
-            descriptions: colDesc.value ?? ''
+            description: colDesc.value ?? ''
           })
         })
         if (createReq.ok) {

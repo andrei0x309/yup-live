@@ -9,6 +9,8 @@ export interface Web3PostFarcaster {
   publishedAt?: string
   verified?: boolean
   mediaEntities: mediaType[]
+  createdAt: string
+  thread: string
 }
 
 export interface Web3FarcasterRawReply {
@@ -23,6 +25,7 @@ export interface Web3FarcasterRawReply {
     username: string
     publishedAt?: number
   }
+  threadMerkleRoot: string
   meta?: {
     avatar?: string
     displayName?: string
@@ -47,5 +50,7 @@ export interface Web3FarcasterRaw {
   }
   meta?: {
     isVerifiedAvatar: boolean
+    threadMerkleRoot: string
   }
+  createdAt: string
 }
