@@ -21,7 +21,7 @@ import NoFavIco from '../icons/noFavIco.vue'
 import BtnSpinner from '../icons/btnSpinner.vue'
 
 export default defineComponent({
-  name: 'ImagePreview',
+  name: 'FavIco',
   components: {
     NoFavIco,
     BtnSpinner

@@ -11,7 +11,7 @@
     <div class="name">
       {{ userData.username }}
       <h6 title="Followers">
-        <FollowersIcon /><span class="followers">{{ userData.followers }}</span>
+        <FollowersIcon class="inline w-4" /><span class="followers">{{ userData.followers }}</span>
       </h6>
     </div>
     <button class="button">FOLLOW <AddFollow /></button>
@@ -289,12 +289,12 @@ html[class='dark'] {
     border-radius: 1rem;
     letter-spacing: 0.02em;
     transition: all 1s;
-    border: 1px solid rgb(114 83 213 / 77%);
+    border: 1px solid #b6b3265e;
     font-size: 0.7rem;
     font-weight: 600;
     line-height: 1.3rem;
     &:hover {
-      background: #4e2adfa6;
+      background: rgb(255 94 0 / 4%);
     }
   }
   .ds-info {

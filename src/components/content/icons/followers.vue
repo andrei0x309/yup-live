@@ -1,7 +1,6 @@
 <template>
   <svg
     enable-background="new 0 0 100 58"
-    class="inline w-4"
     version="1.1"
     viewBox="0 0 100 58"
     xml:space="preserve"

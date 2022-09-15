@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
+  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto mb-8">
     <div class="bg-color flex flex-col">
       <div class="profile w-full mb-4 flex flex-row">
         <DangLoader v-if="isLoadingUser" class="mt-28" :unset="true" />
@@ -31,7 +31,7 @@
           </div>
         </div>
       </div>
-      <ProfileMenu :currentMenuTab="currentMenuTab" @change="menuChange" />
+      <ProfileMenu :isAuth="isAuth" :currentMenuTab="currentMenuTab" @change="menuChange" />
     </div>
     <div class="bg-color table-list profile w-full mb-4 flex flex-col">
       <template v-if="currentMenuTab === MENU_BUTTONS.feed && !postLoaded">
@@ -81,7 +81,16 @@
         :collectionPromise="collectionsPagePromise"
       />
       <FollowersPage v-if="currentMenuTab === MENU_BUTTONS.followers" :followersList="followers" :account="userData.username" />
-      <InfScroll
+      <WalletPage
+        v-if="currentMenuTab === MENU_BUTTONS.wallet"
+        :key="userData.evmAddress"
+        :accountId="userId"
+        :accountEVMAddr="userData.evmAddress"
+      />
+      <div v-if="currentMenuTab === MENU_BUTTONS.settings">
+        <p class="text-[1.3rem] mt-2 uppercase">THIS TAB IS NOT IMPLEMENTED YET</p>
+      </div>
+      <!-- <InfScroll
         v-if="currentMenuTab === MENU_BUTTONS.web3 && postLoaded"
         :key="`${postLoaded}-loaded`"
         :postLoaded="postLoaded"
@@ -116,7 +125,7 @@
             <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
           </div>
         </template>
-      </InfScroll>
+      </InfScroll> -->
     </div>
   </div>
 </template>
@@ -143,6 +152,7 @@ import { getUserFollowers, createActionUsage, createUserData } from '@/utils/req
 import type { NameValue } from '@/types/account'
 import type { ICollection } from '@/types/store'
 import FollowersPage from '@/components/content/profile/followersPage.vue'
+import WalletPage from '@/components/content/profile/walletPage.vue'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
 
@@ -158,7 +168,8 @@ export default defineComponent({
     CollectionsPage,
     PostInfo,
     LineLoader,
-    FollowersPage
+    FollowersPage,
+    WalletPage
   },
   setup() {
     const route = useRoute()
@@ -186,6 +197,7 @@ export default defineComponent({
     const collectionsEx = useCollectionStoreEx()
     const postInfo = ref(null) as Ref<unknown>
     const followers = ref([]) as Ref<string[]>
+    const isAuth = ref(store.isLoggedIn)
 
     const userData = ref({
       username: '',
@@ -200,6 +212,7 @@ export default defineComponent({
       score: '',
       cum_deposit_time: 0,
       nextReset: '',
+      evmAddress: '',
       actionBars: {
         vote: '',
         deleteVote: '',
@@ -214,6 +227,8 @@ export default defineComponent({
     })
 
     store.$subscribe(async () => {
+      isAuth.value = store.isLoggedIn
+
       if (store.deletePost) {
         const el = document?.getElementById(store.deletePost)
         if (el) {
@@ -258,11 +273,11 @@ export default defineComponent({
       return data.posts
     }
 
-    const getCreatedFeedPosts = async (start = 0) => {
-      const res = await fetch(`${API_BASE}/feed/account/${userId}/web3?start=${start}&limit=10`)
-      const data = await res.json()
-      return data.posts
-    }
+    // const getCreatedFeedPosts = async (start = 0) => {
+    //   const res = await fetch(`${API_BASE}/feed/account/${userId}/web3?start=${start}&limit=10`)
+    //   const data = await res.json()
+    //   return data.posts
+    // }
 
     let getFeedPosts = getHomeFeedPosts
 
@@ -318,10 +333,11 @@ export default defineComponent({
       if (currentMenuTab.value === MENU_BUTTONS.feed) {
         getFeedPosts = getHomeFeedPosts
         resetPosts()
-      } else if (currentMenuTab.value === MENU_BUTTONS.web3) {
-        getFeedPosts = getCreatedFeedPosts
-        resetPosts()
       }
+      // else if (currentMenuTab.value === MENU_BUTTONS.web3) {
+      //   getFeedPosts = getCreatedFeedPosts
+      //   resetPosts()
+      // }
     }
 
     const collectionsPageCollections = computed(() => {
@@ -367,8 +383,8 @@ export default defineComponent({
       }
       if (currentMenuTab.value === MENU_BUTTONS.feed) {
         getFeedPosts = getHomeFeedPosts
-      } else if (currentMenuTab.value === MENU_BUTTONS.web3) {
-        getFeedPosts = getCreatedFeedPosts
+      } else if (currentMenuTab.value === MENU_BUTTONS.wallet) {
+        // getFeedPosts = getCreatedFeedPosts
       }
       resetPosts().then(async () => {
         if (posts.value.length < 1) {
@@ -382,6 +398,10 @@ export default defineComponent({
       title: computed(() => siteData.title),
       description: computed(() => siteData.description),
       meta: [
+        {
+          name: 'description',
+          content: computed(() => siteData.description)
+        },
         {
           name: 'og:title',
           content: computed(() => siteData.title)
@@ -424,7 +444,8 @@ export default defineComponent({
       postInfo,
       feedLoading,
       followers,
-      catComp
+      catComp,
+      isAuth
     }
   }
 })
