@@ -67,9 +67,31 @@ export default defineComponent({
     const pageActive = ref(getPageActive(route.path))
 
     const siteData = reactive({
-      title: `YUP Live - ${pageActive.value} explorer`,
+      title: `YUP Live - ${pageActive.value} explorers`,
       description: `Live ${pageActive.value} data for YUP DApp...`
     })
+
+    useHead({
+      title: computed(() => `YUP Live - ${pageActive.value} explorers`),
+      meta: [
+        {
+          name: 'description',
+          content: computed(() => `Live ${pageActive.value} data for YUP DApp...`)
+        },
+        {
+          name: 'og:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'og:description',
+          content: computed(() => siteData.description)
+        },
+        {
+          name: 'og:image',
+          content: `${window?.location?.origin ?? ''}/share/home.webp`
+        }
+      ]
+    } as unknown as Ref<HeadObject>)
 
     const setPageNum = (pageNo: number) => {
       if (pageNo) {

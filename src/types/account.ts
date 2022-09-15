@@ -10,6 +10,7 @@ export interface IUserData {
   cum_deposit_time?: number
   nextReset: string
   followers: number
+  evmAddress: string
   actionBars: {
     vote: string
     deleteVote: string

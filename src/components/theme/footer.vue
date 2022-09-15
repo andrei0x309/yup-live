@@ -8,27 +8,27 @@
         <nav class="flex flex-wrap justify-center md:justify-start gap-x-4 gap-y-2 md:gap-6">
           <a
             href="https://app.yup.io"
-            class="text-gray-600 dark:text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
+            class="text-gray-600 dark:text-gray-300 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
             >YUP APP</a
           >
           <a
             href="https://docs.yup.io"
-            class="text-gray-600 dark:text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
+            class="text-gray-600 dark:text-gray-300 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
             >YUP Docs</a
           >
           <a
             href="https://yup-live.pages.dev/"
-            class="text-gray-600 dark:text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
+            class="text-gray-600 dark:text-gray-300 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
             >YUP Live</a
           >
           <a
             href="https://forum.yup.io"
-            class="text-gray-600 dark:text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
+            class="text-gray-600 dark:text-gray-300 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
             >YUP Forum</a
           >
           <a
             href="https://app.yup.io/staking"
-            class="text-gray-600 dark:text-gray-500 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
+            class="text-gray-600 dark:text-gray-300 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
             >YUP Staking</a
           >
         </nav>
@@ -108,7 +108,7 @@
         <!-- social - end -->
       </div>
 
-      <div class="text-gray-500 text-sm text-center py-8">
+      <div class="text-gray-600 dark:text-gray-300 text-sm text-center py-8">
         <p>-- {{ year }} --</p>
         <p>
           <a target="_blank" href="https://www.coingecko.com/en/coins/yup" rel="nofollow">Check on CoinGecko <CoinGeckoIcon /></a>

@@ -73,10 +73,10 @@ const exportFile = (fileName: string, content: string, type = 'csv') => {
   document.body.removeChild(link)
 }
 
-const formatNumber = (num: number) => {
+const formatNumber = (num: number, digits = 0) => {
   return Intl.NumberFormat('en-US', {
     notation: 'compact',
-    maximumFractionDigits: 0
+    maximumFractionDigits: digits
   }).format(num)
 }
 

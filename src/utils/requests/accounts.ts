@@ -87,7 +87,8 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
       weight: formatNumber(weight),
       score: formatNumber(score),
       avatar: avatar ? (avatar.startsWith('https://ipfs2.yup.io') ? makeRandAvatar(_id) : avatar) : makeRandAvatar(_id),
-      bio: !bio ? noBio(username) : bio
+      bio: !bio ? noBio(username) : bio,
+      evmAddress: ethInfo?.address ?? ''
     } as IUserData,
     userFields: [] as Array<NameValue>
   }

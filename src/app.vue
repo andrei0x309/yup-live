@@ -117,6 +117,7 @@ html[class='dark'] {
 
 #app {
   font-family: 'Lora', serif;
+  font-display: swap;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
