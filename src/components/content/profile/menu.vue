@@ -1,7 +1,7 @@
 <template>
   <div ref="nav" class="nav">
     <div class="nav__item">
-      <button :ref="(el) => (buttons[MENU_BUTTONS.feed] = el as Element)" class="active" @click="onClick(MENU_BUTTONS.feed)">
+      <button :ref="(el) => (buttons[MENU_BUTTONS.feed] = el as Element)" class="pmenu-active" @click="onClick(MENU_BUTTONS.feed)">
         <svg class="icon" viewBox="0 0 24 24">
           <path fill="currentColor" d="M9,13H15V19H18V10L12,5.5L6,10V19H9V13M4,21V9L12,3L20,9V21H4Z" />
         </svg>
@@ -101,9 +101,9 @@ export default defineComponent({
         nav.value.classList.add('slide-right')
       }
       activeIndicator.value.style.transform = `translateX(${60 * changeingActive}px) translateY(-50%)`
-      buttons[Object.keys(BUTTONS_ORDER)[isActive.value]].classList.remove('active')
+      buttons[Object.keys(BUTTONS_ORDER)[isActive.value]].classList.remove('pmenu-active')
       isActive.value = changeingActive
-      buttons[Object.keys(BUTTONS_ORDER)[isActive.value]].classList.add('active')
+      buttons[Object.keys(BUTTONS_ORDER)[isActive.value]].classList.add('pmenu-active')
       const pathFragments = router.currentRoute.value.fullPath.split('/').slice(0, 3)
       history.pushState(
         {},
@@ -210,7 +210,7 @@ export default defineComponent({
   background: transparent;
 }
 
-.active {
+.pmenu-active {
   width: var(--active-indicator-width);
 }
 

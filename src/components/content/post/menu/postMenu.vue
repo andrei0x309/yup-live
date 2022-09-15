@@ -183,10 +183,14 @@ export default defineComponent({
             method: 'DELETE'
           })
           const p2 = wait(350)
-          await Promise.all([p1, p2])
-          store.deletePost = props.postId
-          ctx.emit('update:vote', Promise.resolve([]))
-          ctx.emit('deletedvote')
+          const [req] = await Promise.all([p1, p2])
+          if (req.ok) {
+            store.deletePost = props.postId
+            ctx.emit('update:vote', Promise.resolve([]))
+            ctx.emit('deletedvote')
+          } else {
+            stackAlertError('There was an error with authorization, please try to re-login.')
+          }
           delLoading.value = false
         } catch (error) {
           console.log('error', error)
@@ -233,7 +237,10 @@ export default defineComponent({
         })
         const result = pArr2
           .filter((a) => a !== null)
-          .map((a) => ({ a: a.a, timestamp: new Date(Number(a?.timestamp)).toISOString() }))
+          .map((a) => ({
+            a: a.a,
+            timestamp: new Date(Number(a?.timestamp)).toISOString()
+          }))
           .sort((a, b) => {
             return new Date(b?.timestamp).getTime() - new Date(a?.timestamp).getTime()
           })

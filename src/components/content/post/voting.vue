@@ -107,7 +107,7 @@ export default defineComponent({
         if (err.includes('limit')) {
           stackAlertError('Voting limit reached!!!')
         } else {
-          stackAlertError('Vote not submited due to unknown error!')
+          stackAlertError('Vote not submited due to error try to re-login!')
         }
         return null
       }
