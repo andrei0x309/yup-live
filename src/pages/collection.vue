@@ -36,7 +36,7 @@
                   }
                 "
               />
-              <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
+              <component :is="loadLinerComp" v-if="feedLoading && loadLinerComp" class="w-full h-2 m-8" />
             </div>
             <PostInfo
               :key="(postInfo as Record<string, any>)._id.postid"
@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref, ref } from 'vue'
+import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref, ref, shallowRef } from 'vue'
 import { useHead, HeadObject } from '@vueuse/head'
 import DangLoader from '@/components/content/vote-list/loader.vue'
 import { useRoute } from 'vue-router'
@@ -81,6 +81,7 @@ export default defineComponent({
     const collectionData = ref({}) as unknown as Ref<{ ownerId: string; ownerAvatar: string; name: string }>
     const catComp = ref(null) as Ref<unknown>
     const feedLoading = ref(false)
+    const loadLinerComp = shallowRef(null) as Ref<unknown>
     // const search = ref("");
     // const store = useMainStore();
 
@@ -89,7 +90,6 @@ export default defineComponent({
     const posts = ref([]) as Ref<Array<unknown>>
     const postsIndex = ref(0)
     const postInfo = ref(null) as Ref<unknown>
-    let allPosts: Array<unknown> = []
 
     const siteData = reactive({
       title: ``,
@@ -105,17 +105,21 @@ export default defineComponent({
       description: computed(() => siteData.description)
     } as unknown as Ref<HeadObject>)
 
-    const getCollectionPosts = async () => {
-      const res = await fetch(`${API_BASE}/collections/name/${collectionId}`)
+    const getCollectionInfo = async () => {
+      const res = await fetch(`${API_BASE}/collections/name-v2/${collectionId}`)
       const data = await res.json()
       collectionData.value.ownerAvatar = data.ownerAvatar
       collectionData.value.ownerId = data.ownerId
       collectionData.value.name = data.name
-      return data.posts.reverse()
     }
 
-    const getJsPaginatedPosts = (index: number) => {
-      return allPosts.slice(index, index + 10)
+    const getCollectionPosts = async (index = 0) => {
+      try {
+        const res = await fetch(`${API_BASE}/collections/posts/${collectionId}?start=${index}&limit=10&reverse=true`)
+        return await res.json()
+      } catch (err) {
+        return []
+      }
     }
 
     const onHit = async (type: string) => {
@@ -124,15 +128,15 @@ export default defineComponent({
         return
       } else if (type === 'up' && postsIndex.value >= 30) {
         postsIndex.value -= 10
-        const newPosts = getJsPaginatedPosts(postsIndex.value - 30)
+        const newPosts = await getCollectionPosts(postsIndex.value - 30)
         posts.value = [...newPosts, ...posts.value.slice(-30)]
       } else if (type === 'down' && posts.value.length <= 30) {
         postsIndex.value += 10
-        const newPosts = getJsPaginatedPosts(postsIndex.value)
+        const newPosts = await getCollectionPosts(postsIndex.value)
         posts.value = [...posts.value, ...newPosts]
       } else if (type === 'down' && posts.value.length >= 30) {
         postsIndex.value += 10
-        const newPosts = getJsPaginatedPosts(postsIndex.value)
+        const newPosts = await getCollectionPosts(postsIndex.value)
         posts.value = [...posts.value.slice(10), ...newPosts]
       }
       // console.log(postsIndex.value, (posts.value[0] as { _id: any })._id, posts.value.length)
@@ -140,16 +144,22 @@ export default defineComponent({
     }
 
     onMounted(async () => {
-      allPosts = await getCollectionPosts()
-      posts.value = getJsPaginatedPosts(postsIndex.value)
-      if (posts.value.length < 1) {
-        catComp.value = (await import('@/components/content/icons/catEmpty.vue')).default
-      } else {
-        if (!postInfo.value) {
-          postInfo.value = posts.value[0]
+      const p1 = getCollectionInfo()
+      const p2 = getCollectionPosts()
+      p2.then(async (r) => {
+        posts.value = r
+        if (posts.value.length < 1) {
+          catComp.value = (await import('@/components/content/icons/catEmpty.vue')).default
+        } else {
+          if (!postInfo.value) {
+            postInfo.value = posts.value[0]
+          }
         }
-      }
-      loading.value = false
+      })
+      Promise.allSettled([p1, p2]).then(() => (loading.value = false))
+      import('@/components/functional/lineLoader.vue').then((r) => {
+        loadLinerComp.value = r.default
+      })
     })
 
     return {
@@ -160,7 +170,8 @@ export default defineComponent({
       collectionData,
       postInfo,
       feedLoading,
-      catComp
+      catComp,
+      loadLinerComp
     }
   }
 })
