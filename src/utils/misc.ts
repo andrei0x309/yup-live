@@ -82,4 +82,6 @@ const formatNumber = (num: number, digits = 0) => {
 
 const truncteEVMAddr = (addr: string) => ((addr ?? '').length > 4 ? addr.substring(0, 5) + '...' + addr.substring(addr.length - 3) : '')
 
-export { gini, exportFile, convertToCSV, formatNumber, truncteEVMAddr }
+const isValidAddress = (addr: string) => addr.match(/0x[0-9a-f]{40}/i) !== null
+
+export { gini, exportFile, convertToCSV, formatNumber, truncteEVMAddr, isValidAddress }

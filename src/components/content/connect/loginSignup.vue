@@ -4,14 +4,14 @@
       <h2>{{ formTitle }}</h2>
     </div>
     <Alert v-bind="alertProps" style="max-width: 26rem; margin-left: auto; margin-right: auto" />
-    <form id="registration-form" ref="formRegister" class="mt-12" @submit.prevent>
+    <form v-if="!isLogin" id="registration-form" class="mt-12" @submit.prevent>
       <input v-model="username" type="text" name="pass" placeholder="Username" />
       <input v-model="fullname" type="text" name="text" placeholder="Full name" />
       <textarea v-model="bio" name="text" placeholder="Bio"></textarea>
       <button class="login-btn" @click="onSignup">Sign Up</button>
     </form>
 
-    <form ref="formLogin" class="login-view" @submit.prevent>
+    <form v-else class="login-view" @submit.prevent>
       <svg xmlns="http://www.w3.org/2000/svg" class="w-30 mx-auto" style="opacity: 0.75" viewBox="0 0 366 366" fill="none">
         <path
           d="M182.911 366C82.1487 366 0 283.851 0 182.911C0 81.9697 82.1487 0 182.911 0C283.672 0 365.821 82.1487 365.821 182.911C365.821 283.672 283.851 366 182.911 366ZM182.911 17.3604C91.6342 17.3604 17.1814 91.6342 17.1814 183.089C17.1814 274.545 91.4553 348.819 182.911 348.819C274.366 348.819 348.64 274.545 348.64 183.089C348.64 91.6342 274.366 17.3604 182.911 17.3604Z"
@@ -82,31 +82,29 @@ export default defineComponent({
     alertProps: {
       type: Object,
       default: () => ({})
+    },
+    loginState: {
+      type: Boolean,
+      default: true
     }
   },
   emits: ['loading'],
   setup(props) {
     const provider = ref(null) as unknown as Ref<ethers.providers.Web3Provider>
     const web3Modal = ref(null) as unknown as Ref<Web3Modal>
-    const formRegister = ref(null) as unknown as Ref<HTMLFormElement>
-    const formLogin = ref(null) as unknown as Ref<HTMLFormElement>
     const formTitle = ref('Log in')
-    const isLogin = ref(true)
+    const isLogin = ref(props.loginState)
     const mainStore = useMainStore()
     const fullname = ref('')
     const username = ref('')
     const bio = ref('')
 
     const onBack = () => {
-      formRegister.value.style.display = 'none'
-      formLogin.value.style.display = 'block'
       formTitle.value = 'Log in'
       isLogin.value = true
     }
 
     const onNewUser = () => {
-      formRegister.value.style.display = 'block'
-      formLogin.value.style.display = 'none'
       formTitle.value = 'Sign up'
       isLogin.value = false
     }
@@ -335,8 +333,6 @@ export default defineComponent({
     return {
       onSignup,
       onLogin,
-      formRegister,
-      formLogin,
       onBack,
       onNewUser,
       formTitle,
@@ -432,9 +428,9 @@ export default defineComponent({
     text-transform: uppercase;
   }
 
-  #registration-form {
-    display: none;
-  }
+  // #registration-form {
+  //   display: none;
+  // }
 
   .backIcon {
     width: 1.2rem;

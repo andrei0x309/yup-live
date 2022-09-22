@@ -352,11 +352,11 @@ export default defineComponent({
         signer.get
 
         if (rewardsEth > 0) {
-          const contractRewardsEth = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
+          const contractRewardsEth = new ethersLib.Contract(ETH_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
           await contractRewardsEth.getReward()
         }
         if (rewardsPoly > 0) {
-          const contractRewardsPoly = new ethersLib.Contract(ETH_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
+          const contractRewardsPoly = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
           await contractRewardsPoly.getReward()
         }
         if (rewardsEth > 0 || rewardsPoly > 0) {

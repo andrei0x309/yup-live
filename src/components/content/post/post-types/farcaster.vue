@@ -185,13 +185,12 @@ export default defineComponent({
           mainPost.value = fillReply(props.post.web3Preview.meta.parents[0])
           if (props.full) {
             postType.value = 'full'
-            console.log('ssssssssssssssssssssssssssss', mainPost.value?.thread)
             getComments(mainPost.value?.thread).then((r) => {
               const lCom = []
               for (const e of r?.result ?? []) {
                 lCom.push(fillReply(e))
               }
-              console.log(lCom)
+              lCom.shift()
               comments.value = lCom
             })
           } else {

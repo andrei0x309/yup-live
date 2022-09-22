@@ -14,7 +14,8 @@ const useMainStore = defineStore('main', {
       },
       deletePost: '',
       isLoggedIn: false,
-      openConnectModal: false
+      openConnectModal: false,
+      modalLoginState: true
     }
   }
 })
@@ -29,12 +30,14 @@ const useGraphStore = defineStore('graph', {
   }
 })
 
-const openConnectModal = (state: IMainStore) => {
+const openConnectModal = (state: IMainStore, modalLoginState = true) => {
   state.openConnectModal = true
+  state.modalLoginState = modalLoginState
 }
 
 const closeConnectModal = (state: IMainStore) => {
   state.openConnectModal = false
+  state.modalLoginState = true
 }
 
 export { useMainStore, useGraphStore, openConnectModal, closeConnectModal }

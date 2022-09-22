@@ -258,7 +258,7 @@ export default defineComponent({
   left: auto;
 }
 
-.active .text:after {
+.pmenu-active .text:after {
   opacity: 1;
   transition: opacity 0.4s;
 }

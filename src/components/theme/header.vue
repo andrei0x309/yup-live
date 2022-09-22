@@ -207,7 +207,11 @@ export default defineComponent({
         path: '/'
       },
       {
-        text: 'Check Raw Influence',
+        text: 'Check web3 Social',
+        path: '/web3-social'
+      },
+      {
+        text: 'Yup Raw Influence',
         path: '/raw-influence'
       },
       {

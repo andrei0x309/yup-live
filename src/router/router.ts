@@ -43,6 +43,16 @@ const routes = [
     component: HomePage
   },
   {
+    path: '/login',
+    name: 'Login',
+    component: HomePage
+  },
+  {
+    path: '/sign-up',
+    name: 'Sign Up',
+    component: HomePage
+  },
+  {
     path: '/emissions',
     name: 'EmissionsPage',
     component: () => import('@/pages/emissions.vue')
@@ -57,6 +67,21 @@ const routes = [
   //   name: 'Web3Auth',
   //   component: () => import('@/pages/web3Auth.vue')
   // },
+  // {
+  //   path: '/lens',
+  //   name: 'Lens',
+  //   component: () => import('@/pages/lens.vue')
+  // },
+  {
+    path: '/web3-social',
+    name: 'Web3Social',
+    component: () => import('@/pages/web3Social.vue')
+  },
+  {
+    path: '/web3-social/:addr',
+    name: 'Web3SocialWithAddr',
+    component: () => import('@/pages/web3Social.vue')
+  },
   {
     path: '/post/:postId',
     name: 'PostDetail',

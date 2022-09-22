@@ -19,6 +19,7 @@
       :is="!libWallLoading ? refDynLogComp : undefined"
       :key="libWallLoading"
       :loadState="compLoadState"
+      :loginState="refLoginState"
       :setAlert="setAlert"
       :alertProps="alertProps"
     />
@@ -46,6 +47,7 @@ export default defineComponent({
   },
   setup() {
     const refConnectMod = ref(false)
+    const refLoginState = ref(true)
     const libWallLoading = ref(false)
     const refDynLogComp: Ref<dComponent> = shallowRef(undefined)
     const alertProps = {
@@ -86,6 +88,7 @@ export default defineComponent({
     const connectModal = async () => {
       libWallLoading.value = true
       refConnectMod.value = true
+      refLoginState.value = mainStore.modalLoginState
       refDynLogComp.value = (await import('./loginSignup.vue')).default
       libWallLoading.value = false
     }
@@ -118,7 +121,8 @@ export default defineComponent({
       setAlert,
       modalWasClosed,
       isAuth,
-      loadingMessage
+      loadingMessage,
+      refLoginState
     }
   }
 })

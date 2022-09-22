@@ -11,6 +11,7 @@ export interface IMainStore {
   userData: IUserData
   isLoggedIn: boolean
   openConnectModal: boolean
+  modalLoginState: boolean
 }
 
 export interface ICollection {

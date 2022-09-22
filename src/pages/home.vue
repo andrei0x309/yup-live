@@ -21,6 +21,7 @@ import Rewards from '@/components/content/rewards-earners.vue'
 import GiniWeeks from '@/components/content/gini-weeks.vue'
 import GiniTrend from '@/components/content/gini-trend.vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useMainStore, openConnectModal } from '@/store/main'
 
 export default defineComponent({
   name: 'HomePage',
@@ -38,6 +39,7 @@ export default defineComponent({
     const router = useRouter()
     const pageNum = ref(route.params.pageNo ? Number(route.params.pageNo) : 1)
     const type = ref(route.params.type ? (['week', 'month'].includes(route.params.type as string) ? route.params.type : 'week') : 'week')
+    const store = useMainStore()
 
     const pages = {
       rewards: 'Top Rewards',
@@ -49,7 +51,6 @@ export default defineComponent({
 
     const getPageActive = (path: string) => {
       path = `/${path.split('/')[1]}`
-      console.log(path)
       switch (path) {
         case '/rewards':
           return pages.rewards
@@ -59,6 +60,12 @@ export default defineComponent({
           return pages.gini
         case '/gini-trend':
           return pages.giniTrend
+        case '/login':
+          openConnectModal(store)
+          return pages.default
+        case '/sign-up':
+          openConnectModal(store, false)
+          return pages.default
         default:
           return pages.default
       }
