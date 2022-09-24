@@ -217,7 +217,7 @@ export default defineComponent({
     const historicETHReward = ref(0)
     const historicPolyReward = ref(0)
     const w3Modal = new W3Modal({
-      network: 'polygon', // optional
+      network: 'matic', // optional
       cacheProvider: true, // optional
       providerOptions, // required
       theme: store.theme

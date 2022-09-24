@@ -562,7 +562,7 @@ export default defineComponent({
         web3Mprom.then((lib) => {
           const { default: libDefault } = lib
           w3Modal = new libDefault({
-            network: 'polygon', // optional
+            network: 'matic', // optional
             cacheProvider: true, // optional
             providerOptions: pLib.providerOptions, // required
             theme: store.theme

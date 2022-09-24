@@ -323,7 +323,7 @@ export default defineComponent({
 
     onMounted(() => {
       web3Modal.value = new Web3Modal({
-        network: 'polygon', // optional
+        network: 'matic', // optional
         cacheProvider: true, // optional
         providerOptions, // required
         theme: mainStore.theme
