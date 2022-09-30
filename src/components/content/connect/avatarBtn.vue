@@ -46,7 +46,7 @@ export default defineComponent({
     const source = ref(!props.isSelf ? props.pSource : store.userData.avatar)
     const user = ref(!props.isSelf ? props.pAccount : store.userData.account)
     const altImg = ref(!props.isSelf ? `avatar of ${props.pAccount}` : `avatar of ${store.userData.account}`)
-    const isLoading = ref(false)
+    const isLoading = ref(true)
 
     const onError = () => {
       source.value = makeRandAvatar(!props.isSelf ? props.pAccount : store.userData.account)
@@ -58,7 +58,6 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      isLoading.value = true
       if (!props.pSource && !props.isSelf) {
         onError()
       }
@@ -70,7 +69,7 @@ export default defineComponent({
       onLoad,
       isLoading,
       altImg,
-      user
+      user    
     }
   }
 })

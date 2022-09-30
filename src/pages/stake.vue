@@ -278,7 +278,7 @@ export default defineComponent({
       }
       const { chainId } = await userProvider.getNetwork()
       if (chainId !== 137) {
-        stackAlertWarning(`You are on wrong network(${chainId}), please switchto polygon(137)`)
+        stackAlertWarning(`You are on wrong network(${chainId}), please switch to polygon(137)`)
         return false
       }
       return true

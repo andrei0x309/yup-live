@@ -448,7 +448,7 @@ export default defineComponent({
       }
       const { chainId } = await userProvider.getNetwork()
       if (chainId !== 137) {
-        stackAlertWarning(`You are on wrong network(${chainId}), please switchto polygon(137)`)
+        stackAlertWarning(`You are on wrong network(${chainId}), please switch to polygon(137)`)
         return false
       }
       return true
@@ -492,7 +492,7 @@ export default defineComponent({
             body: JSON.stringify({
               query: `mutation Authenticate {
   authenticate(request: {
-    address: "0x50cca5ed8b4455fbe316785269fc82500b67fd48",
+    address: "${await signer.getAddress()}",
     signature: "${signature}"
   }) {
     accessToken

@@ -6,7 +6,7 @@
       } inline-block rounded-lg p-1 mr-1`"
     ></div>
     <b class="p-1 flex items-center">{{ titleLocal }}</b>
-    <p class="p-1 mr-1 flex items-center">{{ messageLocal }}</p>
+    <p class="p-1 mr-1 flex items-center break-all">{{ messageLocal }}</p>
     <a class="h-5 w-5 text-gray-500 inline-block p-1" aria-label="close alert" @click="close()">
       <svg
         xmlns="http://www.w3.org/2000/svg"
