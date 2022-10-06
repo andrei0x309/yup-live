@@ -6,7 +6,7 @@ export const getNormalizedValue = (val: number, min: number, max: number) => {
 }
 
 export const getMaxVote = (balance: number) => {
-  return balance >= 100 ? 125 : balance >= 0.5 ? 95 : 65
+  return balance >= 100 ? 250 : balance >= 0.5 ? 190 : 130
 }
 
 export const makePercentage = (val: number) => {

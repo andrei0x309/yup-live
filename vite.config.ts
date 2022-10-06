@@ -37,7 +37,9 @@ const ssgOptions: ViteSSGOptions = {
   //   return paths.filter(i => !i.includes(':') && !i.includes('raw') && !i.includes('emiss') && !i.includes('erro'))
   // },
   onFinished: () => {
-    generateSitemap()
+    generateSitemap({
+      hostname: 'https://yup.info.gf'
+    })
   }
 }
 
