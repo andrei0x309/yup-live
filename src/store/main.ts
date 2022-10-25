@@ -10,7 +10,8 @@ const useMainStore = defineStore('main', {
         signature: '',
         address: '',
         avatar: '',
-        weight: 1
+        weight: 1,
+        authToken: ''
       },
       deletePost: '',
       isLoggedIn: false,

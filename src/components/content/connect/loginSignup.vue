@@ -46,8 +46,8 @@
         </p>
       </button>
       <p v-if="!isLogin" style="opacity: 0.7; font-size: 0.7rem; padding: 2rem">
-        Yup Live supports only wallet signup/login if you want to use additional NON-WEB3 methods go to
-        <a href="https://app.yup.io">https://app.yup.io</a>
+        Don't have a wallet YET😱? You can consider using this wallet I made, a lightweight replacement for Metamask that will surely work with YUP.
+        <a href="https://chrome.google.com/webstore/detail/clear-evm-wallet-clw/djlahdpfkflehaepgohnnodmaajabdlg?hl=en&authuser=0" target="_blank">Clear EVM Wallet (CLW)</a>
       </p>
     </div>
   </div>
@@ -110,7 +110,6 @@ export default defineComponent({
     }
 
     const editProfile = async ({
-      accountId,
       bio,
       fullname,
       avatar
@@ -127,19 +126,19 @@ export default defineComponent({
       if (Object.keys(body).length > 0) {
         props.loadState('start', 'Try setting up bio and fullname')
         try {
-          await fetchWAuth(`${API_BASE}/accounts/edit-profile/${accountId}`)
+          await fetchWAuth(`${API_BASE}/accounts/edit-profile`)
         } catch (e) {
           props.loadState('start', '')
         }
       }
     }
 
-    const doLogin = ({ address, account, signature }: { address: string; account: PartialAccountInfo; signature: string }) => {
+    const doLogin = ({ address, account, signature, authToken }: { address: string; account: PartialAccountInfo; signature: string, authToken: string }) => {
       try {
-        console.log(address, account, signature)
         localStorage.setItem('address', address)
         localStorage.setItem('account', account._id)
         localStorage.setItem('signature', signature)
+        localStorage.setItem('authToken', authToken)
         localStorage.setItem('avatar', account.avatar)
         localStorage.setItem('weight', String(account.weight))
         mainStore.userData = {
@@ -147,7 +146,8 @@ export default defineComponent({
           account: account._id,
           signature,
           avatar: account.avatar,
-          weight: account.weight as number
+          weight: account.weight as number,
+          authToken
         }
         mainStore.isLoggedIn = true
       } catch (error) {
@@ -242,9 +242,31 @@ export default defineComponent({
       return reqVerify.status
     }
 
+    const logIn = async (address: string, signature: string) => {
+      const reqLogin = await fetch(`${API_BASE}/accounts/log-in`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          address,
+          signature
+        })
+      })
+      if (reqLogin.status !== 200) {
+        props.loadState('end')
+        props.setAlert({
+          type: 'error',
+          message: "Signature doesn't match the address"
+        })
+        return
+      }
+      return await reqLogin.json()
+    }
+
     const createAccount = async ({ username, address, signature }: { username: string; address: string; signature: string }) => {
       props.loadState('start', "Setting up an account don't close modal, it can take up to 90 seconds. ")
-      const req = await fetch(`${API_BASE}/accounts/eth/mirror`, {
+      const req = await fetch(`${API_BASE}/accounts/sign-up`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -272,12 +294,12 @@ export default defineComponent({
       provider.value = new ethers.providers.Web3Provider(inst)
       const signer = provider.value.getSigner()
       const address = await signer.getAddress()
-      let account = await getAccount(address, 'signup')
+      const account = await getAccount(address, 'signup')
       if (!account) return
       const signature = await signChallenge(address, signer)
       if (!signature) return
       if (!verifyChallenge(address, signature)) return
-      account = await createAccount({ address, signature, username: username.value })
+      const accountSignUp = await createAccount({ address, signature, username: username.value })
       if (!account) return
       if (bio.value || fullname.value) {
         await editProfile({
@@ -293,7 +315,8 @@ export default defineComponent({
           avatar: account.avatar,
           weight: account.weight
         },
-        signature
+        signature,
+        authToken: accountSignUp.authToken
       })
       props.loadState('close')
     }
@@ -309,6 +332,8 @@ export default defineComponent({
       const signature = await signChallenge(address, signer)
       if (!signature) return
       if (!verifyChallenge(address, signature)) return
+      const accountLogIn = await logIn(address, signature)
+      if(!accountLogIn) return
       doLogin({
         address,
         account: {
@@ -316,7 +341,8 @@ export default defineComponent({
           avatar: account.avatar,
           weight: account.weight
         },
-        signature
+        signature,
+        authToken: accountLogIn.jwt
       })
       props.loadState('close')
     }

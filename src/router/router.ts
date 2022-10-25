@@ -122,6 +122,11 @@ const routes = [
     name: 'Feeds',
     component: () => import('@/pages/feeds.vue')
   },
+  {
+    path: '/link-existing-account',
+    name: 'Link Existing Account',
+    component: () => import('@/pages/claimOldAccount.vue')
+  },
   // {
   //   path: "/meeting-recording/:id",
   //   name: "SingleMeetingRecording",

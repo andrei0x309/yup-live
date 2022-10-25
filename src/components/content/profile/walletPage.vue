@@ -123,7 +123,7 @@ export default defineComponent({
       collectionName: string
       imageURI: string
       link: string
-      tokenId: IProfileToken
+      tokenId: number
     }
 
     interface IProfilePOAP {
