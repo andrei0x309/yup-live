@@ -28,9 +28,9 @@
           class="lg:w-5/12 md:6/12 w-10/12 shadow-3xl mx-auto"
         >
           <div
-            class="bg-gray-800 absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 md:p-8"
+            class="bg-gray-200 dark:bg-gray-600 absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 md:p-8"
           >
-            <EOSIcon class="w-8/" />
+            <EOSIcon class="w-8" />
           </div>
           <div class="p-12 md:p-24 postCard">
             <div class="flex items-center text-lg mb-6 md:mb-8">
@@ -42,7 +42,7 @@
               <input
                 v-model="searchEos"
                 type="text"
-                class="bg-gray-200 pl-12 py-2 md:py-4 focus:outline-none w-full"
+                class="bg-gray-200 pl-12 py-2 md:py-4 focus:outline-none w-full text-sky-400"
                 placeholder="username or accountId or eosname"
               />
             </div>
@@ -55,7 +55,7 @@
               <input
                 v-model="eosPass"
                 type="password"
-                class="bg-gray-200 pl-12 py-2 md:py-4 focus:outline-none w-full"
+                class="bg-gray-200 pl-12 py-2 md:py-4 focus:outline-none w-full text-sky-400"
                 placeholder="Password"
               />
             </div>
@@ -63,9 +63,9 @@
               type="button"
               :class="`m-2 rounded px-4 px-4 py-2 font-semibold text-gray-100 
               ${
-                searchEos.length > 0 ? 'bg-purple-500' : 'bg-gray-500 cursor-not-allowed'
+                searchEos.length > 0 ? 'bg-purple-800' : 'bg-gray-500 cursor-not-allowed'
               }`"
-              :disabled="searchEos.length == 0"
+              :disabled="searchEos.length == 0 || isDataLoading"
               @click="claimAndLinkEOS"
             >
               Claim with EOS
@@ -77,14 +77,15 @@
           class="lg:w-5/12 md:6/12 w-10/12 shadow-3xl mx-auto"
         >
           <div
-            class="bg-gray-800 absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 md:p-8"
+            class="bg-gray-200 dark:bg-gray-600 absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-4 md:p-8"
           >
             <TwitterIcon class="w-8" />
           </div>
           <div class="p-12 md:p-24 postCard">
             <button
               type="button"
-              :class="`m-2 rounded px-4 px-4 py-2 font-semibold text-gray-100 bg-purple-500`"
+              :class="`m-2 rounded px-4 px-4 py-2 font-semibold text-gray-100 bg-purple-800`"
+              :disabled="isDataLoading"
               @click="claimAndLinkTwitter"
             >
             Claim with Twitter
@@ -93,27 +94,45 @@
         </div>
       </template>
       <template v-if="stage === 'eosSuccess'">
-        Account claimed using EOS successfully address linked: {{ address }}
+      <div style="width: 90%" class="postCard my-16 mx-auto">
+        <h2 style="margin-top: 3rem; margin-bottom: 3rem;"><EOSIcon class="w-10" /> Account claimed using EOS successfully address linked: <b>{{ address }}</b></h2>
+        <router-link to="/login" ><button
+          type="button"
+          class="m-2 rounded px-4 px-4 py-2 font-semibold text-gray-100 bg-purple-800 mb-8"
+        >
+          Back To Login
+        </button>
+      </router-link>
+      </div>
       </template>
-      <template v-if="stage === 'twitterSuccess'">
-        Account claimed using Twitter successfully address linked: {{ address }}
+      <template  v-if="stage === 'twitterSuccess'">
+        <div style="width: 90%" class="postCard my-16 mx-auto">
+          <h2 style="margin-top: 3rem; margin-bottom: 3rem;" class="my-8"><TwitterIcon class="w-10 inline" /> Account claimed using Twitter successfully address linked: <b>{{ address }}</b></h2>
+          <router-link to="/login" ><button
+          type="button"
+          class="m-2 rounded px-4 px-4 py-2 font-semibold text-gray-100 bg-purple-800 mb-8"
+        >
+          Back To Login
+        </button>
+        </router-link>
+        </div>
       </template>
       <template v-if="stage === 'waitingTwitter'">
         Waiting for user to approve Twitter request.
         <button
           type="button"
-          class="m-2 rounded px-4 px-4 py-2 font-semibold text-gray-100 bg-purple-500"
+          class="m-2 rounded px-4 px-4 py-2 font-semibold text-gray-100 bg-purple-800"
           @click="cancelTwitterWait"
         >
           Cancel Waiting User Approve
         </button>
       </template>
-      <DangLoader v-if="isDataLoading" :unset="true" />
+      <DangLoader v-if="isDataLoading" class="mt-4" :unset="true" />
 
       <div
         v-if="claimError && !isDataLoading"
-        style="max-width: 40rem; margin: auto"
-        class="alert flex flex-row items-center bg-red-200 p-5 rounded border-b-2 border-red-300"
+        style="max-width: 40rem;"
+        class="alert flex flex-row items-center bg-red-200 p-5 rounded border-b-2 border-red-300 justify-center mt-8 mx-auto"
       >
         <div
           class="alert-icon flex items-center bg-red-100 border-2 border-red-500 justify-center h-10 w-10 flex-shrink-0 rounded-full"
@@ -289,24 +308,25 @@ export default defineComponent({
     };
 
     const checkAlreadyLinked = async (address: string) => {
-      const reqAcc = await fetch(`${API_BASE}/accounts/?eth=${address}`, {
+      const reqAcc = await fetch(`${API_BASE}/accounts/eth?address=${address}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json;charset=utf-8",
         },
       });
-      return !reqAcc.ok;
+      return reqAcc.ok;
     };
 
-    const claimAndLinkEOS = async () => {
-      try {
-        isDataLoading.value = true;
-        const acc = await checkAccount(searchEos.value);
+    const checkAccountAndGetSignature = async (skipEosSearch = false) => {
+      let acc = true
+      if (!skipEosSearch) {
+       acc = await checkAccount(searchEos.value);
         if (!acc) {
           claimErrorMsg.value = "Account not Found";
           claimError.value = true;
           return false;
         }
+      }
         if (!(await getSignature())) {
           return false;
         }
@@ -316,7 +336,16 @@ export default defineComponent({
           isDataLoading.value = false;
           return false;
         }
-        const passwordHash = digestSha256(eosPass.value);
+        return acc as unknown as { _id: string }
+    }
+
+    const claimAndLinkEOS = async () => {
+      try {
+        isDataLoading.value = true;
+        const acc = await checkAccountAndGetSignature()
+        if(!acc) return
+
+        const passwordHash = await digestSha256(eosPass.value);
         const reqClaim = await fetch(`${API_BASE}/accounts/claim`, {
           method: "POST",
           headers: {
@@ -377,6 +406,7 @@ export default defineComponent({
           });
           if (reqTwitterClaim.ok) {
             stage.value = "twitterSuccess";
+            isDataLoading.value = false;
           } else {
             stage.value = "initial";
             isDataLoading.value = false;
@@ -401,6 +431,9 @@ export default defineComponent({
 
     const claimAndLinkTwitter = async () => {
       try {
+        isDataLoading.value = true;
+        const acc = await checkAccountAndGetSignature(true)
+        if(!acc) return
         stage.value = "waitingTwitter";
         const reqTwitterChallenge = await fetch(`${API_BASE}/v1/auth/oauth-challenge`, {
           method: "POST",
