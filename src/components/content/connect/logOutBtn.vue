@@ -39,12 +39,14 @@ export default defineComponent({
       localStorage.removeItem('signature')
       localStorage.removeItem('address')
       localStorage.removeItem('account')
+      localStorage.removeItem('authToken')
       store.userData = {
         avatar: '',
         account: '',
         address: '',
         signature: '',
-        weight: 1
+        weight: 1,
+        authToken: ''
       }
       store.isLoggedIn = false
       loading.value = false

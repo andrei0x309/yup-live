@@ -316,7 +316,7 @@ export default defineComponent({
           weight: account.weight
         },
         signature,
-        authToken: accountSignUp.authToken
+        authToken: accountSignUp.jwt
       })
       props.loadState('close')
     }

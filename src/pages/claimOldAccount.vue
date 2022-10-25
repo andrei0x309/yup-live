@@ -1,25 +1,26 @@
 <template>
   <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
     <div class="bg-color page-claim w-full mb-4">
-      <h2>Claim Existsing Account that does not have an address</h2>
+      <h2>Claim Existing Account that does not have an address</h2>
       <p class="claimText">
         You'll be prompted to sign with a message,
         <b>the address used to sign will be linked</b> to your account and you can use it
-        latter to log-in with that account.
+        later to log-in with that account.
       </p>
       <template v-if="stage === 'initial'">
         <div :key="accountType" class="control postCard">
           Acount Made with
           <o-switch
-            :rounded="true"
+            class="p-4"
+            :trueValue="accountType === 'EOS'"
             position="right"
-            size="small"
+            size="medium"
             variant="warning"
+            :rounded="false"
             @change="changeAccountType(accountType)"
-            ><EOSIcon v-if="accountType === 'EOS'" class="w-6" /><TwitterIcon v-else class="w-6 inline" />&nbsp;&nbsp;{{
+            ><EOSIcon v-if="accountType === 'EOS'" class="mx-4 w-6" /><TwitterIcon v-else class="mx-4 w-6 inline" />&nbsp;&nbsp;{{
               accountType === "EOS" ? "EOS" : "Twitter"
-            }}</o-switch
-          >
+            }}</o-switch>
         </div>
         <div
           v-if="accountType === 'EOS'"
