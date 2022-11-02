@@ -180,7 +180,7 @@ const web3Mprom = import("web3modal");
 const ethers = import("ethers");
 
 export default defineComponent({
-  name: "RawInfluence",
+  name: "ClaimPage",
   components: {
     DangLoader,
     TwitterIcon,

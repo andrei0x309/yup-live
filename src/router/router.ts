@@ -62,6 +62,11 @@ const routes = [
     name: 'RawInfluence',
     component: () => import('@/pages/raw-influnece.vue')
   },
+  {
+    path: '/change-log',
+    name: 'ChangeLog',
+    component: () => import('@/pages/changeLog.vue')
+  },
   // {
   //   path: '/web3',
   //   name: 'Web3Auth',

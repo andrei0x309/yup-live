@@ -220,28 +220,6 @@ export default defineComponent({
       return signature
     }
 
-    const verifyChallenge = async (address: string, signature: string) => {
-      const reqVerify = await fetch(`${API_BASE}/v1/eth/challenge/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          address,
-          signature
-        })
-      })
-      if (reqVerify.status !== 200) {
-        props.loadState('end')
-        props.setAlert({
-          type: 'error',
-          message: "Signature doesn't match the address"
-        })
-        return
-      }
-      return reqVerify.status
-    }
-
     const logIn = async (address: string, signature: string) => {
       const reqLogin = await fetch(`${API_BASE}/accounts/log-in`, {
         method: 'POST',
@@ -298,7 +276,6 @@ export default defineComponent({
       if (!account) return
       const signature = await signChallenge(address, signer)
       if (!signature) return
-      if (!verifyChallenge(address, signature)) return
       const accountSignUp = await createAccount({ address, signature, username: username.value })
       if (!account) return
       if (bio.value || fullname.value) {
@@ -331,7 +308,6 @@ export default defineComponent({
       if (!account) return
       const signature = await signChallenge(address, signer)
       if (!signature) return
-      if (!verifyChallenge(address, signature)) return
       const accountLogIn = await logIn(address, signature)
       if(!accountLogIn) return
       doLogin({
