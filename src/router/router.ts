@@ -62,6 +62,11 @@ const routes = [
     name: 'RawInfluence',
     component: () => import('@/pages/raw-influnece.vue')
   },
+  {
+    path: '/change-log',
+    name: 'ChangeLog',
+    component: () => import('@/pages/changeLog.vue')
+  },
   // {
   //   path: '/web3',
   //   name: 'Web3Auth',
@@ -121,6 +126,11 @@ const routes = [
     path: '/feeds',
     name: 'Feeds',
     component: () => import('@/pages/feeds.vue')
+  },
+  {
+    path: '/link-existing-account',
+    name: 'Link Existing Account',
+    component: () => import('@/pages/claimOldAccount.vue')
   },
   // {
   //   path: "/meeting-recording/:id",

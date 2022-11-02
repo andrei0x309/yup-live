@@ -90,7 +90,7 @@ html {
 }
 
 html {
-  --bg-color: #c7bfb8eb;
+  --bg-color: #dfded7d4;
   --bg-content: #222222ba;
   --logoBg: #ffffffcf;
 

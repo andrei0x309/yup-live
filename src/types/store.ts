@@ -2,6 +2,7 @@ export interface IUserData {
   account: string
   signature: string
   address: string
+  authToken: string
   avatar: string
   weight: number
 }
