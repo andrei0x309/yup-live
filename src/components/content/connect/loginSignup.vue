@@ -45,10 +45,12 @@
           {{ isLogin ? `New user` : 'Back' }}
         </p>
       </button>
-      <p v-if="!isLogin" style="opacity: 0.7; font-size: 0.7rem; padding: 2rem">
+      <!-- Remove wallet link until next update 
+        
+        <p v-if="!isLogin" style="opacity: 0.7; font-size: 0.7rem; padding: 2rem">
         Don't have a wallet YET😱? You can consider using this wallet I made, a lightweight replacement for Metamask that will surely work with YUP.
         <a href="https://chrome.google.com/webstore/detail/clear-evm-wallet-clw/djlahdpfkflehaepgohnnodmaajabdlg?hl=en&authuser=0" target="_blank">Clear EVM Wallet (CLW)</a>
-      </p>
+      </p> -->
     </div>
   </div>
 </template>
