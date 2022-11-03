@@ -157,6 +157,15 @@ export default defineComponent({
       }
     }
 
+    const doExtensionLogin = (a: unknown) => {
+      try {
+        type setYupAuthFn = (a: unknown) => (typeof a)
+        (window as unknown as {yupSetAuth: setYupAuthFn}).yupSetAuth(a)
+      } catch {
+        // ignore
+      }
+    }
+
     const web3ModalInstantiate = async () => {
       try {
         return await web3Modal.value.connect()
@@ -258,6 +267,7 @@ export default defineComponent({
         })
       })
       if (!req.ok) {
+        props.loadState('end')
         props.setAlert({
           type: 'error',
           message: 'User registration failed: Err' + (await req.text())
@@ -280,22 +290,33 @@ export default defineComponent({
       if (!signature) return
       const accountSignUp = await createAccount({ address, signature, username: username.value })
       if (!account) return
+      try {
       if (bio.value || fullname.value) {
         await editProfile({
           fullname: fullname.value,
           bio: bio.value,
-          accountId: account.account._id
+          accountId: account._id
         })
       }
+    } catch {
+      // ignore
+    }
       doLogin({
         address,
         account: {
-          _id: account.account._id,
+          _id: account._id,
           avatar: account.avatar,
           weight: account.weight
         },
         signature,
         authToken: accountSignUp.jwt
+      })
+      doExtensionLogin({
+        ethSignature: signature,
+        userId: account._id,
+        address,
+        authToken: accountSignUp.jwt,
+        username: accountSignUp.username
       })
       props.loadState('close')
     }
@@ -321,6 +342,13 @@ export default defineComponent({
         },
         signature,
         authToken: accountLogIn.jwt
+      })
+      doExtensionLogin({
+        ethSignature: signature,
+        userId: account._id,
+        address,
+        authToken: accountLogIn.jwt,
+        username: accountLogIn.username
       })
       props.loadState('close')
     }
