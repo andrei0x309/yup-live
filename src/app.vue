@@ -42,6 +42,7 @@ export default defineComponent({
           mainStore.userData.signature = localStorage.getItem('signature') || ''
           mainStore.userData.avatar = localStorage.getItem('avatar') || ''
           mainStore.userData.weight = Number(localStorage.getItem('weight')) || 1
+          mainStore.userData.authToken = localStorage.getItem('authToken') || ''
           mainStore.isLoggedIn = true
           collectionStore.collectionsPromise = getCollections(collectionStore, mainStore.userData.account) as Promise<ICollection[]>
         }
