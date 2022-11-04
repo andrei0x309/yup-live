@@ -563,7 +563,7 @@ export default defineComponent({
           const { default: libDefault } = lib
           w3Modal = new libDefault({
             network: 'matic', // optional
-            cacheProvider: true, // optional
+            cacheProvider: false, // optional
             providerOptions: pLib.providerOptions, // required
             theme: store.theme
           })

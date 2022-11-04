@@ -74,6 +74,7 @@ export default defineConfig({
   },
   ssgOptions,
   server: {
-    port: 4566
+    port: 4566,
+    host: true
   }
 })

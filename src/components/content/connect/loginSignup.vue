@@ -170,6 +170,7 @@ export default defineComponent({
       try {
         return await web3Modal.value.connect()
       } catch (error) {
+        console.log(error)
         props.loadState('end')
         props.setAlert({
           type: 'error',
@@ -356,7 +357,7 @@ export default defineComponent({
     onMounted(() => {
       web3Modal.value = new Web3Modal({
         network: 'matic', // optional
-        cacheProvider: true, // optional
+        cacheProvider: false, // optional
         providerOptions, // required
         theme: mainStore.theme
       })

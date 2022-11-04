@@ -218,7 +218,7 @@ export default defineComponent({
     const historicPolyReward = ref(0)
     const w3Modal = new W3Modal({
       network: 'matic', // optional
-      cacheProvider: true, // optional
+      cacheProvider: false, // optional
       providerOptions, // required
       theme: store.theme
     })
