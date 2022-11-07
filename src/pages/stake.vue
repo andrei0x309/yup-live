@@ -31,7 +31,7 @@
                   <p class="p-2">Stake YUP-ETH LP Tokens</p>
                   <p class="p-2">Uniswap V2 • Ethereum</p>
                   <p class="p-2">
-                    [ ARP: <span class="text-[1.3rem]">{{ aprs.eth }}%</span> ]
+                    [ APR: <span class="text-[1.3rem]">{{ aprs.eth }}%</span> ]
                   </p>
                 </div>
               </div>
@@ -169,8 +169,6 @@ import { getPolyContractAddresses } from '@yupio/contract-addresses'
 import { uniPoolPABI } from '@/partial-abis/uni-pool'
 import { yupRewardsPABI } from '@/partial-abis/yup-rewards'
 import { useMainStore } from '@/store/main'
-import { providerOptions } from '@/utils/evm'
-import W3Modal from 'web3modal'
 import YUPCollectIcon from '@/components/content/icons/yup-collect.vue'
 import { stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
 
@@ -179,8 +177,11 @@ const refUnStakeIcon = NoStakeIcon
 const refYupRewardsIcon = YUPCollectIcon
 
 const POLY_RPC = import.meta.env.VITE_POLYGON_RPC
-const ethers = import('ethers')
 const HISTORIC_REWARDS_ENDPOINT = 'https://yup-lp-historic-rewards.deno.dev'
+
+const providerOptionsProm = import('@/utils/evm')
+const web3Mprom = import('web3modal')
+const ethers = import('ethers')
 
 const { POLY_LIQUIDITY_REWARDS, POLY_UNI_LP_TOKEN, ETH_UNI_LP_TOKEN, ETH_LIQUIDITY_REWARDS } = getPolyContractAddresses(137)
 
@@ -216,12 +217,6 @@ export default defineComponent({
     const inputValue = ref('0')
     const historicETHReward = ref(0)
     const historicPolyReward = ref(0)
-    const w3Modal = new W3Modal({
-      network: 'matic', // optional
-      cacheProvider: false, // optional
-      providerOptions, // required
-      theme: store.theme
-    })
     let rewardRateEth = 0
     let rewardRatePoly = 0
     let totalStakeEth = 0
@@ -233,6 +228,9 @@ export default defineComponent({
     let ethersProvider
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let userProvider: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let w3Modal: any
+
 
     const siteData = reactive({
       title: ``,
@@ -430,12 +428,21 @@ export default defineComponent({
 
     onMounted(async () => {
       getAprs().then(async (res) => {
-        console.log(res)
         aprs.value.eth = Number(res.eth)
         aprs.value.poly = Number(res.poly)
         loading.value = false
       })
-      ethers.then(async (lib) => {
+      providerOptionsProm.then((pLib) => {
+        web3Mprom.then((lib) => {
+          const { default: libDefault } = lib
+          w3Modal = new libDefault({
+            network: 'matic', // optional
+            cacheProvider: false, // optional
+            providerOptions: pLib.providerOptions, // required
+            theme: store.theme
+          })
+
+          ethers.then(async (lib) => {
         ethersLib = lib.ethers
         ethersProvider = new ethersLib.providers.JsonRpcProvider(POLY_RPC)
         const UNIContractETH = new ethersLib.Contract(ETH_UNI_LP_TOKEN, uniPoolPABI, ethersProvider)
@@ -481,6 +488,11 @@ export default defineComponent({
           startNumer((rewardRateEth * ethStaked.value) / totalStakeEth + (rewardRatePoly * polyStaked.value) / totalStakePoly)
         })
       })
+
+        })
+      })
+
+
     })
 
     return {
