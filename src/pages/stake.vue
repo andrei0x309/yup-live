@@ -7,6 +7,14 @@
         <DangLoader :unset="true" />
       </template>
       <template v-if="!loading">
+        <div v-if="!address" class="my-4">
+          If you don't have an yup account to log-in, you can connect using an wallet by pressing the button:
+          <CustomButton :icon="refWalletIcon" class="mx-auto my-4" text="Connect" @click="connect()" />
+        </div>
+        <div v-else class="my-4">
+        Connected Address: <b>{{address}}</b>
+        </div>
+
         <o-tabs
           v-model="activeTab"
           :multiline="true"
@@ -171,10 +179,13 @@ import { yupRewardsPABI } from '@/partial-abis/yup-rewards'
 import { useMainStore } from '@/store/main'
 import YUPCollectIcon from '@/components/content/icons/yup-collect.vue'
 import { stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
+import WalletIcon from '@/components/content/icons/walletIcon.vue'
+
 
 const refStakeIcon = StakeIcon
 const refUnStakeIcon = NoStakeIcon
 const refYupRewardsIcon = YUPCollectIcon
+const refWalletIcon = WalletIcon
 
 const POLY_RPC = import.meta.env.VITE_POLYGON_RPC
 const HISTORIC_REWARDS_ENDPOINT = 'https://yup-lp-historic-rewards.deno.dev'
@@ -217,6 +228,7 @@ export default defineComponent({
     const inputValue = ref('0')
     const historicETHReward = ref(0)
     const historicPolyReward = ref(0)
+    const address = ref(localStorage.getItem('address'))
     let rewardRateEth = 0
     let rewardRatePoly = 0
     let totalStakeEth = 0
@@ -305,6 +317,7 @@ export default defineComponent({
         await contractLP.approve(approveAddress, amount)
         await contractRewards.stake(amount)
         stackAlertSuccess(`You staked ${inputValue.value} LPT successfuly`)
+        fetchContractsData()
       } catch {
         stackAlertWarning('User rejected or tx failed')
       }
@@ -335,6 +348,7 @@ export default defineComponent({
           ethStaked.value -= willSusbstractPoly
         }
         stackAlertSuccess(`You unstaked ${inputValue.value} LPT successfuly`)
+        fetchContractsData()
       } catch {
         stackAlertWarning('User rejected or tx failed')
       }
@@ -347,8 +361,6 @@ export default defineComponent({
 
       try {
         const signer = await userProvider.getSigner()
-        signer.get
-
         if (rewardsEth > 0) {
           const contractRewardsEth = new ethersLib.Contract(ETH_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
           await contractRewardsEth.getReward()
@@ -359,6 +371,13 @@ export default defineComponent({
         }
         if (rewardsEth > 0 || rewardsPoly > 0) {
           stackAlertSuccess(`You collected a reward of ${rewardsEth + rewardsPoly}`)
+          if(rewardsEth > 0) {
+            historicETHReward.value += rewardsEth
+          }
+          if(rewardsPoly > 0){
+            historicPolyReward.value += rewardsPoly
+          }
+          fetchContractsData()
         } else {
           stackAlertWarning("You don't have anything to collect")
         }
@@ -426,24 +445,9 @@ export default defineComponent({
       }
     }
 
-    onMounted(async () => {
-      getAprs().then(async (res) => {
-        aprs.value.eth = Number(res.eth)
-        aprs.value.poly = Number(res.poly)
-        loading.value = false
-      })
-      providerOptionsProm.then((pLib) => {
-        web3Mprom.then((lib) => {
-          const { default: libDefault } = lib
-          w3Modal = new libDefault({
-            network: 'matic', // optional
-            cacheProvider: false, // optional
-            providerOptions: pLib.providerOptions, // required
-            theme: store.theme
-          })
-
-          ethers.then(async (lib) => {
-        ethersLib = lib.ethers
+    const fetchContractsData = () => {
+      ethers.then(async (lib) => {
+      ethersLib = lib.ethers
         ethersProvider = new ethersLib.providers.JsonRpcProvider(POLY_RPC)
         const UNIContractETH = new ethersLib.Contract(ETH_UNI_LP_TOKEN, uniPoolPABI, ethersProvider)
         const UNIContractPoly = new ethersLib.Contract(POLY_UNI_LP_TOKEN, uniPoolPABI, ethersProvider)
@@ -451,22 +455,21 @@ export default defineComponent({
         const YUPRewardsPoly = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, ethersProvider)
         const utils = ethersLib.utils
 
-        let address = localStorage.getItem('address')
-        if (!address && w3Modal.cachedProvider) {
+        if (!address.value && w3Modal.cachedProvider) {
           userProvider = new ethersLib.providers.Web3Provider(await w3Modal.connect())
-          address = await userProvider.getSigner().getAddress()
+          address.value = await userProvider.getSigner().getAddress()
         }
-        if (address) {
-          getHistoricRewards(address)
+        if (address.value) {
+          getHistoricRewards(address.value)
         }
 
         const arrProm = [
-          UNIContractETH.balanceOf(address),
-          UNIContractPoly.balanceOf(address),
-          YUPRewardsETH.balanceOf(address),
-          YUPRewardsPoly.balanceOf(address),
-          YUPRewardsETH.earned(address),
-          YUPRewardsPoly.earned(address),
+          UNIContractETH.balanceOf(address.value),
+          UNIContractPoly.balanceOf(address.value),
+          YUPRewardsETH.balanceOf(address.value),
+          YUPRewardsPoly.balanceOf(address.value),
+          YUPRewardsETH.earned(address.value),
+          YUPRewardsPoly.earned(address.value),
           YUPRewardsETH.rewardRate(),
           YUPRewardsPoly.rewardRate(),
           UNIContractETH.balanceOf(ETH_LIQUIDITY_REWARDS),
@@ -488,11 +491,44 @@ export default defineComponent({
           startNumer((rewardRateEth * ethStaked.value) / totalStakeEth + (rewardRatePoly * polyStaked.value) / totalStakePoly)
         })
       })
+    }
 
+    
+    const connect = async () => {
+      if (!userProvider) {
+        try {
+          const inst = await w3Modal.connect()
+          userProvider = new ethersLib.providers.Web3Provider(inst)
+        } catch {
+          stackAlertWarning('User rejected connection')
+          return false
+        }
+        address.value =  await userProvider.getSigner().getAddress()
+        fetchContractsData()
+      } else {
+        address.value =  await userProvider.getSigner().getAddress()
+        fetchContractsData()
+      }
+    }
+
+    onMounted(async () => {
+      getAprs().then(async (res) => {
+        aprs.value.eth = Number(res.eth)
+        aprs.value.poly = Number(res.poly)
+        loading.value = false
+      })
+      providerOptionsProm.then((pLib) => {
+        web3Mprom.then((lib) => {
+          const { default: libDefault } = lib
+          w3Modal = new libDefault({
+            network: 'matic', // optional
+            cacheProvider: false, // optional
+            providerOptions: pLib.providerOptions, // required
+            theme: store.theme
+          })
+          fetchContractsData()
         })
       })
-
-
     })
 
     return {
@@ -508,12 +544,15 @@ export default defineComponent({
       refStakeIcon,
       refUnStakeIcon,
       refYupRewardsIcon,
+      refWalletIcon,
       inputValue,
       onUnstake,
       onStake,
       onReward,
       historicETHReward,
-      historicPolyReward
+      historicPolyReward,
+      address,
+      connect
     }
   }
 })
