@@ -44,6 +44,7 @@ import { useHead, HeadObject } from '@vueuse/head'
 import ChartD3 from '@/components/content/chart-d3.vue'
 import { useMainStore } from '@/store/main'
 import { useGrid } from 'vue-screen'
+import { useRoute } from 'vue-router'
 
 export default defineComponent({
   name: 'EmissionsPage',
@@ -62,6 +63,7 @@ export default defineComponent({
     const grid = useGrid('tailwind')
     const initWidth = ref(detWidth())
     const initHeight = ref(detHeight())
+    const route = useRoute()
 
     function detWidth() {
       return grid['2xl'] ? 1100 : grid['xl'] ? 900 : grid['lg'] ? 650 : grid['md'] ? 550 : 450
@@ -75,6 +77,45 @@ export default defineComponent({
       title: `YUP Live - Token emissions`,
       description: `Token emissions for YUP token...`
     })
+
+    useHead({
+      title: computed(() => siteData.title),
+      description: computed(() => siteData.description),
+      meta: [
+        {
+          name: 'og:type',
+          content: 'website'
+        },
+        {
+          name: 'og:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'og:description',
+          content: computed(() => siteData.description)
+        },
+        {
+          name: 'og:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image'
+        },
+        {
+          name: 'twitter:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'twitter:description',
+          content: computed(() => siteData.description)
+        }
+      ]
+    } as unknown as Ref<HeadObject>)
 
     const toggleBlob = () => {
       blobAnim.value = blobAnim.value ? false : true
@@ -111,11 +152,6 @@ export default defineComponent({
     onUnmounted(() => {
       // do nothing
     })
-
-    useHead({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description)
-    } as unknown as Ref<HeadObject>)
 
     return {
       chartText,

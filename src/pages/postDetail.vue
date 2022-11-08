@@ -45,13 +45,47 @@ export default defineComponent({
     }
 
     const siteData = reactive({
-      title: '',
-      description: ''
+      title: `YUP Live Article: ${processedPost.value?.previewData?.title ?? ''}`,
+      description: `View contents of article with title: ${processedPost.value?.previewData?.title ?? ''}`
     })
 
     useHead({
       title: computed(() => siteData.title),
-      description: computed(() => siteData.description)
+      description: computed(() => siteData.description),
+      meta: [
+        {
+          name: 'og:type',
+          content: 'website'
+        },
+        {
+          name: 'og:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'og:description',
+          content: computed(() => siteData.description)
+        },
+        {
+          name: 'og:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image'
+        },
+        {
+          name: 'twitter:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'twitter:description',
+          content: computed(() => siteData.description)
+        }
+      ]
     } as unknown as Ref<HeadObject>)
 
     const getPostbyId = async (postId: string) => {

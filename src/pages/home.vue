@@ -74,16 +74,17 @@ export default defineComponent({
     const pageActive = ref(getPageActive(route.path))
 
     const siteData = reactive({
-      title: `YUP Live - ${pageActive.value} explorers`,
-      description: `Live ${pageActive.value} data for YUP DApp...`
+      title: `YUP Live ${pageActive.value ?? ''}`,
+      description: `YUP Live ${pageActive.value ?? ''} open-source light frontend for accessing YUP DApp.`
     })
 
     useHead({
-      title: computed(() => `YUP Live - ${pageActive.value} explorers`),
+      title: computed(() => siteData.title),
+      description: computed(() => siteData.description),
       meta: [
         {
-          name: 'description',
-          content: computed(() => `Live ${pageActive.value} data for YUP DApp...`)
+          name: 'og:type',
+          content: 'website'
         },
         {
           name: 'og:title',
@@ -94,8 +95,24 @@ export default defineComponent({
           content: computed(() => siteData.description)
         },
         {
-          name: 'og:image',
-          content: `${window?.location?.origin ?? ''}/share/home.webp`
+          name: 'og:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image'
+        },
+        {
+          name: 'twitter:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'twitter:description',
+          content: computed(() => siteData.description)
         }
       ]
     } as unknown as Ref<HeadObject>)

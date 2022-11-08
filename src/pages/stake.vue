@@ -68,7 +68,7 @@
                     <StakeIcon class="w-6 inline mr-1" />
                     <span> Stake </span>
                   </template>
-                  <NoInput v-model:input="inputValue" :max="ethUnstaked" />
+                  <NoInput v-model:input="inputValue" :max="ethUnstaked-0.001" />
                   <CustomButton :icon="refStakeIcon" text="Stake" @click="onStake('eth')" />
                 </o-tab-item>
 
@@ -77,7 +77,7 @@
                     <NoStakeIcon class="w-6 inline mr-1" />
                     <span> Unstake </span>
                   </template>
-                  <NoInput v-model:input="inputValue" :max="ethStaked" />
+                  <NoInput v-model:input="inputValue" :max="ethStaked-0.001" />
                   <CustomButton :icon="refUnStakeIcon" text="Unstake" @click="onUnstake('eth')" />
                 </o-tab-item>
               </o-tabs>
@@ -127,7 +127,7 @@
                     <StakeIcon class="w-6 inline mr-1" />
                     <span> Stake </span>
                   </template>
-                  <NoInput v-model:input="inputValue" :max="polyUnstaked" />
+                  <NoInput v-model:input="inputValue" :max="polyUnstaked-0.001" />
                   <CustomButton :icon="refStakeIcon" text="Stake" @click="onStake('poly')" />
                 </o-tab-item>
 
@@ -136,7 +136,7 @@
                     <NoStakeIcon class="w-6 inline mr-1" />
                     <span> Unstake </span>
                   </template>
-                  <NoInput v-model:input="inputValue" :max="polyStaked" />
+                  <NoInput v-model:input="inputValue" :max="polyStaked-0.001" />
                   <CustomButton :icon="refUnStakeIcon" text="Unstake" @click="onUnstake('poly')" />
                 </o-tab-item>
               </o-tabs>
@@ -373,9 +373,11 @@ export default defineComponent({
           stackAlertSuccess(`You collected a reward of ${rewardsEth + rewardsPoly}`)
           if(rewardsEth > 0) {
             historicETHReward.value += rewardsEth
+            rewards.value -= rewardsEth
           }
           if(rewardsPoly > 0){
             historicPolyReward.value += rewardsPoly
+            rewards.value -= rewardsPoly
           }
           fetchContractsData()
         } else {

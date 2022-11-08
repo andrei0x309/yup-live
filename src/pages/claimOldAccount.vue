@@ -174,6 +174,7 @@ import EOSIcon from "@/components/content/icons/eos.vue";
 import TwitterIcon from "@/components/content/icons/twitter.vue";
 import { useMainStore } from "@/store/main";
 import { wait } from "@/utils/time";
+import { useRoute } from 'vue-router'
 
 const providerOptionsProm = import("@/utils/evm");
 const web3Mprom = import("web3modal");
@@ -204,6 +205,7 @@ export default defineComponent({
     const iconsColor = ref(store.theme === "dark" ? "#ccc" : "#020201");
     const address = ref("");
     const signature = ref("");
+    const route = useRoute()
     let isTwitterCheckOn = false;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let ethersLib: any;
@@ -213,9 +215,49 @@ export default defineComponent({
     let w3Modal: any;
 
     const siteData = reactive({
-      title: `YUP Live - Check your raw influence`,
-      description: `LiveCheck your raw influence for YUP DApp...`,
-    });
+      title: `YUP Claim account made with Twitter`,
+      description: `YUP Claim old account made with Twitter or EOS`
+    })
+
+    useHead({
+      title: computed(() => siteData.title),
+      description: computed(() => siteData.description),
+      meta: [
+        {
+          name: 'og:type',
+          content: 'website'
+        },
+        {
+          name: 'og:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'og:description',
+          content: computed(() => siteData.description)
+        },
+        {
+          name: 'og:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image'
+        },
+        {
+          name: 'twitter:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'twitter:description',
+          content: computed(() => siteData.description)
+        }
+      ]
+    } as unknown as Ref<HeadObject>)
+
 
     const digestSha256 = async (message: string) => {
       const msgUint8 = new TextEncoder().encode(message);
@@ -242,11 +284,6 @@ export default defineComponent({
     onUnmounted(() => {
       // do nothing
     });
-
-    useHead(({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description),
-    } as unknown) as Ref<HeadObject>);
 
     const signChallenge = async (address: string, signer: unknown) => {
       const req = await fetch(`${API_BASE}/v1/eth/challenge?address=${address}`, {

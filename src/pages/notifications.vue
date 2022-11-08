@@ -231,18 +231,54 @@ export default defineComponent({
     const activeTab = ref('0') as Ref<string>
 
     const siteData = reactive({
-      title: `YUP Live - Check your raw influence`,
-      description: `LiveCheck your raw influence for YUP DApp...`
+      title: `YUP Live view your notifications`,
+      description: `YUP Live view notifications about votes & rewards`
     })
+
+    useHead({
+      title: computed(() => siteData.title),
+      description: computed(() => siteData.description),
+      meta: [
+        {
+          name: 'og:type',
+          content: 'website'
+        },
+        {
+          name: 'og:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'og:description',
+          content: computed(() => siteData.description)
+        },
+        {
+          name: 'og:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image'
+        },
+        {
+          name: 'twitter:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'twitter:description',
+          content: computed(() => siteData.description)
+        }
+      ]
+    } as unknown as Ref<HeadObject>)
 
     onUnmounted(() => {
       // do nothing
     })
 
-    useHead({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description)
-    } as unknown as Ref<HeadObject>)
+
 
     // const checkAccount = async () => {
     //   const reqAcc = await fetch(`${API_BASE}/accounts/${search.value}`, {

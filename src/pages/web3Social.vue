@@ -212,14 +212,49 @@ export default defineComponent({
       description: `Find if evm address has web3 accounts...`
     })
 
+    useHead({
+      title: computed(() => siteData.title),
+      description: computed(() => siteData.description),
+      meta: [
+        {
+          name: 'og:type',
+          content: 'website'
+        },
+        {
+          name: 'og:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'og:description',
+          content: computed(() => siteData.description)
+        },
+        {
+          name: 'og:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image'
+        },
+        {
+          name: 'twitter:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'twitter:description',
+          content: computed(() => siteData.description)
+        }
+      ]
+    } as unknown as Ref<HeadObject>)
+
+
     onUnmounted(() => {
       // do nothing
     })
-
-    useHead({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description)
-    } as unknown as Ref<HeadObject>)
 
     const getLensUserData = async (address: string) => {
       try {

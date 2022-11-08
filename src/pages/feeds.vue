@@ -130,6 +130,51 @@ export default defineComponent({
     const feedLoading = ref(false)
     const catComp = ref(null) as Ref<unknown>
 
+
+    const siteData = reactive({
+      title: `YUP View Feed - ${activeFeed ?? ''}`,
+      description: `Browse through yup feed: ${activeFeed ?? ''}`
+    })
+
+    useHead({
+      title: computed(() => siteData.title),
+      description: computed(() => siteData.description),
+      meta: [
+        {
+          name: 'og:type',
+          content: 'website'
+        },
+        {
+          name: 'og:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'og:description',
+          content: computed(() => siteData.description)
+        },
+        {
+          name: 'og:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image'
+        },
+        {
+          name: 'twitter:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'twitter:description',
+          content: computed(() => siteData.description)
+        }
+      ]
+    } as unknown as Ref<HeadObject>)
+
     const getFeedPosts = async (start = 0) => {
       try {
       const res = await fetch(`${FEED_APIS[activeFeed.value]}?start=${start}&limit=10`, {
@@ -172,10 +217,6 @@ export default defineComponent({
       loading.value = false
     }
 
-    const siteData = reactive({
-      title: `YUP Live - Check your raw influence`,
-      description: `LiveCheck your raw influence for YUP DApp...`
-    })
 
     onMounted(async () => {
      getFeedPosts(postsIndex.value).then(
@@ -193,10 +234,6 @@ export default defineComponent({
       // do nothing
     })
 
-    useHead({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description)
-    } as unknown as Ref<HeadObject>)
 
     return {
       postTypesPromises,

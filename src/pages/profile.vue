@@ -226,6 +226,54 @@ export default defineComponent({
       description: `Check my web3 YUP social profile --- yup.info.gf`
     })
 
+    useHead({
+      title: computed(() => siteData.title),
+      description: computed(() => siteData.description),
+      meta: [
+        {
+          name: 'og:type',
+          content: 'website'
+        },
+        {
+          name: 'og:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'og:description',
+          content: computed(() => siteData.description)
+        },
+        {
+          name: 'og:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'og:image',
+          content: computed(() => userData.value?.avatar)
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image'
+        },
+        {
+          name: 'twitter:url',
+          content: computed(() => route.fullPath)
+        },
+        {
+          name: 'twitter:title',
+          content: computed(() => siteData.title)
+        },
+        {
+          name: 'twitter:description',
+          content: computed(() => siteData.description)
+        },
+        {
+          name: 'twitter:image',
+          content: computed(() => userData.value?.avatar)
+        }
+      ]
+    } as unknown as Ref<HeadObject>)
+
+
     store.$subscribe(async () => {
       isAuth.value = store.isLoggedIn
 
@@ -394,29 +442,7 @@ export default defineComponent({
       console.log(accountRoute)
     })
 
-    useHead({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description),
-      meta: [
-        {
-          name: 'description',
-          content: computed(() => siteData.description)
-        },
-        {
-          name: 'og:title',
-          content: computed(() => siteData.title)
-        },
-        {
-          name: 'og:description',
-          content: computed(() => siteData.description)
-        },
-        {
-          name: 'og:image',
-          content: computed(() => userData.value?.avatar)
-        }
-      ]
-    } as unknown as Ref<HeadObject>)
-
+    
     onUnmounted(() => {
       // do nothing
     })
