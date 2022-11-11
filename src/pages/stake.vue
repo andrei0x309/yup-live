@@ -25,65 +25,7 @@
           navTypeClass="boxed"
           :animated="false"
         >
-          <o-tab-item value="1">
-            <template #header>
-              <ETHIcon class="w-6 inline mr-1" />
-              <span>ETH</span>
-            </template>
-            <div class="flex flex-col p-4 thinSBox">
-              <div class="flex">
-                <div class="flex flex-col">
-                  <YUPETH class="w-30 mt-5" />
-                </div>
-                <div class="flex flex-col text-[1.2rem] p-6 mb-4">
-                  <p class="p-2">Stake YUP-ETH LP Tokens</p>
-                  <p class="p-2">Uniswap V2 • Ethereum</p>
-                  <p class="p-2">
-                    [ APR: <span class="text-[1.3rem]">{{ aprs.eth }}%</span> ]
-                  </p>
-                </div>
-              </div>
-              <div class="p-2 mr-4">
-                <p class="p-2 text-left flex items-center">
-                  <span class="w-40 inline-block tracking-wide uppercase">Staked<br />amount</span
-                  ><span class="text-[1.2rem]" v-html="ethStaked.toFixed(4)" />
-                </p>
-                <p class="p-2 text-left flex items-center">
-                  <span class="w-40 inline-block tracking-wide uppercase">Unstaked<br />amount</span
-                  ><span class="text-[1.2rem]" v-html="ethUnstaked.toFixed(4)" />
-                </p>
-              </div>
-              <o-tabs
-                v-model="activeTabStake"
-                :multiline="true"
-                :expanded="true"
-                type="default"
-                position="centred"
-                variant="warning"
-                navTypeClass="boxed"
-                :animated="false"
-              >
-                <o-tab-item value="0">
-                  <template #header>
-                    <StakeIcon class="w-6 inline mr-1" />
-                    <span> Stake </span>
-                  </template>
-                  <NoInput v-model:input="inputValue" :max="ethUnstaked-0.001" />
-                  <CustomButton :icon="refStakeIcon" text="Stake" @click="onStake('eth')" />
-                </o-tab-item>
-
-                <o-tab-item value="1">
-                  <template #header>
-                    <NoStakeIcon class="w-6 inline mr-1" />
-                    <span> Unstake </span>
-                  </template>
-                  <NoInput v-model:input="inputValue" :max="ethStaked-0.001" />
-                  <CustomButton :icon="refUnStakeIcon" text="Unstake" @click="onUnstake('eth')" />
-                </o-tab-item>
-              </o-tabs>
-            </div>
-          </o-tab-item>
-
+          
           <o-tab-item value="0">
             <template #header>
               <PolyIcon class="w-6 inline mr-2" />
@@ -128,7 +70,7 @@
                     <span> Stake </span>
                   </template>
                   <NoInput v-model:input="inputValue" :max="polyUnstaked-0.001" />
-                  <CustomButton :icon="refStakeIcon" text="Stake" @click="onStake('poly')" />
+                  <CustomButton :icon="refStakeIcon" text="Stake" @click="onStake()" />
                 </o-tab-item>
 
                 <o-tab-item value="1">
@@ -137,7 +79,7 @@
                     <span> Unstake </span>
                   </template>
                   <NoInput v-model:input="inputValue" :max="polyStaked-0.001" />
-                  <CustomButton :icon="refUnStakeIcon" text="Unstake" @click="onUnstake('poly')" />
+                  <CustomButton :icon="refUnStakeIcon" text="Unstake" @click="onUnstake()" />
                 </o-tab-item>
               </o-tabs>
             </div>
@@ -167,9 +109,7 @@ import DangLoader from '@/components/content/vote-list/loader.vue'
 // import { useRoute } from 'vue-router'
 import StakeIcon from '@/components/content/icons/stake.vue'
 import NoStakeIcon from '@/components/content/icons/noStake.vue'
-import YUPETH from '@/components/content/icons/yup-eth.vue'
 import YUPPOLY from '@/components/content/icons/yup-poly.vue'
-import ETHIcon from '@/components/content/icons/eth.vue'
 import PolyIcon from '@/components/content/icons/poly.vue'
 import NoInput from '@/components/content/staking/noInput.vue'
 import CustomButton from '@/components/functional/customButton.vue'
@@ -194,7 +134,7 @@ const providerOptionsProm = import('@/utils/evm')
 const web3Mprom = import('web3modal')
 const ethers = import('ethers')
 
-const { POLY_LIQUIDITY_REWARDS, POLY_UNI_LP_TOKEN, ETH_UNI_LP_TOKEN, ETH_LIQUIDITY_REWARDS } = getPolyContractAddresses(137)
+const { POLY_LIQUIDITY_REWARDS, POLY_UNI_LP_TOKEN } = getPolyContractAddresses(137)
 
 // import { useMainStore } from '@/store/main'
 export default defineComponent({
@@ -203,9 +143,7 @@ export default defineComponent({
     DangLoader,
     StakeIcon,
     NoStakeIcon,
-    YUPETH,
     YUPPOLY,
-    ETHIcon,
     PolyIcon,
     NoInput,
     CustomButton
@@ -222,18 +160,13 @@ export default defineComponent({
     const rewards = ref(0)
     const polyStaked = ref(0)
     const polyUnstaked = ref(0)
-    const ethStaked = ref(0)
-    const ethUnstaked = ref(0)
     const store = useMainStore()
     const inputValue = ref('0')
     const historicETHReward = ref(0)
     const historicPolyReward = ref(0)
     const address = ref(localStorage.getItem('address'))
-    let rewardRateEth = 0
     let rewardRatePoly = 0
-    let totalStakeEth = 0
     let totalStakePoly = 0
-    let rewardsEth = 0
     let rewardsPoly = 0
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let ethersLib: any
@@ -294,25 +227,16 @@ export default defineComponent({
       return true
     }
 
-    const onStake = async (chain: string) => {
+    const onStake = async () => {
       if (!(await prepareForTransaction())) {
         return
       }
 
       try {
         const signer = await userProvider.getSigner()
-        let contractLP
-        let contractRewards
-        let approveAddress
-        if (chain === 'poly') {
-          approveAddress = POLY_LIQUIDITY_REWARDS
-          contractLP = new ethersLib.Contract(POLY_UNI_LP_TOKEN, uniPoolPABI, signer)
-          contractRewards = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
-        } else {
-          approveAddress = ETH_LIQUIDITY_REWARDS
-          contractLP = new ethersLib.Contract(ETH_UNI_LP_TOKEN, uniPoolPABI, signer)
-          contractRewards = new ethersLib.Contract(ETH_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
-        }
+        const approveAddress = POLY_LIQUIDITY_REWARDS
+        const contractLP = new ethersLib.Contract(POLY_UNI_LP_TOKEN, uniPoolPABI, signer)
+        const contractRewards = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
         const amount = ethersLib.utils.parseEther(inputValue.value.toString())
         await contractLP.approve(approveAddress, amount)
         await contractRewards.stake(amount)
@@ -323,29 +247,19 @@ export default defineComponent({
       }
     }
 
-    const onUnstake = async (chain: string) => {
+    const onUnstake = async () => {
       if (!(await prepareForTransaction())) {
         return
       }
 
       try {
         const signer = await userProvider.getSigner()
-        let contractRewards
-        let willSusbstractEth = 0
-        let willSusbstractPoly = 0
-        if (chain === 'poly') {
-          contractRewards = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
-          willSusbstractPoly = Number(inputValue.value)
-        } else {
-          contractRewards = new ethersLib.Contract(ETH_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
-          willSusbstractEth -= Number(inputValue.value)
-        }
+
+        const contractRewards = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
+        const willSusbstractPoly = Number(inputValue.value)
         await contractRewards.unstake(ethersLib.utils.parseEther(inputValue.value.toString()))
-        if (willSusbstractEth > 0) {
-          ethStaked.value -= willSusbstractEth
-        }
         if (willSusbstractPoly > 0) {
-          ethStaked.value -= willSusbstractPoly
+          polyStaked.value -= willSusbstractPoly
         }
         stackAlertSuccess(`You unstaked ${inputValue.value} LPT successfuly`)
         fetchContractsData()
@@ -361,20 +275,12 @@ export default defineComponent({
 
       try {
         const signer = await userProvider.getSigner()
-        if (rewardsEth > 0) {
-          const contractRewardsEth = new ethersLib.Contract(ETH_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
-          await contractRewardsEth.getReward()
-        }
         if (rewardsPoly > 0) {
           const contractRewardsPoly = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
           await contractRewardsPoly.getReward()
         }
-        if (rewardsEth > 0 || rewardsPoly > 0) {
-          stackAlertSuccess(`You collected a reward of ${rewardsEth + rewardsPoly}`)
-          if(rewardsEth > 0) {
-            historicETHReward.value += rewardsEth
-            rewards.value -= rewardsEth
-          }
+        if (rewardsPoly > 0) {
+          stackAlertSuccess(`You collected a reward of ${rewardsPoly}`)
           if(rewardsPoly > 0){
             historicPolyReward.value += rewardsPoly
             rewards.value -= rewardsPoly
@@ -451,9 +357,7 @@ export default defineComponent({
       ethers.then(async (lib) => {
       ethersLib = lib.ethers
         ethersProvider = new ethersLib.providers.JsonRpcProvider(POLY_RPC)
-        const UNIContractETH = new ethersLib.Contract(ETH_UNI_LP_TOKEN, uniPoolPABI, ethersProvider)
         const UNIContractPoly = new ethersLib.Contract(POLY_UNI_LP_TOKEN, uniPoolPABI, ethersProvider)
-        const YUPRewardsETH = new ethersLib.Contract(ETH_LIQUIDITY_REWARDS, yupRewardsPABI, ethersProvider)
         const YUPRewardsPoly = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, ethersProvider)
         const utils = ethersLib.utils
 
@@ -466,31 +370,21 @@ export default defineComponent({
         }
 
         const arrProm = [
-          UNIContractETH.balanceOf(address.value),
           UNIContractPoly.balanceOf(address.value),
-          YUPRewardsETH.balanceOf(address.value),
           YUPRewardsPoly.balanceOf(address.value),
-          YUPRewardsETH.earned(address.value),
           YUPRewardsPoly.earned(address.value),
-          YUPRewardsETH.rewardRate(),
           YUPRewardsPoly.rewardRate(),
-          UNIContractETH.balanceOf(ETH_LIQUIDITY_REWARDS),
           UNIContractPoly.balanceOf(POLY_LIQUIDITY_REWARDS)
         ]
 
         Promise.all(arrProm).then((res) => {
-          ethUnstaked.value = Number(utils.formatEther(res[0]))
-          polyUnstaked.value = Number(utils.formatEther(res[1]))
-          ethStaked.value = Number(utils.formatEther(res[2]))
-          polyStaked.value = Number(utils.formatEther(res[3]))
-          rewardsEth = Number(utils.formatEther(res[4]))
-          rewardsPoly = Number(utils.formatEther(res[5]))
-          rewards.value = rewardsEth + rewardsPoly
-          rewardRateEth = Number(utils.formatEther(res[6]))
-          rewardRatePoly = Number(utils.formatEther(res[7]))
-          totalStakeEth = Number(utils.formatEther(res[8]))
-          totalStakePoly = Number(utils.formatEther(res[9]))
-          startNumer((rewardRateEth * ethStaked.value) / totalStakeEth + (rewardRatePoly * polyStaked.value) / totalStakePoly)
+          polyUnstaked.value = Number(utils.formatEther(res[0]))
+          polyStaked.value = Number(utils.formatEther(res[1]))
+          rewardsPoly = Number(utils.formatEther(res[2]))
+          rewards.value = rewardsPoly
+          rewardRatePoly = Number(utils.formatEther(res[3]))
+          totalStakePoly = Number(utils.formatEther(res[4]))
+          startNumer((rewardRatePoly * polyStaked.value) / totalStakePoly)
         })
       })
     }
@@ -541,8 +435,6 @@ export default defineComponent({
       rewards,
       polyStaked,
       polyUnstaked,
-      ethStaked,
-      ethUnstaked,
       refStakeIcon,
       refUnStakeIcon,
       refYupRewardsIcon,

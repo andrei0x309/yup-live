@@ -132,14 +132,22 @@ const routes = [
     name: 'Link Existing Account',
     component: () => import('@/pages/claimOldAccount.vue')
   },
-  // {
-  //   path: "/meeting-recording/:id",
-  //   name: "SingleMeetingRecording",
-  //   component: () =>
-  //     import(
-  //       /* webpackChunkName: "singleMeetingRecording" */ "../views/SingleMeetingRecording.vue"
-  //     ),
-  // },
+  {
+    path: '/meetings',
+    name: 'MeetingsPage',
+    component: () =>
+      import(
+        "@/pages/meetings.vue"
+      ),
+  },
+  {
+    path: "/meeting-recording/:id",
+    name: "SingleMeetingRecording",
+    component: () =>
+      import(
+        "@/pages/meetings.vue"
+      ),
+  },
   {
     type: 'yup',
     text: 'YUP APP',
