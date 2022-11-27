@@ -1,0 +1,74 @@
+{
+  "name": "shared",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
+  "tsup": {
+    "entry": [
+      "src/index.ts",
+      "src/utils/index.ts",
+      "src/utils/head.ts",
+      "src/utils/login-signup.ts",
+      "src/utils/config.ts",
+      "src/utils/auth.ts",
+      "src/utils/notifications.ts",
+      "src/utils/evm.ts",
+      "src/utils/time.ts",
+      "src/utils/accounts.ts",
+      "src/utils/misc.ts",
+      "src/utils/requests/accounts.ts",
+      "src/utils/requests/vote.ts",
+      "src/utils/requests/index.ts",
+      "src/utils/web3/index.ts",
+      "src/utils/web3/ipfs.ts",
+      "src/utils/web3/lens.ts",
+      "src/types/index.ts",
+      "src/types/account.ts",
+      "src/types/common.ts",
+      "src/types/post.ts",
+      "src/types/store.ts",
+      "src/types/vote.ts",
+      "src/types/vue.ts",
+      "src/types/notification.ts",
+      "src/types/web3/index.ts",
+      "src/types/web3/farcaster.ts",
+      "src/types/web3/lens.ts",
+      "src/types/web3/media.ts",
+      "src/types/web3/poap.ts",
+      "src/types/web3/web3Socials.ts",
+      "src/types/web2/index.ts",
+      "src/types/web2/twitter.ts"
+    ],
+    "dts": true,
+    "splitting": true,
+    "sourcemap": false,
+    "clean": true
+  },
+  "scripts": {
+    "build": "tsup",
+    "watch": "tsup --watch",
+    "clean": "rm -rf dist",
+    "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
+    "test": "jest"
+  },
+  "jest": {
+    "preset": "jest-presets/jest/node"
+  },
+  "devDependencies": {
+    "tsup": "^6.2.3",
+    "typescript": "^4.8.3"
+  },
+  "dependencies": {
+    "@walletconnect/web3-provider": "^1.8.0",
+    "dayjs": "^1.11.6",
+    "ethers": "^5.7.2",
+    "vue": "^3.2.45"
+  }
+}
