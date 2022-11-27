@@ -1,0 +1,7 @@
+{
+  "name": "Yup Live Mobile",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue"
+}
