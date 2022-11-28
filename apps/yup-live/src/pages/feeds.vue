@@ -86,6 +86,7 @@ import { postTypesPromises } from '@/utils/post'
 import { useRoute } from 'vue-router'
 import Post from '@/components/content/post/post.vue'
 import PostInfo from '@/components/content/post/postInfo.vue'
+import LineLoader from 'components/functional/lineLoader.vue'
 
 const FEED_APIS: Record<string, string> = {
   dailyhits: 'https://api.yup.io/feed/dailyhits',
@@ -104,7 +105,8 @@ export default defineComponent({
     DangLoader,
     InfScroll,
     Post,
-    PostInfo
+    PostInfo,
+    LineLoader
     // DateIcon
   },
   setup() {

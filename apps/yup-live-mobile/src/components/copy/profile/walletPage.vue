@@ -322,7 +322,7 @@ export default defineComponent({
 <style lang="scss">
 .wallet-section {
   .glassCard {
-    background: #22222263;
+    background: #14141463;
     color: var(--glassTxt);
     box-shadow: 0 8px 32px 0 #00000063;
     backdrop-filter: blur(4px);

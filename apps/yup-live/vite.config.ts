@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'url'
 import eslintPlugin from 'vite-plugin-eslint'
 import WindiCSS from 'vite-plugin-windicss'
-import nodePolyfills from 'rollup-plugin-polyfill-node'
+import nodePolyfills from 'vite-plugin-node-stdlib-browser'
 import { ViteSSGOptions } from 'vite-ssg'
 import generateSitemap from 'vite-ssg-sitemap'
 const production = process.env.NODE_ENV === 'production'
@@ -45,6 +45,10 @@ const ssgOptions: ViteSSGOptions = {
 
 export default defineConfig({
   publicDir: './public',
+  define: {
+    'process.env': {},
+    'global': 'window'
+  },
   resolve: {
     extensions: ['.ts', '.js', '.vue'],
     preserveSymlinks: true,
@@ -57,10 +61,7 @@ export default defineConfig({
     }
   },
   plugins: [
-    !production &&
-    nodePolyfills({
-      include: ['node_modules/**/*.js', new RegExp('node_modules/.vite/.*js')]
-    }),
+    nodePolyfills(),
     vue(),
     eslintPlugin(),
     WindiCSS()

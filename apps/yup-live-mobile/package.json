@@ -31,10 +31,11 @@
     "ionicons": "^6.0.3",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "pina": "^0.20.2204228",
+    "send-intent": "^3.0.12",
     "shared": "*",
     "vue": "^3.2.21",
     "vue-router": "^4.0.12",
-    "web3modal": "^1.9.9"
+    "web3modal": "^1.9.10"
   },
   "devDependencies": {
     "@capacitor/cli": "4.4.0",

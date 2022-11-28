@@ -7,6 +7,9 @@ import 'virtual:windi.css'
 import { Dropdown, Button, Sidebar, Tabs, Table, Modal, Skeleton, Switch, Radio, Tooltip } from '@oruga-ui/oruga-next'
 import '@/assets/oruga-patched.css'
 import { createPinia } from 'pinia'
+import { Buffer } from 'buffer'
+
+globalThis.Buffer = Buffer
 export const createApp = ViteSSG(
   // the root component
   App,

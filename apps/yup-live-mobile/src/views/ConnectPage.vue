@@ -56,7 +56,7 @@
 
           <ion-card-content class="ion-justify-content-center">
             <p class="ion-padding">Action requires an <b>EVM</b> mobile wallet.</p>
-            <CustomButton class="ion-margin" text="Login" @click="onLoginLocal" />
+            <CustomButton :disabled="loading"  class="ion-margin" text="Login" @click="onLoginLocal" />
           </ion-card-content>
         </ion-card>
       </div>
@@ -87,7 +87,7 @@
               </ion-accordion>
             </ion-accordion-group>
             <p class="ion-padding">Action requires an <b>EVM</b> mobile wallet.</p>
-            <CustomButton class="ion-margin" text="SignUp" @click="onSignupLocal" />
+            <CustomButton :disabled="loading" class="ion-margin" text="SignUp" @click="onSignupLocal"  />
           </ion-card-content>
         </ion-card>
       </div>
@@ -126,10 +126,11 @@ import {
   IonCardHeader,
   IonLoading,
   IonAccordionGroup,
-  IonToast
+  IonToast,
+  onIonViewWillEnter
 } from "@ionic/vue";
 import { defineComponent } from "vue";
-import { ref, Ref, onMounted, onBeforeMount } from "vue";
+import { ref, Ref, onMounted, } from "vue";
 import { onLogin, onSignup } from "shared/dist/utils/login-signup";
 import { useMainStore } from "@/store/main";
 import { ethers } from "ethers";
@@ -217,6 +218,7 @@ export default defineComponent({
     };
 
     const onSignupLocal = async () => {
+      loadState('start')
       const signupResult = await onSignup({
         loadState,
         setAlert,
@@ -232,6 +234,7 @@ export default defineComponent({
     };
 
     const onLoginLocal = async () => {
+      loadState('start')
       const loginResult = await onLogin({
         loadState,
         setAlert,
@@ -243,7 +246,7 @@ export default defineComponent({
       loading.value = false
     };
 
-    onBeforeMount(async () => {
+    onIonViewWillEnter(async () => {
       const authInfo = await storage.get("authInfo");
       if (authInfo) {
         router.push("/tabs/feeds");

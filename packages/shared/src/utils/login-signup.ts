@@ -259,6 +259,16 @@ export const onSignup = async (
             authToken: accountSignUp.jwt,
             username: accountSignUp.username
         }
+    } else {
+        if (loadState) {
+            loadState('end')
+        }
+        if (setAlert) {
+            setAlert({
+                type: 'error',
+                message: 'User cancelled the signature'
+            })
+        }
     }
 }
 
@@ -298,6 +308,16 @@ export const onLogin = async ({
             signature,
             authToken: accountLogIn.jwt,
             username: accountLogIn.username
+        }
+    } else {
+        if (loadState) {
+            loadState('end')
+        }
+        if (setAlert) {
+            setAlert({
+                type: 'error',
+                message: 'User cancelled the signature'
+            })
         }
     }
 }

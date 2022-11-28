@@ -148,6 +148,7 @@ import QuickSwapIcon from '@/components/content/icons/quickSwap.vue'
 import InfoIcon from 'icons/src/infoIcon.vue'
 import { useMainStore } from '@/store/main'
 import { exportFile, convertToCSV } from '@/utils'
+import BtnSpinner from 'icons/src/btnSpinner.vue'
 
 import {
   onMounted,
@@ -162,7 +163,7 @@ import {
 
 export default defineComponent({
   name: 'TopSellers',
-  components: { DangLoader, UserIcon, ETHIcon, TokenIcon, FileDownloadIcon, InfoIcon, QuickSwapIcon },
+  components: { DangLoader, UserIcon, ETHIcon, TokenIcon, FileDownloadIcon, InfoIcon, QuickSwapIcon, BtnSpinner },
   props: {
     pageNum: {
       required: true,

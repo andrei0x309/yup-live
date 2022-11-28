@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   bundledWebRuntime: false,
   android: {
-    allowMixedContent: true,
+    overrideUserAgent: 'Mozilla/5.0 (Linux; Android 12; SM-A205U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.5304.141 Mobile Safari/537.36'
   },
   server: {
     androidScheme: 'https',
