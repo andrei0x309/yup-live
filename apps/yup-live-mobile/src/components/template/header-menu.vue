@@ -17,6 +17,9 @@
       </ion-list>
 
       <ion-list class="mt-2">
+        <ion-item @click="goTo('/tabs/search')" button>
+      <ion-icon :icon="searchOutline" class="w-5 mr-4" /> Search
+      </ion-item>
         <ion-item @click="goTo('/tabs/metrics')" button>
       <ion-icon :icon="podiumOutline" class="w-5 mr-4" /> General Metrics
       </ion-item>
@@ -34,7 +37,8 @@ import { defineComponent } from "vue";
 import { IonHeader, IonToolbar, IonMenu, IonTitle, IonContent, IonMenuToggle, IonIcon, IonItem, IonList, menuController } from "@ionic/vue";
 import {
 closeCircleOutline,
-podiumOutline
+podiumOutline,
+searchOutline
 } from "ionicons/icons";
 import { storage } from "@/utils/storage";
 import { useMainStore } from "@/store/main";
@@ -75,7 +79,7 @@ export default defineComponent({
       });
       await web3Modal.clearCachedProvider();
       window?.localStorage?.clear();
-      router.push('/connect')
+      router.replace('/')
       menuController.close('menu');
     }
 
@@ -88,7 +92,8 @@ export default defineComponent({
         closeCircleOutline,
         doLogOut,
         goTo,
-        podiumOutline
+        podiumOutline,
+        searchOutline
     };
   },
 });

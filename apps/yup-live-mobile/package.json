@@ -10,7 +10,9 @@
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
     "android": "ionic cap run android -l --external --host=4875.flashsoft.eu --port=4875 --livereload-url=https://4875.flashsoft.eu",
-    "android-build": "ionic capacitor build android"
+    "android-build": "ionic capacitor build android",
+    "android-res": "cordova-res android --skip-config --copy",
+    "upgrade": "yarn-upgrade-all"
   },
   "dependencies": {
     "@capacitor/android": "4.4.0",

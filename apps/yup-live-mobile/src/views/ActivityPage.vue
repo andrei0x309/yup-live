@@ -54,7 +54,7 @@
               :class="`btn`"
               :buttonType="'clear'"
               @click="curPage - 1 > 0 ? setCurentPage(curPage - 1) : null"
-              >⏴</ion-button
+              >&#8249;</ion-button
             >
           <div v-for="i in 5" :key="i" >
             <ion-button
@@ -68,7 +68,7 @@
               :class="`btn`"
               :buttonType="'clear'"
               @click="curPage + 1 > 5 ? null : setCurentPage(curPage + 1)"
-              >⏵</ion-button
+              >&#8250;</ion-button
             >
         </div>
       </div>
@@ -77,10 +77,7 @@
 </template>
 
 <script lang="ts">
-// import { useRoute, useRouter } from 'vue-router'
 import Thumbs from "components/vote-list/thumbs.vue";
-// import CatEmoji from '@/components/content/vote-list/category.vue'
-import DangLoader from "components/vote-list/loader.vue";
 import UserIcon from "icons/src/user.vue";
 import DateIcon from "icons/src/date.vue";
 import { useMainStore } from "@/store/main";
@@ -106,7 +103,7 @@ import {
   Ref,
 } from "vue";
 
-import { config } from "shared/dist/utils/config";
+import { config } from "shared/src/utils/config";
 const { API_BASE } = config;
 
 export default defineComponent({
@@ -303,22 +300,22 @@ export default defineComponent({
 .pag {
   justify-self: end;
   margin-top: 0.6rem;
+  width: 96vw;
 
   .btn {
-    padding: 0.2rem 0.4rem;
-    margin: 0.2rem;
+    padding: 0.2rem 0.3rem;
+    margin: 0.1rem;
     border-radius: 0.2rem;
-    background-color: #0202029a;
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
+    background-color: rgba(8, 8, 8, 0.6);
+    border-top: 1px solid rgb(153 131 17 / 79%);
+    border-bottom: 1px solid #a39d56;
   }
-
   .btn.active {
-    box-shadow: inset 0 0 0.5rem 0.2rem #bd9d0ea4;
+    box-shadow: inset 0 0 0.5rem 0.2rem rgb(189 154 14 / 27%);
   }
 
   .btn:hover {
-    box-shadow: inset 0 0 0.5rem 0.2rem #bd9d0ea4;
+    box-shadow: inset 0 0 0.5rem 0.2rem rgb(116 14 189 / 64%);
   }
 }
 

@@ -49,9 +49,9 @@ import FavIco from './favIco.vue'
 import ClockIcon from 'icons/src/clock.vue'
 import PostMenu from './menu/postMenu.vue'
 import { useMainStore } from '@/store/main'
-import { timeAgo } from 'shared/dist/utils/time'
-import { hasVote } from 'shared/dist/utils/requests/vote'
-import type { Vote } from 'shared/dist/types/vote'
+import { timeAgo } from 'shared/src/utils/time'
+import { hasVote } from 'shared/src/utils/requests/vote'
+import type { Vote } from 'shared/src/types/vote'
 import { chatbubble } from "ionicons/icons";
 
 export default defineComponent({
@@ -152,7 +152,7 @@ export default defineComponent({
       cloneWeights.negativeWeight = props.post.rawNegativeWeight ?? props.post.negativeWeight ?? 0
 
       postShareInfo.title = processedPost.title
-      postShareInfo.url = (window as unknown as { location: { origin: string } }).location.origin + '/post/' + processedPost.id
+      postShareInfo.url =  'https://yup-live.pages.dev/post/' + processedPost.id
       postShareInfo.text = processedPost.content
     }
 
@@ -281,12 +281,12 @@ html[class='dark'] {
 }
 
 .mtime {
-    background: radial-gradient(ellipse at bottom, rgb(28 28 28 / 31%) 0%, rgb(30 30 30 / 46%) 100%);
+    background: radial-gradient(ellipse at bottom, rgb(28 28 28) 0%, rgb(30 30 30 / 88%) 100%);
     box-shadow: 2px 0px 10px 3px rgb(0 0 0 / 16%);
-    width: 6.8rem;
-    padding: 0.05rem;
     justify-content: center;
     align-items: center;
+    color: #f0ffffd4;
+    padding: 0 0.5rem;
 }
 
 .colbutton {

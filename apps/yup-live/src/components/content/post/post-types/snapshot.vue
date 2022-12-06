@@ -53,10 +53,10 @@
 import { onMounted, defineComponent, Ref, ref } from 'vue'
 import ClockIcon from 'icons/src/clock.vue'
 import PoapIcon from 'icons/src/poap.vue'
-import { truncteEVMAddr } from 'shared/dist/utils/misc'
+import { truncteEVMAddr } from 'shared/src/utils/misc'
 import ImagePreview from '../imagePreview.vue'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
-import type { Web3PostPOAP, Web3POAPRaw } from 'shared/dist/types/web3/poap'
+import type { Web3PostPOAP, Web3POAPRaw } from 'shared/src/types/web3/poap'
 
 export default defineComponent({
   name: 'PostPOAP',

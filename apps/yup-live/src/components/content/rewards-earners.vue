@@ -154,7 +154,7 @@ import BtnSpinner from 'icons/src/btnSpinner.vue'
 import FileDownloadIcon from '@/components/content/icons/fileDownload.vue'
 import { useMainStore } from '@/store/main'
 import { gini, exportFile, convertToCSV } from '@/utils'
-import type { dComponent } from 'shared/dist/types/vue'
+import type { dComponent } from 'shared/src/types/vue'
 
 import {
   onMounted,

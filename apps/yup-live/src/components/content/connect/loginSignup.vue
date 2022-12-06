@@ -59,9 +59,9 @@ import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
 import Alert from 'components/functional/alert.vue'
 import { useMainStore } from '@/store/main'
-import { providerOptions } from 'shared/dist/utils/evm'
-import type { PartialAccountInfo } from 'shared/dist/types/account'
-import { onLogin, onSignup } from 'shared/dist/utils/login-signup'
+import { providerOptions } from 'shared/src/utils/evm'
+import type { PartialAccountInfo } from 'shared/src/types/account'
+import { onLogin, onSignup } from 'shared/src/utils/login-signup'
 
 export default defineComponent({
   name: 'LoginSignup',

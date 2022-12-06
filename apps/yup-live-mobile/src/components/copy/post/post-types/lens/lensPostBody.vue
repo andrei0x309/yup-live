@@ -14,10 +14,7 @@
         <span class="mainPost-70">@{{ mainPost.userHandle }} <VerifiedIcon v-if="mainPost.verified" class="verIcon" /></span>
       </div>
       <span class="inline-block mfavIco ml-auto">
-        <router-link v-if="postId" :to="`/post/${postId}`">
-          <LensIcon class="w-6 h-6 lensIcon" />
-        </router-link>
-        <LensIcon v-else class="w-6 h-6 lensIcon" />
+        <LensIcon class="w-6 h-6 lensIcon" />
       </span>
     </div>
     <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
@@ -44,14 +41,14 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import type { Web3PostLens } from 'shared/dist/types/web3/lens'
+import type { Web3PostLens } from 'shared/src/types/web3/lens'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
 import LensIcon from 'icons/src/lens.vue'
 import VideoPlayer from '@/components/copy/post/videoPlayer.vue'
 import ClockIcon from 'icons/src/clock.vue'
 import ImagePreview from '@/components/copy/post/imagePreview.vue'
 import VerifiedIcon from 'icons/src/verified.vue'
-import { parseIpfs } from 'shared/dist/utils/web3/ipfs'
+import { parseIpfs } from 'shared/src/utils/web3/ipfs'
 
 export default defineComponent({
   name: 'PostLensBody',

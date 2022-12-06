@@ -24,7 +24,9 @@
     "./src/**/*.tsx",
     "./src/**/*.vue",
     "./src/**/*.vue",
-    "../../packages/icons/src/**/*.vue"
+    "../../packages/icons/src/**/*.vue",
+    "../../packages/shared/src/**/*.vue",
+    "../../packages/components/**/*.vue"
   ],
   "exclude": ["node_modules", "dist", "build", "test", "example"],
   "references": [{ "path": "./tsconfig.node.json" }]

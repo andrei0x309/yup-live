@@ -85,23 +85,23 @@ import PostMenuIcon from 'icons/src/postMenuIcon.vue'
 import { useMainStore } from '@/store/main'
 // import DangLoader from 'components/vote-list/loader.vue'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
-import { timeAgo } from 'shared/dist/utils/time'
+import { timeAgo } from 'shared/src/utils/time'
 import { useRouter } from 'vue-router'
 // import RadarIcon from 'icons/src/radar.vue'
 // import ShareIcon from 'icons/src/share.vue'
 // import DeleteIcon from 'icons/src/delete.vue'
 // import GoToIcon from 'icons/src/goTo.vue'
 // import RetryIcon from 'icons/src/retry.vue'
-import { wait } from 'shared/dist/utils/time'
-import { fetchWAuth } from 'shared/dist/utils/auth'
+import { wait } from 'shared/src/utils/time'
+import { fetchWAuth } from 'shared/src/utils/auth'
 import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
-import type { PartialAccountInfo } from 'shared/dist/types/account'
-import type { Vote } from 'shared/dist/types/vote'
+import type { PartialAccountInfo } from 'shared/src/types/account'
+import type { Vote } from 'shared/src/types/vote'
 import { Share } from '@capacitor/share';
 
 import { trashBinOutline, shareOutline, arrowDownOutline, refreshOutline, exitOutline, eye  } from "ionicons/icons";
 
-import { config } from 'shared/dist/utils/config'
+import { config } from 'shared/src/utils/config'
 import BtnSpinner from 'icons/src/btnSpinner.vue';
 const { API_BASE } = config
 

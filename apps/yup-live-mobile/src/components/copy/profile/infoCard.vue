@@ -43,7 +43,7 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, PropType } from 'vue'
-import type { NameValue } from 'shared/dist/types/account'
+import type { NameValue } from 'shared/src/types/account'
 
 export default defineComponent({
   name: 'ProfileInfoCard',

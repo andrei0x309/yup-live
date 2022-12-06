@@ -53,7 +53,7 @@
                     </p>
                   </div>
                   <p class="ml-3 mt-3 flex items-center w-full">
-                    <b class="mr-2 opacity-60" style="writing-mode: vertical-rl; text-orientation: upright">URL</b
+                    <b class="mr-2 opacity-60" style="transform: rotate(90deg);width: 2.5rem;">URL</b
                     ><span style="font-size: 0.78rem"
                       ><router-link :to="`/tabs/post/${notification?.post?.postid}`">{{ notification?.post?.url }}</router-link></span
                     >
@@ -132,10 +132,10 @@ import {
 } from "@ionic/vue";
 import { defineComponent, ref, Ref, markRaw } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
-import { getNotifications } from "shared/dist/utils/notifications"
+import { getNotifications } from "shared/src/utils/notifications"
 import { useMainStore } from "@/store/main";
-import type { NotifType } from 'shared/dist/types/notification'
-import { timeAgo } from "shared/dist/utils/time"
+import type { NotifType } from 'shared/src/types/notification'
+import { timeAgo } from "shared/src/utils/time"
 import ThumbsDown from "icons/src/thumbsDown.vue"
 import ThumbsUp from "icons/src/thumbsUp.vue"
 import ClockIcon from "icons/src/clock.vue"

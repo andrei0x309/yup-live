@@ -131,7 +131,7 @@ const refWalletIcon = WalletIcon
 const POLY_RPC = import.meta.env.VITE_POLYGON_RPC
 const HISTORIC_REWARDS_ENDPOINT = 'https://yup-lp-historic-rewards.deno.dev'
 
-const providerOptionsProm = import('shared/dist/utils/evm')
+const providerOptionsProm = import('shared/src/utils/evm')
 const web3Mprom = import('web3modal')
 const ethers = import('ethers')
 

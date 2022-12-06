@@ -89,7 +89,7 @@ import { onMounted, defineComponent, ref, Ref } from 'vue'
 import DangLoader from 'components/vote-list/loader.vue'
 // import CustomButton from 'components/functional/customButton.vue'
 import { stackAlertError } from '@/store/alertStore'
-import { formatNumber } from 'shared/dist/utils/misc'
+import { formatNumber } from 'shared/src/utils/misc'
 import ImagePreview from '@/components/content/post/imagePreview.vue'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE

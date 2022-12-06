@@ -1,6 +1,6 @@
 <template>
   <div class="scroller">
-    <div ref="topHitbox" class="hit-box"></div>
+    <div v-if="topDetection" ref="topHitbox" class="hit-box"></div>
     <slot name="content"> </slot>
     <div ref="bottomHitbox" class="hit-box"></div>
   </div>
@@ -15,6 +15,11 @@ export default defineComponent({
     postLoaded: {
       required: true,
       type: Boolean
+    },
+    topDetection: {
+      required: false,
+      type: Boolean,
+      default: true
     }
   },
   setup(props, ctx) {
@@ -27,16 +32,15 @@ export default defineComponent({
 
     const up = () => {
       emit('hit', 'up')
-      console.log('up')
     }
 
     const down = () => {
       emit('hit', 'down')
-      console.log('down')
     }
 
     onMounted(() => {
       if (props.postLoaded) {
+        if(props.topDetection) {
         observerTop.value = new IntersectionObserver(
           ([entry]) => {
             if (entry && entry.isIntersecting) {
@@ -47,6 +51,7 @@ export default defineComponent({
         )
 
         observerTop.value.observe(topHitbox.value)
+      }
 
         observerBottom.value = new IntersectionObserver(
           ([entry]) => {
@@ -63,7 +68,9 @@ export default defineComponent({
 
     onBeforeUnmount(() => {
       if (props.postLoaded) {
-        observerTop.value.disconnect()
+        if(props.topDetection) {
+          observerTop.value.disconnect()
+        }
         observerBottom.value.disconnect()
       }
     })

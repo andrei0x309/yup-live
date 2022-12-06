@@ -31,13 +31,13 @@
 import { onMounted, defineComponent, ref, Ref, PropType } from 'vue'
 import ThumbsUp from 'icons/src/thumbsUp.vue'
 import ThumbsDown from 'icons/src/thumbsDown.vue'
-import { formatNumber } from 'shared/dist/utils/misc'
-import { useMainStore, openConnectModal } from '@/store/main'
-import { fetchWAuth } from 'shared/dist/utils/auth'
-import type { Vote } from 'shared/dist/types/vote'
+import { formatNumber } from 'shared/src/utils/misc'
+import { useMainStore } from '@/store/main'
+import { fetchWAuth } from 'shared/src/utils/auth'
+import type { Vote } from 'shared/src/types/vote'
 import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
 
-import { config } from 'shared/dist/utils/config'
+import { config } from 'shared/src/utils/config'
 const { API_BASE } = config
 
 export default defineComponent({
@@ -129,10 +129,6 @@ export default defineComponent({
     }
 
     const doVote = (voteType: boolean) => {
-      if (!isAuth.value) {
-        openConnectModal(store)
-        return
-      }
       if (timer && !doingVote.value) {
         clearTimeout(timer)
       }

@@ -28,12 +28,6 @@
                 :key="(post  as Record<string, any>)._id.postid"
                 :post="(post as Record<string, any>)"
                 :postTypesPromises="postTypesPromises"
-                :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
-                @updatepostinfo="
-                  (postid: string) => {
-                    postInfo = posts.find((p: any): boolean => postid === p._id.postid)
-                  }
-                "
               />
               <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
             </div>
@@ -63,12 +57,12 @@ onIonViewWillEnter
 } from "@ionic/vue";
 import { defineComponent, ref, Ref } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
-import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
 import { postTypesPromises } from '@/components/copy/post/post-types'
 import Post from '@/components/copy/post/post.vue'
+import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
 import LineLoader from 'components/functional/lineLoader.vue'
 
-import { config } from 'shared/dist/utils/config'
+import { config } from 'shared/src/utils/config'
 const { API_BASE } = config
 const FEED_APIS = `${API_BASE}/feed`
 

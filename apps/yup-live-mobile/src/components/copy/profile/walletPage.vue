@@ -118,12 +118,12 @@ import { onMounted, defineComponent, ref, Ref, reactive } from 'vue'
 import DangLoader from 'components/vote-list/loader.vue'
 import CustomButton from 'components/functional/customButton.vue'
 import { stackAlertError } from '@/store/alertStore'
-import { formatNumber } from 'shared/dist/utils/misc'
+import { formatNumber } from 'shared/src/utils/misc'
 import ImagePreview from '@/components/copy/post/imagePreview.vue'
 import { IonSegment, IonSegmentButton, IonLabel } from '@ionic/vue'
 import AddIcon from 'icons/src/add.vue'
 
-import { config } from 'shared/dist/utils/config'
+import { config } from 'shared/src/utils/config'
 const { API_BASE } = config
 // CustomButton
 

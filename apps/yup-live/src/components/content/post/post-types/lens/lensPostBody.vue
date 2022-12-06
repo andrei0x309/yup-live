@@ -44,7 +44,7 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, PropType } from 'vue'
-import type { Web3PostLens } from 'shared/dist/types/web3/lens'
+import type { Web3PostLens } from 'shared/src/types/web3/lens'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
 import LensIcon from 'icons/src/lens.vue'
 import VideoPlayer from '@/components/content/post/videoPlayer.vue'

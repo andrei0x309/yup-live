@@ -8,10 +8,18 @@
   <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto mb-8">
     <div class="bg-color flex flex-col">
       <template v-if="!apiError">
+    <ion-refresher  slot="fixed" :pull-factor="0.5" :pull-min="100" :pull-max="200" @ionRefresh="handleRefresh($event)">
+      <ion-refresher-content pulling-text="Refershing..."></ion-refresher-content>
+    </ion-refresher>
       <div class="profile w-full mb-4 flex flex-row">
         <DangLoader v-if="isLoadingUser" class="mt-28" :unset="true" />
         <template v-else>
-          <ProfileCard :userData="userData" />
+          <ProfileCard :userData="userData">
+          <template #settings>
+            <ion-icon :icon="settingsOutline" @click="openSettings" button class="settingsIcon" />
+          </template>
+          </ProfileCard>
+          
           <!-- <ProfileInfoCard class="mt-8" :bio="userData.bio" :fields="userFields" /> -->
         </template>
       </div>
@@ -40,7 +48,8 @@
           </div>
         </div>
       </div>
-      <ion-list style="position: sticky;top: 0;z-index: 2;">
+    </div>
+    <ion-list style="position: sticky;top: 0;z-index: 2;">
     <ion-item>
       <ion-select v-model="currentAccountPage" @ionChange="accountPageChange" style="margin:auto;" interface="action-sheet" placeholder="Select Feed">
         <ion-select-option :value="accountPages[0]">Likes Feed</ion-select-option>
@@ -49,7 +58,6 @@
       </ion-select>
     </ion-item>
   </ion-list>
-    </div>
     <div v-if="!apiError" class="bg-color table-list profile w-full mb-4 flex flex-col">
       <template v-if="[accountPages[0], accountPages[1]].includes(currentAccountPage) && !postLoaded">
         <p class="text-center m-4">Loading user feed</p>
@@ -60,6 +68,7 @@
         :key="`${postLoaded}-loaded`"
         :postLoaded="postLoaded"
         @hit="onHit"
+        :top-detection="false"
       >
         <template #content>
           <div v-if="posts.length > 0" class="flex flex-row mx-auto">
@@ -70,25 +79,18 @@
                 :key="(post  as Record<string, any>)._id.postid"
                 :post="(post as Record<string, any>)"
                 :postTypesPromises="postTypesPromises"
-                :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
-                @updatepostinfo="
-                  (postid: string) => {
-                    postInfo = posts.find((p: any): boolean => postid === p._id.postid)
-                  }
-                "
               />
               <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
             </div>
           </div>
-          <!-- <div v-else>
-            <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
-            <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
-          </div> -->
+          <div v-else>
+            <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :( </h2>
+          </div>
         </template>
       </InfScroll>
       <WalletPage
         v-else-if="accountPages[2] ===currentAccountPage"
-        :key="userData.evmAddress"
+        :key="`${userData.evmAddress}${walletKeyRefresh}`"
         :accountId="userId"
         :accountEVMAddr="userData.evmAddress"
       />
@@ -152,7 +154,12 @@ import {
   IonSelect,
   IonSelectOption,
   IonItem,
-    IonList
+  IonList,
+  onIonViewWillLeave,
+  IonRefresher,
+  IonRefresherContent,
+  IonIcon,
+  modalController
 } from "@ionic/vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 
@@ -164,21 +171,24 @@ import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
 import { useMainStore } from '@/store/main'
 import { useRoute } from 'vue-router'
 import Post from '@/components/copy/post/post.vue'
-import { wait } from 'shared/dist/utils/time'
+import { wait } from 'shared/src/utils/time'
 import { postTypesPromises } from '@/components/copy/post/post-types'
 import LineLoader from 'components/functional/lineLoader.vue'
-import { getUserFollowers, createActionUsage, createUserData } from 'shared/dist/utils/requests/accounts'
+import { getUserFollowers, createActionUsage, createUserData } from 'shared/src/utils/requests/accounts'
 import WalletPage from '@/components/copy/profile/walletPage.vue'
+import { settingsOutline } from "ionicons/icons";
+import SettingsModal from '@/views/SettingsModal.vue'
+
 
 // import PostInfo from '@/components/content/post/postInfo.vue'
 // import { useCollectionStore, useCollectionStoreEx, getCollections } from '@/store/collections'
 // import CollectionsPage from '@/components/content/profile/collectionsPage.vue'
 // import ProfileMenu from '@/components/content/profile/menu.vue'
-// import type { NameValue } from 'shared/dist/types/account'
-// import type { ICollection } from 'shared/dist/types/store'
+// import type { NameValue } from 'shared/src/types/account'
+// import type { ICollection } from 'shared/src/types/store'
 // import FollowersPage from '@/components/content/profile/followersPage.vue'
 
-import { config } from 'shared/dist/utils/config'
+import { config } from 'shared/src/utils/config'
 const { API_BASE } = config
 
 export default defineComponent({
@@ -201,7 +211,10 @@ export default defineComponent({
     IonSelect,
     IonSelectOption,
     IonItem,
-    IonList
+    IonList,
+    IonRefresher,
+    IonRefresherContent,
+    IonIcon
   },
   setup() {
     const route = useRoute()
@@ -238,6 +251,8 @@ export default defineComponent({
     const postInfo = ref(null) as Ref<unknown>
     const followers = ref([]) as Ref<string[]>
     const isAuth = ref(store.isLoggedIn)
+    let LoadTimeout = 0
+    const walletKeyRefresh = ref(0)
 
     const userData = ref({
       _id: '',
@@ -319,16 +334,6 @@ export default defineComponent({
 
     let getFeedPosts = getHomeFeedPosts
 
-    const scrollIntoView = (id: string) => {
-      const el = document.getElementById(id)
-      console.log(el)
-      if (el) {
-        setTimeout(() => {
-          el.scrollIntoView({ behavior: 'smooth' })
-        }, 100)
-      }
-    }
-
     const onHit = async (type: string) => {
       feedLoading.value = true
       if (type === 'up' && posts.value.length <= 30) {
@@ -337,11 +342,6 @@ export default defineComponent({
         postsIndex.value -= 10
         const newPosts = await getFeedPosts(postsIndex.value - 30)
         posts.value = [...newPosts, ...posts.value.slice(-30)]
-        try {
-          scrollIntoView((posts.value[20] as Record<string, { postid: string }>)?._id?.postid)
-        } catch (error) {
-          console.log(error)
-        }
       } else if (type === 'down' && posts.value.length <= 30) {
         postsIndex.value += 10
         const newPosts = await getFeedPosts(postsIndex.value)
@@ -354,9 +354,12 @@ export default defineComponent({
       feedLoading.value = false
     }
 
-    const resetPosts = async () => {
-      posts.value = []
-      postLoaded.value = false
+    const resetPosts = async (noLoading = false) => {
+      if(noLoading) {
+        postLoaded.value = false
+      } else {
+        postLoaded.value = true
+      }
       getFeedPosts().then((res) => {
         posts.value = res
         if (!postInfo.value) {
@@ -394,7 +397,7 @@ export default defineComponent({
     //   }
     // })
 
-    onIonViewDidEnter(async () => {
+    const userLoad = (noLoading = false) => {
       userId.value = route.params.userId as string ?? store.userData.account as string
       createUserData(userId.value, true).then((uD) => {
         if (uD.error) {
@@ -416,18 +419,12 @@ export default defineComponent({
           console.error(r.msg)
         }
       })
-
-      // if (userId !== store.userData.account) {
-      //   collectionsEx.collectionsPromise = getCollections(collectionsEx, userData.value._id as string, true) as Promise<ICollection[]>
-      // } else {
-      //   collections.collectionsPromise = getCollections(collections, userData.value._id as string) as Promise<ICollection[]>
-      // }
       if (currentAccountPage.value === 'feed') {
         getFeedPosts = getHomeFeedPosts
       } else if (currentAccountPage.value === 'none') {
         // getFeedPosts = getCreatedFeedPosts
       }
-      resetPosts().then(async () => {
+      resetPosts(noLoading).then(async () => {
         if (posts.value.length < 1) {
           // catComp.value = (await import('@/components/content/icons/catEmpty.vue')).default
         }
@@ -435,7 +432,13 @@ export default defineComponent({
 
         isLoadingUser.value = false
       })
+    }
+
+    onIonViewDidEnter(async () => {
+      userLoad()
     })
+
+    onIonViewWillLeave( () => clearTimeout(LoadTimeout))
 
     const accountPageChange = async (event?: any) => {
       if(currentAccountPage.value === accountPages[0]) {
@@ -454,6 +457,32 @@ export default defineComponent({
       console.log(currentAccountPage)
 
     }
+  
+
+    const handleRefresh = async (event: any) => {
+      if([accountPages[0], accountPages[1]].includes(currentAccountPage.value)){
+        postLoaded.value = false
+        postsIndex.value = 0
+        posts.value = await getFeedPosts(postsIndex.value)
+        postLoaded.value = true
+      } else if (currentAccountPage.value === accountPages[2]) {
+        walletKeyRefresh.value++
+      }
+      event.target.complete()
+    }
+
+    const openSettings = async () => {
+      const modal = await modalController.create({
+        component: SettingsModal,
+        componentProps: {
+          userData: userData.value,
+        },
+      });
+      modal.present();
+      const { role } = await modal.onWillDismiss();
+      if (role === "confirm") return true;
+      return false;
+    };
     
     onUnmounted(() => {
       // do nothing
@@ -485,7 +514,11 @@ export default defineComponent({
       catComp,
       isAuth,
       accountPageChange,
-      accountPages
+      accountPages,
+      walletKeyRefresh,
+      handleRefresh,
+      settingsOutline,
+      openSettings
     }
   }
 })
@@ -494,5 +527,13 @@ export default defineComponent({
 <style lang="scss">
 .profile {
   justify-content: space-evenly;
+
+  .settingsIcon {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    font-size: 1.4rem;
+  }
+
 }
 </style>

@@ -48,10 +48,10 @@ import ClockIcon from 'icons/src/clock.vue'
 import PostMenu from './menu/postMenu.vue'
 import CollectMenu from './menu/collectMenu.vue'
 import { useMainStore } from '@/store/main'
-import { timeAgo } from 'shared/dist/utils/time'
+import { timeAgo } from 'shared/src/utils/time'
 import InfoIcon from 'icons/src/infoIcon.vue'
-import { hasVote } from 'shared/dist/utils/requests/vote'
-import type { Vote } from 'shared/dist/types/vote'
+import { hasVote } from 'shared/src/utils/requests/vote'
+import type { Vote } from 'shared/src/types/vote'
 
 export default defineComponent({
   name: 'Post',

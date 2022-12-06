@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { IMainStore } from 'shared/dist/types/store'
 
 const useMainStore = defineStore('main', {
     state: () => {
@@ -21,24 +20,17 @@ const useMainStore = defineStore('main', {
     }
 })
 
-const useGraphStore = defineStore('graph', {
+const useSettingsStore = defineStore('setiings', {
     state: () => {
         return {
-            data: []
+            personalizedFeeds: false,
+            accountTracking: false
         } as {
-            data: unknown[]
+            personalizedFeeds: boolean
+            accountTracking: boolean
         }
     }
 })
 
-const openConnectModal = (state: IMainStore, modalLoginState = true) => {
-    state.openConnectModal = true
-    state.modalLoginState = modalLoginState
-}
 
-const closeConnectModal = (state: IMainStore) => {
-    state.openConnectModal = false
-    state.modalLoginState = true
-}
-
-export { useMainStore, useGraphStore, openConnectModal, closeConnectModal }
+export { useMainStore, useSettingsStore }

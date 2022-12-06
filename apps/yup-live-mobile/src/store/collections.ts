@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { ICollectionStore } from 'shared/dist/types/store'
-import { config } from 'shared/dist/utils/config'
+import { ICollectionStore } from 'shared/src/types/store'
+import { config } from 'shared/src/utils/config'
 const { API_BASE } = config
 
 const useCollectionStore = defineStore('collections', {

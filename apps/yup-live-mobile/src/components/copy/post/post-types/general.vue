@@ -7,9 +7,6 @@
       </p>
     </span>
     <span class="inline-block mfavIco">
-      <router-link v-if="post.id" :to="`/post/${post.id}`">
-        <FavIco :key="post.url" :link="post.url" />
-      </router-link>
       <FavIco :key="post.url" :link="post.url" />
     </span>
   </div>
@@ -17,8 +14,7 @@
   <ImagePreview v-else :key="post.image" :source="post.image" imgClass="min-w-60" />
   <div class="py-2 px-4" style="margin: 0.9rem 1rem 1rem 1rem; font-size: 1.1rem">
     <h1 class="text-xl font-medium leading-6 tracking-wide text-gray-300 hover:text-blue-500 cursor-pointer">
-      <router-link v-if="!full" :to="`/post/${post.id}`">{{ post.title }}</router-link>
-      <template v-else>{{ post.title }}</template>
+      {{ post.title }}
     </h1>
   </div>
   <div class="px-4 space-y-2" style="font-size: 0.9rem">

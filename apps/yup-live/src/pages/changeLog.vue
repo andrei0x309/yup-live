@@ -51,6 +51,24 @@ export default defineComponent({
 
     const changes = [
     {
+      date: '1 DEC - 6 DEC 2022',
+      title: 'Changes',
+      changes: [
+      'changed mobile navigation structure',
+      'better support for hardware back button',
+      'minimize app on navigation back end', 
+      'added account settings page with edit / delete account',
+      'added search page',
+      'added info page on login/signup',
+      'better handle wallet connection issues',
+      'themed connection modal', 
+      'rf a bit the alert stack notifications still need some work',
+      'added pull to refresh on account page',
+      'unified and change splash screen for all android versions'
+    ],
+      milestone: true
+    },
+    {
         date: '27 NOV 2022',
         title: 'Changes',
         changes: [

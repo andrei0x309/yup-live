@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { AlertInfo } from 'shared/dist/types/common'
+import { AlertInfo } from 'shared/src/types/common'
 
 const useAlertStack = defineStore('alertStack', {
   state: () => {
@@ -15,7 +15,8 @@ let alertStack: AlertStorType
 
 const stackAlert = ({ message, type }: { message: string; type: string }) => {
   if (alertStack) {
-    alertStack.alertStack.push({ message, type })
+    const id = crypto.randomUUID()
+    alertStack.alertStack.push({ message, type, id })
   }
 }
 

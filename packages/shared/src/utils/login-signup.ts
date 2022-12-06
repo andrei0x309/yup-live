@@ -9,7 +9,16 @@ export const web3ModalInstantiate = async (
 ) => {
     try {
         if (web3M) {
+            await web3M.value.clearCachedProvider();
             return await web3M.value.connect()
+        } else {
+            if (loadState && setAlert) {
+                loadState('end')
+                setAlert({
+                    type: 'error',
+                    message: 'Web3 Instance is null.'
+                })
+            }
         }
     } catch (error) {
         if (loadState && setAlert) {
@@ -110,11 +119,12 @@ const getAccount = async ({
 }
 
 const signChallenge = async ({
-    address, signer, loadState = null, setAlert = null
+    address, signer, loadState = null, setAlert = null, web3M = null
 }: {
     address: string, signer: providers.JsonRpcSigner,
     loadState: null | Function
     setAlert: null | Function
+        web3M: null | Ref<any>
 }) => {
     const req = await fetch(`${API_BASE}/v1/eth/challenge?address=${address}`, {
         headers: {
@@ -124,8 +134,22 @@ const signChallenge = async ({
     const res = await req.json()
     const challenge = res.data
     let signature
+    const timeout = new Promise((resolve) => setTimeout(() => resolve(0), 15000))
     try {
-        signature = await signer.signMessage(challenge)
+        [signature] = await Promise.all([signer.signMessage(challenge), timeout])
+        if (!signature) {
+            if (loadState && setAlert) {
+                loadState('end')
+                setAlert({
+                    type: 'error',
+                    message: 'Wallet did not respond in 15s, please change IP and try again.'
+                })
+                if (web3M) {
+                    await web3M.value.clearCachedProvider();
+                }
+            }
+            return
+        }
     } catch (error) {
         if (loadState && setAlert) {
             loadState('end')
@@ -234,7 +258,7 @@ export const onSignup = async (
         const address = await signer.getAddress()
         const account = await getAccount({ address, type: 'signup', loadState, setAlert })
         if (!account) return
-        const signature = await signChallenge({ address, signer, loadState, setAlert })
+        const signature = await signChallenge({ address, signer, loadState, setAlert, web3M })
         if (!signature) return
         const accountSignUp = await createAccount({ address, signature, username: username, loadState, setAlert })
         if (!accountSignUp) return
@@ -296,7 +320,7 @@ export const onLogin = async ({
         const address = await signer.getAddress()
         const account = await getAccount({ address, type: 'login', loadState, setAlert })
         if (!account) return
-        const signature = await signChallenge({ address, signer, loadState, setAlert })
+        const signature = await signChallenge({ address, signer, loadState, setAlert, web3M })
         if (!signature) return
         const accountLogIn = await logIn({ address, signature, loadState, setAlert })
         if (!accountLogIn) return

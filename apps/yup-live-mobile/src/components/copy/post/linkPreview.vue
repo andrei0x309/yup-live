@@ -12,7 +12,7 @@
 <script lang="ts">
 import { onMounted, defineComponent, PropType } from 'vue'
 import ImagePreview from './imagePreview.vue'
-import type { OpenGraphPreview } from 'shared/dist/types/post'
+import type { OpenGraphPreview } from 'shared/src/types/post'
 
 export default defineComponent({
   name: 'LinkPreview',

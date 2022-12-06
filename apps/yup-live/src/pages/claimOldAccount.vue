@@ -173,10 +173,10 @@ import DangLoader from "components/vote-list/loader.vue";
 import EOSIcon from "@/components/content/icons/eos.vue";
 import TwitterIcon from "icons/src/twitter.vue";
 import { useMainStore } from "@/store/main";
-import { wait } from "shared/dist/utils/time";
+import { wait } from "shared/src/utils/time";
 import { useRoute } from 'vue-router'
 
-const providerOptionsProm = import("shared/dist/utils/evm");
+const providerOptionsProm = import("shared/src/utils/evm");
 const web3Mprom = import("web3modal");
 const ethers = import("ethers");
 

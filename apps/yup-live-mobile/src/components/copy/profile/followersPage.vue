@@ -19,8 +19,8 @@
 import { onMounted, defineComponent, ref, Ref } from 'vue'
 import ProfileCard from './profileCard.vue'
 import DangLoader from 'components/vote-list/loader.vue'
-import { createUserData, createActionUsage, getUserFollowers } from 'shared/dist/utils/requests/accounts'
-import type { IUserData } from 'shared/dist/types/account'
+import { createUserData, createActionUsage, getUserFollowers } from 'shared/src/utils/requests/accounts'
+import type { IUserData } from 'shared/src/types/account'
 
 export default defineComponent({
   name: 'CollectionsPage',

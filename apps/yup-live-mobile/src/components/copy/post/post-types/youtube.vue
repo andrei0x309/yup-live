@@ -1,4 +1,5 @@
 <template>
+  <div>
   <BtnSpinner v-if="loading" />
   <iframe
     class="w-full min-h-60"
@@ -27,6 +28,7 @@
       {{ post.content }}
     </p>
   </div>
+</div>
 </template>
 
 <script lang="ts">

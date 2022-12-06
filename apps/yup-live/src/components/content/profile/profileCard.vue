@@ -46,8 +46,8 @@ import { onMounted, defineComponent, ref, PropType } from 'vue'
 import ProfileUseBar from '@/components/content/profile/useBar.vue'
 import FollowersIcon from '@/components/content/icons/followers.vue'
 import AddFollow from '@/components/content/icons/addFollow.vue'
-import { makeRandAvatar } from 'shared/dist/utils/accounts'
-import type { NameValue } from 'shared/dist/types/account'
+import { makeRandAvatar } from 'shared/src/utils/accounts'
+import type { NameValue } from 'shared/src/types/account'
 
 export default defineComponent({
   name: 'PostInfo',

@@ -1,36 +1,47 @@
 <template>
   <ion-app>
+  <ion-page>
     <ion-router-outlet />
 
     <ion-toast
       :is-open="toastState"
       @didDismiss="toastState = false"
+      :key="toastMsg"
       :message="toastMsg"
       :duration="4550"
     ></ion-toast>
+    <ion-loading
+        :is-open="loading"
+        message="Please wait..."
+        :duration="5000"
+      >
+      </ion-loading>
+    </ion-page>
   </ion-app>
 </template>
 
 <script lang="ts">
-import { config } from "shared/dist/utils/config";
+import { config } from "shared/src/utils/config";
 config.setConfig({ API_BASE: "https://api.yup.io", POLY_RPC: "https://polygon-rpc.com" });
 import {
   IonApp,
   IonRouterOutlet,
   actionSheetController,
   IonToast,
-  useBackButton,
+  IonPage,
+  toastController,
+  IonLoading
 } from "@ionic/vue";
-import { defineComponent, ref, onBeforeMount } from "vue";
+import { defineComponent, ref, onBeforeMount, onBeforeUnmount } from "vue";
 import { useMainStore } from "@/store/main";
 import { storage } from "@/utils/storage";
 import { useRouter } from "vue-router";
 import { SendIntent } from "send-intent";
 import { arrowDownOutline, thumbsUpOutline, thumbsDownOutline } from "ionicons/icons";
-import { App } from "@capacitor/app";
 import { Capacitor } from '@capacitor/core';
-import { fetchWAuth } from "shared/dist/utils/auth";
-import { wait } from "shared/dist/utils/time";
+import { fetchWAuth } from "shared/src/utils/auth";
+import { wait } from "shared/src/utils/time";
+import { App } from "@capacitor/app";
 
 const { API_BASE } = config;
 
@@ -40,23 +51,30 @@ export default defineComponent({
     IonApp,
     IonRouterOutlet,
     IonToast,
+    IonLoading,
+    IonPage
   },
   setup() {
     const store = useMainStore();
     const router = useRouter();
     const toastState = ref(false);
     const toastMsg = ref("");
+    const loading = ref(false)
 
     const openToast = (msg: string) => {
       toastState.value = true;
       toastMsg.value = msg;
     };
 
-    useBackButton(-1, () => {
-      if (router.currentRoute.value.path === "/connect") {
-        App.minimizeApp();
-      }
-    });
+
+    App.addListener('backButton', (r) => {
+       if(!r.canGoBack) {
+        App.minimizeApp()
+       } else if (router.currentRoute.value.path === '/connect' && router.currentRoute.value.redirectedFrom?.path === '/tabs/feeds' && store.isLoggedIn){
+          router.replace('/tabs/feeds')
+          App.minimizeApp()
+       }
+    })
 
     const executeVote = async (like: boolean, url: string) => {
       const body = {} as Record<string, unknown>;
@@ -70,15 +88,17 @@ export default defineComponent({
         body: JSON.stringify(body),
       });
       if (req.ok) {
-        toastState.value = false
+        await toastController.dismiss()
         openToast("Vote sent, you'll be redirected back after 3 seconds")
         await wait(3000);
       } else {
         const err = await req.text();
         if (err.includes("limit")) {
-          openToast("Voting limit reached, you'll be redirected back after 3 seconds");
+          await toastController.dismiss()
+          openToast("Voting limit reached, you'll be redirected back after 3 seconds")
           await wait(3000);
         } else {
+          await toastController.dismiss()
           openToast(
             "Vote not submitted due to error try to re-login, you'll be redirected back after 3 seconds!"
           );
@@ -87,6 +107,10 @@ export default defineComponent({
         return null;
       }
     };
+
+    onBeforeUnmount(() => {
+      loading.value = false;
+    })
 
     const presentActionSheet = async (url: string) => {
       const urlSub = url.length > 15 ? url.substring(0, 15) + '..."' : url;
@@ -170,27 +194,28 @@ export default defineComponent({
           );
           SendIntent.finish()
         }
-        // SendIntent.finish();
+      }).catch(() => {
+        // ignore
       })
-      .catch(() => SendIntent.finish());
     }
 
     onBeforeMount(async () => {
+      loading.value = true;
       if (!store.isLoggedIn) {
         const authInfo = await storage.get("authInfo");
         if (authInfo) {
           store.userData = JSON.parse(authInfo);
           store.isLoggedIn = true;
-          router.push("/tabs/feeds");
-        } else {
-          router.push("/connect");
+          router.replace("/tabs/feeds");
         }
       }
+      loading.value = false;
     });
 
     return {
       toastState,
       toastMsg,
+      loading
     };
   },
 });
@@ -281,6 +306,16 @@ body.dark {
   }
   100% {
     opacity: 0.1;
+  }
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 

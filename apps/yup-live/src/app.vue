@@ -15,10 +15,10 @@ import { getThemeMode } from './utils'
 import { onBeforeMount } from 'vue'
 import { useMainStore } from '@/store/main'
 import { useCollectionStore, getCollections } from './store/collections'
-import type { ICollection } from 'shared/dist/types/store'
+import type { ICollection } from 'shared/src/types/store'
 import { useRoute } from 'vue-router'
 import AlertStack from 'components/functional/alertStack.vue'
-import { deleteMeta } from 'shared/dist/utils/head'
+import { deleteMeta } from 'shared/src/utils/head'
 import { setAlertStack, useAlertStack } from '@/store/alertStore'
 
 export default defineComponent({

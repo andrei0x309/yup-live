@@ -36,7 +36,7 @@ import Post from "@/components/copy/post/post.vue";
 import { postTypesPromises } from "@/components/copy/post/post-types";
 import HeaderBar from "@/components/template/header-bar.vue";
 
-import { config } from "shared/dist/utils/config";
+import { config } from "shared/src/utils/config";
 const { API_BASE } = config;
 
 export default defineComponent({

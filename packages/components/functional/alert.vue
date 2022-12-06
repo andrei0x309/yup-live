@@ -26,10 +26,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 
 export default defineComponent({
   name: 'Alert',
+  emits: ['close'],
   props: {
     hidden: {
       type: Boolean,
@@ -50,6 +51,16 @@ export default defineComponent({
       type: String,
       required: false,
       default: 'success'
+    },
+    timeout: {
+      type: Number,
+      required: false,
+      default: 4500
+    }, 
+    id: {
+      type: String,
+      required: false,
+      default: ''
     }
   },
   setup(props, ctx) {
@@ -57,8 +68,9 @@ export default defineComponent({
     const titleLocal = ref(props.title)
     const messageLocal = ref(props.message)
     const typeLocal = ref(props.type)
-
+ 
     const close = () => {
+      ctx.emit('close', props.id)
       hiddenLocal.value = true
     }
 
@@ -82,6 +94,12 @@ export default defineComponent({
       showMsg('Success', success)
       typeLocal.value = 'success'
     }
+
+    onMounted(() => {
+      setTimeout(() => {
+        close()
+      }, props.timeout)
+    }),
 
     ctx.expose({
       close,
@@ -120,5 +138,6 @@ export default defineComponent({
   margin-top: 2rem;
   background-color: var(--glass-menu-bg);
   color: var(--glassTxt);
+  backdrop-filter: brightness(.4);
 }
 </style>

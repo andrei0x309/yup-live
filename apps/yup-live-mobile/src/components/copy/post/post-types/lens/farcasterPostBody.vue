@@ -17,10 +17,7 @@
         /></span>
       </div>
       <span v-if="!isCom" class="inline-block mfavIco ml-auto">
-        <router-link v-if="postId" :to="`/post/${postId}`">
-          <FarcasterIcon class="w-5 h-5" />
-        </router-link>
-        <FarcasterIcon v-else class="w-5 h-5" />
+        <FarcasterIcon class="w-5 h-5" />
       </span>
       <span v-else class="inline-block ml-auto"><FarcasterIcon class="w-3 h-3" /></span>
     </div>
@@ -55,7 +52,7 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, PropType } from "vue";
-import type { Web3PostFarcaster } from "shared/dist/types/web3/farcaster";
+import type { Web3PostFarcaster } from "shared/src/types/web3/farcaster";
 import AvatarBtn from "components/functional/avatarBtn.vue";
 import VideoPlayer from "@/components/copy/post/videoPlayer.vue";
 import FarcasterIcon from "icons/src/farcaster.vue";

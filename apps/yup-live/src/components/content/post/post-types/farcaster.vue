@@ -18,11 +18,11 @@
 // threads/0xb3ecd2e9367c5ada51eed6999d8a41454ad1bbf526b3a8637135c5478aed1327?viewer_address=0xe68C06cf27dFEE5bD440A47b3CE4b3Cd96627Bd8&include_deleted_casts=true&version=2
 // import { useMainStore } from '@/store/main'
 import { onMounted, defineComponent, ref, Ref } from 'vue'
-import { isImage } from 'shared/dist/utils/misc'
-import { timeAgo } from 'shared/dist/utils/time'
-import type { mediaType } from 'shared/dist/types/post'
-import type { Web3Media } from 'shared/dist/types/web3/media'
-import type { Web3PostFarcaster, Web3FarcasterRaw, Web3FarcasterRawReply } from 'shared/dist/types/web3/farcaster'
+import { isImage } from 'shared/src/utils/misc'
+import { timeAgo } from 'shared/src/utils/time'
+import type { mediaType } from 'shared/src/types/post'
+import type { Web3Media } from 'shared/src/types/web3/media'
+import type { Web3PostFarcaster, Web3FarcasterRaw, Web3FarcasterRawReply } from 'shared/src/types/web3/farcaster'
 import FarcasterPostBody from '@/components/content/post/post-types/lens/farcasterPostBody.vue'
 
 const FARCASTER_INDEXER_THREADS = `https://yup-farcaster-thread.deno.dev/`

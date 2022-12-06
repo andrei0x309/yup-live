@@ -6,8 +6,7 @@
     </div>
     <div class="py-2 px-4" style="margin: 0.9rem 1rem 1rem 1rem; font-size: 1.1rem">
       <h1 class="text-xl font-medium leading-6 tracking-wide text-gray-300 hover:text-blue-500 cursor-pointer">
-        <router-link v-if="!full" :to="`/post/${post.id}`">{{ mirrorPost.title }}</router-link>
-        <template v-else>{{ mirrorPost.title }}</template>
+        {{ mirrorPost.title }}
       </h1>
       <span class="text-[0.7rem] opacity-70 text-center block-inline w-full mt-4">Author: {{ mirrorPost.author }}</span>
     </div>
@@ -58,7 +57,7 @@ export default defineComponent({
 
     onMounted(() => {
       console.log(props.full, 'IS FULL PROP')
-      const dom = new DOMParser().parseFromString(snarkdown(props.post.web3Preview.content.replace(/\\/gi, '')), 'text/html')
+      const dom = new DOMParser().parseFromString(snarkdown((props.post?.web3Preview?.content ?? '').replace(/\\/gi, '')), 'text/html')
       const html = dom.querySelector('body')?.innerHTML ?? ''
 
       mirrorPost.value.content = props.full ? html : clip(html, 240, { html: true, maxLines: 5 })

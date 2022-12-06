@@ -1,20 +1,11 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
-import LoadingPage from '@/views/LoadingPage.vue'
 import ConnectPage from '@/views/ConnectPage.vue'
 import BottomNavigation from '@/components/template/bottom-navigation.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/loading'
-  },
-  {
-    path: '/loading',
-    component: LoadingPage
-  },
-  {
-    path: '/connect',
     component: ConnectPage
   },
   {
@@ -52,7 +43,11 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'live',
         component: () => import('@/views/ActivityPage.vue')
-      }
+      },
+      {
+        path: 'search',
+        component: () => import('@/views/SearchPage.vue')
+      },
     ],
   },
   // {
@@ -74,5 +69,12 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+
+// useBackButton(99, () => {
+//   if (router.can === '/') {
+//     CapApp.minimizeApp()
+//   }
+// })
+
 
 export default router

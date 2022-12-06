@@ -1,4 +1,4 @@
-import { config } from 'shared/dist/utils/config'
+import { config } from 'shared/src/utils/config'
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
 const POLY_RPC = import.meta.env.VITE_POLYGON_RPC
 config.setConfig({ API_BASE, POLY_RPC })

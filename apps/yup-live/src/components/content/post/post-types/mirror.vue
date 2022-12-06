@@ -58,7 +58,7 @@ export default defineComponent({
 
     onMounted(() => {
       console.log(props.full, 'IS FULL PROP')
-      const dom = new DOMParser().parseFromString(snarkdown(props.post.web3Preview.content.replace(/\\/gi, '')), 'text/html')
+      const dom = new DOMParser().parseFromString(snarkdown((props.post?.web3Preview?.content ?? '').replace(/\\/gi, '')), 'text/html')
       const html = dom.querySelector('body')?.innerHTML ?? ''
 
       mirrorPost.value.content = props.full ? html : clip(html, 240, { html: true, maxLines: 5 })

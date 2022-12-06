@@ -78,7 +78,7 @@ import {
   Ref,
 } from 'vue'
 
-import { formatNumber } from 'shared/dist/utils/misc'
+import { formatNumber } from 'shared/src/utils/misc'
 
 export default defineComponent({
   name: 'TokenMetrics',

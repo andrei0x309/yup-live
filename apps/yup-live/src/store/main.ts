@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { IMainStore } from 'shared/dist/types/store'
+import { IMainStore } from 'shared/src/types/store'
 
 const useMainStore = defineStore('main', {
   state: () => {

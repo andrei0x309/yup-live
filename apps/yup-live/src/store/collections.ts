@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ICollectionStore } from 'shared/dist/types/store'
+import { ICollectionStore } from 'shared/src/types/store'
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
 
 const useCollectionStore = defineStore('collections', {

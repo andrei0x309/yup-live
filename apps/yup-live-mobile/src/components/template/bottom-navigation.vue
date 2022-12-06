@@ -6,7 +6,7 @@
       <ion-tabs
         style="border-top: 2px solid #1a1a1a"
       >
-        <ion-router-outlet id="content-page" />
+        <ion-router-outlet  ref="outlet" id="content-page" />
 
         <ion-tab-bar slot="bottom">
           <ion-tab-button tab="notifications" href="/tabs/notifications">
@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onBeforeMount } from "vue";
+import { defineComponent, ref, onBeforeMount, Ref } from "vue";
 import {
   IonPage,
   IonContent,
@@ -39,7 +39,7 @@ import {
   IonTabBar,
   IonTabButton,
   IonLabel,
-  IonIcon,
+  IonIcon
 } from "@ionic/vue";
 import { notificationsCircle, filterCircle } from "ionicons/icons";
 import AvatarBtn from "components/functional/avatarBtn.vue";
@@ -49,7 +49,6 @@ import { storage } from '@/utils/storage'
 import { useRouter} from 'vue-router'
 import { setAlertStack, useAlertStack } from '@/store/alertStore'
 import AlertStack from 'components/functional/alertStack.vue'
-
 
 export default defineComponent({
   components: {
@@ -71,6 +70,7 @@ export default defineComponent({
     const avatar = ref('');
     const account = ref('');
     const router = useRouter()
+    const outlet = ref(null) as unknown as Ref<typeof IonRouterOutlet>
 
       onBeforeMount(async () => {
         if(!store.isLoggedIn) {
@@ -81,18 +81,19 @@ export default defineComponent({
             account.value = store.userData.account
             store.isLoggedIn = true
           } else {
-            router.push('/connect')
+            router.replace('/')
           }
         }
       })
-
+    
     return {
       notificationsCircle,
       filterCircle,
       avatar,
       account,
       setAlertStack,
-      useAlertStack
+      useAlertStack,
+      outlet
     };
   },
 });

@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, PropType } from 'vue'
-import type { Web3PostFarcaster } from 'shared/dist/types/web3/farcaster'
+import type { Web3PostFarcaster } from 'shared/src/types/web3/farcaster'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
 import VideoPlayer from '@/components/content/post/videoPlayer.vue'
 import FarcasterIcon from 'icons/src/farcaster.vue'

@@ -25,7 +25,7 @@
 <script lang="ts">
 import { onMounted, defineComponent, ref, Ref } from 'vue'
 import InfoIcon from 'icons/src/infoIcon.vue'
-import type { NameValue } from 'shared/dist/types/account'
+import type { NameValue } from 'shared/src/types/account'
 
 export default defineComponent({
   name: 'PostInfo',

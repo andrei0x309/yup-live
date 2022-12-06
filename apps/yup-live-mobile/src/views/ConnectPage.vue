@@ -2,7 +2,7 @@
   <ion-page>
     <HeaderBar />
 
-    <ion-content class="ion-text-center" :fullscreen="false">
+    <ion-content class="connect-page ion-text-center" :fullscreen="false">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         style="
@@ -67,8 +67,10 @@
           </ion-card-header>
 
           <ion-card-content class="ion-justify-content-center">
-            <ion-label>Username</ion-label>
-            <ion-input v-model="username" placeholder="yupster1337"></ion-input>
+            <ion-item mode="ios">
+          <ion-label>Username</ion-label>
+          <ion-input v-model="username" placeholder="yupster1337"></ion-input>
+        </ion-item>
             <ion-accordion-group>
               <ion-accordion>
                 <ion-item slot="header" color="light">
@@ -91,7 +93,57 @@
           </ion-card-content>
         </ion-card>
       </div>
+      <div class="mt-20 mb-6">
+        <ion-button class="info-btn" fill="clear" @click="(infoModalOpen = true)" >INFO - YUP</ion-button>
+      </div>
     </ion-content>
+
+    <ion-modal :is-open="infoModalOpen">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>INFO - YUP</ion-title>
+          <ion-buttons slot="end">
+            <ion-button @click="(infoModalOpen = false)">Close</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <h3 class="text-center mb-4">TLDR</h3>
+        <p>
+          This application provides access to certain features of the YUP social network.
+        </p>
+
+        <h3 class="mt-4 text-center mb-4">FAQ:</h3>
+        <ul>
+          <li>
+            <ul class="mb-4">
+              <li class="mb-2">Q: Why do I need a wallet installed on my device?</li>
+              <li class="mb-2">A: Sign in to an Ethereum DAPP is usually made by signing a message thus you need a wallet. In theory, you can sign in / sign-up even on a desktop if you copy the link from the QR modal and input it in any wallet.</li>
+            </ul>
+            <ul class="mb-4">
+              <li class="mb-2">Q: What wallets have been tested?</li>
+              <li class="mb-2">A: <pre class="inline">Rainbow</pre> wallet, and  <pre class="inline">Metamask</pre>, Rainbow seems to work a bit more smoothly.</li>
+            </ul>
+            <ul class="mb-4">
+              <li class="mb-2">Q: Is the signup open?</li>
+              <li class="mb-2">A: Yes, but you need to have a little activity on the ETH address you use to sign-up, no activity addresses are not allowed to signup.</li>
+            </ul>
+            <ul class="mb-4">
+              <li class="mb-2">Q: What I can do on YUP?</li>
+              <li class="mb-2">A: Browse content, and like or dislike content, you can also create a post by sharing to the app and like or dislike a URL.</li>
+            </ul>
+            <ul class="mb-4">
+              <li class="mb-2">Q: Is this app open-source?</li>
+              <li class="mb-2">A: Yes, alongside the web-app application, they are both on <pre class="inline">yup-live</pre> repo on my GitHub account <pre class="inline">andrei0x309</pre>.</li>
+            </ul>
+            <ul class="mb-4">
+              <li class="mb-2">Q: Is this app available on IOS?</li>
+              <li class="mb-2">A: NO, I won't bundle this app on IOS!!!</li>
+            </ul>
+          </li>
+        </ul>
+      </ion-content>
+    </ion-modal>
 
     <ion-loading
       :is-open="loading"
@@ -127,11 +179,17 @@ import {
   IonLoading,
   IonAccordionGroup,
   IonToast,
-  onIonViewWillEnter
+  onIonViewWillEnter,
+  IonModal,
+  IonToolbar,
+  IonTitle,
+  IonHeader,
+  IonButtons,
+  IonButton
 } from "@ionic/vue";
 import { defineComponent } from "vue";
 import { ref, Ref, onMounted, } from "vue";
-import { onLogin, onSignup } from "shared/dist/utils/login-signup";
+import { onLogin, onSignup } from "shared/src/utils/login-signup";
 import { useMainStore } from "@/store/main";
 import { ethers } from "ethers";
 import { storage } from "@/utils/storage";
@@ -159,7 +217,13 @@ export default defineComponent({
     IonCardHeader,
     IonAccordionGroup,
     IonToast,
-    HeaderBar
+    HeaderBar,
+      IonModal,
+    IonToolbar,
+    IonTitle,
+    IonHeader,
+  IonButtons,
+  IonButton
   },
   setup() {
     const provider = (ref(null) as unknown) as Ref<ethers.providers.Web3Provider>;
@@ -173,6 +237,7 @@ export default defineComponent({
     const toastState = ref(false);
     const tostMsg = ref("");
     const router = useRouter();
+    const infoModalOpen = ref(false);
 
     const segmentChange = (value: any) => {
       currentSegment.value = value.detail.value;
@@ -214,6 +279,8 @@ export default defineComponent({
         } catch (error) {
           console.error("Failed to set auth data", error);
         }
+      } else {
+        window?.localStorage?.clear()
       }
     };
 
@@ -247,22 +314,24 @@ export default defineComponent({
     };
 
     onIonViewWillEnter(async () => {
+      loading.value = true;
       const authInfo = await storage.get("authInfo");
       if (authInfo) {
-        router.push("/tabs/feeds");
+        router.replace("/tabs/feeds");
       }
+      loading.value = false;
     });
 
     onMounted(async () => {
       loading.value = true;
-      const providerOptions = (await import("shared/dist/utils/evm")).providerOptions;
+      const providerOptions = (await import("shared/src/utils/evm")).providerOptions;
       const Web3Modal = (await import("web3modal")).default;
       web3Modal.value = new Web3Modal({
         network: "matic", // optional
         cacheProvider: false, // optional
         providerOptions, // required
         theme: mainStore.theme,
-        disableInjectedProvider: false,
+        disableInjectedProvider: true,
       });
       loading.value = false;
     });
@@ -278,37 +347,34 @@ export default defineComponent({
       loading,
       toastState,
       tostMsg,
+      infoModalOpen
     };
   },
 });
 </script>
 
-<style scoped>
-#container {
-  text-align: center;
 
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
+<style lang="scss">
+ #walletconnect-wrapper {
+  .walletconnect-modal__base {
+    background: #1414149e;
+  }
+  .walletconnect-qrcode__text {
+    color: var(--ion-color-secondary);
+  }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
+  .walletconnect-connect__button {
+    background-color: var(--ion-color-tertiary-shade)!important;
+    box-shadow: 3px 3px 9px 4px #0000005e;
+  }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
+  .walletconnect-modal__mobile__toggle a {
+      color: black;
+  }
+ }
 
-  color: #8c8c8c;
-
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
-}
+ .info-btn {
+  color: rgba(240, 248, 255, 0.829);
+  background-color: rgba(240, 248, 255, 0.021);
+ }
 </style>

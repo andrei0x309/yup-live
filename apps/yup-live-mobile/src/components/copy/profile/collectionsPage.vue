@@ -26,18 +26,18 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, ref, Ref } from 'vue'
-import { ICollection } from 'shared/dist/types/store'
+import { ICollection } from 'shared/src/types/store'
 import CollectionCard from './collectionCard.vue'
 import DangLoader from 'components/vote-list/loader.vue'
 import CustomButton from 'components/functional/customButton.vue'
 import GoToIcon from 'icons/src/goTo.vue'
-import { fetchWAuth } from 'shared/dist/utils/auth'
+import { fetchWAuth } from 'shared/src/utils/auth'
 import { stackAlertError, stackAlertSuccess } from '@/store/alertStore'
 import { getCollections, useCollectionStore } from '@/store/collections'
 import { useMainStore } from '@/store/main'
 const refGoTo = GoToIcon
 
-import { config } from 'shared/dist/utils/config'
+import { config } from 'shared/src/utils/config'
 const { API_BASE } = config
 
 export default defineComponent({

@@ -190,13 +190,13 @@ import { useHead, HeadObject } from '@vueuse/head'
 import DangLoader from 'components/vote-list/loader.vue'
 // import { useMainStore } from '@/store/main'
 import { useRoute } from 'vue-router'
-import { timeAgo } from 'shared/dist/utils/time'
+import { timeAgo } from 'shared/src/utils/time'
 import ThumbsDown from 'icons/src/thumbsDown.vue'
 import ThumbsUp from 'icons/src/thumbsUp.vue'
 import ImagePreview from '@/components/content/post/imagePreview.vue'
 import ClockIcon from 'icons/src/clock.vue'
-import { getNotifications } from 'shared/dist/utils/notifications'
-import type { NotifType } from 'shared/dist/types/notification'
+import { getNotifications } from 'shared/src/utils/notifications'
+import type { NotifType } from 'shared/src/types/notification'
 
 export default defineComponent({
   name: 'Notifications',

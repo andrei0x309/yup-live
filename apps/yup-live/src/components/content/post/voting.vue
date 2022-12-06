@@ -27,10 +27,10 @@
 import { onMounted, defineComponent, ref, Ref, PropType } from 'vue'
 import ThumbsUp from 'icons/src/thumbsUp.vue'
 import ThumbsDown from 'icons/src/thumbsDown.vue'
-import { formatNumber } from 'shared/dist/utils/misc'
+import { formatNumber } from 'shared/src/utils/misc'
 import { useMainStore, openConnectModal } from '@/store/main'
-import { fetchWAuth } from 'shared/dist/utils/auth'
-import type { Vote } from 'shared/dist/types/vote'
+import { fetchWAuth } from 'shared/src/utils/auth'
+import type { Vote } from 'shared/src/types/vote'
 import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE

@@ -12,7 +12,7 @@
 import { onMounted, defineComponent, ref } from 'vue'
 import { useMainStore } from '@/store/main'
 import BtnSpinner from 'icons/src/btnSpinner.vue'
-import { makeRandAvatar } from 'shared/dist/utils/accounts'
+import { makeRandAvatar } from 'shared/src/utils/accounts'
 
 export default defineComponent({
   name: 'AvatarBtn',

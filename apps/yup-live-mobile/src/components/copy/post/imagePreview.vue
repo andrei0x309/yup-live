@@ -23,7 +23,7 @@
 import { onMounted, defineComponent, ref } from 'vue'
 import NoImg from 'icons/src/noImg.vue'
 import BtnSpinner from 'icons/src/btnSpinner.vue'
-import { makeRandomPreview } from 'shared/dist/utils/misc'
+import { makeRandomPreview } from 'shared/src/utils/misc'
 
 export default defineComponent({
   name: 'ImagePreview',

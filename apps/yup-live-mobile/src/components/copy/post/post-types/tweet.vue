@@ -183,8 +183,8 @@ import GoTo from 'icons/src/goTo.vue'
 import CustomButton from 'components/functional/customButton.vue'
 import ImagePreview from '@/components/copy/post/imagePreview.vue'
 import VerifiedIcon from 'icons/src/verified.vue'
-import type { mediaType } from 'shared/dist/types/post'
-import type { TweetData, TweetRaw } from 'shared/dist/types/web2/twitter'
+import type { mediaType } from 'shared/src/types/post'
+import type { TweetData, TweetRaw } from 'shared/src/types/web2/twitter'
 
 const refGoTo = GoTo
 const refBtnSpinner = BtnSpinner
@@ -277,7 +277,7 @@ export default defineComponent({
       if (props.post.tweetInfo?.retweeted_status) return 'retweet'
       if (props.post.tweetInfo?.quoted_status) return 'quoted'
       if (props.post.tweetInfo?.reply_status) return 'reply'
-      if (!props.post.tweetInfo?.reply_status && props.post.tweetInfo.in_replay_status) return 'delReply'
+      if (!props.post.tweetInfo?.reply_status && props.post.tweetInfo?.in_replay_status) return 'delReply'
       return 'original'
     }
 
@@ -303,6 +303,7 @@ export default defineComponent({
     }
 
     const parseBody = (text: string) => {
+      text = text ?? ''
       return text
         .replace(/(http|https)(.*)( \n|\t|\s|$){1}/gi, "<a href='$1$2' rel='noFollow' target='_blank'>$1$2</a>$3")
         .replace(/@(.*?)($|\s|\t|\n)/g, "<a href='https://twitter.com/$1' rel='noFollow' target='_blank'>@$1</a>$2")
@@ -310,11 +311,11 @@ export default defineComponent({
 
     const fillTweet = (filler: TweetRaw, tweet: Ref<TweetData>) => {
       const tweetBuilder = {} as TweetData
-      tweetBuilder.userAvatar = filler.user.profile_image_url_https as string
-      tweetBuilder.userHandle = filler.user.screen_name as string
-      tweetBuilder.userName = filler.user.name as string
-      tweetBuilder.verified = filler.user.verified as boolean
-      tweetBuilder.body = parseBody(filler.full_text ?? (filler.text as string))
+      tweetBuilder.userAvatar = filler?.user.profile_image_url_https ?? '' as string
+      tweetBuilder.userHandle = filler?.user?.screen_name ?? 'N/A' as string
+      tweetBuilder.userName = filler?.user?.name ?? 'N/A' as string
+      tweetBuilder.verified = filler?.user?.verified ?? false as boolean
+      tweetBuilder.body = parseBody(filler?.full_text ?? (filler?.text as string)) ?? ''
       tweetBuilder.mediaEntities = checkMedia(filler)
       tweet.value = tweetBuilder
     }

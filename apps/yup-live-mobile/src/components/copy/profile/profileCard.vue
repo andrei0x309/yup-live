@@ -4,6 +4,7 @@
       <div id="stars"></div>
       <div id="stars2"></div>
       <div id="stars3"></div>
+      <slot name="settings"></slot>
     </div>
     <div class="avatar-holder">
       <img :src="source" :alt="userData.username" loading="lazy" @error="onError" />
@@ -55,8 +56,8 @@ import { onMounted, defineComponent, ref, PropType } from 'vue'
 // import ProfileUseBar from '@/components/content/profile/useBar.vue'
 // import FollowersIcon from '@/components/content/icons/followers.vue'
 // import AddFollow from '@/components/content/icons/addFollow.vue'
-import { makeRandAvatar } from 'shared/dist/utils/accounts'
-import type { NameValue } from 'shared/dist/types/account'
+import { makeRandAvatar } from 'shared/src/utils/accounts'
+import type { NameValue } from 'shared/src/types/account'
 import {
   IonIcon,
   IonChip
@@ -185,77 +186,51 @@ html[class='dark'] {
     height: 5.4rem;
     background: radial-gradient(ellipse at bottom, #4e4691 0%, #1d102a 100%);
     overflow: hidden;
+    z-index: 0;
   }
   #stars {
     width: 1px;
     height: 1px;
-    background: transparent;
     box-shadow: $shadows-small;
     animation: animStar 50s linear infinite;
 
     &:after {
       content: ' ';
       position: absolute;
-      top: 2000px;
+      top: 500px;
       width: 1px;
       height: 1px;
-      background: transparent;
       box-shadow: $shadows-small;
     }
   }
   #stars2 {
     width: 2px;
     height: 2px;
-    background: transparent;
     box-shadow: $shadows-medium;
     animation: animStar 100s linear infinite;
 
     &:after {
       content: ' ';
       position: absolute;
-      top: 2000px;
+      top: 500px;
       width: 2px;
       height: 2px;
-      background: transparent;
       box-shadow: $shadows-medium;
     }
   }
   #stars3 {
     width: 3px;
     height: 3px;
-    background: transparent;
     box-shadow: $shadows-big;
-    animation: animStar 150s linear infinite;
+    animation: animStar 130s linear infinite;
 
     &:after {
       content: ' ';
       position: absolute;
-      top: 2000px;
+      top: 500px;
       width: 3px;
       height: 3px;
-      background: transparent;
       box-shadow: $shadows-big;
-    }
-  }
-  #title {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-
-    text-align: center;
-    font-weight: 300;
-    font-size: 50px;
-    letter-spacing: 10px;
-
-    margin-top: -60px;
-    padding-left: 10px;
-
-    span {
-      background: -webkit-linear-gradient(white, #38495a);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
   }
   @keyframes animStar {
@@ -263,7 +238,7 @@ html[class='dark'] {
       transform: translateY(0px);
     }
     to {
-      transform: translateY(-2000px);
+      transform: translateY(-500px);
     }
   }
   .avatar-holder {
@@ -274,10 +249,10 @@ html[class='dark'] {
     left: 0;
     width: 6rem;
     height: 6rem;
-    border-radius: 50%;
+    border-radius: 30%;
     box-shadow: 0 0 0 5px var(--profile-av-holder-sh1), inset 0 0 0 5px var(--profile-av-holder-sh2);
     overflow: hidden;
-    animation: mvTop 1.5s;
+    z-index: 10;
     img {
       width: 100%;
       height: 100%;
@@ -289,7 +264,6 @@ html[class='dark'] {
     text-align: center;
     line-height: 2.2rem;
     font-size: 1.12rem;
-    animation: fadeIn 2s ease-in;
     a {
       color: white;
       text-decoration: none;
@@ -305,7 +279,6 @@ html[class='dark'] {
     }
   }
   .button {
-    animation: fadeIn 2s ease-in;
     padding: 0.3rem 0.8rem;
     border-radius: 0.4rem;
     letter-spacing: 0.02em;
@@ -330,12 +303,9 @@ html[class='dark'] {
     .pens,
     .projects,
     .posts {
-      position: relative;
-      left: -300px;
       width: calc(250px / 3);
       text-align: center;
       color: white;
-      animation: fadeInMove 2s;
       animation-fill-mode: forwards;
       h6 {
         text-transform: uppercase;
@@ -357,7 +327,6 @@ html[class='dark'] {
   .ds-actions {
     text-align: center;
     margin-top: 1.1rem;
-    animation: mvBottom 1.5s;
     h6 {
       font-weight: 700;
       text-transform: uppercase;
@@ -365,57 +334,6 @@ html[class='dark'] {
   }
 }
 
-@keyframes fadeInMove {
-  0% {
-    opacity: 0;
-    left: -300px;
-  }
-  100% {
-    opacity: 1;
-    left: 0;
-  }
-}
-
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes mvBottom {
-  0% {
-    bottom: -150px;
-  }
-  100% {
-    bottom: 10px;
-  }
-}
-
-@keyframes mvTop {
-  0% {
-    top: -150px;
-  }
-  100% {
-    top: 40px;
-  }
-}
-
-@keyframes dsTop {
-  0% {
-    top: -150px;
-  }
-  100% {
-    top: 0;
-  }
-}
-
-.following {
-  color: white;
-  background: #316be9;
-}
 
 .followers {
   position: relative;

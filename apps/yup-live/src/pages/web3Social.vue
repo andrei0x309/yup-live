@@ -155,17 +155,17 @@ import { useHead, HeadObject } from '@vueuse/head'
 import DangLoader from 'components/vote-list/loader.vue'
 import { useMainStore } from '@/store/main'
 import { useRoute } from 'vue-router'
-import { isValidAddress, formatNumber, truncteEVMAddr } from 'shared/dist/utils/misc'
-import { parseIpfs } from 'shared/dist/utils/web3/ipfs'
+import { isValidAddress, formatNumber, truncteEVMAddr } from 'shared/src/utils/misc'
+import { parseIpfs } from 'shared/src/utils/web3/ipfs'
 import { stackAlertWarning, stackAlertSuccess } from '@/store/alertStore'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
-import { MirrorAccountResponse, YUPAccountResponse, FarcasterAccountResponse, LensAccountResponse } from 'shared/dist/types/web3/web3Socials'
+import { MirrorAccountResponse, YUPAccountResponse, FarcasterAccountResponse, LensAccountResponse } from 'shared/src/types/web3/web3Socials'
 import RadarIcon from 'icons/src/radar.vue'
 import GoToIcon from 'icons/src/goTo.vue'
 import LensIcon from 'icons/src/lens.vue'
 import CustomButton from 'components/functional/customButton.vue'
 
-const providerOptionsProm = import('shared/dist/utils/evm')
+const providerOptionsProm = import('shared/src/utils/evm')
 const web3Mprom = import('web3modal')
 const ethers = import('ethers')
 
