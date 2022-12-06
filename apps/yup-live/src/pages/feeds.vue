@@ -4,32 +4,32 @@
       <nav class="feedNav">
         <ul>
           <li>
-            <router-link :class="activeFeed === feeds[0] ? 'navActive' : ''" :to="`/feeds/${feeds[0]}`">Daily Hits</router-link>
+            <router-link :class="activeFeed === feeds[0] ? 'navActive' : ''" :to="`/feeds/${feeds[0]}${userId ? '?userId='+userId : ''}`">Daily Hits</router-link>
           </li>
           <li>
-            <router-link :class="activeFeed === feeds[1] ? 'navActive' : ''" :to="`/feeds/${feeds[1]}`">Crypto</router-link>
+            <router-link :class="activeFeed === feeds[1] ? 'navActive' : ''" :to="`/feeds/${feeds[1]}${userId ? '?userId='+userId : ''}`">Crypto</router-link>
           </li>
           <li>
-            <router-link :class="activeFeed === feeds[2] ? 'navActive' : ''" :to="`/feeds/${feeds[2]}`">NFTs</router-link>
+            <router-link :class="activeFeed === feeds[2] ? 'navActive' : ''" :to="`/feeds/${feeds[2]}${userId ? '?userId='+userId : ''}`">NFTs</router-link>
           </li>
           <li>
-            <router-link :class="activeFeed === feeds[3] ? 'navActive' : ''" :to="`/feeds/${feeds[3]}`">Mirror</router-link>
+            <router-link :class="activeFeed === feeds[3] ? 'navActive' : ''" :to="`/feeds/${feeds[3]}${userId ? '?userId='+userId : ''}`">Mirror</router-link>
           </li>
         </ul>
       </nav>
       <nav class="feedNav">
         <ul>
           <li>
-            <router-link :class="activeFeed === feeds[4] ? 'navActive' : ''" :to="`/feeds/${feeds[4]}`">Recent</router-link>
+            <router-link :class="activeFeed === feeds[4] ? 'navActive' : ''" :to="`/feeds/${feeds[4]}${userId ? '?userId='+userId : ''}`">Recent</router-link>
           </li>
           <li>
-            <router-link :class="activeFeed === feeds[5] ? 'navActive' : ''" :to="`/feeds/${feeds[5]}`">Farcaster</router-link>
+            <router-link :class="activeFeed === feeds[5] ? 'navActive' : ''" :to="`/feeds/${feeds[5]}${userId ? '?userId='+userId : ''}`">Farcaster</router-link>
           </li>
           <li>
-            <router-link :class="activeFeed === feeds[6] ? 'navActive' : ''" :to="`/feeds/${feeds[6]}`">Lens</router-link>
+            <router-link :class="activeFeed === feeds[6] ? 'navActive' : ''" :to="`/feeds/${feeds[6]}${userId ? '?userId='+userId : ''}`">Lens</router-link>
           </li>
           <li>
-            <router-link :class="activeFeed === feeds[7] ? 'navActive' : ''" :to="`/feeds/${feeds[7]}`">Politics</router-link>
+            <router-link :class="activeFeed === feeds[7] ? 'navActive' : ''" :to="`/feeds/${feeds[7]}${userId ? '?userId='+userId : ''}`">Politics</router-link>
           </li>
         </ul>
       </nav>
@@ -124,6 +124,7 @@ export default defineComponent({
     const loading = ref(true)
     const feeds = ['dailyhits', 'crypto', 'nfts', 'mirror', 'recent', 'farcaster', 'lens', 'politics']
     const defaultFeed = (route.params.feedId as string) ?? 'dailyhits'
+    const userId = (route.query.userId as string) ?? ''
     const posts = ref([]) as Ref<Array<unknown>>
     const activeFeed = ref(defaultFeed) as Ref<string>
     const postsIndex = ref(0)
@@ -178,7 +179,7 @@ export default defineComponent({
 
     const getFeedPosts = async (start = 0) => {
       try {
-      const res = await fetch(`${FEED_APIS[activeFeed.value]}?start=${start}&limit=10`, {
+      const res = await fetch(`${FEED_APIS[activeFeed.value]}?start=${start}&limit=10${userId ? '&account='+userId : ''}`, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -247,7 +248,8 @@ export default defineComponent({
       postInfo,
       activeFeed,
       feedLoading,
-      catComp
+      catComp,
+      userId
     }
   }
 })
