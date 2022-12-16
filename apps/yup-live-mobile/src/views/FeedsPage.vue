@@ -91,6 +91,7 @@ export default defineComponent({
       ['crypto', 'Crypto'], 
       ['nfts', 'NFTs' ],
       ['mirror', 'Mirror' ],
+      ['twitter', 'Twitter' ],
       ['recent', 'Recent' ]
   ]
 

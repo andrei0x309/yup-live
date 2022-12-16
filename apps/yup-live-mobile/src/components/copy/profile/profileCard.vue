@@ -186,7 +186,6 @@ html[class='dark'] {
     height: 5.4rem;
     background: radial-gradient(ellipse at bottom, #4e4691 0%, #1d102a 100%);
     overflow: hidden;
-    z-index: 0;
   }
   #stars {
     width: 1px;
@@ -252,7 +251,6 @@ html[class='dark'] {
     border-radius: 30%;
     box-shadow: 0 0 0 5px var(--profile-av-holder-sh1), inset 0 0 0 5px var(--profile-av-holder-sh2);
     overflow: hidden;
-    z-index: 10;
     img {
       width: 100%;
       height: 100%;

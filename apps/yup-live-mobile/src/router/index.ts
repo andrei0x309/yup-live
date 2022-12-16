@@ -41,6 +41,10 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/TokenMetrics.vue')
       },
       {
+        path: 'meetings',
+        component: () => import('@/views/MeetingsPage.vue')
+      },
+      {
         path: 'live',
         component: () => import('@/views/ActivityPage.vue')
       },

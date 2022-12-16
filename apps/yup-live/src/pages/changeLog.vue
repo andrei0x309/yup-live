@@ -51,6 +51,16 @@ export default defineComponent({
 
     const changes = [
     {
+      date: '15 DEC - 6 DEC 2022',
+      title: 'Changes',
+      changes: [
+      'added meetings page for mobile',
+      'added connect/disconnect to farcaster on settings on frontend',
+      'various fixes and improvements',
+      'added twitter feed',
+    ]
+    },
+    {
       date: '1 DEC - 6 DEC 2022',
       title: 'Changes',
       changes: [

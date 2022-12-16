@@ -53,7 +53,8 @@ export default defineComponent({
   position: fixed;
   bottom: 0.9vh;
   right: 1vw;
-  width: 20rem;
+  min-width: 20rem;
+  max-width: 90%;
   animation: slide-in 0.3s forwards;
   transform: translateX(+120%);
 

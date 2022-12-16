@@ -17,15 +17,25 @@ export interface Web3FarcasterRawReply {
   attachments: {
     openGraph: [{ url: string; image: string }]
   }
-
+  "body.data.text"?: string
+  "body.username"?: string
+  "meta.avatar"?: string
   body?: {
     data?: {
       text: string
     }
     username: string
-    publishedAt?: number
+    publishedAt: number
+  }
+  author?: {
+    displayName: string
+    pfp?: {
+      url?: string
+    }
   }
   threadMerkleRoot: string
+  threadHash?: string
+  timestamp: number  
   meta?: {
     avatar?: string
     displayName?: string
@@ -51,6 +61,7 @@ export interface Web3FarcasterRaw {
   meta?: {
     isVerifiedAvatar: boolean
     threadMerkleRoot: string
+    threadHash?: string
   }
   createdAt: string
 }

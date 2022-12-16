@@ -298,6 +298,7 @@ html[class='dark'] {
 
 .pPost.mirror div {
   max-width: 60rem;
+  word-break: break-all;
 }
 
 div.w3TweetTypeBody {

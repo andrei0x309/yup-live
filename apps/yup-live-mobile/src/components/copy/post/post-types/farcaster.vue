@@ -147,7 +147,7 @@ export default defineComponent({
         return []
       }
     }
-
+    
     const fillPost = (filler: Web3FarcasterRaw): Web3PostFarcaster => {
       const postBuilder = {} as Web3PostFarcaster
       postBuilder.userAvatar = filler?.creator?.avatarUrl as string
@@ -157,20 +157,20 @@ export default defineComponent({
       postBuilder.mediaEntities = parseMedia(filler?.attachments ?? [])
       postBuilder.verified = filler?.meta?.isVerifiedAvatar
       postBuilder.createdAt = timeAgo(filler?.createdAt)
-      postBuilder.thread = filler?.meta?.threadMerkleRoot as string
+      postBuilder.thread = filler?.meta?.threadMerkleRoot ?? filler?.meta?.threadHash as string
       return postBuilder
     }
 
     const fillReply = (filler: Web3FarcasterRawReply): Web3PostFarcaster => {
       const postBuilder = {} as Web3PostFarcaster
-      postBuilder.userAvatar = filler?.meta?.avatar as string
-      postBuilder.userHandle = filler?.body?.username as string
-      postBuilder.userName = filler?.body?.username as string
-      postBuilder.body = parseBody(filler?.body?.data?.text as string)
+      postBuilder.userAvatar =  filler?.["meta.avatar"] ?? filler?.meta?.avatar ?? filler.author?.pfp?.url as string
+      postBuilder.userHandle =  filler?.["body.username"] ?? filler?.body?.username as string
+      postBuilder.userName = filler?.author?.displayName ?? filler?.meta?.displayName as string
+      postBuilder.body = parseBody(filler?.["body.data.text"] ?? filler?.body?.data?.text ?? '' as string)
       postBuilder.verified = filler?.meta?.isVerifiedAvatar
       postBuilder.mediaEntities = parseMediaOpenGraph(filler?.attachments?.openGraph ?? [])
-      postBuilder.createdAt = timeAgo(new Date(filler?.body?.publishedAt ?? Date.now() - Math.random() * 35000).toISOString())
-      postBuilder.thread = filler?.threadMerkleRoot
+      postBuilder.createdAt = timeAgo(new Date(filler?.timestamp ?? filler?.body?.publishedAt ?? Date.now() - Math.random() * 35000).toISOString())
+      postBuilder.thread = filler?.threadMerkleRoot ?? filler?.threadHash as string
       return postBuilder
     }
 

@@ -25,7 +25,7 @@
     "./src/**/*.vue",
     "./src/**/*.vue",
     "../../packages/icons/src/**/*.vue",
-    "../../packages/shared/src/**/*.vue",
+    "../../packages/shared/src/**/*.*",
     "../../packages/components/**/*.vue"
   ],
   "exclude": ["node_modules", "dist", "build", "test", "example"],

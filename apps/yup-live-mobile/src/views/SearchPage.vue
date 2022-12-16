@@ -3,7 +3,9 @@
   <HeaderBar text="Search" :menu="true" />
   <ion-content :fullscreen="false" class="ion-padding mt-4">
 <div class="bg-color search-controls w-full">
-    <ion-searchbar v-model="searchText" :animated="true" placeholder="Your search query"></ion-searchbar>
+    <form @submit.prevent="search">
+    <ion-searchbar v-model="searchText" :animated="true" enterkeyhint="search" placeholder="Your search query"></ion-searchbar>
+  </form>
  Sort by 
  <ion-radio-group v-model="sortBy" value="relevance">
     <ion-item>
@@ -186,6 +188,9 @@ const onHit = async (type: string) => {
   onUnmounted(() => {
     // do nothing
   })
+  const checkSearch = async (event: any) => {
+     console.log(event)
+  }
 
   const search = async () => {
     if (searchText.value.length < 3) {
@@ -215,7 +220,8 @@ const onHit = async (type: string) => {
     searchText,
     recencyType,
     searchStarted,
-    noMoreResults
+    noMoreResults,
+    checkSearch
   }
 }
 })

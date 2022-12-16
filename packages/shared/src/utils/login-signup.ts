@@ -133,10 +133,10 @@ const signChallenge = async ({
     })
     const res = await req.json()
     const challenge = res.data
-    let signature
-    const timeout = new Promise((resolve) => setTimeout(() => resolve(0), 15000))
+    let signature: string
+    const timeout = new Promise((resolve) => setTimeout(() => resolve(0), 12000))
     try {
-        [signature] = await Promise.all([signer.signMessage(challenge), timeout])
+        signature = await Promise.race([signer.signMessage(challenge), timeout]) as string
         if (!signature) {
             if (loadState && setAlert) {
                 loadState('end')

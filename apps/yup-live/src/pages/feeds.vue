@@ -29,7 +29,7 @@
             <router-link :class="activeFeed === feeds[6] ? 'navActive' : ''" :to="`/feeds/${feeds[6]}${userId ? '?userId='+userId : ''}`">Lens</router-link>
           </li>
           <li>
-            <router-link :class="activeFeed === feeds[7] ? 'navActive' : ''" :to="`/feeds/${feeds[7]}${userId ? '?userId='+userId : ''}`">Politics</router-link>
+            <router-link :class="activeFeed === feeds[7] ? 'navActive' : ''" :to="`/feeds/${feeds[7]}${userId ? '?userId='+userId : ''}`">Twitter</router-link>
           </li>
         </ul>
       </nav>
@@ -96,7 +96,7 @@ const FEED_APIS: Record<string, string> = {
   recent: 'https://api.yup.io/feed/recent',
   farcaster: 'https://api.yup.io/feed/farcaster',
   lens: 'https://api.yup.io/feed/lens',
-  politics: 'https://api.yup.io/feed/politics'
+  twitter: 'https://api.yup.io/feed/twitter'
 }
 
 export default defineComponent({
@@ -122,7 +122,7 @@ export default defineComponent({
     // const iconsColor = ref(store.theme === 'dark' ? '#ccc' : '#020201')
     const route = useRoute()
     const loading = ref(true)
-    const feeds = ['dailyhits', 'crypto', 'nfts', 'mirror', 'recent', 'farcaster', 'lens', 'politics']
+    const feeds = ['dailyhits', 'crypto', 'nfts', 'mirror', 'recent', 'farcaster', 'lens', 'twitter']
     const defaultFeed = (route.params.feedId as string) ?? 'dailyhits'
     const userId = (route.query.userId as string) ?? ''
     const posts = ref([]) as Ref<Array<unknown>>

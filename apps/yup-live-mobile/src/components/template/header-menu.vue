@@ -26,6 +26,9 @@
         <ion-item @click="goTo('/tabs/live')" button>
       <ActivityIcon class="w-5 mr-4" /> Live Activity
       </ion-item>
+      <ion-item @click="goTo('/tabs/meetings')" button>
+        <ion-icon :icon="listOutline" class="w-5 mr-4" /> Community Meetings
+      </ion-item>
       </ion-list>
 
     </ion-content>
@@ -38,7 +41,8 @@ import { IonHeader, IonToolbar, IonMenu, IonTitle, IonContent, IonMenuToggle, Io
 import {
 closeCircleOutline,
 podiumOutline,
-searchOutline
+searchOutline,
+listOutline
 } from "ionicons/icons";
 import { storage } from "@/utils/storage";
 import { useMainStore } from "@/store/main";
@@ -93,7 +97,8 @@ export default defineComponent({
         doLogOut,
         goTo,
         podiumOutline,
-        searchOutline
+        searchOutline,
+        listOutline
     };
   },
 });

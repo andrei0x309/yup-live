@@ -8,7 +8,7 @@
   <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto mb-8">
     <div class="bg-color flex flex-col">
       <template v-if="!apiError">
-    <ion-refresher  slot="fixed" :pull-factor="0.5" :pull-min="100" :pull-max="200" @ionRefresh="handleRefresh($event)">
+    <ion-refresher mode="ios" slot="fixed" :pull-factor="0.5" :pull-min="100" :pull-max="200" @ionRefresh="handleRefresh($event)">
       <ion-refresher-content pulling-text="Refershing..."></ion-refresher-content>
     </ion-refresher>
       <div class="profile w-full mb-4 flex flex-row">
@@ -454,8 +454,6 @@ export default defineComponent({
         posts.value = await getFeedPosts(postsIndex.value)
         postLoaded.value = true
       }
-      console.log(currentAccountPage)
-
     }
   
 

@@ -1,6 +1,6 @@
 <template>
   <BtnSpinner v-if="loading" />
-  <div v-else :key="`loading-${loading}`">
+  <template v-else>
     <div class="flex flex-row-reverse justify-between mt-2 px-4" style="z-index: 1;position: absolute;right: 0;top: 0.5rem;">
       <span class="inline-block mfavIco"><MirrorIcon class="w-5 tIcon" /> </span>
     </div>
@@ -17,7 +17,7 @@
         <ClockIcon class="w-4 h-4 mx-1 block-inline" />
       </span>
     </div>
-  </div>
+  </template>
 </template>
 
 <script lang="ts">
@@ -62,7 +62,11 @@ export default defineComponent({
 
       mirrorPost.value.content = props.full ? html : clip(html, 240, { html: true, maxLines: 5 })
       mirrorPost.value.title = props.post.web3Preview?.title
-      mirrorPost.value.author = props.post.web3Preview?.creator?.ens ?? props.post.web3Preview?.creator?.address
+      let ens = props.post.web3Preview?.creator?.ens
+      if (ens?.includes('%')) {
+        ens = undefined
+      }
+      mirrorPost.value.author = ens ?? props.post.web3Preview?.creator?.address
       mirrorPost.value.createdAt = props.post.createdAt
       loading.value = false
     })

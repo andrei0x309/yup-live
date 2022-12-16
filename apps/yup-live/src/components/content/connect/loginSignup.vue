@@ -185,6 +185,7 @@ export default defineComponent({
         provider,
         web3M: web3Modal
       })
+      console.log(loginResult)
       doAllLogin(loginResult)
     }
 

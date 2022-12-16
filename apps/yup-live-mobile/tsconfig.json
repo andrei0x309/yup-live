@@ -33,8 +33,8 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx",
-    "../../packages/shared/src/**/*.vue",
-    "../../packages/icons/src/**/*.vue",
+    "../../packages/shared/src/**/*.*",   
+     "../../packages/icons/src/**/*.vue",
     "../../packages/components/**/*.vue"
   ],
   "exclude": [
