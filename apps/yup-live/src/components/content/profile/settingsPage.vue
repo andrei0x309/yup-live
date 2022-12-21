@@ -130,6 +130,7 @@ const refGoTo = GoToIcon;
 import type { IUserData } from "shared/src/types/account";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import { useRouter } from "vue-router";
+import { getFidByToken } from 'shared/src/utils/farcaster'
 
 const providerOptionsProm = import('shared/src/utils/evm')
 const web3Mprom = import("web3modal");
@@ -138,7 +139,6 @@ const canonicalize = import("canonicalize");
 const buffer = import("buffer/");
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-const API_DEV = "https://dev.api.yup.io";
 
 const EIP_191_PREFIX = "eip191:";
 
@@ -247,7 +247,7 @@ export default defineComponent({
           .from(ethersLib.utils.arrayify(sig)).toString('base64');
         const cusAuth = EIP_191_PREFIX + signatureString;
 
-        const req = await fetch(`${API_DEV}/proxy/farcaster/v2/auth`, {
+        const req = await fetch(`${API_BASE}/proxy/farcaster/v2/auth`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -266,7 +266,13 @@ export default defineComponent({
                 },
               },
             };
-            const req = await fetchWAuth(store, `${API_DEV}/accounts/social`, {
+            getFidByToken(token).then(fid => {
+              if(fid) {
+                store.fid = fid as string;
+                localStorage.setItem("fid", fid as string);
+              }
+            } )
+            const req = await fetchWAuth(store, `${API_BASE}/accounts/social`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -276,6 +282,8 @@ export default defineComponent({
             if (req.ok) {
               stackAlertSuccess("Connected to farcaster successfully");
               isConnectedToFarcaster.value = true;
+              store.farcaster = token;
+              localStorage.setItem("farcaster", token);
             } else {
               stackAlertError("Error while connecting to farcaster: " + (await req.text()));
             }
@@ -307,7 +315,7 @@ export default defineComponent({
             timestamp:  Date.now(),
           }
         }
-        const req = await fetch(`${API_DEV}/proxy/farcaster/v2/auth`, {
+        const req = await fetch(`${API_BASE}/proxy/farcaster/v2/auth`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -324,7 +332,7 @@ export default defineComponent({
             platforms: ['farcaster']
           },
         }
-        const reqDel = await fetchWAuth(store, `${API_DEV}/accounts/social`, {
+        const reqDel = await fetchWAuth(store, `${API_BASE}/accounts/social`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -345,7 +353,6 @@ export default defineComponent({
         isDisconnectFromFarcaster.value = false;
       }
     };
-    
 
 
     const onEditProfile = async () => {
@@ -365,7 +372,7 @@ export default defineComponent({
     };
 
     const checkConnectedToFarcaster = async () => {
-      const req = await fetchWAuth(store, `${API_DEV}/accounts/social/list`, {
+      const req = await fetchWAuth(store, `${API_BASE}/accounts/social/list`, {
         method: "GET",
       });
       if (req.ok) {

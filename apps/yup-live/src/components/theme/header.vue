@@ -1,14 +1,14 @@
 <template>
-  <o-sidebar v-model:open="sidebarOpen" :fullheight="true" :fullwidth="false" :overlay="true" :right="true" contentClass="sidebar">
+  <o-sidebar v-model:open="sidebarOpen" :fullheight="true" :fullwidth="false" :overlay="false" :right="true" contentClass="sidebar">
     <o-button
       style="width: 2rem; position: absolute; right: 1rem; top: 1rem; padding-right: 0.5rem; background-color: #1f2937"
       icon-left="times"
       label="X"
       @click="sidebarOpen = false"
     />
-
+   <div class="mx-auto">
     YUP
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 27.015619 12.00781">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 inline" viewBox="0 0 27.015619 12.00781">
       <path
         id="live-1"
         fill="#f04545"
@@ -27,8 +27,20 @@
         d="m 22.175171,9.0041491 h -3.703125 v -6.203125 h 3.609375 v 1 h -2.421875 v 1.484375 h 1.859375 l 0.171875,1 h -2.03125 v 1.71875 h 2.515625 z m 0,0"
       />
     </svg>
+    </div>
+    <h3 class="menu-title">Main Pages</h3>
+    <ul>
+      <li>
+        <router-link class="menu-pill" to="/feeds">
+          <FeedsIcon class="inline w-3 mr-2" /> Feeds
+        </router-link>
+        <router-link class="menu-pill" to="/staking">
+          <StakeIcon class="inline w-5 mr-2" /> Staking
+        </router-link>
+      </li>
+    </ul> 
 
-    <h3 class="menu-title">YUP</h3>
+    <h3 class="menu-title">YUP Pages</h3>
 
     <ul>
       <li v-for="(menu, index) in menuDropDownLinks.links" :key="index">
@@ -345,14 +357,12 @@ nav .o-drop__menu {
 }
 
 .sidebar {
-  // background: url(/img/res/header-waves.svg), linear-gradient(180deg, #212529 0%, #36354a 61.98%, #3b3c68 100%);
-  background-position: 50% 200px, top;
-  background-repeat: no-repeat;
-  background-size: cover, auto;
-  min-width: 18rem;
-  padding-top: 2rem;
-  color: white;
-  padding-left: 1.5rem;
+    background: linear-gradient(180deg, #14171a 0%, #36354a 61.98%, #2c2c3d 100%);
+    min-width: 18rem;
+    padding-top: 2rem;
+    color: white;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 .menu-link {
@@ -381,30 +391,29 @@ nav .o-drop__menu {
 
 .menu-pill {
   background-color: rgba(221, 221, 221, 0.068);
-  border: none;
-  color: #cfaf1e;
-  padding: 0.2em 5.2rem;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  margin: 0.3rem 0.2rem;
-  cursor: pointer;
-  border-radius: 10rem;
+    border: none;
+    color: #ffd664;
+    padding: 0.2em 5.2rem;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 0.1rem 0.2rem;
+    cursor: pointer;
+    border-radius: 10rem;
+    width: 100%;
   &:hover {
     border: 1px solid rgb(207, 175, 30);
   }
 }
 .menu-title {
-  text-align: center;
-  margin-right: 4em;
-  /* margin: 2rem; */
-  margin-top: 2em;
-  margin-bottom: -0.3em;
-  text-transform: uppercase;
-  color: #b9b9b9;
-  border: 1;
-  border-bottom: 1;
-  transform: skewX(156deg);
+    text-align: center;
+    margin-top: 1rem;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    color: #b9b9b9;
+    border: 1;
+    border-bottom: 1;
+    border-bottom: 1px solid #13131378;
 }
 
 .gradient-text {

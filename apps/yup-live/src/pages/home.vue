@@ -11,15 +11,11 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, reactive, computed, onUnmounted, Ref, watch } from 'vue'
+import { onMounted, defineComponent, ref, reactive, computed, onUnmounted, Ref, watch, defineAsyncComponent } from 'vue'
 import { useHead, HeadObject } from '@vueuse/head'
 import TokenMetrics from '@/components/content/token-metrics.vue'
 import VoteList from '@/components/content/vote-list.vue'
-import Sellers from '@/components/content/top-sellers.vue'
 import TableNav from '@/components/content/table-nav.vue'
-import Rewards from '@/components/content/rewards-earners.vue'
-import GiniWeeks from '@/components/content/gini-weeks.vue'
-import GiniTrend from '@/components/content/gini-trend.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMainStore, openConnectModal } from '@/store/main'
 
@@ -28,11 +24,11 @@ export default defineComponent({
   components: {
     TokenMetrics,
     VoteList,
-    Rewards,
-    Sellers,
     TableNav,
-    GiniWeeks,
-    GiniTrend
+    Rewards: defineAsyncComponent(() => import('@/components/content/rewards-earners.vue')),
+    Sellers: defineAsyncComponent(() => import('@/components/content/top-sellers.vue')),
+    GiniWeeks: defineAsyncComponent(() => import('@/components/content/gini-weeks.vue')),
+    GiniTrend: defineAsyncComponent(() => import('@/components/content/gini-trend.vue'))
   },
   setup() {
     const route = useRoute()

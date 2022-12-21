@@ -15,8 +15,6 @@
   </div>
 </template>
 <script lang="ts">
-// threads/0xb3ecd2e9367c5ada51eed6999d8a41454ad1bbf526b3a8637135c5478aed1327?viewer_address=0xe68C06cf27dFEE5bD440A47b3CE4b3Cd96627Bd8&include_deleted_casts=true&version=2
-// import { useMainStore } from '@/store/main'
 import { onMounted, defineComponent, ref, Ref } from 'vue'
 import { isImage } from 'shared/src/utils/misc'
 import { timeAgo } from 'shared/src/utils/time'
@@ -25,7 +23,7 @@ import type { Web3Media } from 'shared/src/types/web3/media'
 import type { Web3PostFarcaster, Web3FarcasterRaw, Web3FarcasterRawReply } from 'shared/src/types/web3/farcaster'
 import FarcasterPostBody from '@/components/content/post/post-types/lens/farcasterPostBody.vue'
 
-const FARCASTER_INDEXER_THREADS = `https://yup-farcaster-thread.deno.dev/`
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   name: 'PostFarcaster',
@@ -77,19 +75,7 @@ export default defineComponent({
       if (props.post?.web3Preview?.meta?.parents?.length > 0) return 'reply'
       return 'single'
     }
-
-    // const checkMedia = (filler: Web3Raw) => {
-    //   const mediaEntities: mediaType[] = []
-    //   if ((filler?.extended_entities?.media?.length ?? 0) > 0) {
-    //     const twMediaEntities = filler?.extended_entities?.media
-    //     twMediaEntities?.forEach((e) => {
-    //       if (e?.type === 'video') {
-    //         mediaEntities.push({ type: 'video', url: e?.video_info?.variants[0].url ?? '' })
-    //       }
-    //     })
-    //   }
-    //   return mediaEntities
-    // }
+ 
 
     const parseBody = (text: string) => {
       return text
@@ -136,13 +122,12 @@ export default defineComponent({
     }
 
     const getComments = async (thread: string) => {
-      const req = await fetch(FARCASTER_INDEXER_THREADS, {
-        method: 'POST',
+      const req = await fetch(`${API_BASE}/farcaster/v2/thread-casts?castHash=${thread}`, {
+        method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ thread })
       })
       if (req.ok) {
-        return await req.json()
+        return (await req.json())?.result?.casts ?? []
       } else {
         return []
       }
@@ -163,14 +148,14 @@ export default defineComponent({
 
     const fillReply = (filler: Web3FarcasterRawReply): Web3PostFarcaster => {
       const postBuilder = {} as Web3PostFarcaster
-      postBuilder.userAvatar =  filler?.["meta.avatar"] ?? filler?.meta?.avatar ?? filler.author?.pfp?.url as string
-      postBuilder.userHandle =  filler?.["body.username"] ?? filler?.body?.username as string
-      postBuilder.userName = filler?.author?.displayName ?? filler?.meta?.displayName as string
-      postBuilder.body = parseBody(filler?.["body.data.text"] ?? filler?.body?.data?.text ?? '' as string)
-      postBuilder.verified = filler?.meta?.isVerifiedAvatar
+      postBuilder.userAvatar =  filler.author?.pfp?.url ?? filler?.meta?.avatar ?? 'N/A' as string
+      postBuilder.userHandle =  filler?.author?.username ?? filler?.body?.username ?? 'N/A' as string
+      postBuilder.userName = filler?.author?.displayName ?? filler?.meta?.displayName ?? 'N/A' as string
+      postBuilder.body = parseBody(filler?.text ?? filler?.body?.data?.text ?? '' as string)
+      postBuilder.verified = filler.author?.pfp?.verified ?? filler?.meta?.isVerifiedAvatar ?? false
       postBuilder.mediaEntities = parseMediaOpenGraph(filler?.attachments?.openGraph ?? [])
       postBuilder.createdAt = timeAgo(new Date(filler?.timestamp ?? filler?.body?.publishedAt ?? Date.now() - Math.random() * 35000).toISOString())
-      postBuilder.thread = filler?.threadMerkleRoot ?? filler?.threadHash as string
+      postBuilder.thread = filler?.threadHash ?? filler?.threadMerkleRoot  as string
       return postBuilder
     }
 
@@ -189,8 +174,7 @@ export default defineComponent({
             postType.value = 'full'
             getComments(mainPost.value?.thread).then((r) => {
               const lCom = []
-              for (const e of r?.result ?? []) {
-                console.log('ee', e)
+              for (const e of r ?? []) {
                 lCom.push(fillReply(e))
               }
               lCom.shift()

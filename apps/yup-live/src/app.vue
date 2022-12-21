@@ -8,88 +8,132 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import HeaderComp from '@/components/theme/header.vue'
-import FooterCom from '@/components/theme/footer.vue'
-import { getThemeMode } from './utils'
-import { onBeforeMount } from 'vue'
-import { useMainStore } from '@/store/main'
-import { useCollectionStore, getCollections } from './store/collections'
-import type { ICollection } from 'shared/src/types/store'
-import { useRoute } from 'vue-router'
-import AlertStack from 'components/functional/alertStack.vue'
-import { deleteMeta } from 'shared/src/utils/head'
-import { setAlertStack, useAlertStack } from '@/store/alertStore'
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+import { defineComponent } from "vue";
+import HeaderComp from "@/components/theme/header.vue";
+import FooterCom from "@/components/theme/footer.vue";
+import { getThemeMode } from "./utils";
+import { onBeforeMount } from "vue";
+import { useMainStore } from "@/store/main";
+import { useCollectionStore, getCollections } from "./store/collections";
+import type { ICollection } from "shared/src/types/store";
+import { useRoute } from "vue-router";
+import AlertStack from "components/functional/alertStack.vue";
+import { deleteMeta } from "shared/src/utils/head";
+import { setAlertStack, useAlertStack } from "@/store/alertStore";
+import { fetchWAuth } from "shared/src/utils/auth";
+import { getFidByToken } from "shared/src/utils/farcaster";
 
 export default defineComponent({
-  name: 'App',
+  name: "App",
   components: {
     HeaderComp,
     FooterCom,
-    AlertStack
+    AlertStack,
   },
   setup() {
-    ;(function setTheme() {
-      document.documentElement.setAttribute('class', getThemeMode())
-    })()
-    const mainStore = useMainStore()
-    const collectionStore = useCollectionStore()
-    const route = useRoute()
+    (function setTheme() {
+      document.documentElement.setAttribute("class", getThemeMode());
+    })();
+    const mainStore = useMainStore();
+    const collectionStore = useCollectionStore();
+    const route = useRoute();
 
     onBeforeMount(() => {
       try {
-
-        if (localStorage.getItem('address')) {
-          mainStore.userData.address = localStorage.getItem('address') as string
-          mainStore.userData.account = localStorage.getItem('account') || ''
-          mainStore.userData.signature = localStorage.getItem('signature') || ''
-          mainStore.userData.avatar = localStorage.getItem('avatar') || ''
-          mainStore.userData.weight = Number(localStorage.getItem('weight')) || 1
-          mainStore.userData.authToken = localStorage.getItem('authToken') || ''
-          mainStore.isLoggedIn = true
-          collectionStore.collectionsPromise = getCollections(collectionStore, mainStore.userData.account) as Promise<ICollection[]>
+        if (localStorage.getItem("address")) {
+          mainStore.userData.address = localStorage.getItem("address") as string;
+          mainStore.userData.account = localStorage.getItem("account") || "";
+          mainStore.userData.signature = localStorage.getItem("signature") || "";
+          mainStore.userData.avatar = localStorage.getItem("avatar") || "";
+          mainStore.userData.weight = Number(localStorage.getItem("weight")) || 1;
+          mainStore.userData.authToken = localStorage.getItem("authToken") || "";
+          const FCFeed = localStorage.getItem("faracsterFeed");
+          if (FCFeed) {
+            mainStore.farcasterFeed = !!FCFeed;
+          }
+          mainStore.isLoggedIn = true;
+          const farcaster = localStorage.getItem("farcaster");
+          if (farcaster) {
+            mainStore.farcaster = farcaster;
+            const fid = localStorage.getItem("fid");
+            if (fid) {
+              mainStore.fid = fid;
+            } else {
+              console.log(API_BASE)
+              getFidByToken(farcaster, API_BASE).then((fid) => {
+                if (fid) {
+                  mainStore.fid = fid as string;
+                  localStorage.setItem("fid", fid as string);
+                }
+              });
+            }
+          } else {
+            fetchWAuth(mainStore, `${API_BASE}/accounts/social/list`).then(
+              async (res) => {
+                try {
+                  const req = await res.json();
+                  if (req.ok) {
+                    if (req?.social?.farcaster) {
+                      mainStore.farcaster = req.social.farcaster;
+                      localStorage.setItem("farcaster", req.social.farcaster);
+                    }
+                  }
+                } catch (error) {
+                  console.error("Failed to parse farcaster", error);
+                }
+              }
+            );
+          }
+          collectionStore.collectionsPromise = getCollections(
+            collectionStore,
+            mainStore.userData.account
+          ) as Promise<ICollection[]>;
         }
       } catch (error) {
-        console.error('Failed, to set store', error)
+        console.error("Failed, to set store", error);
       }
       try {
-        deleteMeta()
+        deleteMeta();
       } catch (error) {
-        console.error('Failed to delete meta', error)
+        console.error("Failed to delete meta", error);
       }
-    })
+    });
 
     return {
       route,
       setAlertStack,
-      useAlertStack
-    }
+      useAlertStack,
+    };
 
     // onMounted(() => {
     //   console.log('isAuth', isLoggedIn.value)
     //   console.log(instance)
     // })
-  }
-})
+  },
+});
 </script>
 
 <style lang="scss">
 @font-face {
-  font-family: 'Lora';
+  font-family: "Lora";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(https://fonts.gstatic.com/s/lora/v26/0QI6MX1D_JOuGQbT0gvTJPa787weuxJPkq1umA.woff2) format('woff2');
-  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  src: url(https://fonts.gstatic.com/s/lora/v26/0QI6MX1D_JOuGQbT0gvTJPa787weuxJPkq1umA.woff2)
+    format("woff2");
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF,
+    U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
-  font-family: 'Lora';
+  font-family: "Lora";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(https://fonts.gstatic.com/s/lora/v26/0QI6MX1D_JOuGQbT0gvTJPa787weuxJBkq0.woff2) format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  src: url(https://fonts.gstatic.com/s/lora/v26/0QI6MX1D_JOuGQbT0gvTJPa787weuxJBkq0.woff2)
+    format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 html {
@@ -122,7 +166,7 @@ html {
   --stake-counter: #64570b;
 }
 
-html[class='dark'] {
+html[class="dark"] {
   --bg-color: #111;
   --bg-content: #222;
   --logoBg: #080808cf;
@@ -146,7 +190,7 @@ html[class='dark'] {
 
 #app {
   //https://fonts.googleapis.com/css2?family=Lora&display=swap
-  font-family: 'Lora', serif;
+  font-family: "Lora", serif;
   font-display: swap;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

@@ -17,6 +17,7 @@ export interface Web3FarcasterRawReply {
   attachments: {
     openGraph: [{ url: string; image: string }]
   }
+  text: string
   "body.data.text"?: string
   "body.username"?: string
   "meta.avatar"?: string
@@ -31,7 +32,9 @@ export interface Web3FarcasterRawReply {
     displayName: string
     pfp?: {
       url?: string
+      verified?: boolean
     }
+    username: string
   }
   threadMerkleRoot: string
   threadHash?: string

@@ -13,6 +13,10 @@ const useMainStore = defineStore('main', {
         weight: 1,
         authToken: ''
       },
+      farcaster: '',
+      fid: '',
+      farcasterFeed: false,
+      personalized: false,
       deletePost: '',
       isLoggedIn: false,
       openConnectModal: false,

@@ -50,6 +50,16 @@ export default defineComponent({
   setup() {
 
     const changes = [
+      {
+      date: '22 DEC - 2022',
+      title: 'Changes',
+      changes: [
+      'migrated mobile + web yup live to farcaster v2',
+      'added on yup web app the web3 content feed and farcaster feed if you are connected to farcaster',
+      'added the ability to send a cast if you are connected to farcaster',
+      'fixed menu for web app if you are viewing with a mobile device',
+    ]
+    },
     {
       date: '15 DEC - 6 DEC 2022',
       title: 'Changes',
