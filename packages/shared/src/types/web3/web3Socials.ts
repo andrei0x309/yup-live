@@ -26,6 +26,7 @@ export interface MirrorAccountResponse {
 }
 
 export interface LensAccountResponse {
+    lens: string
     data: {
         defaultProfile: {
             id: string
@@ -42,21 +43,7 @@ export interface LensAccountResponse {
 }
 
 export interface FarcasterAccountResponse {
-    result: {
-        user: {
-            username: string
-            displayName: string
-            avatar: {
-                url: string
-                isVerified: boolean
-            },
-            followerCount: number
-            followingCount: number
-            profile: {
-                directMessageTargets: {
-                    telegram: string
-                }
-            }
-        }
-    }
+    fid?: string
+    farcaster?: string
+    username?: string
 }

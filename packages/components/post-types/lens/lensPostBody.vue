@@ -1,4 +1,3 @@
-
 <template>
   <div class="p-4">
     <div class="flex p-2">
@@ -45,9 +44,9 @@ import { defineComponent, PropType } from 'vue'
 import type { Web3PostLens } from 'shared/src/types/web3/lens'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
 import LensIcon from 'icons/src/lens.vue'
-import VideoPlayer from '@/components/content/post/videoPlayer.vue'
+import VideoPlayer from 'components/post/videoPlayer.vue'
 import ClockIcon from 'icons/src/clock.vue'
-import ImagePreview from '@/components/content/post/imagePreview.vue'
+import ImagePreview from 'components/post/imagePreview.vue'
 import VerifiedIcon from 'icons/src/verified.vue'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
 
@@ -78,5 +77,3 @@ export default defineComponent({
   }
 })
 </script>
-
-

@@ -43,7 +43,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, reactive, ref, Ref, shallowRef, watch } from 'vue'
-import ImagePreview from '@/components/copy/post/imagePreview.vue'
+import ImagePreview from 'components/post/imagePreview.vue'
 import Voting from '@/components/copy/post/voting.vue'
 import FavIco from './favIco.vue'
 import ClockIcon from 'icons/src/clock.vue'

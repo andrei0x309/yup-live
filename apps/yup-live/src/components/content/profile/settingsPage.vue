@@ -77,6 +77,20 @@
         <div
           class="glassCard rounded-lg p-8 flex flex-col md:ml-auto w-full mt-10 md:mt-0 relative shadow-md"
         >
+          <h2 class="text-lg mb-1 font-medium title-font">Feed</h2>
+          <div>
+           Feeds personalization
+      <o-switch v-model="feedPersonalization" :rounded="true" position="right" size="small" variant="warning" @change="changeFeedPersonalization"
+        >&nbsp;&nbsp;{{ feedPersonalization ? 'Disable' : 'Enable' }}</o-switch
+      ></div>
+        </div>
+      </div>
+    </section>
+    <section class="body-font relative">
+      <div class="container px-5 py-2 mx-auto flex">
+        <div
+          class="glassCard rounded-lg p-8 flex flex-col md:ml-auto w-full mt-10 md:mt-0 relative shadow-md"
+        >
           <h2 class="text-lg mb-1 font-medium title-font">Delete Account</h2>
           <button
             :disabled="isDeleteLoading"
@@ -165,6 +179,7 @@ export default defineComponent({
     const isDisconnectFromFarcaster = ref(false);
     const router = useRouter();
     const farcasterToken = ref("");
+    const feedPersonalization = ref(false);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let ethersLib: any;
@@ -218,6 +233,18 @@ export default defineComponent({
     //   return recoveredAddress === address;
     // }
 
+    const changeFeedPersonalization = async () => {
+      const LSFP = localStorage.getItem("feedPersonalization");
+      if (LSFP === "true") {
+        feedPersonalization.value = !!"";
+        localStorage.setItem("feedPersonalization", "");
+      } else {
+        feedPersonalization.value = !!"true";
+        localStorage.setItem("feedPersonalization", "true");
+      }
+    }
+     
+
     const connectToFarcaster = async () => {
       try {
         isConnectToFarcaster.value = true;
@@ -266,7 +293,7 @@ export default defineComponent({
                 },
               },
             };
-            getFidByToken(token).then(fid => {
+            getFidByToken(token, API_BASE).then(fid => {
               if(fid) {
                 store.fid = fid as string;
                 localStorage.setItem("fid", fid as string);
@@ -340,6 +367,10 @@ export default defineComponent({
           body: JSON.stringify(delBody),
         });
         if (reqDel.ok) {
+          localStorage.removeItem("farcaster");
+          localStorage.removeItem("fid");
+          store.farcaster = "";
+          store.fid = "";
           stackAlertSuccess("Disconnected from farcaster successfully");
           isConnectedToFarcaster.value = false;
         } else {
@@ -398,6 +429,7 @@ export default defineComponent({
           })
         })
       })
+      feedPersonalization.value = !!(localStorage.getItem("feedPersonalization") || "")
       checkConnectedToFarcaster()
       isLoading.value = false;
     });
@@ -419,6 +451,8 @@ export default defineComponent({
       isConnectedToFarcaster,
       disconnectFromFarcaster,
       isDisconnectFromFarcaster,
+      changeFeedPersonalization,
+      feedPersonalization
     };
   },
 });

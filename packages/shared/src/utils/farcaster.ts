@@ -39,7 +39,7 @@ export const FCSendCast = async (fcToken: string, text: string, base?: string): 
     }> => {
     return new Promise(async (resolve) => {
         try {
-            const req = await fetch(`${base ? base : API_BASE}/proxy/farcaster/v2/cast`, {
+            const req = await fetch(`${base ? base : API_BASE}/proxy/farcaster/v2/casts`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',

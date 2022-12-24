@@ -19,6 +19,18 @@ export const getUserFollowers = async (userId: string) => {
   }
 }
 
+export const getUserFollowing = async (userId: string) => {
+  try {
+    const req = await fetch(`${API_BASE}/following/${userId}`)
+    if (req.ok) {
+      return { error: false, data: await req.json() }
+    }
+    return { error: true, msg: "API didn't return expected response." }
+  } catch {
+    return { error: true, msg: 'API is not available' }
+  }
+}
+
 export const getActionUsage = async (userId: string) => {
   try {
     const req = await fetch(`${API_BASE}/accounts/actionusage/${userId}`)
@@ -159,6 +171,19 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
       value: 'Not linked'
     })
   }
+  if (web3Handles?.lens) {
+    userInfoFields.push({
+      name: 'Lens',
+      value: web3Handles.lens
+    })
+  }
+  if (web3Handles?.farcaster) {
+    userInfoFields.push({
+      name: 'Farcaster',
+      value: web3Handles.farcaster
+    })
+  }
+
   returnData.userFields = userInfoFields
   return { error: false, data: returnData }
 }

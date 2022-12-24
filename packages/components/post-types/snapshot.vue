@@ -2,12 +2,9 @@
   <div>
     <div class="flex justify-between -mt-2 px-4 poap" style="z-index: 1">
       <span class="inline-block favIco">
-        <router-link v-if="post.id" :to="`/post/${post.id}`">
-          <PoapIcon class="w-8" />
-        </router-link>
-        <PoapIcon v-else class="w-8" />
+        <PoapIcon class="w-5" />
       </span>
-      <span class="flex time h-min space-x-1 items-center rounded-full text-xs font-medium">
+      <span class="flex mtime h-min space-x-1 items-center rounded-full text-xs font-medium">
         <ClockIcon class="w-5 h-5" />
         <p class="font-semibold text-xs">Minted</p>
         <p class="font-semibold text-xs">
@@ -54,7 +51,7 @@ import { onMounted, defineComponent, Ref, ref } from 'vue'
 import ClockIcon from 'icons/src/clock.vue'
 import PoapIcon from 'icons/src/poap.vue'
 import { truncteEVMAddr } from 'shared/src/utils/misc'
-import ImagePreview from '../imagePreview.vue'
+import ImagePreview from '../post/imagePreview.vue'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
 import type { Web3PostPOAP, Web3POAPRaw } from 'shared/src/types/web3/poap'
 
@@ -123,7 +120,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 div.poap {
-  .time {
+  .mtime {
     width: 100%;
     max-width: 10.5rem;
   }

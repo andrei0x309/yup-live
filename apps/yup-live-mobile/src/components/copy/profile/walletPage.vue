@@ -38,7 +38,7 @@
             <p class="p-3">Balance: {{ formatNumber(token.balance, 4) }}</p>
           </div>
         </div>
-        <CustomButton class="mt-2 mx-auto" :mobile="true" :icon="AddIcon" text="Load more" v-if="hasMore.polyTokens"  @click="loadMore('polyTokens')" />
+        <CustomButton v-if="hasMore.polyTokens" class="mt-2 mx-auto" :mobile="true" :icon="AddIcon" text="Load more"  @click="loadMore('polyTokens')" />
       </template>
       <template v-if="ethTokens.length > 0">
         <h2 class="text-[1.1rem] mb-4 uppercase mt-4 mx-auto text-center">Ethereum Tokens</h2>
@@ -54,7 +54,7 @@
             <p class="p-3">Balance: {{ formatNumber(token.balance, 4) }}</p>
           </div>
         </div>
-        <CustomButton class="mt-2 mx-auto" :mobile="true"  :icon="AddIcon" text="Load more" v-if="hasMore.ethTokens"  @click="loadMore('ethTokens')" />
+        <CustomButton v-if="hasMore.ethTokens" class="mt-2 mx-auto" :mobile="true" :icon="AddIcon" text="Load more"  @click="loadMore('ethTokens')" />
       </template>
     </template>
     <template v-if="currentSegment === 'nfts'">
@@ -72,7 +72,7 @@
             <p class="p-3"><a rel="noopener noreferrer nofollow" target="_blank" :href="nft.link">OpenSea</a></p>
           </div>
         </div>
-        <CustomButton class="mt-2 mx-auto" :mobile="true"  :icon="AddIcon" text="Load more" v-if="hasMore.ethNfts"  @click="loadMore('ethNfts')" />
+        <CustomButton v-if="hasMore.ethNfts" class="mt-2 mx-auto"  :mobile="true" :icon="AddIcon" text="Load more"  @click="loadMore('ethNfts')" />
       </template>
       <template v-if="polyNfts.length > 0">
         <h2 class="text-[1.1rem] mb-4 uppercase mt-4 mx-auto text-center">Polygon NFTs</h2>
@@ -88,7 +88,7 @@
             <p class="p-3"><a rel="noopener noreferrer nofollow" target="_blank" :href="nft.link">OpenSea</a></p>
           </div>
         </div>
-        <CustomButton class="mt-2 mx-auto" :mobile="true"  :icon="AddIcon" text="Load more" v-if="hasMore.polyNfts"  @click="loadMore('polyNfts')" />
+        <CustomButton v-if="hasMore.polyNfts" class="mt-2 mx-auto"  :mobile="true" :icon="AddIcon" text="Load more"  @click="loadMore('polyNfts')" />
       </template>
     </template>
     <template v-if="currentSegment === 'poaps'">
@@ -101,7 +101,7 @@
             <p class="p-3"><a rel="noopener noreferrer nofollow" target="_blank" :href="nft.link">Event on POAP</a></p>
           </div>
         </div>
-        <CustomButton class="mt-2 mx-auto" :icon="AddIcon" :mobile="true" text="Load more" v-if="hasMore.poaps"  @click="loadMore('poaps')" />
+        <CustomButton v-if="hasMore.poaps" class="mt-2 mx-auto" :icon="AddIcon" :mobile="true" text="Load more"  @click="loadMore('poaps')" />
       </template>
     </template>
   </div>
@@ -119,9 +119,10 @@ import DangLoader from 'components/vote-list/loader.vue'
 import CustomButton from 'components/functional/customButton.vue'
 import { stackAlertError } from '@/store/alertStore'
 import { formatNumber } from 'shared/src/utils/misc'
-import ImagePreview from '@/components/copy/post/imagePreview.vue'
+import ImagePreview from 'components/post/imagePreview.vue'
 import { IonSegment, IonSegmentButton, IonLabel } from '@ionic/vue'
 import AddIcon from 'icons/src/add.vue'
+import type { IProfileToken, IProfileNFT, IProfilePOAP } from 'shared/src/types/web3/wallet'
 
 import { config } from 'shared/src/utils/config'
 const { API_BASE } = config
@@ -141,30 +142,6 @@ export default defineComponent({
     }
   },
   setup(props) {
-    interface IProfileToken {
-      address: string
-      balance: number
-      image: string
-      name: string
-      symbol: string
-    }
-
-    interface IProfileNFT {
-      address: string
-      collectionImageURI: string
-      collectionName: string
-      imageURI: string
-      link: string
-      tokenId: number
-    }
-
-    interface IProfilePOAP {
-      description: string
-      eventId: string
-      image: string
-      link: string
-      title: string
-    }
     const assets = ref({}) as Ref< {
       yupScore?: number
       tokens?: any[] 

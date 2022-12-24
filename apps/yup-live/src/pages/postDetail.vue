@@ -14,7 +14,7 @@ import { useHead, HeadObject } from '@vueuse/head'
 import DangLoader from 'components/vote-list/loader.vue'
 import { useRoute } from 'vue-router'
 import Post from '@/components/content/post/post.vue'
-import { postTypesPromises } from '@/utils/post'
+import { postTypesPromises } from 'components/post-types/post-types'
 
 // import { useMainStore } from '@/store/main'
 

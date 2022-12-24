@@ -44,12 +44,23 @@ import AddIcon from "icons/src/add.vue"
 export default defineComponent({
   name: "ChangeLog",
   components: {
-    // DangLoader,
     CustomButton
   },
   setup() {
 
     const changes = [
+      {
+      date: '24 DEC - 2022',
+      title: 'Changes',
+      changes: [
+      'made follow/unfollow usable',
+      'unified post types',
+      'added the wnft image of mirror as post preview',
+      'added setting to enable/disable feed personalization',
+      'other fixes misc fixes',
+      'added paination to wallet profile section'
+      ]
+    },
       {
       date: '22 DEC - 2022',
       title: 'Changes',
@@ -58,7 +69,7 @@ export default defineComponent({
       'added on yup web app the web3 content feed and farcaster feed if you are connected to farcaster',
       'added the ability to send a cast if you are connected to farcaster',
       'fixed menu for web app if you are viewing with a mobile device',
-    ]
+      ]
     },
     {
       date: '15 DEC - 6 DEC 2022',

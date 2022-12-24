@@ -13,7 +13,7 @@
         <span>{{ mainTweet.userName }}</span>
         <span class="opacity-70">@{{ mainTweet.userHandle }} <VerifiedIcon v-if="mainTweet.verified" class="verIcon" /></span>
       </div>
-      <span class="inline-block favIco ml-auto"><TwitterIcon class="w-6 h-6 tIcon" /></span>
+      <span class="inline-block mfavIco ml-auto"><TwitterIcon class="w-6 h-6 tIcon" /></span>
     </div>
     <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
       <div class="indent"></div>
@@ -173,15 +173,15 @@
 // import { useMainStore } from '@/store/main'
 import { onMounted, defineComponent, ref, Ref } from 'vue'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
-import { loadTwitterFactory, createTweetEmbed } from '@/utils/twitter'
+// import { loadTwitterFactory, createTweetEmbed } from '@/utils/twitter'
 import TwitterIcon from 'icons/src/twitter.vue'
-import VideoPlayer from '@/components/content/post/videoPlayer.vue'
+import VideoPlayer from 'components/post/videoPlayer.vue'
 import ClockIcon from 'icons/src/clock.vue'
 import WarningIcon from 'icons/src/warning.vue'
 import BtnSpinner from 'icons/src/btnSpinner.vue'
 import GoTo from 'icons/src/goTo.vue'
 import CustomButton from 'components/functional/customButton.vue'
-import ImagePreview from '@/components/content/post/imagePreview.vue'
+import ImagePreview from 'components/post/imagePreview.vue'
 import VerifiedIcon from 'icons/src/verified.vue'
 import type { mediaType } from 'shared/src/types/post'
 import type { TweetData, TweetRaw } from 'shared/src/types/web2/twitter'
@@ -266,8 +266,8 @@ export default defineComponent({
     const loadEmbed = async () => {
       if (loadingEmebed.value) return
       loadingEmebed.value = true
-      await loadTwitterFactory(window)
-      await createTweetEmbed(`missing-${missingTweetId}`)
+      // await loadTwitterFactory(window)
+      // await createTweetEmbed(`missing-${missingTweetId}`)
       embedLoaded.value = true
       loadingEmebed.value = false
     }

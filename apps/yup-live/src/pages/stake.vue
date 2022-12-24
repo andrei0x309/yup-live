@@ -219,7 +219,6 @@ export default defineComponent({
     const clearStartNumber = () => {
       if(startNumberTimeout && rewardsRate) {
         clearTimeout(startNumberTimeout)
-        startNumber(rewardsRate)
       }
     }
 
@@ -297,8 +296,10 @@ export default defineComponent({
           stackAlertSuccess(`You collected a reward of ${rewardsPoly}`)
           if(rewardsPoly > 0){
             historicPolyReward.value += rewardsPoly
-            rewards.value -= rewardsPoly
             clearStartNumber()
+            rewards.value = 0
+            rewardsPoly = 0
+            startNumber(rewardsRate)
           }
           fetchContractsData()
         } else {

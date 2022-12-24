@@ -5,7 +5,13 @@
         <div class="profile w-full mb-4 flex flex-row">
           <DangLoader v-if="isLoadingUser" class="mt-28" :unset="true" />
           <template v-else>
-            <ProfileCard :userData="userData" />
+            <ProfileCard 
+            :key="`following-${isFollowing}`"
+            :userData="userData"
+            :isOwnAccount="isOwnAccount"
+            :isFollowing="isFollowing"
+            :isAuth="isAuth"
+             />
             <ProfileInfoCard class="mt-8" :bio="userData.bio" :fields="userFields" />
           </template>
         </div>
@@ -65,7 +71,7 @@
             </template>
           </o-tab-item>
 
-          <o-tab-item value="farcaster">
+          <o-tab-item v-if="isOwnAccount && hasFarcaster" value="farcaster">
             <template #header>
               <span> Farcaster </span>
             </template>
@@ -89,7 +95,7 @@
                   :key="(post  as Record<string, any>)._id.postid"
                   :post="(post as Record<string, any>)"
                   :postTypesPromises="postTypesPromises"
-                  :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
+                  :isHidenInfo="((post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid) || feedTab === 'farcaster'"
                   @updatepostinfo="
                   (postid: string) => {
                     postInfo = posts.find((p: any): boolean => postid === p._id.postid)
@@ -240,20 +246,21 @@ import {
 } from "@/store/collections";
 import { MENU_BUTTONS } from "@/components/content/profile/menuButtonEnums";
 import CollectionsPage from "@/components/content/profile/collectionsPage.vue";
-import { postTypesPromises } from "@/utils/post";
+import { postTypesPromises } from "components/post-types/post-types";
 import PostInfo from "@/components/content/post/postInfo.vue";
 import LineLoader from "components/functional/lineLoader.vue";
 import {
   getUserFollowers,
   createActionUsage,
   createUserData,
+  getUserFollowing
 } from "shared/src/utils/requests/accounts";
 import type { NameValue } from "shared/src/types/account";
 import type { ICollection } from "shared/src/types/store";
 import FollowersPage from "@/components/content/profile/followersPage.vue";
 import WalletPage from "@/components/content/profile/walletPage.vue";
-// import { stackAlertSuccess } from "@/store/alertStore";
-// import { FCSendCast } from "shared/src/utils/farcaster";
+import { stackAlertSuccess } from "@/store/alertStore";
+import { FCSendCast } from "shared/src/utils/farcaster";
 import Alert from "components/functional/alert.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 
@@ -320,11 +327,13 @@ export default defineComponent({
     const castContentCharCount = computed(() => castContent.value.length);
     const castError = ref("");
     const castErrorKey = ref(0);
+    const isAuth = ref(store.isLoggedIn);
 
     const showCastError = (msg: string) => {
       castError.value = msg;
       castErrorKey.value += 1;
     };
+    const isFollowing = ref(true);
 
     const userData = (ref({
       _id: "",
@@ -404,6 +413,7 @@ export default defineComponent({
     store.$subscribe(async () => {
       isOwnAccount.value = store?.isLoggedIn && store?.userData.account === userId.value;
       hasFarcaster.value = store?.isLoggedIn && store?.farcaster;
+      isAuth.value = store.isLoggedIn;
 
       if (store.deletePost) {
         const el = document?.getElementById(store.deletePost);
@@ -459,7 +469,7 @@ export default defineComponent({
 
     const getCreatedFeedPosts = async (start = 0) => {
       const res = await fetch(
-        `${API_BASE}/profile/posts/${store.userData.address}?start=${start}&limit=10`
+        `${API_BASE}/profile/posts/${userData.value?.evmAddress}?start=${start}&limit=10`
       );
       const data = await res.json();
       return data.posts;
@@ -628,10 +638,25 @@ export default defineComponent({
           if (!r.error) {
             userData.value.followers = r?.data?.length;
             followers.value = r?.data ?? [];
+
           } else {
             console.error(r.msg);
           }
         });
+        
+        if(store.userData.account) {
+          getUserFollowing(store.userData.account as string).then((r) => {
+          if (!r.error) {
+            const following = (r?.data ?? []) as string[];
+            isFollowing.value = !following.some(
+              (f) => f === userData.value._id
+            );
+          } else {
+            console.error(r.msg);
+          }
+        });
+        }
+
 
         if (userId.value !== store.userData.account) {
           collectionsEx.collectionsPromise = getCollections(
@@ -647,10 +672,9 @@ export default defineComponent({
         }
         if (currentMenuTab.value === MENU_BUTTONS.feed) {
           getFeedPosts = getHomeFeedPosts;
-        } else if (currentMenuTab.value === MENU_BUTTONS.wallet) {
-          // getFeedPosts = getCreatedFeedPosts
-        }
-        resetPosts();
+          resetPosts();
+        } 
+        
         isLoadingUser.value = false;
       });
     });
@@ -685,18 +709,17 @@ export default defineComponent({
         showCastError("Cast cannot be longer than 280 characters")
         return;
       }
-      return
-      // isSendingCast.value = true;
-      // const res = await FCSendCast(store.farcaster, castContent.value);
-      // if (!res.error) {
-      //   castContent.value = "";
-      //   openCastModal.value = false;
-      //   await getByActiveTab();
-      //   stackAlertSuccess("Cast sent!");
-      // } else {
-      //   showCastError(res.message)
-      // }
-      // isSendingCast.value = false;
+      isSendingCast.value = true;
+      const res = await FCSendCast(store.farcaster, castContent.value, API_BASE);
+      if (!res.error) {
+        castContent.value = "";
+        openCastModal.value = false;
+        await getByActiveTab();
+        stackAlertSuccess("Cast sent!");
+      } else {
+        showCastError(res.message)
+      }
+      isSendingCast.value = false;
     };
 
     return {
@@ -731,7 +754,10 @@ export default defineComponent({
       sendCast,
       castContentCharCount,
       castError,
-      castErrorKey
+      castErrorKey,
+      hasFarcaster,
+      isFollowing,
+      isAuth
     };
   },
 });

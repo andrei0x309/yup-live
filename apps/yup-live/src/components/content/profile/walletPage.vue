@@ -6,40 +6,42 @@
   <template v-else>
     <template v-if="!nothingToShow">
       <h2 class="text-[1.3rem] my-4 uppercase">{{ accountId }}'s Wallet</h2>
-      <template v-if="refTokensPoly.length > 0">
+      <template v-if="polyTokens.length > 0">
         <h2 class="text-[1.1rem] mb-4 uppercase mt-8">Polygon Tokens</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-center wallet-section">
-          <div v-for="token of refTokensPoly" :key="token.address" class="grid-missing flex flex-col p-4 glassCard token">
+          <div v-for="token of polyTokens" :key="token.address" class="grid-missing flex flex-col p-4 glassCard token">
             <p class="p-3">Token: {{ token.symbol }}</p>
             <ImagePreview
               :source="token.symbol === 'WETH' ? '/res/svg/purple-eth.svg' : token.image"
-              :imgClass="`rounded-b-full rounded-t-full ${token.symbol === 'WETH' ? 'h-15 w-15' : 'h-13 w-13'}`"
-              :noPreviewClass="`rounded-b-full rounded-t-full ${token.symbol === 'WETH' ? 'h-15 w-15' : 'h-13 w-13'}`"
+              :imgClass="`${token.symbol === 'WETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full`"
+              :noPreviewClass="`${token.symbol === 'WETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full `"
               :noPreviewParagraph="false"
             />
             <p class="p-3">Balance: {{ formatNumber(token.balance, 4) }}</p>
           </div>
         </div>
+        <CustomButton v-if="hasMore.polyTokens" class="mt-2 mx-auto" :mobile="true" :icon="AddIcon" text="Load more"  @click="loadMore('polyTokens')" />
       </template>
-      <template v-if="refTokensEth.length > 0">
+      <template v-if="ethTokens.length > 0">
         <h2 class="text-[1.1rem] mb-4 uppercase mt-8">Ethereum Tokens</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-center wallet-section">
-          <div v-for="token of refTokensEth" :key="token.address" class="grid-missing flex flex-col p-4 glassCard token">
+          <div v-for="token of ethTokens" :key="token.address" class="grid-missing flex flex-col p-4 glassCard token">
             <p class="p-3">Token: {{ token.symbol }}</p>
             <ImagePreview
               :source="token.symbol === 'ETH' ? '/res/svg/purple-eth.svg' : token.image"
-              :imgClass="`rounded-b-full rounded-t-full ${token.symbol === 'ETH' ? 'h-15 w-15' : 'h-13 w-13'}`"
-              :noPreviewClass="`rounded-b-full rounded-t-full ${token.symbol === 'ETH' ? 'h-15 w-15' : 'h-13 w-13'}`"
+              :imgClass="`${token.symbol === 'ETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full`"
+              :noPreviewClass="`${token.symbol === 'ETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full `"
               :noPreviewParagraph="false"
             />
             <p class="p-3">Balance: {{ formatNumber(token.balance, 4) }}</p>
           </div>
         </div>
+        <CustomButton v-if="hasMore.ethTokens" class="mt-2 mx-auto" :mobile="true" :icon="AddIcon" text="Load more"  @click="loadMore('ethTokens')" />
       </template>
-      <template v-if="refNftsEth.length > 0">
+      <template v-if="ethNfts.length > 0">
         <h2 class="text-[1.1rem] mb-4 uppercase mt-8">Ethereum NFTs</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 justify-center wallet-section">
-          <div v-for="nft of refNftsEth" :key="nft.address" class="grid-missing flex flex-col p-4 glassCard nft">
+          <div v-for="nft of ethNfts" :key="nft.address" class="grid-missing flex flex-col p-4 glassCard nft">
             <p class="p-3">{{ nft.collectionName }}</p>
             <ImagePreview
               :source="nft.imageURI"
@@ -50,11 +52,12 @@
             <p class="p-3"><a rel="noopener noreferrer nofollow" target="_blank" :href="nft.link">OpenSea</a></p>
           </div>
         </div>
+        <CustomButton v-if="hasMore.ethNfts" class="mt-2 mx-auto"  :mobile="true" :icon="AddIcon" text="Load more"  @click="loadMore('ethNfts')" />
       </template>
-      <template v-if="refNftsPoly.length > 0">
+      <template v-if="polyNfts.length > 0">
         <h2 class="text-[1.1rem] mb-4 uppercase mt-8">Polygon NFTs</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 justify-center wallet-section">
-          <div v-for="nft of refNftsPoly" :key="nft.address" class="grid-missing flex flex-col p-4 glassCard nft">
+          <div v-for="nft of polyNfts" :key="nft.address" class="grid-missing flex flex-col p-4 glassCard nft">
             <p class="p-3">{{ nft.collectionName }}</p>
             <ImagePreview
               :source="nft.imageURI"
@@ -65,16 +68,18 @@
             <p class="p-3"><a rel="noopener noreferrer nofollow" target="_blank" :href="nft.link">OpenSea</a></p>
           </div>
         </div>
+        <CustomButton v-if="hasMore.polyNfts" class="mt-2 mx-auto"  :mobile="true" :icon="AddIcon" text="Load more"  @click="loadMore('polyNfts')" />
       </template>
-      <template v-if="POAPS.length > 0">
+      <template v-if="poaps.length > 0">
         <h2 class="text-[1.1rem] mb-4 uppercase mt-8">POAPs</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 justify-center wallet-section">
-          <div v-for="nft of POAPS" :key="nft.eventId" class="grid-missing flex flex-col p-4 glassCard nft">
+          <div v-for="nft of poaps" :key="nft.eventId" class="grid-missing flex flex-col p-4 glassCard nft">
             <p class="p-3">{{ nft.title }}</p>
             <ImagePreview :source="nft.image" imgClass="min-w-30 max-h-50" noPreviewClass="min-w-30 max-h-50" :noPreviewParagraph="false" />
             <p class="p-3"><a rel="noopener noreferrer nofollow" target="_blank" :href="nft.link">Event on POAP</a></p>
           </div>
         </div>
+        <CustomButton v-if="hasMore.poaps" class="mt-2 mx-auto" :icon="AddIcon" :mobile="true" text="Load more"  @click="loadMore('poaps')" />
       </template>
     </template>
     <div v-else>
@@ -85,19 +90,21 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref } from 'vue'
+import { onMounted, defineComponent, ref, Ref, reactive } from 'vue'
 import DangLoader from 'components/vote-list/loader.vue'
-// import CustomButton from 'components/functional/customButton.vue'
+import CustomButton from 'components/functional/customButton.vue'
 import { stackAlertError } from '@/store/alertStore'
 import { formatNumber } from 'shared/src/utils/misc'
-import ImagePreview from '@/components/content/post/imagePreview.vue'
+import ImagePreview from 'components/post/imagePreview.vue'
+import type { IProfileToken, IProfileNFT, IProfilePOAP } from 'shared/src/types/web3/wallet'
+import AddIcon from 'icons/src/add.vue'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
 // CustomButton
 
 export default defineComponent({
   name: 'WalletPage',
-  components: { DangLoader, ImagePreview },
+  components: { DangLoader, ImagePreview, CustomButton },
   props: {
     accountId: {
       type: String,
@@ -109,39 +116,33 @@ export default defineComponent({
     }
   },
   setup(props) {
-    interface IProfileToken {
-      address: string
-      balance: number
-      image: string
-      name: string
-      symbol: string
-    }
-
-    interface IProfileNFT {
-      address: string
-      collectionImageURI: string
-      collectionName: string
-      imageURI: string
-      link: string
-      tokenId: number
-    }
-
-    interface IProfilePOAP {
-      description: string
-      eventId: string
-      image: string
-      link: string
-      title: string
-    }
-
+    const assets = ref({}) as Ref< {
+      yupScore?: number
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      tokens?: any[] 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      nfts?: any[]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      poaps?: any[]
+    }>
     const isLoading = ref(true)
     const catComp = ref(null) as Ref<unknown>
     const nothingToShow = ref(false)
-    const refTokensPoly = ref([]) as unknown as Ref<IProfileToken[]>
-    const refTokensEth = ref([]) as unknown as Ref<IProfileToken[]>
-    const refNftsPoly = ref([]) as unknown as Ref<IProfileNFT[]>
-    const refNftsEth = ref([]) as unknown as Ref<IProfileNFT[]>
-    const POAPS = ref([]) as unknown as Ref<IProfilePOAP[]>
+    const ethTokens = ref([]) as Ref< IProfileToken[]>
+    const polyTokens = ref([]) as Ref< IProfileToken[]>
+    const ethNfts = ref([]) as Ref< IProfileNFT[]>
+    const polyNfts = ref([]) as Ref< IProfileNFT[]>
+    const poaps = ref([]) as Ref< IProfilePOAP[]>
+    const hasMore = reactive({
+      poaps: true,
+      ethTokens: true,
+      polyTokens: true,
+      ethNfts: true,
+      polyNfts: true,
+    })
+    const currentSegment = ref('tokens')
+
+
 
     // colStore.$subscribe(() => {
     //   refCollections.value = colStore.collections
@@ -177,34 +178,96 @@ export default defineComponent({
         isLoading.value = false
       } else {
         getProfileWallet().then((r) => {
-          console.log(r)
-          if (r?.nfts.length > 0 && r?.tokens.length > 0 && r?.poaps.length > 0) {
-            refTokensPoly.value = r?.tokens.filter((e: { chain: string }) => e.chain === 'polygon') ?? []
-            refTokensEth.value = r?.tokens.filter((e: { chain: string }) => e.chain === 'ethereum') ?? []
-            refNftsPoly.value =
-              r?.nfts.filter((e: { chain: string }) => e.chain === 'polygon').filter((e: IProfileNFT) => e?.imageURI) ?? []
-            refNftsEth.value = r?.nfts.filter((e: { chain: string }) => e.chain === 'ethereum') ?? []
-            POAPS.value = r?.poaps ?? []
-            console.log(refTokensPoly, refTokensEth, refNftsPoly, refNftsEth)
-            isLoading.value = false
-          } else {
+          assets.value = r ?? {}
+          if(!('poaps' in assets.value) && !('tokens' in assets.value) && !('nfts' in assets.value)) {
             nothingToShow.value = true
-            isLoading.value = false
           }
+          if ('poaps' in assets.value) {
+            poaps.value = assets.value?.poaps?.slice(0, 10) ?? []
+            if(poaps.value.length >= (assets.value?.poaps?.length ?? 0)) {
+              hasMore.poaps = false
+            }
+          }
+          if ('nfts' in assets.value) {
+            ethNfts.value = assets.value?.nfts?.filter(n => n.chain === 'ethereum').slice(0, 10) ?? []
+            if(ethNfts.value.length >= (assets.value?.nfts?.filter(n => n.chain === 'ethereum').length ?? 0)) {
+              hasMore.ethNfts = false
+            }
+            polyNfts.value = assets.value?.nfts?.filter(n => n.chain === 'polygon').slice(0, 10) ?? []
+            if(polyNfts.value.length >= (assets.value?.nfts?.filter(n => n.chain === 'polygon').length ?? 0)) {
+              hasMore.polyNfts = false
+            }
+          }
+          if ('tokens' in assets.value) {
+            ethTokens.value = assets.value?.tokens?.filter(n => n.chain === 'ethereum').slice(0, 10) ?? []
+            if(ethTokens.value.length >= (assets.value?.tokens?.filter(n => n.chain === 'ethereum').length ?? 0)) {
+              hasMore.ethTokens = false
+            }
+            polyTokens.value = assets.value?.tokens?.filter(n => n.chain === 'polygon').slice(0, 10) ?? []
+            if(polyTokens.value.length >= (assets.value?.tokens?.filter(n => n.chain === 'polygon').length ?? 0)) {
+              hasMore.polyTokens = false
+            }
+          }
+            isLoading.value = false
         })
       }
     })
 
+    const loadMore = (type: string) => {
+        switch(type) {
+          case 'ethTokens': {
+          ethTokens.value = assets.value?.tokens?.filter(n => n.chain === 'ethereum').slice(0, ethTokens.value.length + 10) ?? []
+            if(ethTokens.value.length >= (assets.value?.tokens?.filter(n => n.chain === 'ethereum').length ?? 0)) {
+              hasMore.ethTokens = false
+            }
+            break
+          }
+          case 'polyTokens': {
+            polyTokens.value = assets.value?.tokens?.filter(n => n.chain === 'polygon').slice(0, polyTokens.value.length + 10) ?? []
+            if(polyTokens.value.length >= (assets.value?.tokens?.filter(n => n.chain === 'polygon').length ?? 0)) {
+              hasMore.polyTokens = false
+            }
+          break
+          }
+          case 'ethNfts': {
+            ethNfts.value = assets.value?.nfts?.filter(n => n.chain === 'ethereum').slice(0, ethNfts.value.length + 10) ?? []
+            if(ethNfts.value.length >= (assets.value?.nfts?.filter(n => n.chain === 'ethereum').length ?? 0)) {
+              hasMore.ethNfts = false
+            }
+          break
+          }
+          case 'polyNfts': {
+            polyNfts.value = assets.value?.nfts?.filter(n => n.chain === 'polygon').slice(0, polyNfts.value.length +  10) ?? []
+            if(polyNfts.value.length >= (assets.value?.nfts?.filter(n => n.chain === 'polygon').length ?? 0)) {
+              hasMore.polyNfts = false
+            }
+          break
+          }
+          case 'poaps': {
+            poaps.value = assets.value?.poaps?.slice(0, poaps.value.length + 10) ?? []
+            if(poaps.value.length >= (assets.value?.poaps?.length ?? 0)) {
+              hasMore.poaps = false
+            }
+          break
+          }
+        }
+
+      }
+
     return {
       isLoading,
       catComp,
-      refTokensPoly,
-      refTokensEth,
-      refNftsPoly,
-      refNftsEth,
-      POAPS,
+        ethTokens,
+      polyTokens,
+      ethNfts,
+      poaps,
+      polyNfts,
       nothingToShow,
-      formatNumber
+      loadMore,
+      formatNumber,
+      AddIcon,
+      currentSegment,
+      hasMore
     }
   }
 })

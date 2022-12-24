@@ -33,7 +33,7 @@ import {
 import DangLoader from "components/vote-list/loader.vue";
 import { useRoute } from "vue-router";
 import Post from "@/components/copy/post/post.vue";
-import { postTypesPromises } from "@/components/copy/post/post-types";
+import { postTypesPromises } from "components/post-types/post-types";
 import HeaderBar from "@/components/template/header-bar.vue";
 
 import { config } from "shared/src/utils/config";

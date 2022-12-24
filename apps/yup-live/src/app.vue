@@ -48,11 +48,11 @@ export default defineComponent({
           mainStore.userData.avatar = localStorage.getItem("avatar") || "";
           mainStore.userData.weight = Number(localStorage.getItem("weight")) || 1;
           mainStore.userData.authToken = localStorage.getItem("authToken") || "";
+          mainStore.isLoggedIn = true;
           const FCFeed = localStorage.getItem("faracsterFeed");
           if (FCFeed) {
             mainStore.farcasterFeed = !!FCFeed;
           }
-          mainStore.isLoggedIn = true;
           const farcaster = localStorage.getItem("farcaster");
           if (farcaster) {
             mainStore.farcaster = farcaster;
@@ -60,7 +60,6 @@ export default defineComponent({
             if (fid) {
               mainStore.fid = fid;
             } else {
-              console.log(API_BASE)
               getFidByToken(farcaster, API_BASE).then((fid) => {
                 if (fid) {
                   mainStore.fid = fid as string;
@@ -77,6 +76,12 @@ export default defineComponent({
                     if (req?.social?.farcaster) {
                       mainStore.farcaster = req.social.farcaster;
                       localStorage.setItem("farcaster", req.social.farcaster);
+                    getFidByToken(req.social.farcaster, API_BASE).then((fid) => {
+                    if (fid) {
+                      mainStore.fid = fid as string;
+                      localStorage.setItem("fid", fid as string);
+                    }
+                  });
                     }
                   }
                 } catch (error) {

@@ -1,21 +1,34 @@
 <template>
   <BtnSpinner v-if="loading" />
   <template v-else>
-    <div class="flex flex-row-reverse justify-between mt-2 px-4" style="z-index: 1;position: absolute;right: 0;top: 0.5rem;">
-      <span class="inline-block mfavIco"><MirrorIcon class="w-5 tIcon" /> </span>
-    </div>
+    <div class="flex justify-between mt-4 px-4" style="z-index: 1;z-index: 1;position: absolute;width: 100%;">
+    <span class="flex mtime h-min space-x-1 items-center rounded-full text-xs font-medium">
+      <ClockIcon class="w-5 h-5" />
+      <p class="font-semibold text-xs">
+        {{ post.createdAt }}
+      </p>
+    </span>
+    <span class="inline-block mfavIco">
+      <MirrorIcon class="w-5 tIcon" />
+    </span>
+  </div>
     <div class="py-2 px-4" style="margin: 0.9rem 1rem 1rem 1rem; font-size: 1.1rem">
-      <h1 class="text-xl font-medium leading-6 tracking-wide text-gray-300 hover:text-blue-500 cursor-pointer">
+      <h1 class="text-xl font-medium leading-6 tracking-wide text-gray-300 hover:text-blue-500 cursor-pointer mt-8">
         {{ mirrorPost.title }}
       </h1>
       <span class="text-[0.7rem] opacity-70 text-center block-inline w-full mt-4">Author: {{ mirrorPost.author }}</span>
+      <ImagePreview v-if="featureImage" :showPlaceholder="false" :key="featureImage" :source="featureImage" imgClass="min-w-60 max-w-100" />
     </div>
     <div class="px-4 space-y-2" style="font-size: 0.9rem">
       <div class="font-normal leading-6 indent-4 mirror-content" v-html="mirrorPost.content"></div>
-      <span class="flex flex-row-reverse h-min items-center rounded-full text-xs font-medium">
-        <p class="text-xs opacity-70">Published {{ mirrorPost.createdAt }}</p>
-        <ClockIcon class="w-4 h-4 mx-1 block-inline" />
-      </span>
+      <div v-if="!full && (post?.web3Preview?.content ?? '').length >= 500" class="flex justify-center">
+        <router-link :to="`/post/${post?.id}`">
+        <CustomButton
+          class="text-xs font-medium"
+          :text="`Read&nbsp;&nbsp;&nbsp;more`"
+        />
+      </router-link>
+      </div>
     </div>
   </template>
 </template>
@@ -25,15 +38,20 @@ import { onMounted, defineComponent, ref } from 'vue'
 import ClockIcon from 'icons/src/clock.vue'
 import MirrorIcon from 'icons/src/mirror.vue'
 import snarkdown from 'snarkdown'
-import clip from 'text-clipper'
+import clip from 'shared/src/utils/3p/clipper'
 import BtnSpinner from 'icons/src/btnSpinner.vue'
+import { parseIpfs } from 'shared/src/utils/web3/ipfs'
+import ImagePreview from 'components/post/imagePreview.vue'
+import CustomButton from 'components/functional/customButton.vue'
 
 export default defineComponent({
   name: 'PostMirror',
   components: {
     ClockIcon,
     MirrorIcon,
-    BtnSpinner
+    BtnSpinner,
+    ImagePreview,
+    CustomButton
   },
   props: {
     post: {
@@ -53,14 +71,14 @@ export default defineComponent({
       title: '',
       createdAt: ''
     })
+    const featureImage = ref('')
     const loading = ref(true)
 
     onMounted(() => {
-      console.log(props.full, 'IS FULL PROP')
       const dom = new DOMParser().parseFromString(snarkdown((props.post?.web3Preview?.content ?? '').replace(/\\/gi, '')), 'text/html')
       const html = dom.querySelector('body')?.innerHTML ?? ''
 
-      mirrorPost.value.content = props.full ? html : clip(html, 240, { html: true, maxLines: 5 })
+      mirrorPost.value.content = props.full ? html : clip(html, 500, { html: true, maxLines: 8 })
       mirrorPost.value.title = props.post.web3Preview?.title
       let ens = props.post.web3Preview?.creator?.ens
       if (ens?.includes('%')) {
@@ -68,11 +86,16 @@ export default defineComponent({
       }
       mirrorPost.value.author = ens ?? props.post.web3Preview?.creator?.address
       mirrorPost.value.createdAt = props.post.createdAt
+      const wnftImage = props.post.web3Preview?.wnft?.imageURI
+      if(wnftImage) {
+        featureImage.value = parseIpfs(`ipfs://${wnftImage}`)
+      }
       loading.value = false
     })
 
     return {
       mirrorPost,
+      featureImage,
       loading
     }
   }
@@ -105,5 +128,10 @@ div.mirror-content {
     margin: 0.5rem 0.5rem 1rem 0.5rem;
     display: inline-block;
   }
+
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  } 
 }
 </style>

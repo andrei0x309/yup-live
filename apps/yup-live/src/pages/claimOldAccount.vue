@@ -598,6 +598,7 @@ export default defineComponent({
   border-radius: 0.5rem;
   box-shadow: 2px 0 0 #0a0a0ab3;
   height: min-content;
+  position: relative;
 }
 }
 </style>

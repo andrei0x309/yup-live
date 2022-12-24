@@ -1,6 +1,6 @@
 <template>
   <div class="imgPreview flex flex-col content-center justify-center items-center">
-    <BtnSpinner v-if="isLoading" />
+    <BtnSpinner v-if="isLoading" :key="`loading-${isLoading}`" />
     <img
       v-if="!isError"
       :key="source"
@@ -11,7 +11,7 @@
       @error="onError"
       @load="onLoad"
     />
-    <div v-else-if="!isLoading" :class="`noPreview w-full ${noPreviewClass}`">
+    <div v-else-if="!isLoading && showPlaceholder" :class="`noPreview w-full ${noPreviewClass}`">
       <img :class="`${imgClass} postBkImg`" alt="random image" :src="makeRandomPreview(true)" loading="lazy" />
       <NoImg class="noImg opacity-70" />
       <p v-if="noPreviewParagraph" class="-mt-7 mb-7 text-lg">No image preview available</p>
@@ -56,6 +56,11 @@ export default defineComponent({
       required: false,
       type: Boolean,
       default: true
+    },
+    showPlaceholder: {
+      required: false,
+      type: Boolean,
+      default: true
     }
   },
   setup(props) {
@@ -70,9 +75,6 @@ export default defineComponent({
     const onError = () => {
       isError.value = true
       isLoading.value = false
-    }
-    const onErrorBackup = () => {
-      isErrorBackup.value = true
     }
 
     const onLoad = () => {
@@ -92,7 +94,6 @@ export default defineComponent({
       onLoad,
       isLoading,
       isError,
-      onErrorBackup,
       isErrorBackup,
       randomInt,
       makeRandomPreview
@@ -110,9 +111,10 @@ export default defineComponent({
   border-radius: 0;
 }
 .noImg {
-  width: 60%;
+  width: 35%;
   z-index: 2;
-
+  padding: 1rem;
+  
   p {
     z-index: 2;
   }

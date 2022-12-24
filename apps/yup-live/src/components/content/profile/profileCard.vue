@@ -14,7 +14,31 @@
         <FollowersIcon class="inline w-4" /><span class="followers">{{ userData.followers }}</span>
       </h6>
     </div>
-    <button class="button">FOLLOW <AddFollow /></button>
+    <template v-if="isOwnAccount">
+      <o-tooltip :triggers="['hover']" :autoClose="true" :multiline="true">
+              <template #content>
+                <div class="followToolTip">
+                  <p class="p-2">You can't follow yourself</p>
+                </div>
+              </template>
+              <button :disabled="true" class="button opacity-70 cursor-not-allowed">FOLLOW <AddFollow /></button>
+            </o-tooltip>
+    </template>
+    <template v-else-if="!isAuth">
+      <o-tooltip :triggers="['hover']" :autoClose="true" :multiline="true">
+              <template #content>
+                <div class="followToolTip">
+                  <p class="p-2">You can't follow if you're not connected</p>
+                </div>
+              </template>
+              <button :disabled="true" class="button opacity-70 cursor-not-allowed">FOLLOW <AddFollow /></button>
+            </o-tooltip>
+    </template>
+    <template v-else>
+      <button :disabled="isActionLoading" class="button" @click="localIsFollowing ? follow() : unfollow()">
+      <BtnSpinner v-if="isActionLoading" class="inline w-3" />
+      {{ FOLLOW_TEXT }} <AddFollow /></button>
+  </template>
     <div class="ds-info">
       <div class="ds pens">
         <h6 title="Number of pens created by the user">Tokens</h6>
@@ -48,13 +72,20 @@ import FollowersIcon from '@/components/content/icons/followers.vue'
 import AddFollow from '@/components/content/icons/addFollow.vue'
 import { makeRandAvatar } from 'shared/src/utils/accounts'
 import type { NameValue } from 'shared/src/types/account'
+import { stackAlertError, stackAlertSuccess } from '@/store/alertStore'
+import { fetchWAuth } from 'shared/src/utils/auth'
+import { useMainStore } from '@/store/main'
+import BtnSpinner from 'icons/src/btnSpinner.vue'
+
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
-  name: 'PostInfo',
+  name: 'ProfileCard',
   components: {
     ProfileUseBar,
     AddFollow,
-    FollowersIcon
+    FollowersIcon,
+    BtnSpinner
   },
   props: {
     postInfo: {
@@ -82,10 +113,28 @@ export default defineComponent({
           follow: 0
         }
       })
+    },
+    isOwnAccount: {
+      type: Boolean,
+      default: false
+    },
+    isAuth: {
+      type: Boolean,
+      default: false
+    },
+    isFollowing: {
+      type: Boolean,
+      default: true
     }
   },
   setup(props) {
     const source = ref(props.userData.avatar)
+    const localIsFollowing = ref(props.isFollowing)
+    const store = useMainStore()
+    const isActionLoading = ref(false)
+    const FTEXT = 'FOLLOW'
+    const UTEXT = 'UNFOLLOW'
+    const FOLLOW_TEXT = ref(localIsFollowing.value ? FTEXT : UTEXT)
     // const isLoading = ref(true)
 
     const onError = () => {
@@ -96,13 +145,60 @@ export default defineComponent({
     //   isLoading.value = false
     // }
 
+    const follow = () => {
+      isActionLoading.value = true
+      fetchWAuth(store, `${API_BASE}/v2/followers?accountToFollow=${props.userData._id}`, {
+        method: 'POST'
+      })
+        .then((res) => {
+          if (res.ok) {
+            localIsFollowing.value = false
+            FOLLOW_TEXT.value = UTEXT
+            stackAlertSuccess('You are now following ' + props.userData.username)
+          } else {
+            stackAlertError('Something went wrong')
+          }
+          isActionLoading.value = false
+        })
+        .catch((err) => {
+          stackAlertError(String(err))
+          isActionLoading.value = false
+        })
+    }
+
+    const unfollow = () => {
+      isActionLoading.value = true
+      fetchWAuth(store, `${API_BASE}/v2/followers?accountToUnfollow=${props.userData._id}`, {
+        method: 'DELETE'
+      })
+        .then((res) => {
+          if (res.ok) {
+            FOLLOW_TEXT.value = FTEXT
+            localIsFollowing.value = true
+            stackAlertSuccess('You are no longer following ' + props.userData.username)
+          } else {
+            stackAlertError('Something went wrong')
+          }
+          isActionLoading.value = false
+        })
+        .catch((err) => {
+          stackAlertError(String(err))
+          isActionLoading.value = false
+        })
+    }
+
     onMounted(() => {
       // nothing
     })
 
     return {
       onError,
-      source
+      source,
+      unfollow,
+      follow,
+      localIsFollowing,
+      isActionLoading,
+      FOLLOW_TEXT
       // onLoad,
       // isLoading,
       // isError,
@@ -405,4 +501,12 @@ html[class='dark'] {
 .nextReset {
   font-size: 0.8rem;
 }
+
+.followToolTip {
+  font-size: 0.81rem;
+    display: inline-flex;
+    min-width: 12rem;
+    flex-direction: column;
+}
+
 </style>

@@ -26,10 +26,10 @@
 
 <script lang="ts">
 import { onMounted, defineComponent } from 'vue'
-import ImagePreview from '@/components/copy/post/imagePreview.vue'
-import FavIco from '@/components/copy/post/favIco.vue'
+import ImagePreview from 'components/post/imagePreview.vue'
+import FavIco from 'components/post/favIco.vue'
 import ClockIcon from 'icons/src/clock.vue'
-import VideoPlayer from '@/components/copy/post/videoPlayer.vue'
+import VideoPlayer from 'components/post/videoPlayer.vue'
 
 export default defineComponent({
   name: 'PostGeneral',

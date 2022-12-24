@@ -123,13 +123,13 @@ const routes = [
     component: () => import('@/pages/stake.vue')
   },
   {
-    path: '/feeds/:feedId',
-    name: 'FeedsWithId',
+    path: '/feeds',
+    name: 'Feeds',
     component: () => import('@/pages/feeds.vue')
   },
   {
-    path: '/feeds',
-    name: 'Feeds',
+    path: '/feeds/:feedId',
+    name: 'FeedsWithId',
     component: () => import('@/pages/feeds.vue')
   },
   {

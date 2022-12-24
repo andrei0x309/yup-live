@@ -38,7 +38,7 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, ref } from 'vue'
-import ImagePreview from '@/components/copy/post/imagePreview.vue'
+import ImagePreview from 'components/post/imagePreview.vue'
 import { useMainStore } from '@/store/main'
 import DeleteIcon from 'icons/src/delete.vue'
 import RadarIcon from 'icons/src/radar.vue'

@@ -61,7 +61,7 @@ import DangLoader from 'components/vote-list/loader.vue'
 import { useRoute } from 'vue-router'
 import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
 import Post from '@/components/content/post/post.vue'
-import { postTypesPromises } from '@/utils/post'
+import { postTypesPromises } from 'components/post-types/post-types'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
 import PostInfo from '@/components/content/post/postInfo.vue'
 

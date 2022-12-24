@@ -16,6 +16,6 @@
     "outDir": "./dist",
     "baseUrl": ".",
   },
-  "include": ["./src/**/*.js", "./src/**/*.ts", "./src/**/*.d.ts", "./src/**/*.tsx", "./src/**/*.vue", "./src/**/*.vue"],
+  "include": ["./**/*.js", "./**/*.ts", "./**/*.d.ts", "./**/*.tsx", "./**/*.vue", "./**/*.vue"],
   "exclude": ["node_modules", "dist", "build", "test", "example"]
 }

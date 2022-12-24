@@ -14,6 +14,21 @@ export default defineConfig({
       }
     }
   },
+  extract: {
+    // accepts globs and file paths relative to project root
+    include: [
+      'index.html',
+      'src/**/*.{vue,html}',
+      '../../packages/**/*.{vue,html}'
+    ],
+    exclude: [
+      'node_modules/**/*',
+      '.git/**/*',
+      'dist/**/*',
+      'public/**/*',
+      '**/node_modules/**/*',
+    ],
+  },
   plugins: [
     // plugin(({ addUtilities }) => {
     //   const newUtilities = {

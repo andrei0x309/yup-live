@@ -9,6 +9,10 @@ const routes: Array<RouteRecordRaw> = [
     component: ConnectPage
   },
   {
+    path: '/post/:postId',
+    redirect: '/tabs/post/:postId'
+  },
+  {
     path: '/tabs/',
     component: BottomNavigation,
     children: [

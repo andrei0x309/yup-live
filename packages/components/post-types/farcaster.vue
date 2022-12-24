@@ -21,7 +21,7 @@ import { timeAgo } from 'shared/src/utils/time'
 import type { mediaType } from 'shared/src/types/post'
 import type { Web3Media } from 'shared/src/types/web3/media'
 import type { Web3PostFarcaster, Web3FarcasterRaw, Web3FarcasterRawReply } from 'shared/src/types/web3/farcaster'
-import FarcasterPostBody from '@/components/copy/post/post-types/lens/farcasterPostBody.vue'
+import FarcasterPostBody from './lens/farcasterPostBody.vue'
 
 import { config } from "shared/src/utils/config";
 const { API_BASE } = config;

@@ -82,7 +82,7 @@ import DangLoader from 'components/vote-list/loader.vue'
 import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
 // import DateIcon from 'icons/src/date.vue'
 // import { useMainStore } from '@/store/main'
-import { postTypesPromises } from '@/utils/post'
+import { postTypesPromises } from 'components/post-types/post-types'
 import { useRoute } from 'vue-router'
 import Post from '@/components/content/post/post.vue'
 import PostInfo from '@/components/content/post/postInfo.vue'
@@ -110,28 +110,18 @@ export default defineComponent({
     // DateIcon
   },
   setup() {
-    // const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-    // const search = ref("");
-    // const store = useMainStore();
-    // const apiError = ref(false);
-    // const apiErrorMsg = ref("");
-    // const userId = ref("");
-    // const isDataLoading = ref(false);
-    // const influence: Ref<null | string> = ref(null);
-    // const historicInfluence: Ref<Array<Record<string, string | number>>> = ref([]);
-    // const iconsColor = ref(store.theme === 'dark' ? '#ccc' : '#020201')
     const route = useRoute()
     const loading = ref(true)
     const feeds = ['dailyhits', 'crypto', 'nfts', 'mirror', 'recent', 'farcaster', 'lens', 'twitter']
     const defaultFeed = (route.params.feedId as string) ?? 'dailyhits'
-    const userId = (route.query.userId as string) ?? ''
+    let userId = (route.query.userId as string) ?? ''
     const posts = ref([]) as Ref<Array<unknown>>
     const activeFeed = ref(defaultFeed) as Ref<string>
     const postsIndex = ref(0)
     const postInfo = ref(null) as Ref<unknown>
     const feedLoading = ref(false)
     const catComp = ref(null) as Ref<unknown>
-
+    const feedPersonalization = ref('');
 
     const siteData = reactive({
       title: `YUP View Feed - ${activeFeed ?? ''}`,
@@ -179,6 +169,11 @@ export default defineComponent({
 
     const getFeedPosts = async (start = 0) => {
       try {
+      if(!userId) {
+        if(feedPersonalization.value) {
+          userId = feedPersonalization.value;
+        }
+      }
       const res = await fetch(`${FEED_APIS[activeFeed.value]}?start=${start}&limit=10${userId ? '&account='+userId : ''}`, {
         headers: {
           'Content-Type': 'application/json'
@@ -221,6 +216,7 @@ export default defineComponent({
 
 
     onMounted(async () => {
+     feedPersonalization.value = localStorage.getItem('feedPersonalization') ?? ''
      getFeedPosts(postsIndex.value).then(
       res => {
         posts.value  = res
@@ -231,6 +227,8 @@ export default defineComponent({
       }
      )
     })
+
+    
 
     onUnmounted(() => {
       // do nothing

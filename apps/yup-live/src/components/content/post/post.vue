@@ -41,9 +41,9 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, reactive, ref, Ref, shallowRef, watch } from 'vue'
-import ImagePreview from '@/components/content/post/imagePreview.vue'
+import ImagePreview from 'components/post/imagePreview.vue'
 import Voting from '@/components/content/post/voting.vue'
-import FavIco from './favIco.vue'
+import FavIco from 'components/post/favIco.vue'
 import ClockIcon from 'icons/src/clock.vue'
 import PostMenu from './menu/postMenu.vue'
 import CollectMenu from './menu/collectMenu.vue'
@@ -257,15 +257,16 @@ html[class='dark'] {
   border-radius: 0.5rem;
   box-shadow: 2px 0 0 #0a0a0ab3;
   height: min-content;
+  position: relative;
 }
 
-.favIco {
+.mfavIco {
   display: flex;
-  background: radial-gradient(ellipse at bottom, rgb(231 230 189 / 59%) 0%, rgb(27 197 189 / 7%) 100%);
+  background: radial-gradient(ellipse at bottom, rgb(28 28 28 / 31%) 0%, rgb(30 30 30 / 46%) 100%);
   box-shadow: 2px 0px 10px 3px rgb(0 0 0 / 16%);
   border-radius: 50%;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
   justify-content: center;
   align-items: center;
   position: relative;
@@ -276,13 +277,13 @@ html[class='dark'] {
   }
 }
 
-.time {
-  background: radial-gradient(ellipse at bottom, rgba(231, 230, 189, 0.59) 0%, rgba(27, 197, 189, 0.07) 100%);
-  box-shadow: 2px 0px 10px 3px rgb(0 0 0 / 16%);
-  width: 8.5rem;
-  padding: 0.2rem;
-  justify-content: center;
-  align-items: center;
+.mtime {
+    background: radial-gradient(ellipse at bottom, rgb(28 28 28) 0%, rgb(30 30 30 / 88%) 100%);
+    box-shadow: 2px 0px 10px 3px rgb(0 0 0 / 16%);
+    justify-content: center;
+    align-items: center;
+    color: #f0ffffd4;
+    padding: 0 0.5rem;
 }
 
 .colbutton {

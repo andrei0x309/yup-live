@@ -31,10 +31,10 @@
     <h3 class="menu-title">Main Pages</h3>
     <ul>
       <li>
-        <router-link class="menu-pill" to="/feeds">
+        <router-link class="menu-pill" to="/feeds" @click="toggleSidebar()">
           <FeedsIcon class="inline w-3 mr-2" /> Feeds
         </router-link>
-        <router-link class="menu-pill" to="/staking">
+        <router-link class="menu-pill" to="/staking" @click="toggleSidebar()">
           <StakeIcon class="inline w-5 mr-2" /> Staking
         </router-link>
       </li>
@@ -44,7 +44,7 @@
 
     <ul>
       <li v-for="(menu, index) in menuDropDownLinks.links" :key="index">
-        <router-link class="menu-pill" :to="(menu.path as unknown as string)">
+        <router-link class="menu-pill" :to="(menu.path as unknown as string)" @click="toggleSidebar()">
           {{ menu.text }}
         </router-link>
       </li>

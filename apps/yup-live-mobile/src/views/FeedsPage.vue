@@ -57,7 +57,7 @@ onIonViewWillEnter
 } from "@ionic/vue";
 import { defineComponent, ref, Ref } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
-import { postTypesPromises } from '@/components/copy/post/post-types'
+import { postTypesPromises } from 'components/post-types/post-types'
 import Post from '@/components/copy/post/post.vue'
 import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
 import LineLoader from 'components/functional/lineLoader.vue'

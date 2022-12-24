@@ -110,7 +110,7 @@ ref,
 Ref
 } from 'vue'
 
-import { postTypesPromises } from '@/components/copy/post/post-types'
+import { postTypesPromises } from 'components/post-types/post-types'
 import Post from '@/components/copy/post/post.vue'
 import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
 import LineLoader from 'components/functional/lineLoader.vue'

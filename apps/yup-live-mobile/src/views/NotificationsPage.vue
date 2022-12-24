@@ -139,7 +139,7 @@ import { timeAgo } from "shared/src/utils/time"
 import ThumbsDown from "icons/src/thumbsDown.vue"
 import ThumbsUp from "icons/src/thumbsUp.vue"
 import ClockIcon from "icons/src/clock.vue"
-import ImagePreview from "@/components/copy/post/imagePreview.vue"
+import ImagePreview from "components/post/imagePreview.vue"
 import TwitterIcon from 'icons/src/twitter.vue'
 
 

@@ -56,21 +56,9 @@
           <template v-if="farcasterAccount">
             <div class="grid-missing flex flex-col p-4 glassCard">
               <h2>Farcaster Account</h2>
-              <p class="p-3">Username: {{ farcasterAccount.result.user.username }}</p>
-              <AvatarBtn
-                :key="farcasterAccount.result.user.avatar.url"
-                class="w-9 h-9 mx-auto"
-                :pSource="farcasterAccount.result.user.avatar.url"
-                :isSelf="false"
-                :isTwitter="true"
-                :pAccount="farcasterAccount.result.user.username"
-              />
-              <p class="p-3">Display Name: {{ farcasterAccount.result.user.displayName }}</p>
-              <p class="p-3">Follower Count: {{ farcasterAccount.result.user.followerCount }}</p>
-              <p class="p-3">NFT PFP: {{ farcasterAccount.result.user.avatar.isVerified ? `Yes` : `No` }}</p>
-              <p v-if="farcasterAccount?.result?.user?.profile?.directMessageTargets?.telegram" class="p-3">
-                Telegram: {{ farcasterAccount.result.user.profile.directMessageTargets.telegram }}
-              </p>
+              <p class="p-3">Username: {{ farcasterAccount.username }}</p>
+              <p class="p-3">Account Fid: {{ farcasterAccount.fid }}</p>
+              <p class="p-3">Farcaster Address: {{ farcasterAccount.farcaster }}</p>
             </div>
           </template>
           <template v-else>
@@ -115,8 +103,8 @@
           <template v-if="lensAccount">
             <div class="grid-missing flex flex-col p-4 glassCard">
               <h2>LENS Account</h2>
-              <p class="p-3">Handle: {{ lensAccount.data.defaultProfile.handle }}</p>
-              <AvatarBtn
+              <p class="p-3">Handle: {{ lensAccount.lens }}</p>
+              <!-- <AvatarBtn
                 :key="lensAccount.data.defaultProfile.picture.original.url"
                 class="w-9 h-9 mx-auto"
                 :pSource="parseIpfs(lensAccount.data.defaultProfile.picture.original.url)"
@@ -131,7 +119,7 @@
                 :icon="refLensIcon"
                 text="Free Follow"
                 @click="lensFollow(lensAccount.data.defaultProfile.id)"
-              />
+              /> -->
             </div>
           </template>
           <template v-else>
@@ -159,7 +147,7 @@ import { isValidAddress, formatNumber, truncteEVMAddr } from 'shared/src/utils/m
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
 import { stackAlertWarning, stackAlertSuccess } from '@/store/alertStore'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
-import { MirrorAccountResponse, YUPAccountResponse, FarcasterAccountResponse, LensAccountResponse } from 'shared/src/types/web3/web3Socials'
+import type { MirrorAccountResponse, YUPAccountResponse, FarcasterAccountResponse, LensAccountResponse } from 'shared/src/types/web3/web3Socials'
 import RadarIcon from 'icons/src/radar.vue'
 import GoToIcon from 'icons/src/goTo.vue'
 import LensIcon from 'icons/src/lens.vue'
@@ -175,7 +163,6 @@ const refLensIcon = LensIcon
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
 const lensGraphQl = 'https://api.lens.dev'
-const farcasterProfilesDeno = 'https://farcaster-profiles.deno.dev'
 const mirrorEndpoint = 'https://mirror-endpoint.deno.dev'
 
 export default defineComponent({
@@ -256,109 +243,109 @@ export default defineComponent({
       // do nothing
     })
 
-    const getLensUserData = async (address: string) => {
-      try {
-        const req = await fetch(`${lensGraphQl}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            query: `query DefaultProfile {
-  defaultProfile(request: { ethereumAddress: "${address}"}) {
-    id
-    name
-    bio
-    isDefault
-    attributes {
-      displayType
-      traitType
-      key
-      value
-    }
-    followNftAddress
-    metadata
-    handle
-    picture {
-      ... on NftImage {
-        contractAddress
-        tokenId
-        uri
-        chainId
-        verified
-      }
-      ... on MediaSet {
-        original {
-          url
-          mimeType
-        }
-      }
-    }
-    coverPicture {
-      ... on NftImage {
-        contractAddress
-        tokenId
-        uri
-        chainId
-        verified
-      }
-      ... on MediaSet {
-        original {
-          url
-          mimeType
-        }
-      }
-    }
-    ownedBy
-    dispatcher {
-      address
-      canUseRelay
-    }
-    stats {
-      totalFollowers
-      totalFollowing
-      totalPosts
-      totalComments
-      totalMirrors
-      totalPublications
-      totalCollects
-    }
-    followModule {
-      ... on FeeFollowModuleSettings {
-        type
-        contractAddress
-        amount {
-          asset {
-            name
-            symbol
-            decimals
-            address
-          }
-          value
-        }
-        recipient
-      }
-      ... on ProfileFollowModuleSettings {
-       type
-      }
-      ... on RevertFollowModuleSettings {
-       type
-      }
-    }
-  }
-}`
-          })
-        })
-        if (req.ok) {
-          const data = await req.json()
-          if (!data?.data?.defaultProfile) {
-            return null
-          }
-          return data
-        }
-      } catch {
-        // ignore
-      }
-      return null
-    }
+//     const getLensUserData = async (address: string) => {
+//       try {
+//         const req = await fetch(`${lensGraphQl}`, {
+//           method: 'POST',
+//           headers: { 'Content-Type': 'application/json' },
+//           body: JSON.stringify({
+//             query: `query DefaultProfile {
+//   defaultProfile(request: { ethereumAddress: "${address}"}) {
+//     id
+//     name
+//     bio
+//     isDefault
+//     attributes {
+//       displayType
+//       traitType
+//       key
+//       value
+//     }
+//     followNftAddress
+//     metadata
+//     handle
+//     picture {
+//       ... on NftImage {
+//         contractAddress
+//         tokenId
+//         uri
+//         chainId
+//         verified
+//       }
+//       ... on MediaSet {
+//         original {
+//           url
+//           mimeType
+//         }
+//       }
+//     }
+//     coverPicture {
+//       ... on NftImage {
+//         contractAddress
+//         tokenId
+//         uri
+//         chainId
+//         verified
+//       }
+//       ... on MediaSet {
+//         original {
+//           url
+//           mimeType
+//         }
+//       }
+//     }
+//     ownedBy
+//     dispatcher {
+//       address
+//       canUseRelay
+//     }
+//     stats {
+//       totalFollowers
+//       totalFollowing
+//       totalPosts
+//       totalComments
+//       totalMirrors
+//       totalPublications
+//       totalCollects
+//     }
+//     followModule {
+//       ... on FeeFollowModuleSettings {
+//         type
+//         contractAddress
+//         amount {
+//           asset {
+//             name
+//             symbol
+//             decimals
+//             address
+//           }
+//           value
+//         }
+//         recipient
+//       }
+//       ... on ProfileFollowModuleSettings {
+//        type
+//       }
+//       ... on RevertFollowModuleSettings {
+//        type
+//       }
+//     }
+//   }
+// }`
+//           })
+//         })
+//         if (req.ok) {
+//           const data = await req.json()
+//           if (!data?.data?.defaultProfile) {
+//             return null
+//           }
+//           return data
+//         }
+//       } catch {
+//         // ignore
+//       }
+//       return null
+//     }
 
     const getYupData = async (address: string) => {
       try {
@@ -378,18 +365,10 @@ export default defineComponent({
         if (req.ok) {
           const farcaster = await req.json()
           if ('farcaster' in farcaster) {
-            const req = await fetch(`${farcasterProfilesDeno}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ address: farcaster.farcaster })
-            })
-            if (req.ok) {
-              const data = await req.json()
-              if ('errors' in data) {
-                return null
-              }
-              return data
+              return farcaster
             }
+          else {
+            return null
           }
         }
       } catch {
@@ -440,11 +419,12 @@ export default defineComponent({
     }
 
     const getAccounsData = async (address: string) => {
-      await Promise.all([getLensUserData(address), getYupData(address), getFarcasterData(address), getMirrorAccount(address)]).then(
-        ([lensData, yupData, farcasterData, mirrorData]) => {
+      // getLensUserData(address), 
+      await Promise.all([getYupData(address), getFarcasterData(address), getMirrorAccount(address)]).then(
+        ([yupData, farcasterData, mirrorData]) => {
           resetAccValue()
-          if (lensData) {
-            lensAccount.value = lensData
+          if (yupData?.web3Handles?.lens) {
+            lensAccount.value = {lens: yupData?.web3Handles?.lens} as unknown as LensAccountResponse
           }
           if (yupData) {
             yupAccount.value = yupData

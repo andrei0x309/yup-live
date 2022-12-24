@@ -108,10 +108,15 @@
         <!-- social - end -->
       </div>
 
-      <div class="text-gray-600 dark:text-gray-300 text-sm text-center py-8">
-        <p><router-link to="/change-log">Change Log <ClockIcon class="inline w-4" /> </router-link></p>
-        <p class="mt-2">
-          <a target="_blank" href="https://www.coingecko.com/en/coins/yup" rel="nofollow">Check on CoinGecko <CoinGeckoIcon /></a>
+      <div
+    class="text-gray-600 dark:text-gray-300 text-sm text-center py-8" style="display: flex;
+    justify-content: center;
+    align-items: center;">
+        <p class="inline"><router-link to="/change-log"> <ClockIcon class="inline w-4 -mt-1 mx-1" />Change Log </router-link></p>
+        <p class="inline"><a href="https://play.google.com/store/apps/details?id=gf.info.yup&hl=en&gl=US" _target="blank">
+        <PlayStoreIcon class="w-38 mx-auto p-4" /></a></p>
+        <p class="inline">
+          <a target="_blank" href="https://www.coingecko.com/en/coins/yup" rel="nofollow"><CoinGeckoIcon class="-mt-1 mx-1" />YUP on CoinGecko </a>
         </p>
       </div>
     </footer>
@@ -125,10 +130,11 @@ import { getThemeMode } from '../../utils'
 import { useMainStore } from '../../store/main'
 import { useRoute } from 'vue-router'
 import ClockIcon from 'icons/src/clock.vue'
+import PlayStoreIcon from 'icons/src/playStore.vue'
 
 export default defineComponent({
   name: 'FooterTemplate',
-  components: { CoinGeckoIcon, ClockIcon },
+  components: { CoinGeckoIcon, ClockIcon, PlayStoreIcon },
   setup() {
     const isSwitchingTheme = ref(false)
     const isDarkTheme = () => store.theme === 'dark'

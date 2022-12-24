@@ -43,6 +43,7 @@
       "src/types/web3/media.ts",
       "src/types/web3/poap.ts",
       "src/types/web3/web3Socials.ts",
+      "src/types/web3/wallet.ts",
       "src/types/web2/index.ts",
       "src/types/web2/twitter.ts"
     ],
