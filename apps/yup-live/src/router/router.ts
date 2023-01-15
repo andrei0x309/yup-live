@@ -138,6 +138,16 @@ const routes = [
     component: () => import('@/pages/claimOldAccount.vue')
   },
   {
+    path: '/score',
+    name: 'Yup Score',
+    component: () => import('@/pages/score.vue')
+  },
+  {
+    path: '/score/:addr',
+    name: 'Yup Score With Addr',
+    component: () => import('@/pages/score.vue')
+  },
+  {
     path: '/meetings',
     name: 'MeetingsPage',
     component: () =>

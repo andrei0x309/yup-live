@@ -227,6 +227,10 @@ export default defineComponent({
         path: '/raw-influence'
       },
       {
+        text: 'Check Yup Score',
+        path: '/score'
+      },
+      {
         text: 'Emissions',
         path: '/emissions'
       },

@@ -9,19 +9,18 @@
         <ion-router-outlet  ref="outlet" id="content-page" />
 
         <ion-tab-bar slot="bottom">
-          <ion-tab-button tab="notifications" href="/tabs/notifications">
-            <ion-icon style="font-size: 2.3rem" :icon="notificationsCircle"></ion-icon>
-            <ion-label>Notifications</ion-label>
+          <ion-tab-button tab="account" href="/tabs/account">
+            <AvatarBtn class="w-8 h-8 mt-1" :isSelf="true" :pSource="avatar" :key="avatar" :isTwitter="true" />
+            <ion-label>Account</ion-label>
           </ion-tab-button>
 
           <ion-tab-button tab="feed" href="/tabs/feeds">
             <ion-icon style="font-size: 2.3rem" :icon="filterCircle"></ion-icon>
             <ion-label>Feeds</ion-label>
           </ion-tab-button>
-
-          <ion-tab-button tab="account" href="/tabs/account">
-            <AvatarBtn class="w-8 h-8 mt-1" :isSelf="true" :pSource="avatar" :key="avatar" :isTwitter="true" />
-            <ion-label>Account</ion-label>
+          <ion-tab-button tab="notifications" href="/tabs/notifications">
+            <ion-icon style="font-size: 2.3rem" :icon="notificationsCircle"></ion-icon>
+            <ion-label>Notifications</ion-label>
           </ion-tab-button>
         </ion-tab-bar>
       </ion-tabs>

@@ -45,14 +45,14 @@
 import { defineComponent, onMounted, reactive, ref, Ref, shallowRef, watch } from 'vue'
 import ImagePreview from 'components/post/imagePreview.vue'
 import Voting from '@/components/copy/post/voting.vue'
-import FavIco from './favIco.vue'
+import FavIco from 'components/post/favIco.vue'
 import ClockIcon from 'icons/src/clock.vue'
 import PostMenu from './menu/postMenu.vue'
 import { useMainStore } from '@/store/main'
 import { timeAgo } from 'shared/src/utils/time'
 import { hasVote } from 'shared/src/utils/requests/vote'
 import type { Vote } from 'shared/src/types/vote'
-import { chatbubble } from "ionicons/icons";
+// import { chatbubble } from "ionicons/icons";
 
 export default defineComponent({
   name: 'PostComponent',

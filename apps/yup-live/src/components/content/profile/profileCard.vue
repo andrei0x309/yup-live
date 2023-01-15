@@ -50,7 +50,7 @@
       </div>
       <div class="ds posts">
         <h6 title="Number of posts">Score</h6>
-        <p>{{ userData.score }}</p>
+        <a :href="`/score/${userData.evmAddress}`" class="scoreLink" >{{ userData.score }}</a>
       </div>
     </div>
     <div class="ds-actions">
@@ -507,6 +507,15 @@ html[class='dark'] {
     display: inline-flex;
     min-width: 12rem;
     flex-direction: column;
+}
+
+.scoreLink {
+     display: block;
+    border: 1px solid #39527c;
+    border-radius: 100%;
+    width: 1.5rem;
+    margin: auto;
+    font-size: 12px;
 }
 
 </style>

@@ -50,6 +50,15 @@ export default defineComponent({
 
     const changes = [
       {
+      date: '15 JAN - 2023',
+      title: 'Changes',
+      changes: [
+      'added yup score page to check details of any EVM address score',
+      'switch navigation in mobile',
+      'fixed daily emission not loading for year 2023'
+      ]
+    },
+      {
       date: '24 DEC - 2022',
       title: 'Changes',
       changes: [
