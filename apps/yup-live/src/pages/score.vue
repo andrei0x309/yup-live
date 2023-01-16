@@ -59,7 +59,7 @@
                 <h3>Proof of Humanity</h3>
                 <p>
                   Registerd:
-                  <b>{{ yupAccount.data.score_data.poh.registered ? "Yes" : "No" }}</b>
+                  <b>{{ yupAccount.data.score_data?.poh?.registered ? "Yes" : "No" }}</b>
                 </p>
               </div>
               <div class="grid-missing flex flex-col p-4 glassCard">
