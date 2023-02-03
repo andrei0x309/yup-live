@@ -12,8 +12,7 @@
           <CustomButton :icon="refWalletIcon" class="mx-auto my-4" text="Connect" @click="connect()" />
         </div>
         <div v-else class="my-4">
-        <p>Connected Address: <b>{{address}}</b></p>
-        <p v-if="poolShare > 0">Your current pool share: <b>{{ `${poolShare.toFixed(4)}%` }}</b></p>
+        Connected Address: <b>{{address}}</b>
         </div>
 
         <o-tabs
@@ -26,7 +25,65 @@
           navTypeClass="boxed"
           :animated="false"
         >
-          
+          <o-tab-item value="1">
+            <template #header>
+              <ETHIcon class="w-6 inline mr-1" />
+              <span>ETH</span>
+            </template>
+            <div class="flex flex-col p-4 thinSBox">
+              <div class="flex">
+                <div class="flex flex-col">
+                  <YUPETH class="w-30 mt-5" />
+                </div>
+                <div class="flex flex-col text-[1.2rem] p-6 mb-4">
+                  <p class="p-2">Stake YUP-ETH LP Tokens</p>
+                  <p class="p-2">Uniswap V2 • Ethereum</p>
+                  <p class="p-2">
+                    [ APR: <span class="text-[1.3rem]">{{ aprs.eth }}%</span> ]
+                  </p>
+                </div>
+              </div>
+              <div class="p-2 mr-4">
+                <p class="p-2 text-left flex items-center">
+                  <span class="w-40 inline-block tracking-wide uppercase">Staked<br />amount</span
+                  ><span class="text-[1.2rem]" v-html="ethStaked.toFixed(4)" />
+                </p>
+                <p class="p-2 text-left flex items-center">
+                  <span class="w-40 inline-block tracking-wide uppercase">Unstaked<br />amount</span
+                  ><span class="text-[1.2rem]" v-html="ethUnstaked.toFixed(4)" />
+                </p>
+              </div>
+              <o-tabs
+                v-model="activeTabStake"
+                :multiline="true"
+                :expanded="true"
+                type="default"
+                position="centred"
+                variant="warning"
+                navTypeClass="boxed"
+                :animated="false"
+              >
+                <o-tab-item value="0">
+                  <template #header>
+                    <StakeIcon class="w-6 inline mr-1" />
+                    <span> Stake </span>
+                  </template>
+                  <NoInput v-model:input="inputValue" :max="ethUnstaked-0.001" />
+                  <CustomButton :icon="refStakeIcon" text="Stake" @click="onStake('eth')" />
+                </o-tab-item>
+
+                <o-tab-item value="1">
+                  <template #header>
+                    <NoStakeIcon class="w-6 inline mr-1" />
+                    <span> Unstake </span>
+                  </template>
+                  <NoInput v-model:input="inputValue" :max="ethStaked-0.001" />
+                  <CustomButton :icon="refUnStakeIcon" text="Unstake" @click="onUnstake('eth')" />
+                </o-tab-item>
+              </o-tabs>
+            </div>
+          </o-tab-item>
+
           <o-tab-item value="0">
             <template #header>
               <PolyIcon class="w-6 inline mr-2" />
@@ -71,7 +128,7 @@
                     <span> Stake </span>
                   </template>
                   <NoInput v-model:input="inputValue" :max="polyUnstaked-0.001" />
-                  <CustomButton :icon="refStakeIcon" text="Stake" @click="onStake()" />
+                  <CustomButton :icon="refStakeIcon" text="Stake" @click="onStake('poly')" />
                 </o-tab-item>
 
                 <o-tab-item value="1">
@@ -80,7 +137,7 @@
                     <span> Unstake </span>
                   </template>
                   <NoInput v-model:input="inputValue" :max="polyStaked-0.001" />
-                  <CustomButton :icon="refUnStakeIcon" text="Unstake" @click="onUnstake()" />
+                  <CustomButton :icon="refUnStakeIcon" text="Unstake" @click="onUnstake('poly')" />
                 </o-tab-item>
               </o-tabs>
             </div>
@@ -110,7 +167,9 @@ import DangLoader from 'components/vote-list/loader.vue'
 // import { useRoute } from 'vue-router'
 import StakeIcon from '@/components/content/icons/stake.vue'
 import NoStakeIcon from '@/components/content/icons/noStake.vue'
+import YUPETH from '@/components/content/icons/yup-eth.vue'
 import YUPPOLY from '@/components/content/icons/yup-poly.vue'
+import ETHIcon from '@/components/content/icons/eth.vue'
 import PolyIcon from '@/components/content/icons/poly.vue'
 import NoInput from '@/components/content/staking/noInput.vue'
 import CustomButton from 'components/functional/customButton.vue'
@@ -121,22 +180,16 @@ import { useMainStore } from '@/store/main'
 import YUPCollectIcon from '@/components/content/icons/yup-collect.vue'
 import { stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
 import WalletIcon from '@/components/content/icons/walletIcon.vue'
-
-
 const refStakeIcon = StakeIcon
 const refUnStakeIcon = NoStakeIcon
 const refYupRewardsIcon = YUPCollectIcon
 const refWalletIcon = WalletIcon
-
 const POLY_RPC = import.meta.env.VITE_POLYGON_RPC
 const HISTORIC_REWARDS_ENDPOINT = 'https://yup-lp-historic-rewards.deno.dev'
-
 const providerOptionsProm = import('shared/src/utils/evm')
 const web3Mprom = import('web3modal')
 const ethers = import('ethers')
-
-const { POLY_LIQUIDITY_REWARDS, POLY_UNI_LP_TOKEN } = getPolyContractAddresses(137)
-
+const { POLY_LIQUIDITY_REWARDS, POLY_UNI_LP_TOKEN, ETH_UNI_LP_TOKEN, ETH_LIQUIDITY_REWARDS } = getPolyContractAddresses(137)
 // import { useMainStore } from '@/store/main'
 export default defineComponent({
   name: 'Staking',
@@ -144,7 +197,9 @@ export default defineComponent({
     DangLoader,
     StakeIcon,
     NoStakeIcon,
+    YUPETH,
     YUPPOLY,
+    ETHIcon,
     PolyIcon,
     NoInput,
     CustomButton
@@ -161,14 +216,18 @@ export default defineComponent({
     const rewards = ref(0)
     const polyStaked = ref(0)
     const polyUnstaked = ref(0)
+    const ethStaked = ref(0)
+    const ethUnstaked = ref(0)
     const store = useMainStore()
     const inputValue = ref('0')
     const historicETHReward = ref(0)
     const historicPolyReward = ref(0)
-    const poolShare = ref(0)
     const address = ref(localStorage.getItem('address'))
+    let rewardRateEth = 0
     let rewardRatePoly = 0
+    let totalStakeEth = 0
     let totalStakePoly = 0
+    let rewardsEth = 0
     let rewardsPoly = 0
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let ethersLib: any
@@ -177,27 +236,17 @@ export default defineComponent({
     let userProvider: any
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let w3Modal: any
-    let startNumberTimeout = 0
-    let rewardsRate = 0
-
-    store.$subscribe(() => {
-      address.value = store.userData.address
-    })
-
     const siteData = reactive({
       title: ``,
       description: ``
     })
-
     onUnmounted(() => {
       // do nothing
     })
-
     useHead({
       title: computed(() => siteData.title),
       description: computed(() => siteData.description)
     } as unknown as Ref<HeadObject>)
-
     const getAprs = async () => {
       const req1 = fetch(`${RW_API_BASE}/aprs/eth`)
       const req2 = fetch(`${RW_API_BASE}/aprs/poly`)
@@ -208,20 +257,12 @@ export default defineComponent({
       console.log(aprs)
       return aprs
     }
-
-    const startNumber = async (rate: number) => {
-      startNumberTimeout = setTimeout(() => {
+    const startNumer = async (rate: number) => {
+      setTimeout(() => {
         rewards.value += rate
-        startNumber(rate)
+        startNumer(rate)
       }, 400) as unknown as number
     }
-
-    const clearStartNumber = () => {
-      if(startNumberTimeout && rewardsRate) {
-        clearTimeout(startNumberTimeout)
-      }
-    }
-
     const prepareForTransaction = async () => {
       if (!userProvider) {
         try {
@@ -239,17 +280,24 @@ export default defineComponent({
       }
       return true
     }
-
-    const onStake = async () => {
+    const onStake = async (chain: string) => {
       if (!(await prepareForTransaction())) {
         return
       }
-
       try {
         const signer = await userProvider.getSigner()
-        const approveAddress = POLY_LIQUIDITY_REWARDS
-        const contractLP = new ethersLib.Contract(POLY_UNI_LP_TOKEN, uniPoolPABI, signer)
-        const contractRewards = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
+        let contractLP
+        let contractRewards
+        let approveAddress
+        if (chain === 'poly') {
+          approveAddress = POLY_LIQUIDITY_REWARDS
+          contractLP = new ethersLib.Contract(POLY_UNI_LP_TOKEN, uniPoolPABI, signer)
+          contractRewards = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
+        } else {
+          approveAddress = ETH_LIQUIDITY_REWARDS
+          contractLP = new ethersLib.Contract(ETH_UNI_LP_TOKEN, uniPoolPABI, signer)
+          contractRewards = new ethersLib.Contract(ETH_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
+        }
         const amount = ethersLib.utils.parseEther(inputValue.value.toString())
         await contractLP.approve(approveAddress, amount)
         await contractRewards.stake(amount)
@@ -259,20 +307,28 @@ export default defineComponent({
         stackAlertWarning('User rejected or tx failed')
       }
     }
-
-    const onUnstake = async () => {
+    const onUnstake = async (chain: string) => {
       if (!(await prepareForTransaction())) {
         return
       }
-
       try {
         const signer = await userProvider.getSigner()
-
-        const contractRewards = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
-        const willSusbstractPoly = Number(inputValue.value)
+        let contractRewards
+        let willSusbstractEth = 0
+        let willSusbstractPoly = 0
+        if (chain === 'poly') {
+          contractRewards = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
+          willSusbstractPoly = Number(inputValue.value)
+        } else {
+          contractRewards = new ethersLib.Contract(ETH_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
+          willSusbstractEth -= Number(inputValue.value)
+        }
         await contractRewards.unstake(ethersLib.utils.parseEther(inputValue.value.toString()))
+        if (willSusbstractEth > 0) {
+          ethStaked.value -= willSusbstractEth
+        }
         if (willSusbstractPoly > 0) {
-          polyStaked.value -= willSusbstractPoly
+          ethStaked.value -= willSusbstractPoly
         }
         stackAlertSuccess(`You unstaked ${inputValue.value} LPT successfuly`)
         fetchContractsData()
@@ -280,26 +336,29 @@ export default defineComponent({
         stackAlertWarning('User rejected or tx failed')
       }
     }
-
     const onReward = async () => {
       if (!(await prepareForTransaction())) {
         return
       }
-
       try {
         const signer = await userProvider.getSigner()
+        if (rewardsEth > 0) {
+          const contractRewardsEth = new ethersLib.Contract(ETH_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
+          await contractRewardsEth.getReward()
+        }
         if (rewardsPoly > 0) {
           const contractRewardsPoly = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, signer)
           await contractRewardsPoly.getReward()
         }
-        if (rewardsPoly > 0) {
-          stackAlertSuccess(`You collected a reward of ${rewardsPoly}`)
+        if (rewardsEth > 0 || rewardsPoly > 0) {
+          stackAlertSuccess(`You collected a reward of ${rewardsEth + rewardsPoly}`)
+          if(rewardsEth > 0) {
+            historicETHReward.value += rewardsEth
+            rewards.value -= rewardsEth
+          }
           if(rewardsPoly > 0){
             historicPolyReward.value += rewardsPoly
-            clearStartNumber()
-            rewards.value = 0
-            rewardsPoly = 0
-            startNumber(rewardsRate)
+            rewards.value -= rewardsPoly
           }
           fetchContractsData()
         } else {
@@ -309,7 +368,6 @@ export default defineComponent({
         stackAlertWarning('User rejected the transaction')
       }
     }
-
     const getHistoricRewards = async (address: string) => {
       try {
         let historicRewards
@@ -332,7 +390,6 @@ export default defineComponent({
           historicPolyReward.value = historicRewards?.poly
           return
         }
-
         const reqEth = fetch(HISTORIC_REWARDS_ENDPOINT, {
           method: 'POST',
           headers: {
@@ -340,7 +397,6 @@ export default defineComponent({
           },
           body: JSON.stringify({ chain: 'eth', address })
         })
-
         const rePoly = fetch(HISTORIC_REWARDS_ENDPOINT, {
           method: 'POST',
           headers: {
@@ -348,7 +404,6 @@ export default defineComponent({
           },
           body: JSON.stringify({ chain: 'poly', address })
         })
-
         const reqResults = await Promise.all([reqEth, rePoly])
         const reqResultsJson = await Promise.all([reqResults[0].json(), reqResults[1].json()])
         const ethReward = reqResultsJson[0].data.get_result_by_result_id[0].data.Reward
@@ -368,15 +423,15 @@ export default defineComponent({
         historicPolyReward.value = 0
       }
     }
-
     const fetchContractsData = () => {
       ethers.then(async (lib) => {
       ethersLib = lib.ethers
         ethersProvider = new ethersLib.providers.JsonRpcProvider(POLY_RPC)
+        const UNIContractETH = new ethersLib.Contract(ETH_UNI_LP_TOKEN, uniPoolPABI, ethersProvider)
         const UNIContractPoly = new ethersLib.Contract(POLY_UNI_LP_TOKEN, uniPoolPABI, ethersProvider)
+        const YUPRewardsETH = new ethersLib.Contract(ETH_LIQUIDITY_REWARDS, yupRewardsPABI, ethersProvider)
         const YUPRewardsPoly = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, ethersProvider)
         const utils = ethersLib.utils
-
         if (!address.value && w3Modal.cachedProvider) {
           userProvider = new ethersLib.providers.Web3Provider(await w3Modal.connect())
           address.value = await userProvider.getSigner().getAddress()
@@ -384,31 +439,34 @@ export default defineComponent({
         if (address.value) {
           getHistoricRewards(address.value)
         }
-
         const arrProm = [
+          UNIContractETH.balanceOf(address.value),
           UNIContractPoly.balanceOf(address.value),
+          YUPRewardsETH.balanceOf(address.value),
           YUPRewardsPoly.balanceOf(address.value),
+          YUPRewardsETH.earned(address.value),
           YUPRewardsPoly.earned(address.value),
+          YUPRewardsETH.rewardRate(),
           YUPRewardsPoly.rewardRate(),
+          UNIContractETH.balanceOf(ETH_LIQUIDITY_REWARDS),
           UNIContractPoly.balanceOf(POLY_LIQUIDITY_REWARDS)
         ]
-
         Promise.all(arrProm).then((res) => {
-          polyUnstaked.value = Number(utils.formatEther(res[0]))
-          polyStaked.value = Number(utils.formatEther(res[1]))
-          rewardsPoly = Number(utils.formatEther(res[2]))
-          rewards.value = rewardsPoly
-          rewardRatePoly = Number(utils.formatEther(res[3]))
-          totalStakePoly = Number(utils.formatEther(res[4]))
-          rewardsRate = (rewardRatePoly * polyStaked.value) / totalStakePoly
-          startNumber(rewardsRate)
-          if(polyStaked.value && totalStakePoly) {
-            poolShare.value = (100 * polyStaked.value) / totalStakePoly
-          }
+          ethUnstaked.value = Number(utils.formatEther(res[0]))
+          polyUnstaked.value = Number(utils.formatEther(res[1]))
+          ethStaked.value = Number(utils.formatEther(res[2]))
+          polyStaked.value = Number(utils.formatEther(res[3]))
+          rewardsEth = Number(utils.formatEther(res[4]))
+          rewardsPoly = Number(utils.formatEther(res[5]))
+          rewards.value = rewardsEth + rewardsPoly
+          rewardRateEth = Number(utils.formatEther(res[6]))
+          rewardRatePoly = Number(utils.formatEther(res[7]))
+          totalStakeEth = Number(utils.formatEther(res[8]))
+          totalStakePoly = Number(utils.formatEther(res[9]))
+          startNumer((rewardRateEth * ethStaked.value) / totalStakeEth + (rewardRatePoly * polyStaked.value) / totalStakePoly)
         })
       })
     }
-
     
     const connect = async () => {
       if (!userProvider) {
@@ -426,7 +484,6 @@ export default defineComponent({
         fetchContractsData()
       }
     }
-
     onMounted(async () => {
       getAprs().then(async (res) => {
         aprs.value.eth = Number(res.eth)
@@ -446,7 +503,6 @@ export default defineComponent({
         })
       })
     })
-
     return {
       loading,
       activeTab,
@@ -455,6 +511,8 @@ export default defineComponent({
       rewards,
       polyStaked,
       polyUnstaked,
+      ethStaked,
+      ethUnstaked,
       refStakeIcon,
       refUnStakeIcon,
       refYupRewardsIcon,
@@ -466,8 +524,7 @@ export default defineComponent({
       historicETHReward,
       historicPolyReward,
       address,
-      connect,
-      poolShare,
+      connect
     }
   }
 })
@@ -479,15 +536,12 @@ export default defineComponent({
   padding: 2rem;
   margin: 1rem;
 }
-
 .notBLine {
   border-right: 2px solid dimgrey;
   opacity: 0.5;
 }
-
 .page-stake {
   min-height: calc(100vh - 2rem);
-
   .nothead {
     position: sticky;
     text-orientation: upright;
@@ -496,16 +550,13 @@ export default defineComponent({
     transform: translate(-1400%, 6rem);
     height: 0;
   }
-
   .imgNotRadius {
     border-radius: 0.6rem;
     box-shadow: 3px 4px 5px 0px rgb(88 88 88 / 66%);
   }
-
   .o-tabs__nav {
     overflow-y: hidden;
   }
-
   .o-tabs__nav-item-default {
     outline: 0;
     width: 100%;
@@ -527,23 +578,19 @@ export default defineComponent({
     cursor: pointer;
     text-decoration: none;
   }
-
   .o-tabs__nav-item-default--active {
     border-bottom-color: var(--glassTxt);
     color: var(--glassTxt);
     border-bottom-width: 0.28rem;
   }
-
   .o-tabs__content {
     display: flex;
     align-items: center;
   }
-
   .o-tab-item__content {
     display: contents;
   }
 }
-
 .rewardsNumber {
   color: var(--stake-counter);
   display: block;
@@ -554,7 +601,6 @@ export default defineComponent({
   transition: all 1s ease-in;
   height: 6rem;
 }
-
 @keyframes numanim {
   0% {
     font-size: calc(1rem + 2vh);
