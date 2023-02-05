@@ -14,13 +14,14 @@
         :key="i"
         v-model="timePeriod"
         :native-value="i + 1"
-        >{{ wText }}</o-radio
+        >{{ wText.controlDate }}</o-radio
       >
     </div>
     <DangLoader v-if="isDataLoading" class="min-h-[80vh]" :unset="true" />
       <p class="p-2">Gini Index For all users that made more than 5 YUP/Week</p>
       <p class="p-4 bold">{{ giniIndex }}</p>
-      <p class="p-2 text-[1.2rem] mb-4">Population Aproximation:</p>
+      <p class="p-2 text-[1.3rem] mb-4">Population Aproximation</p>
+      <p class="p-2 text-[1.2rem] mb-4">Date interval: {{ weekText[timePeriod].displayDate  }}</p>
       <div class="mt-2">
         <div :key="timePeriod" ref="graphRef" class="d3-component mb-4"></div>
         <button
@@ -91,10 +92,13 @@ export default defineComponent({
     const API_BASE = import.meta.env.VITE_YUP_API_BASE;
     // const API_BASE = "http://localhost:4001"
 
-    const makeDateString = (dateStart: Date, dateEnd: Date) =>
-      `D:${dateStart.getUTCDate()} M:${
+    const makeDateString = (dateStart: Date, dateEnd: Date) => ({
+      controlDate: `D:${dateStart.getUTCDate()} M:${
         dateStart.getUTCMonth() + 1
-      } - D:${dateEnd.getUTCDate()} M:${dateEnd.getUTCMonth() + 1}`;
+      } - D:${dateEnd.getUTCDate()} M:${dateEnd.getUTCMonth() + 1}`,
+      displayDate: `Period: ${dateStart.toDateString()} - ${dateEnd.toDateString()}`,
+    })
+      
 
     const weekText = [makeDateString(new Date(), new Date(Date.now() - 7 * 8.64e7))];
     for (let i = 1; i <= 11; i++) {
