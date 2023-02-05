@@ -57,6 +57,8 @@ export default defineComponent({
       'added posibility to manualy load broken tweet',
       'made graphs more responsive',
       'fixed gini population graph',
+      'added time period title to gini graph',
+      'fixed coingecko raw price (API changed)',
       ]
     },
       {
