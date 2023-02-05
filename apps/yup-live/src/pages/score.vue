@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
+  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <div class="bg-color table-list w-full mb-4">
       <h2>Check YUP Score Details:</h2>
       <div class="flex rounded bg-gray-200 w-max-[30rem] mx-auto my-2">

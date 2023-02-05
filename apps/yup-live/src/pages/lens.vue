@@ -1,6 +1,6 @@
 <template>
   <br />
-  <!-- <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
+  <!-- <div class="page lg:max-width-90 md:max-width-60  py-2 mx-auto">
     <div class="bg-color page-stake w-full mb-4 flex flex-col">
       <h2 class="text-[1.3rem] p-6 tracking-wide uppercase">Lens Test</h2>
       <CustomButton :icon="refLensIcon" text="Auth Test" size="large" class="m-auto my-4" @click="onLens" />

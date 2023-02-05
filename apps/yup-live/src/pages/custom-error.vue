@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
+  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <div :key="`${isMobile}-error`" :class="`main-error bg-color w-full ${isMobile ? 'flex-column' : ''}`">
       <div>
         <div :class="`${isMobile ? 'm-14 error-fs-mobile' : 'm-20 error-fs-desktop'}`">

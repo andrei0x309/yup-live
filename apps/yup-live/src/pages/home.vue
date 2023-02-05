@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
+  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <TokenMetrics />
     <TableNav :key="`table-nav-${pageActive}`" :linkActive="pageActive" />
     <VoteList v-if="pages.default === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />

@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
+  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <div class="bg-color table-list w-full mb-4">
       <h2>Check Yup Account raw influence:</h2>
       <div class="flex rounded bg-gray-200 w-[30rem] m-auto">

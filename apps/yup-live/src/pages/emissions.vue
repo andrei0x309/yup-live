@@ -1,14 +1,16 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
+  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <section class="bg-color emission-section mt-4">
       <h2 class="text-2xl lg:text-3xl font-bold text-center mb-4 md:mb-6 p-12">Yup Phase I Emissions:</h2>
       <ChartD3
-        :key="`${grid.breakpoint}-phase-one-${gradient.toString()}`"
-        :svgWidth="svgWidth"
-        :svgHeight="svgHeight"
+        :key="`phase-one-${gradient.toString()}`"
+        svgWidth="900"
+        svgHeight="400"
         :gradient="gradient"
         :maxPoint="maxPointPhaseOne"
         csv="/emissions/phase-one.cvs"
+        :my="-20"
+        :mx="100"
       />
       <p class="chart-ins">{{ chartText }}</p>
     </section>
@@ -16,11 +18,13 @@
     <section class="bg-color emission-section mt-4">
       <h2 class="text-2xl lg:text-3xl font-bold text-center mb-4 md:mb-6 p-12">Yup Phase II Emissions:</h2>
       <ChartD3
-        :key="`${grid.breakpoint}-phase-two-${gradient.toString()}`"
-        :svgWidth="svgWidth"
-        :svgHeight="svgHeight"
+        :key="`phase-two-${gradient.toString()}`"
+        svgWidth="900"
+        svgHeight="400"
         :gradient="gradient"
         :maxPoint="maxPointPhaseOne"
+        :my="-20"
+        :mx="100"
         csv="/emissions/phase-two.cvs"
       />
       <p class="chart-ins">{{ chartText }}</p>
@@ -39,11 +43,10 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, reactive, computed, onUnmounted, Ref, watch } from 'vue'
+import { onMounted, defineComponent, ref, reactive, computed, onUnmounted, Ref } from 'vue'
 import { useHead, HeadObject } from '@vueuse/head'
 import ChartD3 from '@/components/content/chart-d3.vue'
 import { useMainStore } from '@/store/main'
-import { useGrid } from 'vue-screen'
 import { useRoute } from 'vue-router'
 
 export default defineComponent({
@@ -60,18 +63,9 @@ export default defineComponent({
     const gradient = ref(store.theme === 'dark' ? darkGradient : lightGradient)
     const maxPointPhaseOne = 116391
     const maxPointPhaseTwo = maxPointPhaseOne - 100
-    const grid = useGrid('tailwind')
-    const initWidth = ref(detWidth())
-    const initHeight = ref(detHeight())
     const route = useRoute()
 
-    function detWidth() {
-      return grid['2xl'] ? 1100 : grid['xl'] ? 900 : grid['lg'] ? 650 : grid['md'] ? 550 : 450
-    }
 
-    function detHeight() {
-      return grid['2xl'] ? 600 : grid['xl'] ? 400 : grid['lg'] ? 300 : grid['md'] ? 200 : 150
-    }
 
     const siteData = reactive({
       title: `YUP Live - Token emissions`,
@@ -129,21 +123,6 @@ export default defineComponent({
       }
     })
 
-    const svgWidth = computed(() => {
-      return String(initWidth.value)
-    })
-
-    const svgHeight = computed(() => {
-      return String(initHeight.value)
-    })
-
-    watch(
-      () => grid.breakpoint,
-      () => {
-        initWidth.value = detWidth()
-        initHeight.value = detHeight()
-      }
-    )
 
     onMounted(async () => {
       // do nothing
@@ -157,9 +136,6 @@ export default defineComponent({
       chartText,
       blobAnim,
       toggleBlob,
-      svgWidth,
-      svgHeight,
-      grid,
       maxPointPhaseOne,
       maxPointPhaseTwo,
       gradient

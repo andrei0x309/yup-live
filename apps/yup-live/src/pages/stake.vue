@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
+  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <div class="bg-color page-stake w-full mb-4 flex flex-col">
       <h2 class="text-[1.3rem] p-6 tracking-wide uppercase">Staking</h2>
       <template v-if="loading">

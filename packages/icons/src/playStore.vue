@@ -4,13 +4,6 @@
     version="1.1"
     viewBox="0 0 180 53.333"
   >
-    <metadata id="metadata9">
-      <rdf:RDF
-        ><cc:Work rdf:about=""
-          ><dc:format>image/svg+xml</dc:format
-          ><dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work
-      ></rdf:RDF>
-    </metadata>
     <path
       id="path11"
       d="m173.33 53.333h-166.66c-3.6666 0-6.6665-2.9999-6.6665-6.6665v-39.999c0-3.6666 2.9999-6.6665 6.6665-6.6665h166.66c3.6666 0 6.6665 2.9999 6.6665 6.6665v39.999c0 3.6666-2.9999 6.6665-6.6665 6.6665"

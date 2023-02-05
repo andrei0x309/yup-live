@@ -2,7 +2,7 @@
     <ion-page>
     <HeaderBar text="POST DETAIL" :menu="true" />
     <ion-content :fullscreen="false" class="ion-padding mt-4">
-  <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
+  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <div class="bg-color table-list w-full mb-4">
       <DangLoader v-if="isDataLoading" />
       <template v-else>

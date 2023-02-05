@@ -1,9 +1,9 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
-    <div class="bg-color table-list w-full mb-4">
-      <h2>Post: {{ postId }}</h2>
+  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
+    <div class="bg-color table-list w-full mb-4 min-h-[75vh] flex justify-start">
+      <h2 class="mb-4">Post: {{ postId }}</h2>
       <DangLoader v-if="isDataLoading" />
-      <Post v-else :id="postId" :full="true" :post="processedPost" :postTypesPromises="postTypesPromises" @updatepostinfo="openInfoModal" />
+      <Post v-else :id="postId" :full="true" :post="processedPost" :postTypesPromises="postTypesPromises" class="w-full max-w-[40rem]" @updatepostinfo="openInfoModal" />
     </div>
   </div>
 </template>

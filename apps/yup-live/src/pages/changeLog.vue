@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
+  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <div class="bg-color page-log w-full mb-4">
       <h1
         class="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl m-8 text-[#d7a73cd1]"
@@ -49,6 +49,16 @@ export default defineComponent({
   setup() {
 
     const changes = [
+      {
+      date: '5 FEB - 2023',
+      title: 'Changes',
+      changes: [
+      'added detection of deleted tweed',
+      'added posibility to manualy load broken tweet',
+      'made graphs more responsive',
+      'fixed gini population graph',
+      ]
+    },
       {
       date: '15 JAN - 2023',
       title: 'Changes',

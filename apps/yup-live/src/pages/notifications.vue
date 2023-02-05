@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
+  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <div class="bg-color page-not table-list w-full mb-4 flex flex-col">
       <h2 class="text-lg tracking-wide uppercase nothead">Notifications</h2>
 

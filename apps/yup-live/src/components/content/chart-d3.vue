@@ -1,5 +1,6 @@
 <template>
-  <div ref="graphRef" class="d3-component" />
+  <div ref="graphRef" class="d3-component flex justify-center lg:min-h-[40rem]  md:min-h-[40rem] sm:min-h-[40rem] w-full mr-8">
+  </div>
 </template>
 
 <script lang="ts">
@@ -35,6 +36,14 @@ export default defineComponent({
     svgHeight: {
       required: true,
       type: String
+    },
+    my: {
+      required: true,
+      type: Number
+    },
+    mx: {
+      required: true,
+      type: Number
     }
   },
   setup(props) {
@@ -46,17 +55,18 @@ export default defineComponent({
           graphRef.value.innerHTML = ''
         }
 
-        const margin = { top: 10, right: 30, bottom: 30, left: 60 }
-        const width = Number(props.svgWidth) - margin.left - margin.right
-        const height = Number(props.svgHeight) - margin.top - margin.bottom
+        const width = Number(props.svgWidth)
+        const height = Number(props.svgHeight) 
 
         const svg = d3
           .select(graphRef.value)
           .append('svg')
-          .attr('width', width + margin.left + margin.right)
-          .attr('height', height + margin.top + margin.bottom)
+          .attr('width', '99%')
+          .attr('height', '99%')
+          .attr('viewBox', `0 0 ${width} ${height}`)
+          .attr('preserveAspectRatio', 'xMidYMid meet')
           .append('g')
-          .attr('transform', `translate(${margin.left},${margin.top})`)
+          .attr('transform', `translate(${props.mx},${props.my})`)
 
         let data: unknown
         if (props.csv) {

@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto">
+  <div class="page lg:max-width-90 md:max-width-60  py-2 mx-auto">
     <div class="bg-color page-claim w-full mb-4">
       <h2>Claim Existing Account that does not have an address</h2>
       <p class="claimText">

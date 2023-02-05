@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 sm:max-width-30 py-2 mx-auto flex">
+  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto flex">
     <div class="bg-color page-not w-full mb-4 flex flex-col">
       <div v-if="!loading" class="flex flex-col text-center items-center pb-4">
         <h2 class="p-4 tracking-wide uppercase">Collection: {{ collectionData.name }}</h2>

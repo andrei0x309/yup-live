@@ -15,11 +15,13 @@
       </template>
     </div>
     <ChartD3
-      :key="`${grid.breakpoint}-${giniTrend.length}-${gradient.toString()}`"
-      :svgWidth="svgWidth"
-      :svgHeight="svgHeight"
+      :key="`${giniTrend.length}-${gradient.toString()}`"
+      svgWidth="900"
+      svgHeight="510"
       :gradient="gradient"
       :chartData="giniTrend"
+      :my="-30"
+      :mx="40"
       :maxPoint="1"
     />
 
@@ -69,7 +71,6 @@
 // import { useRoute, useRouter } from 'vue-router'
 import DangLoader from "components/vote-list/loader.vue";
 import { useMainStore } from "@/store/main";
-import { useGrid } from "vue-screen";
 import ChartD3 from "@/components/content/chart-d3.vue";
 import { exportFile } from "@/utils";
 import FileDownloadIcon from '@/components/content/icons/fileDownload.vue'
@@ -81,7 +82,6 @@ import {
   // inject,
   ref,
   //   reactive,
-  computed,
   watch,
   onUnmounted,
   Ref,
@@ -105,9 +105,6 @@ export default defineComponent({
     const timePeriod = ref(1);
     const tableTimePeriod = ref("loading...");
     const giniTrend: Ref<Array<Record<string, unknown>>> = ref([]);
-    const grid = useGrid("tailwind");
-    const initWidth = ref(detWidth());
-    const initHeight = ref(detHeight());
     const graphRef = (ref(null) as unknown) as Ref<HTMLElement>;
     const lightGradient = [
       "#0f53b5",
@@ -127,49 +124,11 @@ export default defineComponent({
     ];
     const gradient = ref(store.theme === "dark" ? darkGradient : lightGradient);
 
-    function detWidth() {
-      return grid["2xl"]
-        ? 1100
-        : grid["xl"]
-        ? 900
-        : grid["lg"]
-        ? 650
-        : grid["md"]
-        ? 550
-        : 450;
-    }
-
-    function detHeight() {
-      return grid["2xl"]
-        ? 550
-        : grid["xl"]
-        ? 450
-        : grid["lg"]
-        ? 300
-        : grid["md"]
-        ? 200
-        : 150;
-    }
-
     const iconsColor = ref(store.theme === "dark" ? "#ccc" : "#020201");
 
     const data: Ref<Record<string, string | number | boolean>[]> = ref([]);
 
-    const svgWidth = computed(() => {
-      return String(initWidth.value);
-    });
-
-    const svgHeight = computed(() => {
-      return String(initHeight.value);
-    });
-
-    watch(
-      () => grid.breakpoint,
-      () => {
-        initWidth.value = detWidth();
-        initHeight.value = detHeight();
-      }
-    );
+ 
 
     const getGiniData = async () => {
       const giniDataReqP = [];
@@ -243,10 +202,7 @@ export default defineComponent({
       isDataLoading,
       graphRef,
       apiError,
-      svgWidth,
-      svgHeight,
       gradient,
-      grid,
       dwJson,
     };
   },

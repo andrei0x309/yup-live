@@ -34,12 +34,15 @@
   </div>
   <div v-else-if="tweetType === 'missing'">
     <div v-if="!embedLoaded">
-      <p><WarningIcon class="w-10" /></p>
+      <p><WarningIcon class="w-10 mx-auto mt-2" /></p>
+      <p class="p-4" v-if="deleted">Sorry this tweet is not available anymore was <b>deleted</b>!</p>
+      <div v-else>
       <p>Preview for this tweet is missing.</p>
       <p>Do you want to load an embed?</p>
-      <p><CustomButton :icon="loadingEmebed ? refBtnSpinner : refBtnSpinner" text="Load Embed" @click="loadEmbed" /></p>
+      <p><CustomButton :mobile="true" :loading="loadingEmebed ? true: false" :icon="loadingEmebed ? refBtnSpinner : refGoTo" class="mt-2 mx-auto" :text="loadingEmebed ? 'Loading' : 'Load Embed'" @click="loadEmbed" /></p>
+      </div>
     </div>
-    <div :id="`missing-${missingTweetId}`"></div>
+    <div ref="tweet" :id="`${missingTweetId}`"></div>
   </div>
   <div v-else-if="tweetType === 'reply'" class="p-4">
     <div class="relative mb-6">
@@ -167,6 +170,7 @@
       </p>
     </span>
   </div>
+  <div id="scriptPlacer" class="hidden"></div>
 </template>
 
 <script lang="ts">
@@ -185,6 +189,7 @@ import ImagePreview from 'components/post/imagePreview.vue'
 import VerifiedIcon from 'icons/src/verified.vue'
 import type { mediaType } from 'shared/src/types/post'
 import type { TweetData, TweetRaw } from 'shared/src/types/web2/twitter'
+import { url } from 'inspector'
 
 const refGoTo = GoTo
 const refBtnSpinner = BtnSpinner
@@ -213,6 +218,7 @@ export default defineComponent({
     const tweetType = ref('original')
     const loadingEmebed = ref(false)
     const embedLoaded = ref(false)
+    const deleted = ref(false)
     const missingTweetId = ref('') as Ref<string>
 
     const mainTweet = ref({
@@ -239,41 +245,60 @@ export default defineComponent({
       return tweetId
     }
 
-    //        let twFactProm
-    //     if(!(window as unknown as {twttr: Record<string, never>}).twttr){
-    //         twFactProm = loadTwitterFactory(window)
-    //     } else {
-    //         twFactProm = Promise.resolve()
-    //     }
-    //     const id = extractTweetIdFromUrl(props.post.url)
-    //     twFactProm.then(() => {
-    //         //  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    //         //  const widgets = (window as unknown as any)[0]
-
-    //         console.log((window as unknown as any).twttr.ready())
-    //              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    //              ;(window as unknown as {widgets: Record<string, any>}).widgets.createTweet(
-    //         id,
-    //        tweet,
-    //         {
-    //             theme: store.theme
-    //         });
-
-    //     })
-    //     console.log('sss')
-    // })
-
+  
     const loadEmbed = async () => {
-      if (loadingEmebed.value) return
       loadingEmebed.value = true
-      // await loadTwitterFactory(window)
-      // await createTweetEmbed(`missing-${missingTweetId}`)
-      embedLoaded.value = true
-      loadingEmebed.value = false
+      const scriptUrl = 'https://platform.twitter.com/widgets.js'
+      const scriptId = 't-script'
+      const script = document.createElement('script')
+      script.id = scriptId
+      script.async = true
+      script.src = scriptUrl
+      if(!!!document.querySelector('#t-script')) {
+        document.querySelector('#scriptPlacer')?.insertAdjacentElement('afterbegin', script)
+      }
+      const embedInterval = setInterval(() => {
+        if(!!document.querySelector('#t-script')) {
+          const id = extractTweetIdFromUrl(props.post.url)
+          ;(window as unknown as {twttr: Record<string, any>}).twttr.error = (err: any) => {
+            console.log('error', err)
+          }
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(window as unknown as {twttr: Record<string, any>}).twttr.ready(() => {
+            console.log('ready', id, tweet)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ;(window as unknown as {twttr: Record<string, any>}).twttr.widgets.createTweet(
+              id,
+              tweet.value,
+              {
+                theme: 'dark'
+              }
+            )
+           
+          }).then((r: unknown) => {
+          if (r === undefined) {
+                deleted.value = true
+              }
+              else {
+                setTimeout(() => {
+                  embedLoaded.value = true
+                }, 100);
+              }
+              loadingEmebed.value = false
+          })
+          clearInterval(embedInterval)
+        }
+        console.log(document.querySelector('#t-script'))
+      }, 250)
+
     }
 
+
+
+    
     const getTweetType = () => {
-      if (!('tweetInfo' in props.post)) return 'missing'
+      if (!(props.post?.tweetInfo)) return 'missing'
       if (props.post.tweetInfo?.retweeted_status) return 'retweet'
       if (props.post.tweetInfo?.quoted_status) return 'quoted'
       if (props.post.tweetInfo?.reply_status) return 'reply'
@@ -322,14 +347,14 @@ export default defineComponent({
 
     onMounted(() => {
       tweetType.value = getTweetType()
-      console.log('............', tweetType.value)
+      console.log('............', tweetType.value, props.post?.tweetInfo)
       switch (tweetType.value) {
-        case 'original': {
-          fillTweet(props.post.tweetInfo, mainTweet)
-          break
-        }
         case 'missing': {
           missingTweetId.value = extractTweetIdFromUrl(props.post.url)
+          break
+        }
+        case 'original': {
+          fillTweet(props.post.tweetInfo, mainTweet)
           break
         }
         case 'retweet':
@@ -361,7 +386,8 @@ export default defineComponent({
       loadingEmebed,
       embedLoaded,
       loadEmbed,
-      missingTweetId
+      missingTweetId,
+      deleted
     }
   }
 })
