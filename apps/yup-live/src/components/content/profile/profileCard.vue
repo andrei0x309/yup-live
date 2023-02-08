@@ -46,7 +46,7 @@
       </div>
       <div class="ds projects">
         <h6 title="Number of projects created by the user">Influence</h6>
-        <p>{{ userData.weight }}</p>
+        <p><b>{{ userData.weight }}</b> out of 10</p>
       </div>
       <div class="ds posts">
         <h6 title="Number of posts">Score</h6>

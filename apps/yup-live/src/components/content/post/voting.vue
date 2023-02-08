@@ -63,8 +63,8 @@ export default defineComponent({
   },
   emits: ['update:vote'],
   setup(props, ctx) {
-    const positiveWeightRef = ref(props.positiveWeight * 0.05)
-    const negativeWeightRef = ref(props.negativeWeight * 0.05)
+    const positiveWeightRef = ref(props.positiveWeight)
+    const negativeWeightRef = ref(props.negativeWeight)
     const store = useMainStore()
     const isAuth = ref(store.isLoggedIn)
     const rating = ref(0)
@@ -157,24 +157,24 @@ export default defineComponent({
           if (refHasVote.value) {
             if (vote.value.like !== voteType) {
               if (vote.value.like) {
-                positiveWeightRef.value -= store.userData.weight * (rating.value + vote.value.rating - 1) * 0.05
-                negativeWeightRef.value += store.userData.weight * rating.value * 0.05
+                positiveWeightRef.value -= store.userData.weight * (rating.value + vote.value.rating - 1)
+                negativeWeightRef.value += store.userData.weight * rating.value
               } else {
-                negativeWeightRef.value -= store.userData.weight * (rating.value + vote.value.rating - 1) * 0.05
-                positiveWeightRef.value += store.userData.weight * rating.value * 0.05
+                negativeWeightRef.value -= store.userData.weight * (rating.value + vote.value.rating - 1)
+                positiveWeightRef.value += store.userData.weight * rating.value
               }
             } else {
               if (vote.value.like) {
-                positiveWeightRef.value += store.userData.weight * (rating.value - vote.value.rating) * 0.05
+                positiveWeightRef.value += store.userData.weight * (rating.value - vote.value.rating)
               } else {
-                negativeWeightRef.value += store.userData.weight * (rating.value - vote.value.rating) * 0.05
+                negativeWeightRef.value += store.userData.weight * (rating.value - vote.value.rating)
               }
             }
           } else {
             if (voteType) {
-              positiveWeightRef.value += store.userData.weight * rating.value * 0.05
+              positiveWeightRef.value += store.userData.weight * rating.value
             } else {
-              negativeWeightRef.value += store.userData.weight * rating.value * 0.05
+              negativeWeightRef.value += store.userData.weight * rating.value
             }
           }
           doingVote.value = true
