@@ -2,7 +2,7 @@
   <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <div class="bg-color table-list w-full mb-4">
       <h2>Check EVM address for Web3 Social Accounts:</h2>
-      <div class="flex rounded bg-gray-200 w-min-[20rem] w-max-[25rem] mx-auto my-2">
+      <div class="flex rounded bg-gray-200 mx-auto my-2">
         <input
           v-model="search"
           type="search"

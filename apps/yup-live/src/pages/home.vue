@@ -47,6 +47,7 @@ export default defineComponent({
 
     const getPageActive = (path: string) => {
       path = `/${path.split('/')[1]}`
+      console.log(path)
       switch (path) {
         case '/rewards':
           return pages.rewards
@@ -56,11 +57,17 @@ export default defineComponent({
           return pages.gini
         case '/gini-trend':
           return pages.giniTrend
-        case '/login':
-          openConnectModal(store)
+        case '/login': {
+          setTimeout(() => {
+            openConnectModal(store)
+          }, 500)
           return pages.default
-        case '/sign-up':
-          openConnectModal(store, false)
+        }
+        case '/sign-up': {
+          setTimeout(() => {
+            openConnectModal(store, true)
+          }, 500)
+        }
           return pages.default
         default:
           return pages.default
