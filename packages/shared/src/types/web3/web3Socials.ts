@@ -37,8 +37,17 @@ export interface LensAccountResponse {
                     url: string
                 }
             },
-
-        }
+            stats: {
+                totalCollects: number
+                totalComments: number
+                totalFollowers: number
+                totalFollowing: number
+                totalMirrors: number
+                totalPosts: number
+                totalPublications: number
+            }
+        },
+        fallback?: string
     }
 }
 

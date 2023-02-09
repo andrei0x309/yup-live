@@ -2,7 +2,7 @@
   <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <div class="bg-color table-list w-full mb-4">
       <h2>Check EVM address for Web3 Social Accounts:</h2>
-      <div class="flex rounded bg-gray-200 w-min-[10rem] w-max-[30rem] mx-auto my-2">
+      <div class="flex rounded bg-gray-200 w-min-[20rem] w-max-[25rem] mx-auto my-2">
         <input
           v-model="search"
           type="search"
@@ -69,10 +69,10 @@
             </div>
           </template>
 
-          <template v-if="mirrorAccount">
+          <template v-if="mirrorAccount?.data?.userProfile?.displayName">
             <div class="grid-missing flex flex-col p-4 glassCard">
               <h2>Mirror Account</h2>
-              <p class="p-3">Username: {{ mirrorAccount.data.userProfile.displayName }}</p>
+              <p class="p-3">Username: {{ mirrorAccount?.data?.userProfile?.displayName }}</p>
               <AvatarBtn
                 :key="mirrorAccount.data.userProfile.avatarURL"
                 class="w-9 h-9 mx-auto"
@@ -100,11 +100,12 @@
             </div>
           </template>
 
-          <template v-if="lensAccount">
+          <template v-if="lensAccount?.data?.defaultProfile?.handle || lensAccount?.data?.fallback">
             <div class="grid-missing flex flex-col p-4 glassCard">
               <h2>LENS Account</h2>
-              <p class="p-3">Handle: {{ lensAccount.lens }}</p>
-              <!-- <AvatarBtn
+              <template v-if="lensAccount?.data?.defaultProfile?.handle">
+              <p class="p-3">Handle: {{ lensAccount?.data?.defaultProfile?.handle }}</p>
+              <AvatarBtn
                 :key="lensAccount.data.defaultProfile.picture.original.url"
                 class="w-9 h-9 mx-auto"
                 :pSource="parseIpfs(lensAccount.data.defaultProfile.picture.original.url)"
@@ -114,7 +115,17 @@
               />
               <p v-if="lensAccount.data.defaultProfile.name" class="p-3">Lens Name: {{ lensAccount.data.defaultProfile.name }}</p>
               <p class="p-3">Lens Id: {{ lensAccount.data.defaultProfile.id }}</p>
-              <CustomButton
+              <p>Stats</p>
+              <ul>
+              <li>Followers: {{ lensAccount.data.defaultProfile.stats.totalFollowers }}</li>
+              <li>Following: {{ lensAccount.data.defaultProfile.stats.totalFollowing }}</li>
+              <li>Posts: {{ lensAccount.data.defaultProfile.stats.totalPosts }}</li>
+              </ul>
+              </template>
+              <template v-else>
+                <p class="p-3">Handle: {{ lensAccount.data.fallback }}</p>
+              </template>
+              <!-- <CustomButton
                 class="mx-auto"
                 :icon="refLensIcon"
                 text="Free Follow"
@@ -243,109 +254,109 @@ export default defineComponent({
       // do nothing
     })
 
-//     const getLensUserData = async (address: string) => {
-//       try {
-//         const req = await fetch(`${lensGraphQl}`, {
-//           method: 'POST',
-//           headers: { 'Content-Type': 'application/json' },
-//           body: JSON.stringify({
-//             query: `query DefaultProfile {
-//   defaultProfile(request: { ethereumAddress: "${address}"}) {
-//     id
-//     name
-//     bio
-//     isDefault
-//     attributes {
-//       displayType
-//       traitType
-//       key
-//       value
-//     }
-//     followNftAddress
-//     metadata
-//     handle
-//     picture {
-//       ... on NftImage {
-//         contractAddress
-//         tokenId
-//         uri
-//         chainId
-//         verified
-//       }
-//       ... on MediaSet {
-//         original {
-//           url
-//           mimeType
-//         }
-//       }
-//     }
-//     coverPicture {
-//       ... on NftImage {
-//         contractAddress
-//         tokenId
-//         uri
-//         chainId
-//         verified
-//       }
-//       ... on MediaSet {
-//         original {
-//           url
-//           mimeType
-//         }
-//       }
-//     }
-//     ownedBy
-//     dispatcher {
-//       address
-//       canUseRelay
-//     }
-//     stats {
-//       totalFollowers
-//       totalFollowing
-//       totalPosts
-//       totalComments
-//       totalMirrors
-//       totalPublications
-//       totalCollects
-//     }
-//     followModule {
-//       ... on FeeFollowModuleSettings {
-//         type
-//         contractAddress
-//         amount {
-//           asset {
-//             name
-//             symbol
-//             decimals
-//             address
-//           }
-//           value
-//         }
-//         recipient
-//       }
-//       ... on ProfileFollowModuleSettings {
-//        type
-//       }
-//       ... on RevertFollowModuleSettings {
-//        type
-//       }
-//     }
-//   }
-// }`
-//           })
-//         })
-//         if (req.ok) {
-//           const data = await req.json()
-//           if (!data?.data?.defaultProfile) {
-//             return null
-//           }
-//           return data
-//         }
-//       } catch {
-//         // ignore
-//       }
-//       return null
-//     }
+    const getLensUserData = async (address: string) => {
+      try {
+        const req = await fetch(`${lensGraphQl}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: `query DefaultProfile {
+  defaultProfile(request: { ethereumAddress: "${address}"}) {
+    id
+    name
+    bio
+    isDefault
+    attributes {
+      displayType
+      traitType
+      key
+      value
+    }
+    followNftAddress
+    metadata
+    handle
+    picture {
+      ... on NftImage {
+        contractAddress
+        tokenId
+        uri
+        chainId
+        verified
+      }
+      ... on MediaSet {
+        original {
+          url
+          mimeType
+        }
+      }
+    }
+    coverPicture {
+      ... on NftImage {
+        contractAddress
+        tokenId
+        uri
+        chainId
+        verified
+      }
+      ... on MediaSet {
+        original {
+          url
+          mimeType
+        }
+      }
+    }
+    ownedBy
+    dispatcher {
+      address
+      canUseRelay
+    }
+    stats {
+      totalFollowers
+      totalFollowing
+      totalPosts
+      totalComments
+      totalMirrors
+      totalPublications
+      totalCollects
+    }
+    followModule {
+      ... on FeeFollowModuleSettings {
+        type
+        contractAddress
+        amount {
+          asset {
+            name
+            symbol
+            decimals
+            address
+          }
+          value
+        }
+        recipient
+      }
+      ... on ProfileFollowModuleSettings {
+       type
+      }
+      ... on RevertFollowModuleSettings {
+       type
+      }
+    }
+  }
+}`
+          })
+        })
+        if (req.ok) {
+          const data = await req.json()
+          if (!data?.data?.defaultProfile) {
+            return null
+          }
+          return data
+        }
+      } catch {
+        // ignore
+      }
+      return null
+    }
 
     const getYupData = async (address: string) => {
       try {
@@ -419,12 +430,15 @@ export default defineComponent({
     }
 
     const getAccounsData = async (address: string) => {
-      // getLensUserData(address), 
-      await Promise.all([getYupData(address), getFarcasterData(address), getMirrorAccount(address)]).then(
-        ([yupData, farcasterData, mirrorData]) => {
+      address = address.trim()
+      await Promise.all([getYupData(address), getFarcasterData(address), getMirrorAccount(address), getLensUserData(address)]).then(
+        ([yupData, farcasterData, mirrorData, lensData]) => {
           resetAccValue()
-          if (yupData?.web3Handles?.lens) {
-            lensAccount.value = {lens: yupData?.web3Handles?.lens} as unknown as LensAccountResponse
+          if (yupData?.web3Handles?.lens || lensData?.data?.defaultProfile?.handle) {
+            const lensResp = {...{data: {}}, ...(lensData ?? {})}
+            console.log(lensResp)
+            lensResp.data.fallback = yupData?.web3Handles?.lens
+            lensAccount.value = lensResp
           }
           if (yupData) {
             yupAccount.value = yupData
