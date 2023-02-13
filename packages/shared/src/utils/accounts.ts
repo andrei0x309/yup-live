@@ -17,3 +17,7 @@ export const MAX_DELETE_VOTE = 600
 export const MAX_FOLLOW_USAGE = 60
 
 export const makeRandAvatar = (seed: string) => `https://avatars.dicebear.com/api/avataaars/${seed}.svg`
+
+export const getDerivedInfluence = (influence: number) => {
+  return Math.max((Math.trunc((1 + 11 * (1 - Math.pow(influence + 1, -0.3981) - 1)) * 11)), 1)
+}

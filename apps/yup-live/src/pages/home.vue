@@ -65,7 +65,7 @@ export default defineComponent({
         }
         case '/sign-up': {
           setTimeout(() => {
-            openConnectModal(store, true)
+            openConnectModal(store, false)
           }, 500)
         }
           return pages.default

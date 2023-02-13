@@ -76,12 +76,12 @@ export default defineComponent({
                     if (req?.social?.farcaster) {
                       mainStore.farcaster = req.social.farcaster;
                       localStorage.setItem("farcaster", req.social.farcaster);
-                    getFidByToken(req.social.farcaster, API_BASE).then((fid) => {
-                    if (fid) {
-                      mainStore.fid = fid as string;
-                      localStorage.setItem("fid", fid as string);
-                    }
-                  });
+                      getFidByToken(req.social.farcaster, API_BASE).then((fid) => {
+                        if (fid) {
+                          mainStore.fid = fid as string;
+                          localStorage.setItem("fid", fid as string);
+                        }
+                      });
                     }
                   }
                 } catch (error) {

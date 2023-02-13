@@ -28,12 +28,13 @@
             <span style="padding: 1rem; font-size: 1.4rem" class="gradient-text">{{ userId }}</span>
             has
             <span style="padding: 1rem; font-size: 1.4rem" class="gradient-text">{{ influence }}</span>
-            raw influence.
+            raw influence
+            = <span style="padding: 1rem; font-size: 1.4rem" class="gradient-text">{{ getDerivedInfluence(Number(influence)) }}</span> influence.
           </h2>
           <o-table :data="historicInfluence" :tableClass="`${isDataLoading ? 'tableLoading' : ''}`" :loading="isDataLoading">
             <o-table-column v-slot="props" field="timestamp" label="Snapshot Timestamp">
               <div class="inline">
-                <DateIcon :key="iconsColor" :color="iconsColor" />
+                <DateIcon />
                 {{ props.row.createdAt }}
               </div>
             </o-table-column>
@@ -71,6 +72,34 @@
           </div>
         </div>
       </div>
+
+      <h2>Derived Influence From Raw Influence Calculator:</h2>
+      <div class="flex rounded bg-gray-200 w-[30rem] m-auto">
+        <input
+          v-model="rawInf"
+          type="search"
+          class="w-full border-none bg-transparent px-4 py-1 text-gray-900 outline-none focus:outline-none"
+          placeholder="raw influence number"
+        />
+
+        <button
+          type="button"
+          class="m-2 rounded px-4 px-4 py-2 font-semibold text-gray-100"
+          :class="search.length > 0 ? 'bg-purple-500' : 'bg-gray-500 cursor-not-allowed'"
+          :disabled="search.length == 0"
+          @click="calcDerived"
+        >
+          check
+        </button>
+      </div>
+      <h2>
+            Derived influence from
+            <span style="padding: 1rem; font-size: 1.4rem" class="gradient-text">{{ rawInf }}</span>
+            is
+            <span style="padding: 1rem; font-size: 1.4rem" class="gradient-text">{{ derivedInf }}</span>
+            .
+      </h2>
+
     </div>
   </div>
 </template>
@@ -80,8 +109,8 @@ import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref, ref }
 import { useHead, HeadObject } from '@vueuse/head'
 import DangLoader from 'components/vote-list/loader.vue'
 import DateIcon from 'icons/src/date.vue'
-import { useMainStore } from '@/store/main'
 import { useRoute } from 'vue-router'
+import { getDerivedInfluence } from 'shared/src/utils/accounts'
 
 export default defineComponent({
   name: 'RawInfluence',
@@ -91,16 +120,18 @@ export default defineComponent({
   },
   setup() {
     const API_BASE = import.meta.env.VITE_YUP_API_BASE
-    const search = ref('')
-    const store = useMainStore()
+    const route = useRoute()
+    const user = ref((route.params.user as string) ?? "");
+    const search = ref(user)
     const apiError = ref(false)
     const apiErrorMsg = ref('')
     const userId = ref('')
     const isDataLoading = ref(false)
     const influence: Ref<null | string> = ref(null)
     const historicInfluence: Ref<Array<Record<string, string | number>>> = ref([])
-    const iconsColor = ref(store.theme === 'dark' ? '#ccc' : '#020201')
-    const route = useRoute()
+    const rawInf = ref(0)
+    const derivedInf = ref(0)
+    
 
     const siteData = reactive({
       title: `YUP Live - Check your raw influence`,
@@ -146,15 +177,14 @@ export default defineComponent({
       ]
     } as unknown as Ref<HeadObject>)
 
-    onMounted(async () => {
-      // do nothing
-    })
-
     onUnmounted(() => {
       // do nothing
     })
 
-
+    const calcDerived = async () => {
+      const derived = await getDerivedInfluence(Number(rawInf.value))
+      derivedInf.value = derived
+    }
 
     const checkAccount = async () => {
       const reqAcc = await fetch(`${API_BASE}/accounts/${search.value}`, {
@@ -215,6 +245,12 @@ export default defineComponent({
       isDataLoading.value = false
     }
 
+    onMounted(async () => {
+      if (user.value) {
+        await getUserData();
+      }
+    });
+
     return {
       search,
       getUserData,
@@ -224,7 +260,10 @@ export default defineComponent({
       userId,
       influence,
       historicInfluence,
-      iconsColor
+      calcDerived,
+      getDerivedInfluence,
+      rawInf,
+      derivedInf
     }
   }
 })

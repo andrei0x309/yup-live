@@ -62,6 +62,7 @@ import { useMainStore } from '@/store/main'
 import { providerOptions } from 'shared/src/utils/evm'
 import type { PartialAccountInfo } from 'shared/src/types/account'
 import { onLogin, onSignup } from 'shared/src/utils/login-signup'
+import { closeConnectModal } from '@/store/main'
 
 export default defineComponent({
   name: 'LoginSignup',
@@ -90,8 +91,8 @@ export default defineComponent({
   setup(props) {
     const provider = ref(null) as unknown as Ref<ethers.providers.Web3Provider>
     const web3Modal = ref(null) as unknown as Ref<Web3Modal>
-    const formTitle = ref('Log in')
     const isLogin = ref(props.loginState)
+    const formTitle = ref(isLogin.value ? 'Log in': 'Sign up')
     const mainStore = useMainStore()
     const fullname = ref('')
     const username = ref('')
@@ -175,6 +176,9 @@ export default defineComponent({
         web3M: web3Modal
       })
       doAllLogin(signupResult)
+      if(signupResult?._id){
+        closeConnectModal(mainStore)
+      }
     }
     
     const onLoginLocal = async () => {
@@ -187,6 +191,9 @@ export default defineComponent({
       })
       console.log(loginResult)
       doAllLogin(loginResult)
+      if(loginResult?._id){
+        closeConnectModal(mainStore)
+      }
     }
 
 

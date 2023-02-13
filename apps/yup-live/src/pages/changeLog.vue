@@ -50,6 +50,17 @@ export default defineComponent({
 
     const changes = [
       {
+      date: '13 FEB - 2023',
+      title: 'Changes',
+      changes: [
+      'change raw influence page',
+      'added posibility param to raw influence page',
+      'added calculator to get derived influence from raw influence',
+      'fixed connect modal not loading on /login',
+      'fixed route /sign-up title'
+      ]
+      },
+      {
       date: '5 FEB - 2023',
       title: 'Changes',
       changes: [
@@ -60,7 +71,7 @@ export default defineComponent({
       'added time period title to gini graph',
       'fixed coingecko raw price (API changed)',
       ]
-    },
+      },
       {
       date: '15 JAN - 2023',
       title: 'Changes',

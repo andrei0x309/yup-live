@@ -68,6 +68,11 @@ const routes = [
     component: () => import('@/pages/raw-influnece.vue')
   },
   {
+    path: '/raw-influence/:user',
+    name: 'RawInfluenceWithUser',
+    component: () => import('@/pages/raw-influnece.vue')
+  },
+  {
     path: '/change-log',
     name: 'ChangeLog',
     component: () => import('@/pages/changeLog.vue')
