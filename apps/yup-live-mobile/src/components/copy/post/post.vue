@@ -179,6 +179,10 @@ export default defineComponent({
             processedPost.web3Preview = props.post.web3Preview
             postTypeCom.value = (await props.postTypesPromises.preloadLens).default
             break
+          case 'erc721':
+            processedPost.web3Preview = props.post.web3Preview
+            postTypeCom.value = (await props.postTypesPromises.preloadErc721).default
+            break
           case 'poap':
             processedPost.web3Preview = props.post.web3Preview
             postTypeCom.value = (await props.postTypesPromises.preloadPoap).default
@@ -208,6 +212,7 @@ export default defineComponent({
       if (post.tag === 'mirror') return 'mirror'
       if (post.tag === 'poap') return 'poap'
       if (post.tag === 'farcaster') return 'farcaster'
+      if (post.tag === 'erc721') return 'erc721'
       if (post.tag === 'lens') return 'lens'
       if (post.tag === 'snapshot') return 'snapshot'
       if (post.tag === 'twitter') return 'tweet'

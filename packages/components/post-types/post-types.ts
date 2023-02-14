@@ -6,5 +6,6 @@ export const postTypesPromises = {
   preloadLens: import(`./lens.vue`),
   preloadPoap: import(`./poap.vue`),
   preloadMirror: import(`./mirror.vue`),
-  preloadSnapshot: import(`./snapshot.vue`)
+  preloadSnapshot: import(`./snapshot.vue`),
+  preloadErc721: import(`./erc721.vue`)
 }

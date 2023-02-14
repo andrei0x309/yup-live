@@ -19,6 +19,7 @@
               :hasVote="refHasVote"
             />
             <InfoIcon v-if="!isHidenInfo" class="ml-auto hidden lg:flex mr-4 cursor-pointer" @click="updatePostInfo" />
+            <!-- <Comments v-if="hasComments" :postId="processedPost.id" :commentsCount="commentsCount" /> -->
           </div>
           <div class="flex items-center flex-shrink-0 px-2">
             <div class="flex items-center space-x-1">
@@ -113,6 +114,8 @@ export default defineComponent({
       Promise<Vote[]>
     >
     const cloneWeights = {} as unknown as { positiveWeight: number; negativeWeight: number }
+    // const hasComments = ref(false)
+    // const commentsCount = ref(0)
 
     const votingKey = ref(0)
     const menuKey = ref(0)
@@ -177,6 +180,10 @@ export default defineComponent({
             processedPost.web3Preview = props.post.web3Preview
             postTypeCom.value = (await props.postTypesPromises.preloadLens).default
             break
+          case 'erc721':
+            processedPost.web3Preview = props.post.web3Preview
+            postTypeCom.value = (await props.postTypesPromises.preloadErc721).default
+            break
           case 'poap':
             processedPost.web3Preview = props.post.web3Preview
             postTypeCom.value = (await props.postTypesPromises.preloadPoap).default
@@ -208,6 +215,7 @@ export default defineComponent({
       if (post.tag === 'lens') return 'lens'
       if (post.tag === 'snapshot') return 'snapshot'
       if (post.tag === 'twitter') return 'tweet'
+      if (post.tag === 'erc721') return 'erc721'
       if (post?.url.match(/https?:\/\/(mobile.|www.)?twitter\.com\/.*?status/i)) return 'tweet'
       if (post?.url.startsWith('farcaster://')) return 'farcaster'
       if (post?.url.toLocaleLowerCase().includes('youtube.com/watch?')) return 'youtubeVideo'
