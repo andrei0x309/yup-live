@@ -59,12 +59,9 @@
 </template>
 
 <script lang="ts">
-// import { useRoute, useRouter } from 'vue-router'
 import {
   onMounted,
-  // inject,
   ref,
-  //   reactive,
   computed,
   onUnmounted,
   defineComponent,
@@ -93,7 +90,8 @@ export default defineComponent({
       if (today.getFullYear() > 2024 && today.getMonth() > 8 && today.getDate() > 21) {
         return 10000
       }
-      const yearData = await import(/* @vite-ignore */ `/emissions/years/${today.getFullYear()}.js`)
+
+      const yearData = await import(/* @vite-ignore */`../../assets/emissions/years/${today.getFullYear()}.js`/* @vite-ignore */)
       const dateString = `${today.getFullYear()}-${('0' + String(today.getMonth() + 1)).slice(-2)}-${('0' + String(today.getDate())).slice(
         -2
       )}`

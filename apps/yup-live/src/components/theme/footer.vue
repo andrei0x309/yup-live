@@ -26,11 +26,43 @@
             class="text-gray-600 dark:text-gray-300 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
             >YUP Forum</a
           >
-          <a
-            href="https://app.yup.io/staking"
-            class="text-gray-600 dark:text-gray-300 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
-            >YUP Staking</a
-          >
+          <o-dropdown v-model="menuDropDownBuyYUP" aria-role="list">
+            <template #trigger>
+              <o-button style="background-color: transparent">
+                <span class="dr-menu inline-flex items-center font-semibold gap-1">
+                  {{ menuDropDownBuyYUP.text }}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 text-yellow-200"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    style="display: inline"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </span>
+              </o-button>
+            </template>
+
+            <a v-for="(menu, index) in menuDropDownBuyYUP.links" :key="index" class="menu-link" :href="(menu.href as unknown as string)">
+              <o-dropdown-item
+                :value="menu"
+                aria-role="listitem"
+                class="gap-1 p-1 hover:text-gray-700 hover:dark:text-gray-200 dark:text-gray-300"
+              >
+                <div class="media">
+                  <div class="media-content">
+                    <component :is="(buyIcons as Record<string,unknown> )[menu.icon]" />
+                    {{ menu.text }}
+                  </div>
+                </div>
+              </o-dropdown-item>
+            </a>
+          </o-dropdown>
         </nav>
         <!-- nav - end -->
 
@@ -131,12 +163,37 @@ import { useMainStore } from '../../store/main'
 import { useRoute } from 'vue-router'
 import ClockIcon from 'icons/src/clock.vue'
 import PlayStoreIcon from 'icons/src/playStore.vue'
+import UniSwapIcon from '@/components/content/icons/uniSwap.vue'
+import QuickSwapIcon from '@/components/content/icons/quickSwap.vue'
 
 export default defineComponent({
   name: 'FooterTemplate',
-  components: { CoinGeckoIcon, ClockIcon, PlayStoreIcon },
+  components: { CoinGeckoIcon, ClockIcon, PlayStoreIcon, UniSwapIcon, QuickSwapIcon },
   setup() {
     const isSwitchingTheme = ref(false)
+    const buyIcons = {
+      uniswap: UniSwapIcon,
+      quickswap: QuickSwapIcon
+    }
+    
+    const linksBuyYup = [
+      {
+        text: 'Buy on QuickSwap',
+        href: 'https://quickswap.exchange/#/swap?inputCurrency=ETH&outputCurrency=0x086373fad3447f7f86252fb59d56107e9e0faafa',
+        icon: 'quickswap'
+      },
+      {
+        text: 'Buy on Uniswap',
+        href: 'https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x69bBC3F8787d573F1BBDd0a5f40C7bA0Aee9BCC9&chain=mainnet',
+        icon: 'uniswap'
+      }
+    ]
+
+    const menuDropDownBuyYUP = ref({
+      links: linksBuyYup,
+      text: 'Buy YUP'
+    })
+
     const isDarkTheme = () => store.theme === 'dark'
     const route = useRoute()
 
@@ -186,7 +243,9 @@ export default defineComponent({
       themeDark,
       themeSwitchIcon,
       themeSwitch,
-      disabledFooter
+      disabledFooter,
+      buyIcons,
+      menuDropDownBuyYUP,
     }
   }
 })

@@ -162,6 +162,7 @@ export default defineComponent({
 
     onMounted(() => {
       postType.value = getWeb3Type()
+
       switch (postType.value) {
         case 'single': {
           console.log('single', props.post.web3Preview)
@@ -187,6 +188,17 @@ export default defineComponent({
           break
         }
       }
+
+      getComments(mainPost.value?.thread).then((r) => {
+              const lCom = []
+              for (const e of r ?? []) {
+                lCom.push(fillReply(e))
+              }
+              lCom.shift()
+              comments.value = lCom
+            }).then(() => {
+              console.log('comments NO', comments.value.length, mainPost.value, comments.value)
+            });
     })
 
     return {
