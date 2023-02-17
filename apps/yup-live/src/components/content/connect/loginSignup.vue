@@ -169,11 +169,13 @@ export default defineComponent({
         loadState: props.loadState,
         setAlert: props.setAlert,
         ethers,
-        provider,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        provider: provider as any,
         username: username.value,
         bio: bio.value,
         fullname: fullname.value,
-        web3M: web3Modal
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        web3M: web3Modal as any
       })
       doAllLogin(signupResult)
       if(signupResult?._id){
@@ -186,8 +188,10 @@ export default defineComponent({
         loadState: props.loadState,
         setAlert: props.setAlert,
         ethers,
-        provider,
-        web3M: web3Modal
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        provider: provider as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        web3M: web3Modal as any
       })
       console.log(loginResult)
       doAllLogin(loginResult)

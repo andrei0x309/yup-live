@@ -3,13 +3,14 @@ import { ViteSSG } from 'vite-ssg'
 import App from '@/app.vue'
 import { routes } from '@/router'
 import 'virtual:windi.css'
-// import { createHead } from "@vueuse/head";
+import { createHead } from "@vueuse/head";
 import { Dropdown, Button, Sidebar, Tabs, Table, Modal, Skeleton, Switch, Radio, Tooltip } from '@oruga-ui/oruga-next'
 import '@/assets/oruga-patched.css'
 import { createPinia } from 'pinia'
 import { Buffer } from 'buffer'
 
 globalThis.Buffer = Buffer
+
 export const createApp = ViteSSG(
   // the root component
   App,
@@ -20,7 +21,7 @@ export const createApp = ViteSSG(
   ({ app, initialState }) => {
     const pinia = createPinia()
     app.use(pinia)
-    // app.use(createHead())
+    app.use(createHead())
     // app.use(router)
     app.use(Dropdown)
     app.use(Button)

@@ -30,7 +30,6 @@
 import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref } from 'vue'
 import { useHead, HeadObject } from '@vueuse/head'
 import { useRoute, useRouter } from 'vue-router'
-// import { useGrid } from 'vue-screen'
 
 export default defineComponent({
   name: 'ErrorPage',
@@ -51,10 +50,6 @@ export default defineComponent({
         message: 'internal server error'
       }
     }
-
-    // const isMobile = computed(() => {
-    // 	return !grid['md']
-    // })
 
     let code = route.params.code as string
     if (!code) code = '404'
