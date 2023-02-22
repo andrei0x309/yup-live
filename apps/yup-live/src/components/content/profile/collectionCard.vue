@@ -43,7 +43,7 @@ import { useMainStore } from '@/store/main'
 import DeleteIcon from 'icons/src/delete.vue'
 import RadarIcon from 'icons/src/radar.vue'
 import ShareIcon from 'icons/src/share.vue'
-import SettingsIcon from '@/components/content/icons/settings.vue'
+import SettingsIcon from 'icons/src/settings.vue'
 import DateIcon from 'icons/src/date.vue'
 
 export default defineComponent({

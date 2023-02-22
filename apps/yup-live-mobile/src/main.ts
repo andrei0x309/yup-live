@@ -2,10 +2,18 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router';
-import { createPinia } from 'pinia'
+import { createPinia } from 'pinia';
 import { IonicVue } from '@ionic/vue';
+import { Buffer } from 'buffer'
 
+globalThis.Buffer = Buffer
 
+if (window) {
+    (<any>window).global = globalThis
+        ; (<any>globalThis).globalThis = globalThis
+}
+
+import 'virtual:windi.css'
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
 
@@ -27,10 +35,8 @@ import './theme/variables.css';
 
 import 'windi.css'
 
-const app = createApp(App)
-    .use(createPinia())
-    .use(IonicVue)
-    .use(router);
+const app = createApp(App).use(IonicVue).use(router).use(createPinia());
+
 
 router.isReady().then(() => {
     app.mount('#app');
@@ -38,3 +44,5 @@ router.isReady().then(() => {
         SplashScreen.hide();
     }, 1300)
 });
+
+

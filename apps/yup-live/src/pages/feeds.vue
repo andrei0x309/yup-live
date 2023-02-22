@@ -76,7 +76,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref, ref } from 'vue'
+import { onMounted, defineComponent, reactive, onUnmounted, Ref, ref } from 'vue'
 import { useHead, HeadObject } from '@vueuse/head'
 import DangLoader from 'components/vote-list/loader.vue'
 import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
@@ -129,8 +129,8 @@ export default defineComponent({
     })
 
     useHead({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description),
+      title: siteData.title,
+      description: siteData.description,
       meta: [
         {
           name: 'og:type',
@@ -138,15 +138,15 @@ export default defineComponent({
         },
         {
           name: 'og:title',
-          content: computed(() => siteData.title)
+          content:  siteData.title
         },
         {
           name: 'og:description',
-          content: computed(() => siteData.description)
+          content:  siteData.description
         },
         {
           name: 'og:url',
-          content: computed(() => route.fullPath)
+          content: route.fullPath
         },
         {
           name: 'twitter:card',
@@ -154,15 +154,15 @@ export default defineComponent({
         },
         {
           name: 'twitter:url',
-          content: computed(() => route.fullPath)
+          content: route.fullPath
         },
         {
           name: 'twitter:title',
-          content: computed(() => siteData.title)
+          content: siteData.title
         },
         {
           name: 'twitter:description',
-          content: computed(() => siteData.description)
+          content: () => siteData.description
         }
       ]
     } as unknown as Ref<HeadObject>)
@@ -216,6 +216,7 @@ export default defineComponent({
 
 
     onMounted(async () => {
+     ;(async () => (catComp.value = (await import('icons/src/catEmpty.vue')).default))()
      feedPersonalization.value = localStorage.getItem('feedPersonalization') ?? ''
      getFeedPosts(postsIndex.value).then(
       res => {

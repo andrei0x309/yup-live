@@ -157,14 +157,14 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
-import CoinGeckoIcon from '@/components/content/icons/coinGecko.vue'
 import { getThemeMode } from '../../utils'
 import { useMainStore } from '../../store/main'
 import { useRoute } from 'vue-router'
+import CoinGeckoIcon from 'icons/src/coinGecko.vue'
 import ClockIcon from 'icons/src/clock.vue'
 import PlayStoreIcon from 'icons/src/playStore.vue'
-import UniSwapIcon from '@/components/content/icons/uniSwap.vue'
-import QuickSwapIcon from '@/components/content/icons/quickSwap.vue'
+import UniSwapIcon from 'icons/src/uniSwap.vue'
+import QuickSwapIcon from 'icons/src/quickSwap.vue'
 
 export default defineComponent({
   name: 'FooterTemplate',

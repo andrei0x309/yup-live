@@ -161,15 +161,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.blinkTxt {
-  animation: blink 2s linear infinite;
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
 .table-list {
   padding: 1rem;
   margin-top: 0.2rem;

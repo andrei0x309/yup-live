@@ -59,8 +59,8 @@
 import { onMounted, defineComponent, ref, Ref } from 'vue'
 import { MENU_BUTTONS, BUTTONS_ORDER } from './menuButtonEnums'
 import { useRouter } from 'vue-router'
-import WalletIcon from '@/components/content/icons/walletIcon.vue'
-import FollwersOutlineIcon from '@/components/content/icons/followersOutline.vue'
+import WalletIcon from 'icons/src/walletIcon.vue'
+import FollwersOutlineIcon from 'icons/src/followersOutline.vue'
 
 const invObj = (obj: Record<string, string>) => Object.fromEntries(Object.entries(obj).map((a) => a.reverse()))
 

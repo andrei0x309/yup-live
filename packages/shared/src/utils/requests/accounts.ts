@@ -93,7 +93,7 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
     bio,
     createdAt,
     ethInfo,
-    web3Handles
+    web3Handles,
   } = d.data
   const returnData = {
     userData: {
@@ -107,7 +107,8 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
       bio: !bio ? noBio(username) : bio,
       evmAddress: ethInfo?.address ?? '',
       fullname,
-      web3Handles
+      web3Handles,
+      twitterInfo
     } as IUserData,
     userFields: [] as Array<NameValue>
   }

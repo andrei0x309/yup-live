@@ -108,19 +108,19 @@ import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref, ref }
 import { useHead, HeadObject } from '@vueuse/head'
 import DangLoader from 'components/vote-list/loader.vue'
 // import { useRoute } from 'vue-router'
-import StakeIcon from '@/components/content/icons/stake.vue'
-import NoStakeIcon from '@/components/content/icons/noStake.vue'
-import YUPPOLY from '@/components/content/icons/yup-poly.vue'
-import PolyIcon from '@/components/content/icons/poly.vue'
+import StakeIcon from 'icons/src/stake.vue'
+import NoStakeIcon from 'icons/src/noStake.vue'
+import YUPPOLY from 'icons/src/yup-poly.vue'
+import PolyIcon from 'icons/src/poly.vue'
 import NoInput from '@/components/content/staking/noInput.vue'
 import CustomButton from 'components/functional/customButton.vue'
 import { getPolyContractAddresses } from '@yupio/contract-addresses'
 import { uniPoolPABI } from '@/partial-abis/uni-pool'
 import { yupRewardsPABI } from '@/partial-abis/yup-rewards'
 import { useMainStore } from '@/store/main'
-import YUPCollectIcon from '@/components/content/icons/yup-collect.vue'
+import YUPCollectIcon from 'icons/src/yup-collect.vue'
 import { stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
-import WalletIcon from '@/components/content/icons/walletIcon.vue'
+import WalletIcon from 'icons/src/walletIcon.vue'
 
 
 const refStakeIcon = StakeIcon
@@ -185,8 +185,8 @@ export default defineComponent({
     })
 
     const siteData = reactive({
-      title: ``,
-      description: ``
+      title: `Yup Staking`,
+      description: `Stake, unstake, collect yup liqudity rewards. And interact with the Yup liquidity rewards contracts.`
     })
 
     onUnmounted(() => {

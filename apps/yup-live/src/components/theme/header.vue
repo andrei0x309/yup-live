@@ -78,6 +78,11 @@
             to="/staking"
             ><StakeIcon class="inline w-6 mr-2" />Staking
           </router-link>
+          <router-link
+            class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 font-semibold transition duration-100"
+            to="/search"
+            ><SearchIcon class="inline w-6 mr-2" />Search
+          </router-link>
           <o-dropdown v-model="menuDropDownLinks" aria-role="list">
             <template #trigger>
               <o-button style="background-color: transparent">
@@ -153,15 +158,17 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch } from 'vue'
 import ConnectButton from '@/components/content/connect/connectBtn.vue'
-import StakeIcon from '@/components/content/icons/stake.vue'
-import FeedsIcon from '@/components/content/icons/feeds.vue'
+import StakeIcon from 'icons/src/stake.vue'
+import FeedsIcon from 'icons/src/feeds.vue'
+import SearchIcon from 'icons/src/search.vue'
 
 export default defineComponent({
   name: 'HeaderTemplate',
   components: {
     StakeIcon,
     FeedsIcon,
-    ConnectButton
+    ConnectButton,
+    SearchIcon
   },
   setup(props) {
     const sidebarOpen = ref(false)

@@ -28,7 +28,7 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, ref, Ref, shallowRef, onUnmounted } from 'vue'
-import WalletIcon from '@/components/content/icons/walletIcon.vue'
+import WalletIcon from 'icons/src/walletIcon.vue'
 import DangLoader from 'components/vote-list/loader.vue'
 import type { dComponent } from 'shared/src/types/vue'
 import { useMainStore } from '@/store/main'

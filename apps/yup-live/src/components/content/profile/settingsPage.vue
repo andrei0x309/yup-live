@@ -27,6 +27,13 @@
             class="bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
             @click="disconnectFromFarcaster"
             >            <BtnSpinner v-if="isDisconnectFromFarcaster" class="inline mr-2" />Disconnect from Farcaster</button>
+
+        <button v-if="!isConnectedToTwitter" class="mt-4 bg-sky-500 border-0 py-2 px-6 focus:outline-none hover:bg-sky-700 rounded text-lg" @click="twitterLink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Connect to Twitter</button>
+        <button
+        v-else
+        class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+         @click="twitterUnlink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Disconnect from Twitter</button>
+
         </div>
       </div>
     </section>
@@ -145,6 +152,8 @@ import type { IUserData } from "shared/src/types/account";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import { useRouter } from "vue-router";
 import { getFidByToken } from 'shared/src/utils/farcaster'
+import TwitterIcon from "icons/src/twitter.vue";
+import { claimAndLinkTwitter, twitterCheckAndUnlink } from "shared/src/utils/requests/twitter";
 
 const providerOptionsProm = import('shared/src/utils/evm')
 const web3Mprom = import("web3modal");
@@ -158,7 +167,7 @@ const EIP_191_PREFIX = "eip191:";
 
 export default defineComponent({
   name: "SettingsPage",
-  components: { DangLoader, CustomButton, BtnSpinner },
+  components: { DangLoader, CustomButton, BtnSpinner, TwitterIcon },
   props: {
     userData: {
       type: Object as PropType<IUserData>,
@@ -176,6 +185,8 @@ export default defineComponent({
     const isConnectToFarcaster = ref(false);
     const checkedConnectToFarcaster = ref(false);
     const isConnectedToFarcaster = ref(false);
+    const isConnectedToTwitter = ref(props.userData.twitterInfo?.userId ? true : false);
+    const isLoadingTwitter = ref(false);
     const isDisconnectFromFarcaster = ref(false);
     const router = useRouter();
     const farcasterToken = ref("");
@@ -417,6 +428,38 @@ export default defineComponent({
       checkedConnectToFarcaster.value = true;
     };
 
+    const twitterLink = async () => {
+      if(isLoadingTwitter.value) {
+        return;
+      }
+      isLoadingTwitter.value = true;
+      const connect = await claimAndLinkTwitter(store)
+      if(connect.error) {
+        stackAlertError("Error while connecting to twitter");
+        
+      } else {
+        stackAlertSuccess("Connected to twitter successfully");
+        isConnectedToTwitter.value = true;
+      }
+      isLoadingTwitter.value = false;
+    }
+
+    const twitterUnlink = async () => {
+      if(isLoadingTwitter.value) {
+        return;
+      }
+      isLoadingTwitter.value = true;
+      const req = await twitterCheckAndUnlink(store)
+      if(req.error) {
+        stackAlertError("Error while disconnecting from twitter");
+        
+      } else {
+        stackAlertSuccess("Disconnected from twitter successfully");
+        isConnectedToTwitter.value = false;
+      }
+      isLoadingTwitter.value = false;
+    }
+
     onMounted(async () => {
       providerOptionsProm.then((pLib) => {
         web3Mprom.then((lib) => {
@@ -452,7 +495,11 @@ export default defineComponent({
       disconnectFromFarcaster,
       isDisconnectFromFarcaster,
       changeFeedPersonalization,
-      feedPersonalization
+      feedPersonalization,
+      isConnectedToTwitter,
+      isLoadingTwitter,
+      twitterLink,
+      twitterUnlink,
     };
   },
 });

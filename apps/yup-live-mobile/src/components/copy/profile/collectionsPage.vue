@@ -83,7 +83,7 @@ export default defineComponent({
         refCollections.value = props.collections
       }
       if (refCollections.value.length < 1) {
-        catComp.value = (await import('@/components/content/icons/catEmpty.vue')).default
+        catComp.value = (await import('icons/src/catEmpty.vue')).default
       }
       isLoading.value = false
     })

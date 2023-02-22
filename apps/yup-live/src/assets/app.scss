@@ -1,0 +1,13 @@
+.blinkTxt {
+    animation: blink 2s linear infinite;
+}
+
+.blink {
+    animation: blink 0.9s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}

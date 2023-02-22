@@ -13,7 +13,7 @@
     </span>
   </div>
     <div class="py-2 px-4" style="margin: 0.9rem 1rem 1rem 1rem; font-size: 1.1rem">
-      <h1 class="text-xl font-medium leading-6 tracking-wide text-gray-300 hover:text-blue-500 cursor-pointer mt-8">
+      <h1 class="text-xl font-medium leading-6 tracking-wide dark:text-gray-300 text-gray-900 cursor-pointer mt-8">
         {{ mirrorPost.title }}
       </h1>
       <span class="text-[0.7rem] opacity-70 text-center block-inline w-full mt-4">Author: {{ mirrorPost.author }}</span>
@@ -37,7 +37,7 @@
 import { onMounted, defineComponent, ref } from 'vue'
 import ClockIcon from 'icons/src/clock.vue'
 import MirrorIcon from 'icons/src/mirror.vue'
-import snarkdown from 'snarkdown'
+import { marked } from 'marked'
 import clip from 'shared/src/utils/3p/clipper'
 import BtnSpinner from 'icons/src/btnSpinner.vue'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
@@ -74,9 +74,10 @@ export default defineComponent({
     const featureImage = ref('')
     const loading = ref(true)
 
-    onMounted(() => {
-      const dom = new DOMParser().parseFromString(snarkdown((props.post?.web3Preview?.content ?? '').replace(/\\/gi, '')), 'text/html')
-      const html = dom.querySelector('body')?.innerHTML ?? ''
+    onMounted(async () => {
+      const dom = new DOMParser().parseFromString(marked.parse((props.post?.web3Preview?.content ?? '').replace(/\\/gi, '')), 'text/html')
+      
+      const html = (dom.querySelector('body')?.innerHTML ?? '').replace(/([^>])(https?.*? )( |\n|\t|$)/gms, '$1<a href="$2">$2</a>$3')
 
       mirrorPost.value.content = props.full ? html : clip(html, 500, { html: true, maxLines: 8 })
       mirrorPost.value.title = props.post.web3Preview?.title

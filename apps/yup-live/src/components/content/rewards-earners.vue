@@ -147,14 +147,14 @@
 <script lang="ts">
 // import { useRoute, useRouter } from 'vue-router'
 import DangLoader from 'components/vote-list/loader.vue'
-import UserIcon from 'icons/src/user.vue'
-import DateIcon from 'icons/src/date.vue'
-import TokenIcon from '@/components/content/icons/tokenYup.vue'
-import BtnSpinner from 'icons/src/btnSpinner.vue'
-import FileDownloadIcon from '@/components/content/icons/fileDownload.vue'
+import FileDownloadIcon from 'icons/src/fileDownload.vue'
 import { useMainStore } from '@/store/main'
 import { gini, exportFile, convertToCSV } from '@/utils'
 import type { dComponent } from 'shared/src/types/vue'
+import UserIcon from 'icons/src/user.vue'
+import DateIcon from 'icons/src/date.vue'
+import TokenIcon from 'icons/src/tokenYup.vue'
+import BtnSpinner from 'icons/src/btnSpinner.vue'
 
 import {
   onMounted,
@@ -486,7 +486,8 @@ export default defineComponent({
     top: 0.2rem;
 
     .o-switch__check {
-      background-color: var(--glassBg);
+      background-color: rgb(98 98 98 / 93%);
+      border: 1px solid var(--bg);
     }
   }
 }

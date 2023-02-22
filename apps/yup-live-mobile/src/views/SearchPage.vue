@@ -2,6 +2,22 @@
     <ion-page>
   <HeaderBar text="Search" :menu="true" />
   <ion-content :fullscreen="false" class="ion-padding mt-4">
+
+    <!-- <ion-segment
+        style="width: auto"
+        class=""
+        :value="currentSegment"
+        mode="ios"
+      >
+        <ion-segment-button value="search">
+          <ion-label>Search</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="filters">
+          <ion-label>Custom Filters</ion-label>
+        </ion-segment-button>
+      </ion-segment> -->
+
+
 <div class="bg-color search-controls w-full">
     <form @submit.prevent="search">
     <ion-searchbar v-model="searchText" :animated="true" enterkeyhint="search" placeholder="Your search query"></ion-searchbar>
@@ -100,7 +116,9 @@ import {
     IonButton,
     IonLabel,
     IonItem,
-    IonLoading
+    IonLoading,
+    // IonSegment,
+    // IonSegmentButton
  } from '@ionic/vue'
 import HeaderBar from '@/components/template/header-bar.vue'
 import {
@@ -114,9 +132,10 @@ import { postTypesPromises } from 'components/post-types/post-types'
 import Post from '@/components/copy/post/post.vue'
 import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
 import LineLoader from 'components/functional/lineLoader.vue'
-import { config } from 'shared/src/utils/config'
+// import { config } from 'shared/src/utils/config'
+import { search as yupSearch } from 'shared/src/utils/requests/searchFilters'
 
-const { API_BASE } = config
+// const { API_BASE } = config
 import { stackAlertWarning } from '@/store/alertStore'
 
 export default defineComponent({
@@ -131,7 +150,9 @@ components: {IonPage, IonContent, IonSearchbar, HeaderBar, IonRadioGroup,
     Post,
     IonLabel,
     IonItem,
-    IonLoading
+    IonLoading,
+    // IonSegment,
+    // IonSegmentButton
  },
 setup() {
 const posts = ref([]) as Ref<Array<unknown>>
@@ -145,23 +166,13 @@ const searchText = ref('')
 const platforms = ref()
 const recencyType = ref('desc')
 const noMoreResults = ref(false)
+const currentSegment = ref("search");
+
 
 // offset=0&searchText=sadsadsa&limit=15
 const getFeedPosts = async (offset = 0) => {
-  let tags
-  if(Object.keys(platforms.value ?? {}).length < 1){
-    tags = 'all'
-  } else if(Object.keys(platforms.value ?? {}).length > 1){
-    tags = Object.values(platforms.value).join(',')
-  } else {
-    tags = Object.values(platforms.value)[0]
-  }
-  tags = tags === 'all' ? '' : `&tags=${tags}`
-
-  const byRencency = sortBy.value === 'recency' ? `&recency=${recencyType.value}` : ''
-  const res = await fetch(`${API_BASE}/search/es/posts?offset=${offset}&limit=10${tags}${byRencency}&searchText=${searchText.value}`)
-  const data = await res.json()
-  return data.filter((p: unknown) => p)
+  const platformsArray = Object.keys(platforms.value ?? {})
+  return await yupSearch({offset, limit: 10, platforms: platformsArray, byRencency: recencyType.value, input: searchText.value})
 }
 
 
@@ -221,7 +232,8 @@ const onHit = async (type: string) => {
     recencyType,
     searchStarted,
     noMoreResults,
-    checkSearch
+    checkSearch,
+    currentSegment
   }
 }
 })

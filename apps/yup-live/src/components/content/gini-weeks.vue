@@ -71,7 +71,7 @@ import DangLoader from "components/vote-list/loader.vue";
 import { useMainStore } from "@/store/main";
 import * as d3 from "d3";
 import { interpolateRainbow } from "d3-scale-chromatic";
-import FileDownloadIcon from "@/components/content/icons/fileDownload.vue";
+import FileDownloadIcon from "icons/src/fileDownload.vue";
 import { exportFile } from "@/utils";
 
 import {

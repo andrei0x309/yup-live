@@ -36,15 +36,15 @@
         Next Reset: <b>{{ userData.nextReset }}</b>
       </p>
       <div class="flex mx-auto justify-center my-2">
-      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-10" ><div><p>Like</p><b>{{userData.actionBars.vote}}</b></div></ion-chip>
-      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-10" ><div><p>Delete</p><b>{{userData.actionBars.deleteVote}}</b></div></ion-chip>
-      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-10" ><div><p>Follow</p><b>{{userData.actionBars.follow}}</b></div></ion-chip>
+      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-12" ><div><p>Like</p><b>{{userData.actionBars.vote}}</b></div></ion-chip>
+      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-12" ><div><p>Delete</p><b>{{userData.actionBars.deleteVote}}</b></div></ion-chip>
+      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-12" ><div><p>Follow</p><b>{{userData.actionBars.follow}}</b></div></ion-chip>
       </div>
       <div v-if="userData?.web3Handles?.farcaster ?? userData?.web3Handles?.lens">
         <h6 class="pt-2">External Handles</h6>
         <div class="flex mx-auto justify-center my-2">
-      <ion-chip v-if="userData?.web3Handles?.farcaster" style="display: flex;" class="opacity-70 h-8" ><div><p>Farcaster</p><b>{{userData?.web3Handles?.farcaster}}</b></div></ion-chip>
-      <ion-chip v-if="userData?.web3Handles?.lens" style="display: flex;" class="opacity-70 h-8" ><div><p>Lens</p><b>{{userData?.web3Handles?.lens}}</b></div></ion-chip>
+      <ion-chip v-if="userData?.web3Handles?.farcaster" style="display: flex;" class="opacity-70 h-10" ><div><p>Farcaster</p><b>{{userData?.web3Handles?.farcaster}}</b></div></ion-chip>
+      <ion-chip v-if="userData?.web3Handles?.lens" style="display: flex;" class="opacity-70 h-10" ><div><p>Lens</p><b>{{userData?.web3Handles?.lens}}</b></div></ion-chip>
       </div>
       </div>
     </div>
@@ -54,8 +54,8 @@
 <script lang="ts">
 import { onMounted, defineComponent, ref, PropType } from 'vue'
 // import ProfileUseBar from '@/components/content/profile/useBar.vue'
-// import FollowersIcon from '@/components/content/icons/followers.vue'
-// import AddFollow from '@/components/content/icons/addFollow.vue'
+// import FollowersIcon from 'icons/src/followers.vue'
+// import AddFollow from 'icons/src/addFollow.vue'
 import { makeRandAvatar } from 'shared/src/utils/accounts'
 import type { NameValue } from 'shared/src/types/account'
 import {

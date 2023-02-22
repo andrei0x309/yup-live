@@ -305,8 +305,7 @@ html[class='dark'] {
   align-items: center;
 }
 
-.pPost.mirror div {
-  max-width: 60rem;
+.pPost.mirror {
   word-break: break-all;
 }
 

@@ -114,7 +114,7 @@
         </p>
 
         <h3 class="mt-4 text-center mb-4">FAQ:</h3>
-        <ul>
+        <ul class="mb-8">
           <li>
             <ul class="mb-4">
               <li class="mb-2">Q: Why do I need a wallet installed on my device?</li>
@@ -357,7 +357,7 @@ export default defineComponent({
 <style lang="scss">
  #walletconnect-wrapper {
   .walletconnect-modal__base {
-    background: #1414149e;
+    background: #ffffff;
   }
   .walletconnect-qrcode__text {
     color: var(--ion-color-secondary);

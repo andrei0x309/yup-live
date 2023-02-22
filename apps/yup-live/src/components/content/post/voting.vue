@@ -232,9 +232,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.blink {
-  animation: blink 0.9s infinite;
-}
 
 .thumb:active {
   transform: rotate3d(1, 1, 1, 55deg);

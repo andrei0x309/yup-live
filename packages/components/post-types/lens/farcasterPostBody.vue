@@ -1,6 +1,6 @@
 <template>
   <div :class="`relative ${isReply ? 'mb-6' : ''}`">
-    <div class="flex p-2">
+    <div class="flex p-2 overflow-hidden">
       <AvatarBtn
         :key="mainPost.userAvatar"
         class="w-9 h-9"

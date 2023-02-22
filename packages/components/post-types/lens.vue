@@ -15,7 +15,7 @@ import { timeAgo } from 'shared/src/utils/time'
 import { isImage } from 'shared/src/utils/misc'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
 import LensPostBody from './lens/lensPostBody.vue'
-import snarkdown from 'snarkdown'
+// import MD from 'markdown-it'
 import { commentLensQuery, lensIdToRaw, convertToWeb3Raw, rawToLensId } from 'shared/src/utils/web3/lens'
 import type { OpenGraphPreview, mediaType } from 'shared/src/types/post'
 import type { Web3LensRaw, Web3PostLens } from 'shared/src/types/web3/lens'
@@ -110,11 +110,16 @@ export default defineComponent({
     // const parseLinkPreview = ['phaver']
 
     const fillPost = (filler: Web3LensRaw) => {
+      // const md = new MD({
+      //   html: true,
+      //   linkify: true,
+      //   typographer: true
+      // })
       const postBuilder = {} as Web3PostLens
       postBuilder.userAvatar = filler?.creator?.avatarUrl ?? filler?.creator?.avatar as string
       postBuilder.userHandle = filler?.creator?.handle as string
       postBuilder.userName = filler?.creator?.fullname as string
-      postBuilder.body = parseBody(snarkdown(filler.content ?? ''), true)
+      postBuilder.body = parseBody((filler.content ?? ''), true)
       postBuilder.mediaEntities = parseMedia(filler?.attachments ?? [])
       postBuilder.verified = filler?.meta?.isVerifiedAvatar
       postBuilder.lensId = rawToLensId(filler?.id as string)

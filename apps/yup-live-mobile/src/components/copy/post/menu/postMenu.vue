@@ -1,48 +1,6 @@
 <template>
   <div>
-    <!-- <o-tooltip
-      v-model:active="menuOpen"
-      :triggers="['click', 'contextmenu']"
-      :autoClose="['outside', 'escape']"
-      :multiline="true"
-      @click="menuOpen = !menuOpen"
-    >
-      <template #content>
-        <ul class="w-30 text-justify postMenu">
-          <li class="pt-1 cursor-pointer" @click="showVoters"><RadarIcon class="w-5 inline -mt-1 mr-1" />View Voters</li>
-          <li v-if="refHasVote" class="pt-1 cursor-pointer" @click="deleteVote">
-            <DeleteIcon :class="`w-5 inline -mt-1 mr-1 ${delLoading ? 'rotate' : ''}`" />Delete Vote
-          </li>
-          <li class="pt-1 cursor-pointer" @click="sharePost"><ShareIcon class="w-5 inline -mt-1 mr-1" />Share Post</li>
-          <li class="pt-1 cursor-pointer" @click="goToPost"><GoToIcon class="w-5 inline -mt-1 mr-1" />Post Details</li>
-          <li class="pt-1 cursor-pointer" @click="refreshPreview"><RetryIcon class="w-6 -ml-1 inline -mt-1 mr-1" />Refresh Data</li>
-        </ul>
-      </template> -->
-      <PostMenuIcon role="button" class="w-6" @click="presentActionSheet" />
-    <!-- </o-tooltip> -->
-    <!-- <o-modal v-model:active="modalOpen" contentClass="modal-body"> -->
-      <!-- <DangLoader v-if="libWallLoading" />
-    <component
-      :is="!libWallLoading ? refDynLogComp : undefined"
-      :key="libWallLoading"
-      :loadState="compLoadState"
-      :setAlert="setAlert"
-      :alertProps="alertProps"
-    /> -->
-      <!-- <DangLoader v-if="modalLoading" />
-      <template v-else-if="modalContent === 'voters'">
-        <h2>Last 10 Interactions</h2>
-        <ul class="m-auto">
-          <li v-for="voter of voters" :key="voter.a._id" class="p-4">
-            <AvatarBtn class="m-auto" :pSource="voter.a.avatar" :pAccount="voter.a._id" :isSelf="false" />
-            <p>
-              <b>{{ voter.a.username }}</b> voted
-            </p>
-            <p>{{ timeAgo(voter.timestamp) }}</p>
-          </li>
-        </ul>
-      </template>
-    </o-modal> -->
+  <PostMenuIcon role="button" class="w-6" @click="presentActionSheet" />
 
     <ion-modal :is-open="modalOpen">
       <ion-header>
@@ -72,6 +30,30 @@
           </li>
         </ul>
         </template>
+        <template v-else-if="modalContent === 'report'">
+          <h2>Report Post</h2>
+          <p>Are you sure you want to report this post?</p>
+          <div class="relative my-4">
+        <p class="">Reason: (required)</p>
+        <ion-radio-group v-model="reportReason" value="relevance">
+          <ion-item v-for="reason of reasons" :key="reason">
+          <ion-label>{{ reason }}</ion-label>
+          <ion-radio :value="reason" class="mt-2 mr-4"/>
+          </ion-item>
+        </ion-radio-group>
+        <div class=" mt-2">
+          <label for="bioField" class="leading-7 text-sm text-gray-600 dark:text-gray-300">Details: (required)</label>
+          <textarea id="bioField" v-model="reportDetails" class="text-white w-full rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-30 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out">
+          </textarea>
+        </div>
+        </div>
+        <button :disabled="isReporting" class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg" @click="() => modalOpen = false" >
+      <BtnSpinner v-if="isReporting" class="inline mr-2"/>Cancel 
+      </button>
+        <button :disabled="isReporting" class="ml-8 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg" @click="reportPost()" >
+      <BtnSpinner v-if="isReporting" class="inline mr-2"/>Report 
+      </button>
+        </template>
       </ion-content>
     </ion-modal>
 
@@ -79,7 +61,20 @@
 </template>
 
 <script lang="ts">
-import { actionSheetController, IonModal, IonContent, IonToolbar, IonTitle, IonButtons, IonButton, IonHeader  } from '@ionic/vue';
+import { actionSheetController,
+   IonModal, 
+   IonContent,
+    IonToolbar,
+     IonTitle,
+      IonButtons,
+       IonButton,
+        IonHeader,
+        IonItem,
+        IonRadioGroup,
+        IonRadio,
+        IonLabel,
+
+} from '@ionic/vue';
 import { onMounted, defineComponent, ref, Ref, PropType } from 'vue'
 import PostMenuIcon from 'icons/src/postMenuIcon.vue'
 import { useMainStore } from '@/store/main'
@@ -98,11 +93,14 @@ import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/a
 import type { PartialAccountInfo } from 'shared/src/types/account'
 import type { Vote } from 'shared/src/types/vote'
 import { Share } from '@capacitor/share';
+import { report } from 'shared/src/utils/requests/report'
+import { reasons, reportType } from 'shared/src/types/report'
 
-import { trashBinOutline, shareOutline, arrowDownOutline, refreshOutline, exitOutline, eye  } from "ionicons/icons";
+import { trashBinOutline, shareOutline, arrowDownOutline, refreshOutline, exitOutline, eye, flag, openOutline  } from "ionicons/icons";
 
 import { config } from 'shared/src/utils/config'
 import BtnSpinner from 'icons/src/btnSpinner.vue';
+
 const { API_BASE } = config
 
 interface Voter {
@@ -122,6 +120,10 @@ export default defineComponent({
     IonButton,
     IonHeader,
     AvatarBtn,
+    IonItem,
+    IonRadioGroup,
+        IonRadio,
+        IonLabel,
     // RadarIcon,
     // ShareIcon,
     // DeleteIcon,
@@ -144,6 +146,10 @@ export default defineComponent({
     hasVote: {
       type: Promise as PropType<Promise<Vote[]>>,
       required: true
+    },
+    post: {
+      type: Object as PropType<{ url: string }>,
+      required: false
     }
   },
   emits: ['update:vote', 'deletedvote'],
@@ -161,6 +167,11 @@ export default defineComponent({
     const delLoading = ref(false)
     const refHasVote = ref(false)
     const vote = ref({}) as unknown as Ref<Vote>
+    const isReporting = ref(false)
+
+    const reportReason = ref(reasons[0]) as unknown as Ref<typeof reasons[0]>
+    const reportDetails = ref('') as unknown as Ref<string>
+    
 
     store.$subscribe(() => {
       isAuth.value = store.isLoggedIn
@@ -286,9 +297,100 @@ export default defineComponent({
       }
     }
 
+
+    const reportPost = async () => {
+      try {
+      if(!reportDetails.value.length || reportDetails.value.length < 10) {
+        stackAlertError('Please enter a reason for the report.')
+        return
+      }
+      isReporting.value = true
+      const res = await report(store, {
+        type: reportType[0],
+        reason: reportReason.value,
+        details: reportDetails.value,
+        resourceId: props.postId
+      })
+      if(res) {
+        stackAlertSuccess('Report successful.')
+        modalOpen.value = false
+      } else {
+        stackAlertError('There was an error with the report, please try again later.')
+      }
+    } catch {
+      stackAlertError('There was an error with the report, please try again later.')
+    }
+    isReporting.value = false
+  }
+
+  const openReportPost = () => {
+      modalContent.value = 'report'
+      modalOpen.value = true
+      modalLoading.value = false
+    }
+
     const presentActionSheet = async () => {
 
        const buttons = []
+
+      const isWebUrl = props.post?.url?.startsWith('http')
+
+       if(isWebUrl) {
+        buttons.push( {
+              text: 'Open in Browser',
+              role: 'open-in-browser',
+              icon: openOutline,
+              data: {
+                action: 'open-in-browser',
+              },
+            })
+      }
+
+      buttons.push( {
+              text: 'Share',
+              icon: shareOutline,
+              role: 'share',
+              data: {
+                action: 'share',
+              },
+            })
+
+       buttons.push( {
+              text: 'Re-fetch Metadata',
+              role: 're-fetch',
+              icon: refreshOutline,
+              data: {
+                action: 'refetch',
+              },
+            })
+
+        buttons.push( {
+              text: 'Open Post',
+              role: 'go-to-post',
+              icon: exitOutline,
+              data: {
+                action: 'open-post',
+              },
+            })
+        
+        buttons.push( {
+              text: 'Recent Voters',
+              role: 'recent',
+              icon: eye,
+              data: {
+                action: 'recent-voters',
+              },
+        })
+
+       buttons.push( {
+              text: 'Report Post',
+              role: 'refresh',
+              icon: flag,
+              data: {
+                action: 'report',
+              },
+        })
+
        if( refHasVote.value ) {
        buttons.push({
               text: 'Delete Vote',
@@ -299,52 +401,20 @@ export default defineComponent({
               },
             })
         }
-        
 
-        const actionSheet = await actionSheetController.create({
-          subHeader: 'Post Menu',
-          buttons: [
-            {
-              text: 'Share',
-              icon: shareOutline,
-              role: 'share',
-              data: {
-                action: 'share',
-              },
-            },
-            {
-              text: 'Re-fetch Metadata',
-              role: 're-fetch',
-              icon: refreshOutline,
-              data: {
-                action: 'refetch',
-              },
-            },
-            {
-              text: 'Open Post',
-              role: 'go-to-post',
-              icon: exitOutline,
-              data: {
-                action: 'open-post',
-              },
-            },
-            {
-              text: 'Recent Voters',
-              role: 'recent',
-              icon: eye,
-              data: {
-                action: 'recent-voters',
-              },
-            },
-            {
+        buttons.push( {
               text: 'Cancel',
               role: 'cancel',
               icon: arrowDownOutline,
               data: {
                 action: 'cancel',
               },
-            },
-          ],
+        })
+        
+
+        const actionSheet = await actionSheetController.create({
+          subHeader: 'Post Menu',
+          buttons
         });
 
         await actionSheet.present();
@@ -370,6 +440,14 @@ export default defineComponent({
           }
           case 'recent-voters': {
             showVoters()
+            break
+          }
+          case 'report': {
+            openReportPost()
+            break
+          }
+          case 'open-in-browser': {
+            window.open(props?.post?.url)
             break
           }
         }
@@ -404,7 +482,12 @@ export default defineComponent({
       delLoading,
       refHasVote,
       refreshPreview,
-      presentActionSheet
+      presentActionSheet,
+      reportDetails,
+      reasons,
+      reportReason,
+      reportPost,
+      isReporting
     }
   }
 })

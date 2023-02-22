@@ -3,7 +3,7 @@
     <div class="bg-color table-list w-full mb-4 min-h-[75vh] flex justify-start">
       <h2 class="mb-4">Post: {{ postId }}</h2>
       <DangLoader v-if="isDataLoading" />
-      <Post v-else :id="postId" :full="true" :post="processedPost" :postTypesPromises="postTypesPromises" class="w-full max-w-[40rem]" @updatepostinfo="openInfoModal" />
+      <Post v-else :id="postId" :full="true" :post="processedPost" :postTypesPromises="postTypesPromises" class="w-full max-w-[60rem]" @updatepostinfo="openInfoModal" />
     </div>
   </div>
 </template>

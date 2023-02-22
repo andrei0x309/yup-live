@@ -62,7 +62,7 @@ export default defineComponent({
       if (props.followersList.length > 0) {
         accountsData.value = await getAccountData(props.followersList)
       } else {
-        catComp.value = (await import('@/components/content/icons/catEmpty.vue')).default
+        catComp.value = (await import('icons/src/catEmpty.vue')).default
       }
       isLoading.value = false
     })

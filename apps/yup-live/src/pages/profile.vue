@@ -93,6 +93,7 @@
                   v-for="post of posts"
                   :id="(post as Record<string, any>)._id.postid"
                   :key="(post  as Record<string, any>)._id.postid"
+                  :noYUPPost="externalPosts"
                   :post="(post as Record<string, any>)"
                   :postTypesPromises="postTypesPromises"
                   :isHidenInfo="((post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid) || feedTab === 'farcaster'"
@@ -140,6 +141,7 @@
       />
       <SettingsPage
         v-if="currentMenuTab === MENU_BUTTONS.settings"
+        :key="userData._id"
         :userData="userData"
       />
 
@@ -328,6 +330,7 @@ export default defineComponent({
     const castError = ref("");
     const castErrorKey = ref(0);
     const isAuth = ref(store.isLoggedIn);
+    const externalPosts = ref(false)
 
     const showCastError = (msg: string) => {
       castError.value = msg;
@@ -585,7 +588,7 @@ export default defineComponent({
           postInfo.value = posts.value[0];
         }
         if (posts.value.length < 1) {
-          import("@/components/content/icons/catEmpty.vue").then(async (comp) => {
+          import("icons/src/catEmpty.vue").then(async (comp) => {
             catComp.value = (await comp).default;
           });
         }
@@ -681,11 +684,14 @@ export default defineComponent({
 
     const getByActiveTab = async () => {
       if (feedTab.value === "votes") {
+        externalPosts.value = false
         getFeedPosts = getHomeFeedPosts;
       } else if (feedTab.value === "content") {
         getFeedPosts = getCreatedFeedPosts;
+        externalPosts.value = false
       } else if (feedTab.value === "farcaster") {
         getFeedPosts = getFarcasterFeed;
+        externalPosts.value = true
       }
       resetPosts();
     };
@@ -757,7 +763,8 @@ export default defineComponent({
       castErrorKey,
       hasFarcaster,
       isFollowing,
-      isAuth
+      isAuth,
+      externalPosts
     };
   },
 });

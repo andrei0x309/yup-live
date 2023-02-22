@@ -16,19 +16,12 @@
           <li class="pt-1 cursor-pointer" @click="sharePost"><ShareIcon class="w-5 inline -mt-1 mr-1" />Share Post</li>
           <li class="pt-1 cursor-pointer" @click="goToPost"><GoToIcon class="w-5 inline -mt-1 mr-1" />Post Details</li>
           <li class="pt-1 cursor-pointer" @click="refreshPreview"><RetryIcon class="w-6 -ml-1 inline -mt-1 mr-1" />Refresh Data</li>
+          <li v-if="isAuth" class="pt-1 cursor-pointer" @click="openReportPost"><FlagIcon class="w-5 inline -mt-1 mr-1" />Report Post</li>
         </ul>
       </template>
       <PostMenuIcon role="button" class="w-6" />
     </o-tooltip>
     <o-modal v-model:active="modalOpen" contentClass="modal-body">
-      <!-- <DangLoader v-if="libWallLoading" />
-    <component
-      :is="!libWallLoading ? refDynLogComp : undefined"
-      :key="libWallLoading"
-      :loadState="compLoadState"
-      :setAlert="setAlert"
-      :alertProps="alertProps"
-    /> -->
       <DangLoader v-if="modalLoading" />
       <template v-else-if="modalContent === 'voters'">
         <h2>Last 20 Interactions</h2>
@@ -41,6 +34,28 @@
             <p>{{ timeAgo(voter.timestamp) }}</p>
           </li>
         </ul>
+      </template>
+      <template v-else-if="modalContent === 'report'">
+        <h2 class="my-4 text-[1.1rem]">Report Post</h2>
+        <p class="my-4" >Are you sure you want to report this post?</p>
+        <p class="my-4">Reason (required):</p>
+        <div class="block">
+                <o-radio v-for="reason of reasons" :key="reason" v-model="reportReason" :native-value="reason">{{ reason }}</o-radio>
+          </div>
+          <div class="my-4">
+          Details (required):
+          <textarea
+              id="castField"
+              v-model="reportText"
+              style="width: 90%;"
+              class="w-full text-gray-600 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
+            >
+            </textarea>
+          </div>
+        <div class="flex justify-center">
+          <button :disabled="isReporting" class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg" :class="`${isReporting ? 'blink': ''}`" @click="modalOpen = false">Cancel</button>
+          <button :disabled="isReporting" class="bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg" :class="`ml-4 ${isReporting ? 'blink': ''}`" @click="doReport">Report</button>
+        </div>
       </template>
     </o-modal>
   </div>
@@ -62,9 +77,12 @@ import RetryIcon from 'icons/src/retry.vue'
 import { wait } from 'shared/src/utils/time'
 import { fetchWAuth } from 'shared/src/utils/auth'
 import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
+import FlagIcon from 'icons/src/flag.vue'
 
 import type { PartialAccountInfo } from 'shared/src/types/account'
 import type { Vote } from 'shared/src/types/vote'
+import { report } from 'shared/src/utils/requests/report'
+import { reasons, reportType } from 'shared/src/types/report'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
 
@@ -83,7 +101,8 @@ export default defineComponent({
     GoToIcon,
     DangLoader,
     AvatarBtn,
-    RetryIcon
+    RetryIcon,
+    FlagIcon
   },
   props: {
     postId: {
@@ -115,6 +134,9 @@ export default defineComponent({
     const delLoading = ref(false)
     const refHasVote = ref(false)
     const vote = ref({}) as unknown as Ref<Vote>
+    const reportReason = ref(reasons[0])
+    const reportText = ref('')
+    const isReporting = ref(false)
 
     store.$subscribe(() => {
       isAuth.value = store.isLoggedIn
@@ -250,6 +272,37 @@ export default defineComponent({
       }
     }
 
+    const doReport = async () => {
+      try {
+      if(!reportText.value.length || reportText.value.length < 10) {
+        stackAlertError('Please enter a reason for the report.')
+        return
+      }
+      isReporting.value = true
+      const res = await report(store, {
+        type: reportType[0],
+        reason: reportReason.value,
+        details: reportText.value,
+        resourceId: props.postId
+      })
+      if(res) {
+        stackAlertSuccess('Report successful.')
+        modalOpen.value = false
+      } else {
+        stackAlertError('There was an error with the report, please try again later.')
+      }
+    } catch {
+      stackAlertError('There was an error with the report, please try again later.')
+    }
+    isReporting.value = false
+  }
+
+    const openReportPost = () => {
+      modalContent.value = 'report'
+      modalLoading.value = true
+      modalOpen.value = true
+    }
+
     onMounted(() => {
       props.hasVote.then((v) => {
         if (v.length > 0) {
@@ -276,7 +329,14 @@ export default defineComponent({
       menuOpen,
       delLoading,
       refHasVote,
-      refreshPreview
+      refreshPreview,
+      isAuth,
+      openReportPost,
+      doReport,
+      reportReason,
+      reasons,
+      reportText,
+      isReporting
     }
   }
 })

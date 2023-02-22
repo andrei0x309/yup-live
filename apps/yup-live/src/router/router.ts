@@ -77,6 +77,11 @@ const routes = [
     name: 'ChangeLog',
     component: () => import('@/pages/changeLog.vue')
   },
+  {
+    path: '/search',
+    name: 'SearchPage',
+    component: () => import('@/pages/search.vue')
+  },
   // {
   //   path: '/web3',
   //   name: 'Web3Auth',

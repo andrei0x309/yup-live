@@ -73,7 +73,7 @@ import DangLoader from "components/vote-list/loader.vue";
 import { useMainStore } from "@/store/main";
 import ChartD3 from "@/components/content/chart-d3.vue";
 import { exportFile } from "@/utils";
-import FileDownloadIcon from '@/components/content/icons/fileDownload.vue'
+import FileDownloadIcon from 'icons/src/fileDownload.vue'
 
 
 import {

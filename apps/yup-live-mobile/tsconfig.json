@@ -8,13 +8,10 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "baseUrl": ".",
-    "types": [
-      "webpack-env",
-      "jest"
-    ],
     "paths": {
       "@/*": [
         "src/*"
@@ -23,21 +20,18 @@
     "lib": [
       "esnext",
       "dom",
-      "dom.iterable",
-      "scripthost"
     ]
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx",
     "../../packages/shared/src/**/*.*",   
      "../../packages/icons/src/**/*.vue",
     "../../packages/components/**/*.vue"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

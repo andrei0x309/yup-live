@@ -68,14 +68,14 @@
 <script lang="ts">
 import { onMounted, defineComponent, ref, PropType } from 'vue'
 import ProfileUseBar from '@/components/content/profile/useBar.vue'
-import FollowersIcon from '@/components/content/icons/followers.vue'
-import AddFollow from '@/components/content/icons/addFollow.vue'
 import { makeRandAvatar } from 'shared/src/utils/accounts'
 import type { NameValue } from 'shared/src/types/account'
 import { stackAlertError, stackAlertSuccess } from '@/store/alertStore'
 import { fetchWAuth } from 'shared/src/utils/auth'
 import { useMainStore } from '@/store/main'
 import BtnSpinner from 'icons/src/btnSpinner.vue'
+import FollowersIcon from 'icons/src/followers.vue'
+import AddFollow from 'icons/src/addFollow.vue'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 

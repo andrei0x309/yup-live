@@ -19,8 +19,8 @@
     </span>
   </div>
   <div class="py-2 px-4" style="margin: 0.9rem 1rem 1rem 1rem; font-size: 1.1rem">
-    <h1 class="text-xl font-medium leading-6 tracking-wide text-gray-300 hover:text-blue-500 cursor-pointer">
-      <a href="blog/detail">{{ post.title }}</a>
+    <h1 class="text-xl font-medium leading-6 tracking-wide dark:text-gray-300 text-gray-900 cursor-pointer">
+       {{ post.title }}
     </h1>
   </div>
   <div class="px-4 space-y-2" style="font-size: 0.9rem">

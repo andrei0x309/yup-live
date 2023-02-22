@@ -141,14 +141,14 @@
 // import { useRoute, useRouter } from 'vue-router'
 import DangLoader from 'components/vote-list/loader.vue'
 import UserIcon from 'icons/src/user.vue'
-import TokenIcon from '@/components/content/icons/tokenYup.vue'
-import ETHIcon from '@/components/content/icons/eth.vue'
-import FileDownloadIcon from '@/components/content/icons/fileDownload.vue'
-import QuickSwapIcon from '@/components/content/icons/quickSwap.vue'
 import InfoIcon from 'icons/src/infoIcon.vue'
 import { useMainStore } from '@/store/main'
 import { exportFile, convertToCSV } from '@/utils'
 import BtnSpinner from 'icons/src/btnSpinner.vue'
+import TokenIcon from 'icons/src/tokenYup.vue'
+import ETHIcon from 'icons/src/eth.vue'
+import FileDownloadIcon from 'icons/src/fileDownload.vue'
+import QuickSwapIcon from 'icons/src/quickSwap.vue'
 
 import {
   onMounted,

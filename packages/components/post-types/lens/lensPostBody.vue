@@ -1,6 +1,6 @@
 <template>
   <div class="p-4">
-    <div class="flex p-2">
+    <div class="flex p-2 overflow-hidden">
       <AvatarBtn
         :key="mainPost.userAvatar"
         class="w-9 h-9"

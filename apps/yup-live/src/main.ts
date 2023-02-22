@@ -1,13 +1,31 @@
 // import { createApp } from 'vue'
+
 import { ViteSSG } from 'vite-ssg'
 import App from '@/app.vue'
 import { routes } from '@/router'
+
 import 'virtual:windi.css'
+import '@/assets/oruga-patched.scss'
+import '@/assets/app.scss'
+
+
 // import { createHead } from "@vueuse/head";
-import { Dropdown, Button, Sidebar, Tabs, Table, Modal, Skeleton, Switch, Radio, Tooltip } from '@oruga-ui/oruga-next'
-import '@/assets/oruga-patched.css'
+import {
+  Dropdown,
+  Button,
+  Sidebar,
+  Tabs,
+  Table,
+  Modal,
+  Skeleton,
+  Switch,
+  Radio,
+  Tooltip,
+  Checkbox,
+} from '@oruga-ui/oruga-next'
 import { createPinia } from 'pinia'
 import { Buffer } from 'buffer'
+
 
 globalThis.Buffer = Buffer
 export const createApp = ViteSSG(
@@ -32,6 +50,7 @@ export const createApp = ViteSSG(
     app.use(Radio)
     app.use(Table)
     app.use(Tooltip)
+    app.use(Checkbox)
 
     if (import.meta.env.SSR) {
       // this will be stringified and set to window.__INITIAL_STATE__

@@ -50,6 +50,28 @@ export default defineComponent({
 
     const changes = [
       {
+      date: '22 FEB - 2023',
+      title: 'Changes',
+      changes: [
+      'updated most dependencies to latest',
+      'updated to latest turboRepo & Android Gradle',
+      'clean & remove unused dependencies & refresh lock file',
+      'switch to vite for mobile app',
+      'added link/unlink to Twitter on account settings on yup-live',
+      'added search page and filters on yup-live',
+      'switch to the latest tailwind on mobile',
+      'moved buy-yup to footer',
+      'changed ~120 files',
+      'changed markdown lib to one with a larger set of features',
+      'minor updates to wallet connectivity on mobile',
+      'switch connect bg modal to white to not confuse QR scanners',
+      'added report posts on mobile & yup-live',
+      'further reduced mobile bundle size to < 5mb and build time < 20s',
+      'removed yup controls(vote/data/info) on live farcaster feed on YUP live',
+      'add open in browser on mobile if URL is a vaild web link',
+      ]
+      },
+      {
       date: '13 FEB - 2023',
       title: 'Changes',
       changes: [

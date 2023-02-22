@@ -251,7 +251,7 @@ export default defineComponent({
     const postInfo = ref(null) as Ref<unknown>
     const followers = ref([]) as Ref<string[]>
     const isAuth = ref(store.isLoggedIn)
-    let LoadTimeout = 0
+    // let LoadTimeout = 0
     const walletKeyRefresh = ref(0)
 
     const userData = ref({
@@ -426,7 +426,7 @@ export default defineComponent({
       }
       resetPosts(noLoading).then(async () => {
         if (posts.value.length < 1) {
-          // catComp.value = (await import('@/components/content/icons/catEmpty.vue')).default
+          // catComp.value = (await import('icons/src/catEmpty.vue')).default
         }
       })
 
@@ -438,7 +438,7 @@ export default defineComponent({
       userLoad()
     })
 
-    onIonViewWillLeave( () => clearTimeout(LoadTimeout))
+    // onIonViewWillLeave( () => clearTimeout(LoadTimeout))
 
     const accountPageChange = async (event?: any) => {
       if(currentAccountPage.value === accountPages[0]) {

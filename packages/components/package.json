@@ -10,9 +10,14 @@
   "files": [
     "dist/**"
   ],
-  "scripts": {
-  },
+  "scripts": {},
   "jest": {
     "preset": "jest-presets/jest/node"
+  },
+  "dependencies": {
+    "marked": "^4.2.12"
+  },
+  "devDependencies": {
+    "@types/marked": "^4.0.8"
   }
 }

@@ -170,11 +170,11 @@ import {
 } from "vue";
 import { useHead, HeadObject } from "@vueuse/head";
 import DangLoader from "components/vote-list/loader.vue";
-import EOSIcon from "@/components/content/icons/eos.vue";
-import TwitterIcon from "icons/src/twitter.vue";
 import { useMainStore } from "@/store/main";
 import { wait } from "shared/src/utils/time";
 import { useRoute } from 'vue-router'
+import EOSIcon from "icons/src/eos.vue";
+import TwitterIcon from "icons/src/twitter.vue";
 
 const providerOptionsProm = import("shared/src/utils/evm");
 const web3Mprom = import("web3modal");

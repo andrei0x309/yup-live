@@ -184,7 +184,7 @@ export default defineComponent({
       p2.then(async (r) => {
         posts.value = r
         if (posts.value.length < 1) {
-          catComp.value = (await import('@/components/content/icons/catEmpty.vue')).default
+          catComp.value = (await import('icons/src/catEmpty.vue')).default
         } else {
           if (!postInfo.value) {
             postInfo.value = posts.value[0]

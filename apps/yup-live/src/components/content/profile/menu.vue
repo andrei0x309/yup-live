@@ -59,8 +59,8 @@
 import { onMounted, defineComponent, ref, Ref } from 'vue'
 import { MENU_BUTTONS, BUTTONS_ORDER } from './menuButtonEnums'
 import { useRouter } from 'vue-router'
-import WalletIcon from '@/components/content/icons/walletIcon.vue'
-import FollwersOutlineIcon from '@/components/content/icons/followersOutline.vue'
+import WalletIcon from 'icons/src/walletIcon.vue'
+import FollwersOutlineIcon from 'icons/src/followersOutline.vue'
 
 const invObj = (obj: Record<string, string>) => Object.fromEntries(Object.entries(obj).map((a) => a.reverse()))
 
@@ -101,9 +101,9 @@ export default defineComponent({
         nav.value.classList.add('slide-right')
       }
       activeIndicator.value.style.transform = `translateX(${60 * changeingActive}px) translateY(-50%)`
-      buttons[Object.keys(BUTTONS_ORDER)[isActive.value]].classList.remove('pmenu-active')
+      buttons[Object.keys(BUTTONS_ORDER)[isActive.value]]?.classList.remove('pmenu-active')
       isActive.value = changeingActive
-      buttons[Object.keys(BUTTONS_ORDER)[isActive.value]].classList.add('pmenu-active')
+      buttons[Object.keys(BUTTONS_ORDER)[isActive.value]]?.classList.add('pmenu-active')
       const pathFragments = router.currentRoute.value.fullPath.split('/').slice(0, 3)
       history.pushState(
         {},

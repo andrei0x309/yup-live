@@ -180,7 +180,6 @@ export default defineComponent({
 
     const segmentChange = async (value: any) => {
       currentSegment.value = value.detail.value;
-      console.log(store.userData.account)
       if(currentSegment.value === "all") {
         notifications.value = (await getNotifications({ userId: store.userData.account, type: 'all'}))?.reverse().map(addTwitterIcon) ?? []
       } else {
@@ -189,7 +188,6 @@ export default defineComponent({
     };
 
     onIonViewDidEnter(async () => {
-      console.log('not')
       loading.value = true
       notifications.value = (await getNotifications({ userId: store.userData.account, type: 'all'}))?.reverse().map(addTwitterIcon) ?? []
       loading.value = false

@@ -9,7 +9,7 @@
       />
       <div class="flex flex-row items-end w-full px-4 mt-4">
         <div class="flex border-t border-gray-700 w-full py-4">
-          <div class="flex items-center gap-x-2 border-r border-gray-700 w-full pl-2">
+          <div v-if="!noYUPPost" class="flex items-center gap-x-2 border-r border-gray-700 w-full pl-2">
             <Voting
               :key="`${processedPost.title}${votingKey}`"
               v-model:vote="refHasVote"
@@ -22,7 +22,7 @@
             <!-- <Comments v-if="hasComments" :postId="processedPost.id" :commentsCount="commentsCount" /> -->
           </div>
           <div class="flex items-center flex-shrink-0 px-2">
-            <div class="flex items-center space-x-1">
+            <div v-if="!noYUPPost"  class="flex items-center space-x-1">
               <CollectMenu :postId="processedPost.id" />
               <PostMenu
                 :key="menuKey"
@@ -82,6 +82,11 @@ export default defineComponent({
     full: {
       type: Boolean,
       required: false
+    },
+    noYUPPost: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   emits: ['updatepostinfo'],
@@ -305,10 +310,11 @@ html[class='dark'] {
   align-items: center;
 }
 
-.pPost.mirror div {
+.pPost.mirror div.postCard {
   max-width: 60rem;
   word-break: break-all;
 }
+
 
 div.w3TweetTypeBody {
   text-align: left;

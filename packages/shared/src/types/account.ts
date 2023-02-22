@@ -21,6 +21,10 @@ export interface IUserData {
     farcaster?: string
     lens?: string
   }
+  twitterInfo?: {
+    userId: string
+    username: string
+  }
 }
 
 export interface NameValue {
