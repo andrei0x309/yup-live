@@ -1,4 +1,5 @@
 <template>
+  <div>
   <BtnSpinner v-if="loading" />
   <template v-else>
     <div class="flex justify-between mt-4 px-4" style="z-index: 1;z-index: 1;position: absolute;width: 100%;">
@@ -31,6 +32,7 @@
       </div>
     </div>
   </template>
+</div>
 </template>
 
 <script lang="ts">

@@ -364,6 +364,12 @@ export default defineComponent({
     useHead(({
       title: 'Search | Yup Live',
       description: 'Search web3 data or use advanced filters to find content you might be interested in.',
+      meta: [
+        {
+          name: 'description',
+          content: 'Search web3 data or use advanced filters to find content you might be interested in.'
+        },
+      ]
     } as unknown) as Ref<HeadObject>);
  
    

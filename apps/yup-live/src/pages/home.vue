@@ -86,6 +86,10 @@ export default defineComponent({
       description: computed(() => siteData.description),
       meta: [
         {
+          name: 'description',
+          content: computed(() => siteData.description)
+        },
+        {
           name: 'og:type',
           content: 'website'
         },
@@ -137,11 +141,6 @@ export default defineComponent({
     onUnmounted(async () => {
       // do nothing
     })
-
-    useHead({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description)
-    } as unknown as Ref<HeadObject>)
 
     watch(
       () => route.path,

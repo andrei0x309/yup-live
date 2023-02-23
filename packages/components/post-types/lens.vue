@@ -1,9 +1,10 @@
 <template>
+  <div>
   <LensPostBody :mainPost="mainPost" :postId="post.id" />
-
   <div v-if="lensComments.length > 0 && full" class="p-2 flex-col">
     <h2 class="pl-4 text-left">Comments:</h2>
     <LensPostBody v-for="comment in lensComments" :key="comment.lensId" :mainPost="comment" />
+  </div>
   </div>
 </template>
 

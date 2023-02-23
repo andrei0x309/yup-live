@@ -133,6 +133,10 @@ export default defineComponent({
       description: siteData.description,
       meta: [
         {
+          name: 'description',
+          content: siteData.description
+        },
+        {
           name: 'og:type',
           content: 'website'
         },

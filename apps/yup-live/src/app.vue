@@ -8,7 +8,6 @@
 </template>
 
 <script lang="ts">
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 import { defineComponent } from "vue";
 import HeaderComp from "@/components/theme/header.vue";
 import FooterCom from "@/components/theme/footer.vue";
@@ -21,8 +20,7 @@ import { useRoute } from "vue-router";
 import AlertStack from "components/functional/alertStack.vue";
 import { deleteMeta } from "shared/src/utils/head";
 import { setAlertStack, useAlertStack } from "@/store/alertStore";
-import { fetchWAuth } from "shared/src/utils/auth";
-import { getFidByToken } from "shared/src/utils/farcaster";
+import { farcasterAuthCheck } from "shared/src/utils/requests/farcaster";
 
 export default defineComponent({
   name: "App",
@@ -49,47 +47,7 @@ export default defineComponent({
           mainStore.userData.weight = Number(localStorage.getItem("weight")) || 1;
           mainStore.userData.authToken = localStorage.getItem("authToken") || "";
           mainStore.isLoggedIn = true;
-          const FCFeed = localStorage.getItem("faracsterFeed");
-          if (FCFeed) {
-            mainStore.farcasterFeed = !!FCFeed;
-          }
-          const farcaster = localStorage.getItem("farcaster");
-          if (farcaster) {
-            mainStore.farcaster = farcaster;
-            const fid = localStorage.getItem("fid");
-            if (fid) {
-              mainStore.fid = fid;
-            } else {
-              getFidByToken(farcaster, API_BASE).then((fid) => {
-                if (fid) {
-                  mainStore.fid = fid as string;
-                  localStorage.setItem("fid", fid as string);
-                }
-              });
-            }
-          } else {
-            fetchWAuth(mainStore, `${API_BASE}/accounts/social/list`).then(
-              async (res) => {
-                try {
-                  const req = await res.json();
-                  if (req.ok) {
-                    if (req?.social?.farcaster) {
-                      mainStore.farcaster = req.social.farcaster;
-                      localStorage.setItem("farcaster", req.social.farcaster);
-                      getFidByToken(req.social.farcaster, API_BASE).then((fid) => {
-                        if (fid) {
-                          mainStore.fid = fid as string;
-                          localStorage.setItem("fid", fid as string);
-                        }
-                      });
-                    }
-                  }
-                } catch (error) {
-                  console.error("Failed to parse farcaster", error);
-                }
-              }
-            );
-          }
+          farcasterAuthCheck(mainStore);
           collectionStore.collectionsPromise = getCollections(
             collectionStore,
             mainStore.userData.account

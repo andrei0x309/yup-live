@@ -15,7 +15,8 @@ const useMainStore = defineStore('main', {
             deletePost: '',
             isLoggedIn: false,
             openConnectModal: false,
-            modalLoginState: true
+            farcaster: '',
+            fid: ''
         }
     }
 })

@@ -1,4 +1,5 @@
 <template>
+    <div>
     <div class="flex justify-between mt-4 px-4" style="z-index: 1;z-index: 1;position: absolute;width: 100%;">
     <span class="flex mtime h-min space-x-1 items-center rounded-full text-xs font-medium">
       <ClockIcon class="w-5 h-5" />
@@ -22,6 +23,7 @@
       {{ post.content }}
     </p>
   </div>
+</div>
 </template>
 
 <script lang="ts">

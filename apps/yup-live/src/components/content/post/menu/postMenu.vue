@@ -299,8 +299,8 @@ export default defineComponent({
 
     const openReportPost = () => {
       modalContent.value = 'report'
-      modalLoading.value = true
       modalOpen.value = true
+      modalLoading.value = false
     }
 
     onMounted(() => {

@@ -1,4 +1,5 @@
 <template>
+  <div>
   <div v-if="postType === 'single'" ref="postWrap" class="p-4">
     <FarcasterPostBody :mainPost="mainPost" :postId="post.id" />
   </div>
@@ -13,6 +14,7 @@
       <FarcasterPostBody v-for="comment in comments" :key="comment.thread" class="mb-4 comBorder" :mainPost="comment" :isCom="true" />
     </div>
   </div>
+</div>
 </template>
 <script lang="ts">
 import { onMounted, defineComponent, ref, Ref } from 'vue'

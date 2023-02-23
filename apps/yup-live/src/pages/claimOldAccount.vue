@@ -221,8 +221,11 @@ export default defineComponent({
 
     useHead({
       title: computed(() => siteData.title),
-      description: computed(() => siteData.description),
       meta: [
+        {
+          name: 'description',
+          content: computed(() => siteData.description)
+        },
         {
           name: 'og:type',
           content: 'website'

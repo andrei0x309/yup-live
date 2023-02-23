@@ -1,4 +1,5 @@
 <template>
+  <div>
   <div v-if="tweetType === 'original'" class="p-4">
     <div class="flex p-2">
       <AvatarBtn
@@ -170,6 +171,7 @@
       </p>
     </span>
   </div>
+</div>
   <div id="scriptPlacer" class="hidden"></div>
 </template>
 
@@ -189,7 +191,6 @@ import ImagePreview from 'components/post/imagePreview.vue'
 import VerifiedIcon from 'icons/src/verified.vue'
 import type { mediaType } from 'shared/src/types/post'
 import type { TweetData, TweetRaw } from 'shared/src/types/web2/twitter'
-import { url } from 'inspector'
 
 const refGoTo = GoTo
 const refBtnSpinner = BtnSpinner

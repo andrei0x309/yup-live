@@ -195,7 +195,13 @@ export default defineComponent({
 
     useHead({
       title: computed(() => siteData.title),
-      description: computed(() => siteData.description)
+      description: computed(() => siteData.description),
+      meta: [
+        {
+          name: 'description',
+          content: computed(() => siteData.description)
+        },
+      ]
     } as unknown as Ref<HeadObject>)
 
     const getAprs = async () => {

@@ -10,9 +10,11 @@ export interface IStoreUserData {
 export interface IMainStore {
   theme: string
   userData: IStoreUserData
-  isLoggedIn: boolean
-  openConnectModal: boolean
-  modalLoginState: boolean
+  isLoggedIn?: boolean
+  openConnectModal?: boolean
+  modalLoginState?: boolean
+  farcaster?: string
+  fid?: string
 }
 
 export interface ICollection {
