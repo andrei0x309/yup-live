@@ -6,7 +6,7 @@ import { IErrorObj } from 'shared/src/types/errorObj'
 
 const { API_BASE } = config
 
-export const claimAndLinkTwitter = async (store: IMainStore): Promise<IErrorObj> => {
+export const claimAndLinkTwitter = async (store: IMainStore, addFollowers = false): Promise<IErrorObj> => {
     try {
         const reqTwitterChallenge = await fetch(`${API_BASE}/v1/auth/oauth-challenge`, {
             method: "POST",
@@ -41,7 +41,7 @@ export const claimAndLinkTwitter = async (store: IMainStore): Promise<IErrorObj>
         }
         const oauthRes = await reqTwitterAuth.json();
         window.open(oauthRes.redirectPath, "_blank");
-        return await twitterAuthCheck(store, verificationId, verificationToken);
+        return await twitterAuthCheck(store, verificationId, verificationToken, addFollowers);
 
     } catch (err) {
         return { error: true, msg: "Network Error API DOWN, please try again later.", stage: "initial" }
@@ -51,7 +51,8 @@ export const claimAndLinkTwitter = async (store: IMainStore): Promise<IErrorObj>
 const twitterAuthCheck = async (
     store: IMainStore,
     verificationId: string,
-    verificationToken: string
+    verificationToken: string,
+    addFollowers = false
 ): Promise<IErrorObj> => {
     try {
         const reqTwitterAuth = await fetch(

@@ -404,16 +404,16 @@ export default defineComponent({
   }
 }
 .yup-score {
-  .glassCard {
-    background: var(--glass-menu-bg);
-    color: var(--glassTxt);
-    box-shadow: 0 8px 32px 0 var(--glassShadow);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border-radius: 10px;
-    border: 1px solid rgb(255 255 255 / 12%);
-    margin: 0.7rem;
-  }
+  // .glassCard {
+  //   background: var(--glass-menu-bg);
+  //   color: var(--glassTxt);
+  //   box-shadow: 0 8px 32px 0 var(--glassShadow);
+  //   backdrop-filter: blur(4px);
+  //   -webkit-backdrop-filter: blur(4px);
+  //   border-radius: 10px;
+  //   border: 1px solid rgb(255 255 255 / 12%);
+  //   margin: 0.7rem;
+  // }
 
   h3 {
     font-size: 1.15rem;

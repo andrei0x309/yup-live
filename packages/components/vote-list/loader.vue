@@ -106,12 +106,12 @@ $time: 1;
 .arrow {
   width: 0;
   height: 0;
-  margin: 0 math.div(-$size, 2);
-  border-left: $size solid transparent;
-  border-right: $size solid transparent;
-  border-bottom: ($size * 1.8) solid $color;
-  animation: blink $time + s infinite;
-  filter: drop-shadow(0 0 ($size * 1.5) $color);
+  margin: 0 -6px;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 21.6px solid #f3e29e;
+  animation: blink 0.8s infinite;
+  filter: drop-shadow(0 0 18px #000);
 
   &.down {
     transform: rotate(180deg);

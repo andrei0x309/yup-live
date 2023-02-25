@@ -2,6 +2,10 @@
   <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto mb-8">
     <div class="bg-color flex flex-col">
       <template v-if="!apiError">
+
+        <h2 v-if="userData?.evmAddress" class="text-2xl font-bold text-center mt-6 mb-2">Yup Profile for address: {{ truncteEVMAddr(userData.evmAddress) }}</h2>
+
+
         <div class="profile w-full mb-4 flex flex-row">
           <DangLoader v-if="isLoadingUser" class="mt-28" :unset="true" />
           <template v-else>
@@ -49,6 +53,7 @@
       </div>
     </div>
     <div v-if="!apiError" class="bg-color table-list profile w-full mb-4 flex flex-col">
+      <router-link class="asocLink" :to="`/web3-profile/${userData.evmAddress}`">View Associated web3 profile</router-link>
       <template v-if="currentMenuTab === MENU_BUTTONS.feed">
         <o-tabs
           v-model="feedTab"
@@ -128,10 +133,11 @@
         :collections="collectionsPageCollections"
         :collectionPromise="collectionsPagePromise"
       />
-      <FollowersPage
+      <Web3FollwersPage
         v-if="currentMenuTab === MENU_BUTTONS.followers"
         :followersList="followers"
-        :account="userData.username"
+        :handle="userData.username"
+        :addr="userData.evmAddress"
       />
       <WalletPage
         v-if="currentMenuTab === MENU_BUTTONS.wallet"
@@ -252,19 +258,21 @@ import { postTypesPromises } from "components/post-types/post-types";
 import PostInfo from "@/components/content/post/postInfo.vue";
 import LineLoader from "components/functional/lineLoader.vue";
 import {
-  getUserFollowers,
   createActionUsage,
   createUserData,
   getUserFollowing
 } from "shared/src/utils/requests/accounts";
 import type { NameValue } from "shared/src/types/account";
 import type { ICollection } from "shared/src/types/store";
-import FollowersPage from "@/components/content/profile/followersPage.vue";
+import Web3FollwersPage from "@/components/content/profile/web3FollwersPage.vue"
 import WalletPage from "@/components/content/profile/walletPage.vue";
 import { stackAlertSuccess } from "@/store/alertStore";
 import { FCSendCast } from "shared/src/utils/farcaster";
 import Alert from "components/functional/alert.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
+import { utilsAFGetCreated } from "shared/src/utils/requests/accountFeeds";
+import { truncteEVMAddr } from "shared/src/utils/misc";
+import { getFollowers } from "shared/src/utils/requests/web3Follows";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -280,7 +288,7 @@ export default defineComponent({
     CollectionsPage,
     PostInfo,
     LineLoader,
-    FollowersPage,
+    Web3FollwersPage,
     WalletPage,
     Alert,
     BtnSpinner,
@@ -470,16 +478,13 @@ export default defineComponent({
       const res = await fetch(
         `${API_BASE}/feed/account/${userId.value}?start=${start}&limit=10`
       );
-      const data = await res.json();
-      return data.posts;
+      const data = await res.json()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return data.posts.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     };
 
     const getCreatedFeedPosts = async (start = 0) => {
-      const res = await fetch(
-        `${API_BASE}/profile/posts/${userData.value?.evmAddress}?start=${start}&limit=10`
-      );
-      const data = await res.json();
-      return data.posts;
+      return (await utilsAFGetCreated(API_BASE, start, userData.value?.evmAddress)).posts;
     };
 
     const getFarcasterFeed = async (start = 0) => {
@@ -641,15 +646,22 @@ export default defineComponent({
           getActionUsage(userData.value._id as string);
         }
 
-        getUserFollowers(userData.value._id as string).then((r) => {
-          if (!r.error) {
-            userData.value.followers = r?.data?.length;
-            followers.value = r?.data ?? [];
+        getFollowers(API_BASE, userData.value.evmAddress).then((res) => {
+        if(res) {
+          followers.value = res.followers.map((f: { _id: string}) => f._id) ?? [];
+          userData.value.followers = res.totalCount
+        }
+      });
 
-          } else {
-            console.error(r.msg);
-          }
-        });
+        // getUserFollowers(userData.value._id as string).then((r) => {
+        //   if (!r.error) {
+        //     userData.value.followers = r?.data?.length;
+        //     followers.value = r?.data ?? [];
+
+        //   } else {
+        //     console.error(r.msg);
+        //   }
+        // });
         
         if(store.userData.account) {
           getUserFollowing(store.userData.account as string).then((r) => {
@@ -768,7 +780,8 @@ export default defineComponent({
       hasFarcaster,
       isFollowing,
       isAuth,
-      externalPosts
+      externalPosts,
+      truncteEVMAddr
     };
   },
 });
@@ -776,7 +789,7 @@ export default defineComponent({
 
 <style lang="scss">
 .profile {
-  justify-content: space-evenly;
+  justify-content: center;
 
   .o-tabs__nav {
     overflow-y: hidden;
@@ -819,4 +832,23 @@ export default defineComponent({
     display: contents;
   }
 }
+
+.asocLink {
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    border: 1px solid #4a4a4aa3;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.4rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+    box-shadow: -1px 2px 1px var(--profile-av-holder-sh2);
+    transition: all 0.3s ease-in-out;
+}
+
+.asocLink:hover {
+    opacity: 1;
+    background-color: aquamarine;
+    background-color: #26262680;
+}
+
 </style>

@@ -22,6 +22,9 @@ import { deleteMeta } from "shared/src/utils/head";
 import { setAlertStack, useAlertStack } from "@/store/alertStore";
 import { farcasterAuthCheck } from "shared/src/utils/requests/farcaster";
 
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
+
 export default defineComponent({
   name: "App",
   components: {
@@ -47,7 +50,7 @@ export default defineComponent({
           mainStore.userData.weight = Number(localStorage.getItem("weight")) || 1;
           mainStore.userData.authToken = localStorage.getItem("authToken") || "";
           mainStore.isLoggedIn = true;
-          farcasterAuthCheck(mainStore);
+          farcasterAuthCheck(mainStore, API_BASE);
           collectionStore.collectionsPromise = getCollections(
             collectionStore,
             mainStore.userData.account
@@ -244,4 +247,26 @@ html[class="dark"] {
     opacity: 0.1;
   }
 }
+
+.view-btn {
+      font-size: 0.7rem;
+      border: 1px solid #949d9d;
+      border-radius: 0.3rem;
+      padding: 0.1rem 0.2rem;
+    }
+    .view-btn:hover {
+      background-color: #383838;
+    }
+
+  .glassCard {
+    margin-top: 1rem;
+    background-color: var(--glass-menu-bg);
+    padding: 2rem;
+    border-radius: 1rem;
+    filter: grayscale(0.1);
+    background: linear-gradient(234deg, rgba(80, 76, 76, 0.1411764706), rgba(24, 24, 24, 0.5490196078)), linear-gradient(39deg, rgba(98, 92, 92, 0.2117647059), rgba(32, 31, 31, 0.5607843137));
+    color: aliceblue;
+    box-shadow: 2px 2px #2b2d2e;
+  }
+
 </style>

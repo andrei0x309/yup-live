@@ -4,7 +4,7 @@
     <img
       v-if="!isError"
       :key="source"
-      :class="`${imgClass} rounded-t-lg`"
+      :class="`rounded-t-lg ${imgClass}`"
       :src="source"
       :alt="alt"
       loading="lazy"

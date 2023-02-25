@@ -3,10 +3,10 @@ import { getFidByToken } from '../farcaster'
 import { fetchWAuth } from '../auth'
 import type { IMainStore } from 'shared/src/types/store'
 
-const { API_BASE } = config
+const API_BASE = config.API_BASE || ''
 
 
-export const farcasterAuthCheck = async (store: IMainStore) => {
+export const farcasterAuthCheck = async (store: IMainStore, apiBase: string = API_BASE) => {
     const farcaster = localStorage.getItem("farcaster");
     if (farcaster) {
         store.farcaster = farcaster;
@@ -14,7 +14,7 @@ export const farcasterAuthCheck = async (store: IMainStore) => {
         if (fid) {
             store.fid = fid;
         } else {
-            getFidByToken(farcaster, API_BASE).then((fid) => {
+            getFidByToken(farcaster, apiBase).then((fid) => {
                 if (fid) {
                     store.fid = fid as string;
                     localStorage.setItem("fid", fid as string);
@@ -22,7 +22,7 @@ export const farcasterAuthCheck = async (store: IMainStore) => {
             });
         }
     } else {
-        fetchWAuth(store, `${API_BASE}/accounts/social/list`).then(
+        fetchWAuth(store, `${apiBase}/accounts/social/list`).then(
             async (res) => {
                 try {
                     const req = await res.json();

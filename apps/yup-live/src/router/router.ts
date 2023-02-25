@@ -118,6 +118,16 @@ const routes = [
     component: () => import('@/pages/profile.vue')
   },
   {
+    path: '/web3-profile/:addr',
+    name: 'Web3ProfileWithAddr',
+    component: () => import('@/pages/web3Profile.vue')
+  },
+  {
+    path: '/web3-profile/:addr/:accountRoute',
+    name: 'Web3ProfileWithAddrAndRoute',
+    component: () => import('@/pages/web3Profile.vue')
+  },
+  {
     path: '/notifications/:userId',
     name: 'Notifications',
     component: () => import('@/pages/notifications.vue')

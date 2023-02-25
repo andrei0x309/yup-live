@@ -13,8 +13,8 @@
             <p class="p-3">Token: {{ token.symbol }}</p>
             <ImagePreview
               :source="token.symbol === 'WETH' ? '/res/svg/purple-eth.svg' : token.image"
-              :imgClass="`${token.symbol === 'WETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full`"
-              :noPreviewClass="`${token.symbol === 'WETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full `"
+              :imgClass="`${token.symbol === 'WETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full rounded-t-full`"
+              :noPreviewClass="`${token.symbol === 'WETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full rounded-t-full`"
               :noPreviewParagraph="false"
             />
             <p class="p-3">Balance: {{ formatNumber(token.balance, 4) }}</p>
@@ -29,8 +29,8 @@
             <p class="p-3">Token: {{ token.symbol }}</p>
             <ImagePreview
               :source="token.symbol === 'ETH' ? '/res/svg/purple-eth.svg' : token.image"
-              :imgClass="`${token.symbol === 'ETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full`"
-              :noPreviewClass="`${token.symbol === 'ETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full `"
+              :imgClass="`${token.symbol === 'ETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full rounded-t-full`"
+              :noPreviewClass="`${token.symbol === 'ETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full rounded-t-full`"
               :noPreviewParagraph="false"
             />
             <p class="p-3">Balance: {{ formatNumber(token.balance, 4) }}</p>
@@ -98,6 +98,7 @@ import { formatNumber } from 'shared/src/utils/misc'
 import ImagePreview from 'components/post/imagePreview.vue'
 import type { IProfileToken, IProfileNFT, IProfilePOAP } from 'shared/src/types/web3/wallet'
 import AddIcon from 'icons/src/add.vue'
+import { fetchFromWallet, resources, chains } from 'shared/src/utils/requests/web3Wallet'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
 // CustomButton
@@ -116,15 +117,6 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const assets = ref({}) as Ref< {
-      yupScore?: number
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tokens?: any[] 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      nfts?: any[]
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      poaps?: any[]
-    }>
     const isLoading = ref(true)
     const catComp = ref(null) as Ref<unknown>
     const nothingToShow = ref(false)
@@ -142,33 +134,110 @@ export default defineComponent({
     })
     const currentSegment = ref('tokens')
 
-
-
-    // colStore.$subscribe(() => {
-    //   refCollections.value = colStore.collections
-    // })
-
-    const getProfileWallet = async () => {
+    const walletLoadArgs = {
+      address: props.accountEVMAddr,
+      start: 0,
+      limit: 11,
+      res: resources,
+      ch: chains,
+      apiBase: API_BASE
+    }
+ 
+    const getProfileWallet = async ({
+      address,
+      start,
+      limit,
+      res,
+      ch,
+      apiBase
+    }: {
+      address: string
+      start: number
+      limit: number
+      res: string[]
+      ch: string[]
+      apiBase: string
+    }) => {
+      const r  = {
+            poaps: [] as IProfilePOAP[],
+            ethNfts: [] as IProfileNFT[],
+            polyNfts: [] as IProfileNFT[],
+            ethTokens: [] as IProfileToken[],
+            polyTokens: [] as IProfileToken[],
+         }
       try {
-        const req = await fetch(`${API_BASE}/profile/${props.accountEVMAddr}`, {
-          method: 'GET'
-        })
-        if (req.ok) {
-          return req.json()
-        } else {
-          return {
-            nfts: [],
-            tokens: [],
-            poaps: []
-          }
+         const promises = []
+        
+         if(res.includes('poaps')){
+         promises.push(fetchFromWallet({
+          apiBase,
+          address,
+          start,
+          limit,
+          resource: 'poaps',
+          chain: 'ethereum'
+        }).then((rz) => {
+          r.poaps = rz ?? []
+        })) 
+      }
+      if(res.includes('nfts')){
+        if(ch.includes('ethereum')){
+          promises.push(fetchFromWallet({
+            apiBase,
+            address,
+            start,
+            limit,
+            resource: 'nfts',
+            chain: 'ethereum'
+          }).then((rz) => {
+            r.ethNfts = rz ?? []
+          }))
         }
+        if(ch.includes('polygon')){
+          promises.push(fetchFromWallet({
+            apiBase,
+            address,
+            start,
+            limit,
+            resource: 'nfts',
+            chain: 'polygon'
+          }).then((rz) => {
+            r.polyNfts = rz ?? []
+          }))
+        }
+      }
+      if(res.includes('tokens')){
+        if(ch.includes('ethereum')){
+          promises.push(fetchFromWallet({
+            apiBase,
+            address,
+            start,
+            limit,
+            resource: 'tokens',
+            chain: 'ethereum'
+          }).then((rz) => {
+            r.ethTokens = rz ?? []
+          }))
+        }
+        if(ch.includes('polygon')){
+          promises.push(fetchFromWallet({
+            apiBase,
+            address,
+            start,
+            limit,
+            resource: 'tokens',
+            chain: 'polygon'
+          }).then((rz) => {
+            r.polyTokens = rz ?? []
+          }))
+        }
+      }
+
+        await Promise.all(promises)
+        return r
       } catch {
-        stackAlertError(`Network ERROR: when contacting API`)
-        return {
-          nfts: [],
-          tokens: [],
-          poaps: []
-        }
+        stackAlertError('Error fetching wallet data')
+        return r
       }
     }
 
@@ -177,77 +246,94 @@ export default defineComponent({
         nothingToShow.value = true
         isLoading.value = false
       } else {
-        getProfileWallet().then((r) => {
-          assets.value = r ?? {}
-          if(!('poaps' in assets.value) && !('tokens' in assets.value) && !('nfts' in assets.value)) {
-            nothingToShow.value = true
-          }
-          if ('poaps' in assets.value) {
-            poaps.value = assets.value?.poaps?.slice(0, 10) ?? []
-            if(poaps.value.length >= (assets.value?.poaps?.length ?? 0)) {
-              hasMore.poaps = false
-            }
-          }
-          if ('nfts' in assets.value) {
-            ethNfts.value = assets.value?.nfts?.filter(n => n.chain === 'ethereum').slice(0, 10) ?? []
-            if(ethNfts.value.length >= (assets.value?.nfts?.filter(n => n.chain === 'ethereum').length ?? 0)) {
-              hasMore.ethNfts = false
-            }
-            polyNfts.value = assets.value?.nfts?.filter(n => n.chain === 'polygon').slice(0, 10) ?? []
-            if(polyNfts.value.length >= (assets.value?.nfts?.filter(n => n.chain === 'polygon').length ?? 0)) {
-              hasMore.polyNfts = false
-            }
-          }
-          if ('tokens' in assets.value) {
-            ethTokens.value = assets.value?.tokens?.filter(n => n.chain === 'ethereum').slice(0, 10) ?? []
-            if(ethTokens.value.length >= (assets.value?.tokens?.filter(n => n.chain === 'ethereum').length ?? 0)) {
-              hasMore.ethTokens = false
-            }
-            polyTokens.value = assets.value?.tokens?.filter(n => n.chain === 'polygon').slice(0, 10) ?? []
-            if(polyTokens.value.length >= (assets.value?.tokens?.filter(n => n.chain === 'polygon').length ?? 0)) {
-              hasMore.polyTokens = false
-            }
-          }
-            isLoading.value = false
-        })
-      }
-    })
+        
 
-    const loadMore = (type: string) => {
+        const r = (await getProfileWallet(walletLoadArgs))
+          ethNfts.value = r.ethNfts.slice(0, 10)
+          if(r.ethNfts.length !== walletLoadArgs.limit) {
+            hasMore.ethNfts = false
+          }
+          polyNfts.value = r.polyNfts.slice(0, 10)
+          if(r.polyNfts.length !== walletLoadArgs.limit) {
+            hasMore.polyNfts = false
+          }
+          ethTokens.value = r.ethTokens.slice(0, 10)
+          if(r.ethTokens.length !== walletLoadArgs.limit) {
+            hasMore.ethTokens = false
+          }
+          polyTokens.value = r.polyTokens.slice(0, 10)
+          if(r.polyTokens.length !== walletLoadArgs.limit) {
+            hasMore.polyTokens = false
+          }
+          poaps.value = r.poaps.slice(0, -1)
+          if(r.poaps.length !== walletLoadArgs.limit) {
+            hasMore.poaps = false
+          }
+        }
+        isLoading.value = false
+      })
+
+
+    const loadMore = async (type: string) => {
         switch(type) {
           case 'ethTokens': {
-          ethTokens.value = assets.value?.tokens?.filter(n => n.chain === 'ethereum').slice(0, ethTokens.value.length + 10) ?? []
-            if(ethTokens.value.length >= (assets.value?.tokens?.filter(n => n.chain === 'ethereum').length ?? 0)) {
+            walletLoadArgs.start = ethTokens.value.length
+            walletLoadArgs.res = ['tokens']
+            walletLoadArgs.ch = ['ethereum']
+            const r = await getProfileWallet(walletLoadArgs)
+            if(r.ethTokens.length !== walletLoadArgs.limit) {
               hasMore.ethTokens = false
+              return
             }
+            ethTokens.value = [...ethTokens.value, ...r.ethTokens.slice(0, 10)] 
             break
           }
           case 'polyTokens': {
-            polyTokens.value = assets.value?.tokens?.filter(n => n.chain === 'polygon').slice(0, polyTokens.value.length + 10) ?? []
-            if(polyTokens.value.length >= (assets.value?.tokens?.filter(n => n.chain === 'polygon').length ?? 0)) {
+            walletLoadArgs.start = polyTokens.value.length
+            walletLoadArgs.res = ['tokens']
+            walletLoadArgs.ch = ['polygon']
+            const r = await getProfileWallet(walletLoadArgs)
+            if(r.polyTokens.length !== walletLoadArgs.limit) {
               hasMore.polyTokens = false
+              return
             }
-          break
+            polyTokens.value = [...polyTokens.value, ...r.polyTokens.slice(0, 10)] 
+            break
           }
           case 'ethNfts': {
-            ethNfts.value = assets.value?.nfts?.filter(n => n.chain === 'ethereum').slice(0, ethNfts.value.length + 10) ?? []
-            if(ethNfts.value.length >= (assets.value?.nfts?.filter(n => n.chain === 'ethereum').length ?? 0)) {
+            walletLoadArgs.start = ethNfts.value.length
+            walletLoadArgs.res = ['nfts']
+            walletLoadArgs.ch = ['ethereum']
+            const r = await getProfileWallet(walletLoadArgs)
+            if(r.ethNfts.length !== walletLoadArgs.limit) {
               hasMore.ethNfts = false
+              return
             }
-          break
+            ethNfts.value = [...ethNfts.value, ...r.ethNfts.slice(0, 10)] 
+            break
           }
           case 'polyNfts': {
-            polyNfts.value = assets.value?.nfts?.filter(n => n.chain === 'polygon').slice(0, polyNfts.value.length +  10) ?? []
-            if(polyNfts.value.length >= (assets.value?.nfts?.filter(n => n.chain === 'polygon').length ?? 0)) {
+            walletLoadArgs.start = polyNfts.value.length
+            walletLoadArgs.res = ['nfts']
+            walletLoadArgs.ch = ['polygon']
+            const r = await getProfileWallet(walletLoadArgs)
+            if(r.polyNfts.length !== walletLoadArgs.limit) {
               hasMore.polyNfts = false
+              return
             }
-          break
+            polyNfts.value = [...polyNfts.value, ...r.polyNfts.slice(0, 10)] 
+            break
           }
           case 'poaps': {
-            poaps.value = assets.value?.poaps?.slice(0, poaps.value.length + 10) ?? []
-            if(poaps.value.length >= (assets.value?.poaps?.length ?? 0)) {
+            walletLoadArgs.start = poaps.value.length
+            walletLoadArgs.res = ['poaps']
+            walletLoadArgs.ch = ['ethereum']
+            const r = await getProfileWallet(walletLoadArgs)
+            if(r.poaps.length !== walletLoadArgs.limit) {
               hasMore.poaps = false
+              return
             }
+            poaps.value = [...poaps.value, ...r.poaps.slice(0, 10)]
           break
           }
         }
@@ -275,15 +361,15 @@ export default defineComponent({
 
 <style lang="scss">
 .wallet-section {
-  .glassCard {
-    background: var(--glass-menu-bg);
-    color: var(--glassTxt);
-    box-shadow: 0 8px 32px 0 var(--glassShadow);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-  }
+  // .glassCard {
+  //   background: var(--glass-menu-bg);
+  //   color: var(--glassTxt);
+  //   box-shadow: 0 8px 32px 0 var(--glassShadow);
+  //   backdrop-filter: blur(4px);
+  //   -webkit-backdrop-filter: blur(4px);
+  //   border-radius: 10px;
+  //   border: 1px solid rgba(255, 255, 255, 0.18);
+  // }
 
   .token {
     width: 14rem;

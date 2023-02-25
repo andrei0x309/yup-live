@@ -1,6 +1,9 @@
 <template>
   <div :class="`flex justify-between m-1 md:m-6 flex-row pPost ${postTypeClass}`">
-    <div class="flex flex-col max-w-2xl mx-auto rounded-b-none postCard w-full">
+    <div
+      class="flex flex-col max-w-2xl mx-auto rounded-b-none postCard w-full"
+     :style="full && post.tag === 'mirror' ? 'max-width: 56rem;' : ''"
+    >
       <component
         :is="!postTypeLoading ? postTypeCom : undefined"
         :key="`post-loaded-${postTypeLoading}`"
@@ -311,7 +314,6 @@ html[class='dark'] {
 }
 
 .pPost.mirror div.postCard {
-  max-width: 60rem;
   word-break: break-all;
 }
 

@@ -509,14 +509,14 @@ export default defineComponent({
 .settings-section {
   width: 100%;
   max-width: 35rem;
-  .glassCard {
-    background: var(--glass-menu-bg);
-    color: var(--glassTxt);
-    box-shadow: 0 8px 32px 0 var(--glassShadow);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-  }
+  // .glassCard {
+  //   background: var(--glass-menu-bg);
+  //   color: var(--glassTxt);
+  //   box-shadow: 0 8px 32px 0 var(--glassShadow);
+  //   backdrop-filter: blur(4px);
+  //   -webkit-backdrop-filter: blur(4px);
+  //   border-radius: 10px;
+  //   border: 1px solid rgba(255, 255, 255, 0.18);
+  // }
 }
 </style>

@@ -18,7 +18,7 @@
         {{ mirrorPost.title }}
       </h1>
       <span class="text-[0.7rem] opacity-70 text-center block-inline w-full mt-4">Author: {{ mirrorPost.author }}</span>
-      <ImagePreview v-if="featureImage" :showPlaceholder="false" :key="featureImage" :source="featureImage" imgClass="min-w-60 max-w-100" />
+      <ImagePreview v-if="featureImage" :showPlaceholder="false" :key="featureImage" :source="featureImage" imgClass="min-w-40" />
     </div>
     <div class="px-4 space-y-2" style="font-size: 0.9rem">
       <div class="font-normal leading-6 indent-4 mirror-content" v-html="mirrorPost.content"></div>
