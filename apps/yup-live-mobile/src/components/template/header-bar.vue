@@ -7,6 +7,9 @@
            <ion-icon :icon="MenuIcon" ></ion-icon>
           </ion-button>
         </ion-menu-toggle>
+        <ion-button v-show="route.fullPath.includes('/tabs/post')" @click="goBack">
+           <ion-icon :icon="arrowBack" ></ion-icon>
+          </ion-button>
         </ion-buttons>
       <div
         class="logo inline-flex items-center"
@@ -63,9 +66,10 @@ IonMenuToggle,
     IonIcon
 } from "@ionic/vue";
 import {
-menu as MenuIcon
-
+menu as MenuIcon,
+arrowBack
 } from "ionicons/icons";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
   name: "HeaderBar",
@@ -88,8 +92,21 @@ export default defineComponent({
     }
   },
   setup() {
+    const route = useRoute();
+
+    const goBack = () => {
+      if (route.path === "/") {
+       return;
+      } else {
+        window.history.back();
+      }
+    };
+
     return {
-        MenuIcon
+        MenuIcon,
+        goBack,
+        arrowBack,
+        route
     };
   },
 });

@@ -9,7 +9,7 @@ import generateSitemap from 'vite-ssg-sitemap'
 const production = process.env.NODE_ENV === 'production'
 
 const ssgOptions: ViteSSGOptions = {
-  script: 'async',
+  script: 'sync',
   formatting: 'minify',
   concurrency: 4,
   mock: true,

@@ -5,6 +5,26 @@ import type { IMainStore } from 'shared/src/types/store'
 
 const API_BASE = config.API_BASE || ''
 
+export const getComments = async (apiBase: string = API_BASE, thread: string) => {
+    try {
+        const req = await fetch(`${apiBase}/farcaster/v2/thread-casts?castHash=${thread}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+        })
+        if (req.ok) {
+            const result = await req.json()
+            return {
+                comments: result?.result?.casts ?? [],
+                numComments: result?.result?.casts.length ?? 0,
+            }
+        } else {
+            null
+        }
+    } catch (error) {
+        console.error('Failed to fetch comments', error)
+        return null
+    }
+}
 
 export const farcasterAuthCheck = async (store: IMainStore, apiBase: string = API_BASE) => {
     const farcaster = localStorage.getItem("farcaster");

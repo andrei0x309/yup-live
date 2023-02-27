@@ -109,8 +109,8 @@ export default defineComponent({
 
 <style lang="scss">
 html {
-  --post-info-card-top-bg-from1: #c98d0b;
-  --post-info-card-top-bg-from2: #cba655;
+  --post-info-card-top-bg-from1: #1d55ab;
+  --post-info-card-top-bg-from2: #1d55ab;
   --post-info-card-bottom-bg: #ffffff61;
 }
 
@@ -153,15 +153,17 @@ html[class='dark'] {
   border-top-right-radius: 1rem;
 }
 
+
 .profile-mask {
   position: absolute;
   width: 100%;
   height: 92%;
-  background: radial-gradient(ellipse at bottom, var(--post-info-card-top-bg-from2) 0%, rgba(10, 28, 56, 0.15) 100%);
   -webkit-clip-path: polygon(0% 0%, 0% 80%, 100% 100%, 100% 0%);
   clip-path: polygon(0% 0%, 0% 80%, 100% 100%, 100% 0%);
   border-top-right-radius: 1rem;
   border-top-left-radius: 1rem;
+  background: linear-gradient(269deg, #453f74, transparent), linear-gradient(5deg, var(--post-info-card-bottom-bg), transparent);
+
 }
 
 .post-details {
@@ -171,6 +173,7 @@ html[class='dark'] {
   top: 30%;
   left: 0;
   padding: 10px 0;
+  color: aliceblue;
   //background: rgba(50,50,50, 0.7);
   & * {
     display: inline-block;

@@ -47,6 +47,7 @@
         {{ mainPost.createdAt }}
       </p>
     </span>
+    <component :is="replyComp" v-if="replyComp" :showReplyButton="true" :replyTo="{fid: mainPost.userFid, hash:mainPost.hash}"  />
   </div>
 </template>
 
@@ -85,6 +86,10 @@ export default defineComponent({
     isCom: {
       type: Boolean,
       default: false,
+    },
+    replyComp: {
+      type: Object as PropType<ReturnType<typeof defineComponent>>,
+      default: null,
     },
   },
   setup() {

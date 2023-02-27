@@ -164,6 +164,8 @@ import GoToIcon from 'icons/src/goTo.vue'
 import LensIcon from 'icons/src/lens.vue'
 import CustomButton from 'components/functional/customButton.vue'
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const providerOptionsProm = import('shared/src/utils/evm')
 const web3Mprom = import('web3modal')
 const ethers = import('ethers')
@@ -214,6 +216,10 @@ export default defineComponent({
       title: computed(() => siteData.title),
       description: computed(() => siteData.description),
       meta: [
+        {
+          name: 'og:image',
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`
+        },
         {
           name: 'description',
           content: computed(() => siteData.description)

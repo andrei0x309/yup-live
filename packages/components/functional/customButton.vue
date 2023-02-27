@@ -1,6 +1,6 @@
 <template>
   <button :class="`customBtn px-4 py-2 rounded-lg flex ${mobile ? 'mobile': ''} ${size}`">
-    <component :is="icon" :class="`w-8 inline mr-3 -ml-1 ${size} ${iconClass} ${loading ? 'animate-spin my-1': ''}`" />
+    <component v-if="icon" :is="icon" :class="`w-8 inline mr-3 -ml-1 ${size} ${iconClass} ${loading ? 'animate-spin my-1': ''}`" />
     <span :class="`pl-1 table ${size}`" v-html="text"></span>
   </button>
 </template>
@@ -13,7 +13,7 @@ export default defineComponent({
   props: {
     icon: {
       type: Object,
-      default: () => ({})
+      default: null
     },
     text: {
       type: String,

@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref } from 'vue'
+import { onMounted, defineComponent, ref, Ref, shallowRef } from 'vue'
 import ProfileCard from './profileCard.vue'
 import DangLoader from 'components/vote-list/loader.vue'
 import { createUserData, createActionUsage, getUserFollowers } from 'shared/src/utils/requests/accounts'
@@ -38,7 +38,7 @@ export default defineComponent({
   setup(props) {
     const isLoading = ref(true)
     const accountsData = ref([]) as Ref<IUserData[]>
-    const catComp = ref(null) as Ref<unknown>
+    const catComp = shallowRef(null) as Ref<unknown>
 
     const getAccountData = async (accounts: string[]) => {
       const localAccData = [] as IUserData[]

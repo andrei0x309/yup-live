@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref } from 'vue'
+import { onMounted, defineComponent, ref, Ref, shallowRef } from 'vue'
 import { ICollection } from 'shared/src/types/store'
 import CollectionCard from './collectionCard.vue'
 import DangLoader from 'components/vote-list/loader.vue'
@@ -59,7 +59,7 @@ export default defineComponent({
   },
   setup(props) {
     const isLoading = ref(true)
-    const catComp = ref(null) as Ref<unknown>
+    const catComp = shallowRef(null) as Ref<unknown>
     const refCollections = ref([]) as Ref<ICollection[]>
     const confirmDeleteModal = ref(false)
     const colectionDeleteName = ref('')

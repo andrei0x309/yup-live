@@ -1,5 +1,5 @@
 <template>
-  <svg class="my-4 mx-auto h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+  <svg class="mx-auto h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
     <path
       fill="#cfab09b9"

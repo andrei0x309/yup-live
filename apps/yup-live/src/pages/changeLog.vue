@@ -55,13 +55,57 @@ import CustomButton from "components/functional/customButton.vue";
 import AddIcon from "icons/src/add.vue";
 import { useHead } from "@vueuse/head";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 export default defineComponent({
   name: "ChangeLog",
   components: {
     CustomButton,
   },
   setup() {
+
+
+    const siteData = {
+      title: `Yup Live ChangeLog`,
+      description: `Sumary of changes to yup live, all code is open source and available on github`,
+    }
+
+    useHead({
+      title: siteData.title,
+      meta: [
+        {
+          name: 'description',
+          content: siteData.description
+        },
+        {
+          name: 'og:image',
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-changelog.png`
+        },
+      ]
+    })
+
     const changes = [
+      {
+        date: "28 FEB - 2023",
+        title: "Changes",
+        changes: [
+          'added web3 profiles',
+          'added associated links between yup profile and web3 profile',
+          'switch follows to wbe3 follows, now users can follow any web3 profile',
+          'deprecated old wallet page',
+          'switch to wallet assets using new web3 profiles endpoints for mobile and web yup-live',
+          'added comment number for farcaster',
+          'added possibility to reply to any farcaster post or comment if you have farcaster connected',
+          'improved the SSG process a bit',
+          'rewrote the followers\' page to use web3 profiles and pagination',
+          'added new OG images for main static pages',
+          'added recommended web3 profiles on large screens on web3Profile page',
+          'some style adjustments',
+          'added option to sent confirmation cast on farcaster connect',
+          'added option to insert twitter followers as personal keywords on twitter link',
+          'submited mobile android yup live version 1.0.9'
+        ]
+      },
       {
         date: "23 FEB - 2023",
         title: "Changes",
@@ -416,21 +460,6 @@ export default defineComponent({
         hasMore.value = false;
       }
     };
-
-    const siteData = {
-      title: `Yup Live ChangeLog`,
-      description: `Sumary of changes to yup live, all code is open source and available on github`,
-    }
-
-    useHead({
-      title: siteData.title,
-      meta: [
-        {
-          name: 'description',
-          content: siteData.description
-        },
-      ]
-    })
 
     return {
       subsetChanges,

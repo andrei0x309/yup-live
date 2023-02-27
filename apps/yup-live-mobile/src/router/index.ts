@@ -10,7 +10,9 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/post/:postId',
-    redirect: '/tabs/post/:postId'
+    redirect (to) {
+      return `/tabs/post/${to.params.postId}`
+    },
   },
   {
     path: '/tabs/',

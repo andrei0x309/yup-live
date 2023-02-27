@@ -27,7 +27,7 @@
 
     <div class="nav__item">
       <button :ref="(el) => (buttons[MENU_BUTTONS.followers] = el as Element)" class="menu-button" @click="onClick(MENU_BUTTONS.followers)">
-        <FollwersOutlineIcon class="opacity-80" />
+        <FollwersOutlineIcon class="opacity-80 max-w-7" />
         <span class="text" data-title="Followers">FOLLOWERS</span>
       </button>
     </div>
@@ -223,7 +223,6 @@ export default defineComponent({
 }
 
 .icon path {
-  fill: #a6adb1;
   transition: fill 0.2s;
 }
 

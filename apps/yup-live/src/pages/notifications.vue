@@ -14,6 +14,9 @@
       >
         <o-tab-item value="0" label="ALL">
           <DangLoader v-if="loading" class="-mt-4" />
+          <div v-if="!loading && !notifications?.length">
+            <p class="text-center text-[1.4rem] mt-10">No notifications exists</p>
+          </div>
           <div
             v-for="notification of notifications"
             v-else
@@ -86,6 +89,9 @@
 
         <o-tab-item value="1" label="Votes">
           <DangLoader v-if="loading" class="-mt-4" />
+          <div v-if="!loading && !notifications?.length">
+            <p class="text-center text-[1.4rem] mt-10">No notifications exists</p>
+          </div>
           <div
             v-for="notification of notifications"
             v-else
@@ -132,6 +138,9 @@
 
         <o-tab-item value="2" label="Rewards">
           <DangLoader v-if="loading" class="-mt-4" />
+          <div v-if="!loading && !notifications?.length">
+            <p class="text-center text-[1.4rem] mt-10">No notifications exists</p>
+          </div>
           <div
             v-for="notification of notifications"
             v-else
@@ -198,6 +207,8 @@ import ClockIcon from 'icons/src/clock.vue'
 import { getNotifications } from 'shared/src/utils/notifications'
 import type { NotifType } from 'shared/src/types/notification'
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 export default defineComponent({
   name: 'Notifications',
   components: {
@@ -228,6 +239,10 @@ export default defineComponent({
       title: computed(() => siteData.title),
       description: computed(() => siteData.description),
       meta: [
+        {
+          name: 'og:image',
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`
+        },
         {
           name: 'description',
           content: computed(() => siteData.description)

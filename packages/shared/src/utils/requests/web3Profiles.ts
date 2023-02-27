@@ -10,6 +10,7 @@ export const fetchWeb3Profile = async (apiBase: string = API_BASE, address: stri
         const res = await fetch(`${apiBase}/web3-profiles/${address}`)
         const req = await res.json()
         if (res.ok) {
+            req.evmAddress = address
             return req
         } else {
             return null

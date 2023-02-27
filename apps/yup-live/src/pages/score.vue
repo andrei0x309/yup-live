@@ -187,6 +187,7 @@ import { parseIpfs } from "shared/src/utils/web3/ipfs";
 import { stackAlertWarning } from "@/store/alertStore";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export default defineComponent({
   name: "YUPScore",
@@ -281,6 +282,10 @@ export default defineComponent({
       title: computed(() => siteData.title),
       description: computed(() => siteData.description),
       meta: [
+        {
+          name: 'og:image',
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-score.png`
+        },
         {
           name: 'description',
           content: computed(() => siteData.description)

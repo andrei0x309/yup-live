@@ -76,7 +76,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, reactive, onUnmounted, Ref, ref } from 'vue'
+import { onMounted, defineComponent, reactive, onUnmounted, Ref, ref, shallowRef } from 'vue'
 import { useHead, HeadObject } from '@vueuse/head'
 import DangLoader from 'components/vote-list/loader.vue'
 import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
@@ -99,6 +99,8 @@ const FEED_APIS: Record<string, string> = {
   twitter: 'https://api.yup.io/feed/twitter'
 }
 
+const BASE_URL = import.meta.env.VITE_BASE_URL
+
 export default defineComponent({
   name: 'FeedsPage',
   components: {
@@ -120,18 +122,22 @@ export default defineComponent({
     const postsIndex = ref(0)
     const postInfo = ref(null) as Ref<unknown>
     const feedLoading = ref(false)
-    const catComp = ref(null) as Ref<unknown>
+    const catComp = shallowRef(null) as Ref<unknown>
     const feedPersonalization = ref('');
 
     const siteData = reactive({
-      title: `YUP View Feed - ${activeFeed ?? ''}`,
-      description: `Browse through yup feed: ${activeFeed ?? ''}`
+      title: `YUP View Feed - ${activeFeed.value ?? ''}`,
+      description: `Browse through yup feed: ${activeFeed.value ?? ''}`
     })
 
     useHead({
       title: siteData.title,
       description: siteData.description,
       meta: [
+        {
+          name: 'og:image',
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-feeds.png`
+        },
         {
           name: 'description',
           content: siteData.description

@@ -1,6 +1,7 @@
 import { config } from '../config'
 import { fetchWAuth } from '../auth'
 import type { IFollowersResponse } from '../../types/web3Profile'
+import type { IMainStore } from 'shared/src/types/store'
 
 const API_BASE = config.API_BASE || ''
 
@@ -31,5 +32,54 @@ export const getFollowing = async (apiBase = API_BASE, address: string): Promise
     } catch (error) {
         console.error('Failed to fetch web3 profiles', error)
         return null
+    }
+}
+
+export const isFollowing = async (apiBase = API_BASE, address: string, followerAddress: string): Promise<boolean> => {
+    try {
+        const res = await fetch(`${apiBase}/web3-follows/is-following/${followerAddress}?address=${address}`)
+        const req = await res.json()
+        if (res.ok) {
+            return req.isFollowing
+        } else {
+            return false
+        }
+    } catch (error) {
+        console.error('Failed to fetch web3 profiles', error)
+        return false
+    }
+}
+
+export const follow = async (apiBase = API_BASE, store: IMainStore, address: string): Promise<boolean> => {
+    try {
+        const res = await fetchWAuth(store, `${apiBase}/web3-follows?address=${address}`, {
+            method: 'POST',
+        })
+        const req = await res.json()
+        if (res.ok) {
+            return req
+        } else {
+            return false
+        }
+    } catch (error) {
+        console.error('Failed to fetch web3 profiles', error)
+        return false
+    }
+}
+
+export const unfollow = async (apiBase = API_BASE, store: IMainStore, address: string): Promise<boolean> => {
+    try {
+        const res = await fetchWAuth(store, `${apiBase}/web3-follows?address=${address}`, {
+            method: 'DELETE',
+        })
+        const req = await res.json()
+        if (res.ok) {
+            return req
+        } else {
+            return false
+        }
+    } catch (error) {
+        console.error('Failed to fetch web3 profiles', error)
+        return false
     }
 }

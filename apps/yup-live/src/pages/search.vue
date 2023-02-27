@@ -210,6 +210,8 @@ import PostInfo from "@/components/content/post/postInfo.vue";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 import LineLoader from "components/functional/lineLoader.vue";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 export default defineComponent({
   name: "Search",
   components: {
@@ -369,6 +371,10 @@ export default defineComponent({
           name: 'description',
           content: 'Search web3 data or use advanced filters to find content you might be interested in.'
         },
+        {
+          name: 'og:image',
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-search.png`
+        },
       ]
     } as unknown) as Ref<HeadObject>);
  
@@ -389,7 +395,7 @@ export default defineComponent({
 
     onMounted(async () => {
       ;(async () => (catComp.value = (await import('icons/src/catEmpty.vue')).default))()
-
+            
       loading.value = false;
     });
 
@@ -410,8 +416,6 @@ export default defineComponent({
       SearchPlatforms,
       searchStarted,
       searchLoading,
-
-
 
       FILTERED_FEED_INDEXES,
       changeFilterSortBy,

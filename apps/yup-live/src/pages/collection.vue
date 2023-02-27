@@ -79,7 +79,7 @@ export default defineComponent({
     const API_BASE = import.meta.env.VITE_YUP_API_BASE
     const loading = ref(true)
     const collectionData = ref({}) as unknown as Ref<{ ownerId: string; ownerAvatar: string; name: string }>
-    const catComp = ref(null) as Ref<unknown>
+    const catComp = shallowRef(null) as Ref<unknown>
     const feedLoading = ref(false)
     const loadLinerComp = shallowRef(null) as Ref<unknown>
     // const search = ref("");

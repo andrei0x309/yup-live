@@ -35,7 +35,7 @@ export const createApp = ViteSSG(
   { routes },
   // function to have custom setups
   // ({ app, router, routes, isClient, initialState }) => {
-  ({ app, initialState }) => {
+  async ({ app, initialState }) => {
     const pinia = createPinia()
     app.use(pinia)
     // app.use(createHead())
@@ -59,7 +59,6 @@ export const createApp = ViteSSG(
       // on the client side, we restore the state
       pinia.state.value = initialState?.pinia || {}
     }
-
     // router.beforeEach((to, from, next) => {
     //     const store = useMainStore(pinia)
 

@@ -72,7 +72,7 @@ export default defineComponent({
 
 <style lang="scss">
 html {
-  --profile-info-card-bg: #c7bfb8eb;
+  --profile-info-card-bg: #c3c3c3ed;
   --profile-card-text: black;
 }
 

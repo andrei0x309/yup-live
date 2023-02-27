@@ -5,12 +5,14 @@ export interface Web3PostFarcaster {
   userName: string
   userHandle: string
   userAvatar: string
+  userFid: string
   body: string
   publishedAt?: string
   verified?: boolean
   mediaEntities: mediaType[]
   createdAt: string
   thread: string
+  hash: string
 }
 
 export interface Web3FarcasterRawReply {
@@ -30,6 +32,7 @@ export interface Web3FarcasterRawReply {
   }
   author?: {
     displayName: string
+    fid: string
     pfp?: {
       url?: string
       verified?: boolean
@@ -39,6 +42,7 @@ export interface Web3FarcasterRawReply {
   threadMerkleRoot: string
   threadHash?: string
   timestamp: number  
+  hash: string
   meta?: {
     avatar?: string
     displayName?: string
@@ -59,12 +63,14 @@ export interface Web3FarcasterRaw {
     yupScore?: number
     meta?: {
       connectedAddr: string
+      fid: string
     }
   }
   meta?: {
     isVerifiedAvatar: boolean
     threadMerkleRoot: string
     threadHash?: string
+    hash?: string
   }
   createdAt: string
 }

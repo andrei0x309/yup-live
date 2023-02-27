@@ -114,12 +114,18 @@
         :key="userAddr"
         :accountId="web3Profile?.handle ?? userAddr"
         :accountEVMAddr="userAddr"
+        :stackAlertError = "stackAlertError"
+        :apiBase="API_BASE"
+
       />
+
       <Web3FollwersPage
         v-if="currentMenuTab === MENU_BUTTONS.followers"
         :followersList="followers"
         :addr="userAddr"
         :handle="web3Profile?.handle ?? userAddr"
+        :stackAlertError = "stackAlertError"
+        :apiBase="API_BASE"
       />
     </div>
   </div>
@@ -129,15 +135,16 @@
 import {
   onMounted,
   defineComponent,
-  // reactive,
+  reactive,
   computed,
   onUnmounted,
   Ref,
   ref,
   watch,
   defineAsyncComponent,
+  shallowRef
 } from "vue";
-// import { useHead, HeadObject } from "@vueuse/head";
+import { useHead, HeadObject } from "@vueuse/head";
 import DangLoader from "components/vote-list/loader.vue";
 // import ProfileCard from "@/components/content/profile/profileCard.vue";
 // import ProfileInfoCard from "@/components/content/profile/infoCard.vue";
@@ -148,16 +155,10 @@ import { useMainStore } from "@/store/main";
 import { useRoute } from "vue-router";
 
 import { wait } from "shared/src/utils/time";
-// import {
-//   useCollectionStore,
-//   useCollectionStoreEx,
-//   getCollections,
-// } from "@/store/collections";
 import { MENU_BUTTONS } from "@/components/content/profile/menuButtonEnums";
 import { postTypesPromises } from "components/post-types/post-types";
 // import PostInfo from "@/components/content/post/postInfo.vue";
 // import LineLoader from "components/functional/lineLoader.vue";
-// import { stackAlertSuccess } from "@/store/alertStore";
 import Post from "@/components/content/post/post.vue";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 
@@ -177,9 +178,11 @@ import FollowersOutline from "icons/src/followersOutline.vue";
 import PostInfo from "@/components/content/post/postInfo.vue";
 import LineLoader from "components/functional/lineLoader.vue";
 import Web3ProfileCard from "@/components/content/profile/web3ProfileCard.vue";
+import { stackAlertError } from "@/store/alertStore";
 
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export default defineComponent({
   name: "ProfilePage",
@@ -203,8 +206,8 @@ export default defineComponent({
       () => import("@/components/content/profile/web3FollwersPage.vue")
     ),
     WalletPage: defineAsyncComponent(
-      () => import("@/components/content/profile/walletPage.vue")
-    )
+      () => import("components/profile/walletPage.vue")
+    ),
   },
   setup() {
     const route = useRoute();
@@ -226,7 +229,7 @@ export default defineComponent({
         ? (MENU_BUTTONS as { [key: string]: string })[accountRoute]
         : MENU_BUTTONS.feed
     );
-    const catComp = ref(null) as Ref<unknown>;
+    const catComp = shallowRef(null) as Ref<unknown>;
     const postInfo = ref(null) as Ref<unknown>;
     const isOwnAccount = ref(
       store?.isLoggedIn && store?.userData.address === userAddr.value
@@ -243,61 +246,61 @@ export default defineComponent({
 
     // const router = useRouter()
 
-    // const siteData = reactive({
-    //   title: `YUP Profile`,
-    //   description: `Check my web3 YUP social profile - yup.info.gf`,
-    // });
+    const siteData = reactive({
+      title: `Web3 Profile`,
+      description: `Check this web3 social profile - on yup live`,
+    });
 
-    // useHead(({
-    //   title: computed(() => siteData.title),
-    //   description: computed(() => siteData.description),
-    //   meta: [
-    //     {
-    //       name: "description",
-    //       content: computed(() => siteData.description),
-    //     },
-    //     {
-    //       name: "og:type",
-    //       content: "website",
-    //     },
-    //     {
-    //       name: "og:title",
-    //       content: computed(() => siteData.title),
-    //     },
-    //     {
-    //       name: "og:description",
-    //       content: computed(() => siteData.description),
-    //     },
-    //     {
-    //       name: "og:url",
-    //       content: computed(() => route.fullPath),
-    //     },
-    //     {
-    //       name: "og:image",
-    //       content: computed(() => userData.value?.avatar),
-    //     },
-    //     {
-    //       name: "twitter:card",
-    //       content: "summary_large_image",
-    //     },
-    //     {
-    //       name: "twitter:url",
-    //       content: computed(() => route.fullPath),
-    //     },
-    //     {
-    //       name: "twitter:title",
-    //       content: computed(() => siteData.title),
-    //     },
-    //     {
-    //       name: "twitter:description",
-    //       content: computed(() => siteData.description),
-    //     },
-    //     {
-    //       name: "twitter:image",
-    //       content: computed(() => userData.value?.avatar),
-    //     },
-    //   ],
-    // } as unknown) as Ref<HeadObject>);
+    useHead(({
+      title: computed(() => siteData.title),
+      description: computed(() => siteData.description),
+      meta: [
+        {
+          name: 'og:image',
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-web3-profile.png`
+        },
+        {
+          name: "description",
+          content: computed(() => siteData.description),
+        },
+        {
+          name: "og:type",
+          content: "website",
+        },
+        {
+          name: "og:title",
+          content: computed(() => siteData.title),
+        },
+        {
+          name: "og:description",
+          content: computed(() => siteData.description),
+        },
+        {
+          name: "og:url",
+          content: computed(() => route.fullPath),
+        },
+        {
+          name: "twitter:card",
+          content: "summary_large_image",
+        },
+        {
+          name: "twitter:url",
+          content: computed(() => route.fullPath),
+        },
+        {
+          name: "twitter:title",
+          content: computed(() => siteData.title),
+        },
+        {
+          name: "twitter:description",
+          content: computed(() => siteData.description),
+        },
+        {
+          name: "twitter:image",
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-web3-profile.png`
+        },
+      ],
+    } as unknown) as Ref<HeadObject>);
 
     store.$subscribe(async () => {
       isOwnAccount.value = store?.isLoggedIn && store?.userData.address === userAddr.value;
@@ -498,7 +501,9 @@ export default defineComponent({
       truncteEVMAddr,
       recommandedProfiles,
       followersCount,
-      followers
+      followers,
+      API_BASE,
+      stackAlertError
     };
   },
 });

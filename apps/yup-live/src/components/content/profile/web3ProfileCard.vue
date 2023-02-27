@@ -1,10 +1,10 @@
 <template>
   <figure class="snip1344">
-  <DangLoader v-if="!web3Profile?._id" />
+  <DangLoader v-if="isLoading" />
   <img :src="web3Profile?.avatar" alt="profile-sample1" class="background"/>
   <div v-if="followersCount > 0" class="followers"><FollowersIcon class="inline-block w-4 mr-2" />{{ followersCount }}</div>
   <div v-if="web3Profile?.yupScore ?? 0 > 0" class="yupScore"><ScoreIcon class="inline-block w-4 mr-2" />{{ Math.trunc(web3Profile?.yupScore ?? 0) }}</div>
-  <img :src="web3Profile?.avatar" class="web3Avatar w-21 h-21 mr-2 rounded-full ring-1 ring-gray-300 dark:ring-gray-500 inline-block" :alt="`avatar ${web3Profile?.avatar}`" loading="lazy" @error="onError" />
+  <img :key="avatar" :src="avatar" class="web3Avatar w-21 h-21 mr-2 rounded-full ring-1 ring-gray-300 dark:ring-gray-500 inline-block" :alt="`avatar ${web3Profile?.avatar}`" loading="lazy" @error="onError" />
 
   <figcaption>
     <h3>[ {{ web3Profile?.handle }} ]<span>Additional Handles</span></h3>
@@ -25,6 +25,17 @@
       <ProfileLensIcon class="mr-2 w-4 inline-block" /> {{ web3Profile.lens.handle }}
     </div>
     
+    <FollowUnfollwBtn 
+    :evmAddr="web3Profile?.evmAddress ?? ''"
+    class="ml-10 view-btn text-[0.85rem] mt-3 w-22 p-1 text-center"
+    :iconClass="'inline-block w-3 mr-0'"
+    :deps="{
+            apiBase: API_BASE,
+            useMainStore,
+            stackAlertWarning,
+            stackAlertSuccess,
+            }"
+     />
     <!-- <a href="#"><i class="ion-social-reddit-outline"></i></a><a href="#"> <i class="ion-social-twitter-outline"></i></a><a href="#"> <i class="ion-social-vimeo-outline"></i></a>
      -->
     
@@ -35,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted} from "vue";
+import { defineComponent, onMounted, ref} from "vue";
 import type { PropType } from "vue";
 import { makeRandAvatar } from 'shared/src/utils/accounts'
 import DangLoader from 'components/vote-list/loader.vue'
@@ -47,9 +58,14 @@ import ProfileYupIcon from "icons/src/profileYup.vue"
 import TwitterIcon from "icons/src/twitter.vue"
 import ScoreIcon from "icons/src/score.vue";
 import FollowersIcon from "icons/src/followers.vue"
+import FollowUnfollwBtn from "components/profile/followUnfollowBtn.vue"
+import { useMainStore, openConnectModal, } from "@/store/main";
+import { stackAlertWarning, stackAlertSuccess } from "@/store/alertStore";
+
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
-  name: "RecommandedCard",
+  name: "Web3ProfileCard",
   components: {
     DangLoader,
     ProfileEthIcon,
@@ -59,6 +75,7 @@ export default defineComponent({
     TwitterIcon,
     ScoreIcon,
     FollowersIcon,
+    FollowUnfollwBtn
   },
   props: {
     web3Profile : {
@@ -72,15 +89,27 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const isLoading = ref(true)
+    const avatar = ref(props.web3Profile?.avatar ?? '')
+
     onMounted(() => {
-      // console.log('mounted')
+       if(!props.web3Profile?.avatar) {
+          avatar.value = makeRandAvatar(props.web3Profile?.evmAddress ?? '')
+       }
+       isLoading.value = false
     });
 
     return {
-        onError: (e: Event) => {
-            const target = e.target as HTMLImageElement;
-            target.src = makeRandAvatar(props.web3Profile?._id ?? '')
+        onError: () => {
+          avatar.value = makeRandAvatar(props.web3Profile?.evmAddress ?? '')
         },
+        isLoading,
+        avatar,
+        useMainStore,
+        openConnectModal,
+        stackAlertWarning,
+        stackAlertSuccess,
+        API_BASE
     }
   },
 });

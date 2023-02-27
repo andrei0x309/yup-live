@@ -54,7 +54,7 @@ export default defineComponent({
     border-radius: 1rem;
   }
   .bar {
-    background: rgba(255, 255, 255, 0.651);
+    background: rgb(255 255 255 / 5%);
     width: 100%;
     p {
       font-size: 0.75rem;
@@ -70,8 +70,8 @@ export default defineComponent({
     }
     .bar-fill {
       width: v-bind(percentage);
-      background: rgb(21 97 191 / 72%);
-      background: radial-gradient(ellipse at bottom, #1d2530 0%, rgb(33 99 201 / 49%) 100%);
+      background: #453f74;
+      background: linear-gradient(269deg, #453f74, transparent), linear-gradient(5deg, var(--post-info-card-bottom-bg), transparent);
       position: relative;
       top: -1.14rem;
     }

@@ -93,6 +93,7 @@
         :key="`${userData.evmAddress}${walletKeyRefresh}`"
         :accountId="userId"
         :accountEVMAddr="userData.evmAddress"
+        :apiBase="API_BASE" :stackAlertError="stackAlertError"
       />
       <!-- <CollectionsPage
         v-if="currentMenuTab === MENU_BUTTONS.collections"
@@ -155,7 +156,6 @@ import {
   IonSelectOption,
   IonItem,
   IonList,
-  onIonViewWillLeave,
   IonRefresher,
   IonRefresherContent,
   IonIcon,
@@ -163,7 +163,7 @@ import {
 } from "@ionic/vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 
-import { defineComponent, onUnmounted, Ref, ref } from 'vue'
+import { defineComponent, onUnmounted, Ref, ref, shallowRef } from 'vue'
 import DangLoader from 'components/vote-list/loader.vue'
 import ProfileCard from '@/components/copy/profile/profileCard.vue'
 // import ProfileInfoCard from '@/components/content/profile/infoCard.vue'
@@ -174,11 +174,12 @@ import Post from '@/components/copy/post/post.vue'
 import { wait } from 'shared/src/utils/time'
 import { postTypesPromises } from 'components/post-types/post-types'
 import LineLoader from 'components/functional/lineLoader.vue'
-import { getUserFollowers, createActionUsage, createUserData } from 'shared/src/utils/requests/accounts'
-import WalletPage from '@/components/copy/profile/walletPage.vue'
+import { createActionUsage, createUserData } from 'shared/src/utils/requests/accounts'
+import WalletPage from 'components/profile/walletPage.vue'
 import { settingsOutline } from "ionicons/icons";
 import SettingsModal from '@/views/SettingsModal.vue'
-
+import { stackAlertError } from '@/store/alertStore'
+import { getFollowers } from 'shared/src/utils/requests/web3Follows'
 
 // import PostInfo from '@/components/content/post/postInfo.vue'
 // import { useCollectionStore, useCollectionStoreEx, getCollections } from '@/store/collections'
@@ -234,7 +235,6 @@ export default defineComponent({
     const isLoadingUser = ref(true)
     const influence: Ref<null | string> = ref(null)
     const historicInfluence: Ref<Array<Record<string, string | number>>> = ref([])
-    const iconsColor = ref(store.theme === 'dark' ? '#ccc' : '#020201')
     // const userFields = ref([]) as Ref<Array<NameValue>>
     const posts = ref([]) as Ref<Array<unknown>>
     const postsIndex = ref(0)
@@ -244,7 +244,7 @@ export default defineComponent({
     //   Object.keys(MENU_BUTTONS).includes(accountRoute) ? (MENU_BUTTONS as { [key: string]: string })[accountRoute] : MENU_BUTTONS.feed
     // )
     const currentAccountPage = ref(accountPages[0])
-    const catComp = ref(null) as Ref<unknown>
+    const catComp = shallowRef(null) as Ref<unknown>
 
     // const collections = useCollectionStore()
     // const collectionsEx = useCollectionStoreEx()
@@ -291,11 +291,6 @@ export default defineComponent({
         posts.value = posts.value.filter((p) => (p as { _id: { postid: string } })._id.postid !== store.deletePost)
       }
 
-      if (store.theme === 'dark') {
-        iconsColor.value = '#ccc'
-      } else {
-        iconsColor.value = '#020201'
-      }
     })
 
     // watch(currentMenuTab, (newValue) => {
@@ -323,7 +318,7 @@ export default defineComponent({
     const getHomeFeedPosts = async (start = 0) => {
       const res = await fetch(`${API_BASE}/feed/account/${userId.value}?start=${start}&limit=10`)
       const data = await res.json()
-      return data.posts
+      return data.posts.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     }
 
     const getCreatedFeedPosts = async (start = 0) => {
@@ -407,18 +402,17 @@ export default defineComponent({
           userData.value = Object.assign(userData.value, uD.data?.userData)
           userId.value = userData.value._id as string
           // userFields.value = uD.data?.userFields ?? []
-          console.log('asdadsa', userData.value._id)
           getActionUsage(userData.value._id as string)
         }
 
-        getUserFollowers(userData.value._id as string).then((r) => {
-        if (!r.error) {
-          userData.value.followers = r?.data?.length
-          followers.value = r?.data ?? []
-        } else {
-          console.error(r.msg)
+        getFollowers(API_BASE, userData.value.evmAddress).then((res) => {
+        if(res) {
+          followers.value = res.followers.map((f: { _id: string}) => f._id) ?? [];
+          userData.value.followers = res.totalCount
         }
-      })
+      });
+
+ 
       if (currentAccountPage.value === 'feed') {
         getFeedPosts = getHomeFeedPosts
       } else if (currentAccountPage.value === 'none') {
@@ -494,7 +488,6 @@ export default defineComponent({
       userId,
       influence,
       historicInfluence,
-      iconsColor,
       isLoadingUser,
       // userFields,
       posts,
@@ -516,7 +509,9 @@ export default defineComponent({
       walletKeyRefresh,
       handleRefresh,
       settingsOutline,
-      openSettings
+      openSettings,
+      API_BASE,
+      stackAlertError
     }
   }
 })

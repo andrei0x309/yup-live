@@ -16,19 +16,29 @@
             :disabled="isConnectToFarcaster || !checkedConnectToFarcaster"
             class="bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-lg"
             @click="connectToFarcaster"
-          >
+          > 
+            <ProfileFarcasterIcon class="w-6 inline mr-2" /> 
             <BtnSpinner v-if="isConnectToFarcaster" class="inline mr-2" />Connect to
             Farcaster
           </button>
+          <o-checkbox v-model="sendFarcasterConnectMsg" class="p-2" :native-value="true">
+        <span class="ml-2">Send cast to my profile to confirm connection.</span>
+      </o-checkbox>
         </template>
           <button
             v-else
             :disabled="isDisconnectFromFarcaster"
             class="bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
             @click="disconnectFromFarcaster"
-            >            <BtnSpinner v-if="isDisconnectFromFarcaster" class="inline mr-2" />Disconnect from Farcaster</button>
+            >            <BtnSpinner v-if="isDisconnectFromFarcaster" class="inline mr-2" /><ProfileFarcasterIcon class="w-6 inline mr-2" /> 
 
-        <button v-if="!isConnectedToTwitter" class="mt-4 bg-sky-500 border-0 py-2 px-6 focus:outline-none hover:bg-sky-700 rounded text-lg" @click="twitterLink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Connect to Twitter</button>
+            Disconnect from Farcaster</button>
+        <template  v-if="!isConnectedToTwitter">
+        <button class="mt-4 bg-sky-500 border-0 py-2 px-6 focus:outline-none hover:bg-sky-700 rounded text-lg" @click="twitterLink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Connect to Twitter</button>
+        <o-checkbox v-model="twFollowersAsKeywords" class="p-2" :native-value="true">
+        <span class="ml-2">Insert my twitter followers into personal keywords.</span>
+      </o-checkbox>
+    </template>
         <button
         v-else
         class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
@@ -153,7 +163,10 @@ import BtnSpinner from "icons/src/btnSpinner.vue";
 import { useRouter } from "vue-router";
 import { getFidByToken } from 'shared/src/utils/farcaster'
 import TwitterIcon from "icons/src/twitter.vue";
+import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import { claimAndLinkTwitter, twitterCheckAndUnlink } from "shared/src/utils/requests/twitter";
+import { FCSendCast } from "shared/src/utils/farcaster";
+import { digestSha256 } from "shared/src/utils/misc";
 
 const providerOptionsProm = import('shared/src/utils/evm')
 const web3Mprom = import("web3modal");
@@ -167,7 +180,7 @@ const EIP_191_PREFIX = "eip191:";
 
 export default defineComponent({
   name: "SettingsPage",
-  components: { DangLoader, CustomButton, BtnSpinner, TwitterIcon },
+  components: { DangLoader, CustomButton, BtnSpinner, TwitterIcon, ProfileFarcasterIcon },
   props: {
     userData: {
       type: Object as PropType<IUserData>,
@@ -191,6 +204,8 @@ export default defineComponent({
     const router = useRouter();
     const farcasterToken = ref("");
     const feedPersonalization = ref(false);
+    const sendFarcasterConnectMsg = ref(false)
+    const twFollowersAsKeywords = ref(false)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let ethersLib: any;
@@ -321,6 +336,10 @@ export default defineComponent({
               stackAlertSuccess("Connected to farcaster successfully");
               isConnectedToFarcaster.value = true;
               store.farcaster = token;
+              if(sendFarcasterConnectMsg.value) {
+                const text = 'I just connected my farcaster address to https://yup-live.pages.dev \nVerification hash: ' + digestSha256(token);
+                await FCSendCast(token, text, API_BASE)
+              }
               localStorage.setItem("farcaster", token);
             } else {
               stackAlertError("Error while connecting to farcaster: " + (await req.text()));
@@ -433,7 +452,7 @@ export default defineComponent({
         return;
       }
       isLoadingTwitter.value = true;
-      const connect = await claimAndLinkTwitter(store)
+      const connect = await claimAndLinkTwitter(store, twFollowersAsKeywords.value)
       if(connect.error) {
         stackAlertError("Error while connecting to twitter");
         
@@ -500,6 +519,8 @@ export default defineComponent({
       isLoadingTwitter,
       twitterLink,
       twitterUnlink,
+      sendFarcasterConnectMsg,
+      twFollowersAsKeywords
     };
   },
 });

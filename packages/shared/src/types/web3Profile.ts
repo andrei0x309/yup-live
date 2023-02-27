@@ -24,6 +24,7 @@ export interface IWeb3Profile {
     yupScore?: number
     avatar?: string
     handle?: string
+    evmAddress: string
 }
 
 export interface IWeb3ProfileRecommendation {

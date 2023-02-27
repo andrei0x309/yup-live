@@ -137,6 +137,8 @@ const ethers = import('ethers')
 
 const { POLY_LIQUIDITY_REWARDS, POLY_UNI_LP_TOKEN } = getPolyContractAddresses(137)
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 // import { useMainStore } from '@/store/main'
 export default defineComponent({
   name: 'Staking',
@@ -186,7 +188,17 @@ export default defineComponent({
 
     const siteData = reactive({
       title: `Yup Staking`,
-      description: `Stake, unstake, collect yup liqudity rewards. And interact with the Yup liquidity rewards contracts.`
+      description: `Stake, unstake, collect yup liqudity rewards. And interact with the Yup liquidity rewards contracts.`,
+      meta: [
+        {
+          name: 'description',
+          content: `Stake, unstake, collect yup liqudity rewards. And interact with the Yup liquidity rewards contracts.`
+        },
+        {
+          name: 'og:image',
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-stake.png`
+        },
+      ]
     })
 
     onUnmounted(() => {

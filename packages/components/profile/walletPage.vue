@@ -1,4 +1,5 @@
 <template>
+  <div class="flex flex-col items-center justify-center w-full h-full">
   <template v-if="isLoading">
     <p class="p-4 text-[1.2rem]">Loading user wallet</p>
     <DangLoader :unset="true" />
@@ -87,21 +88,19 @@
       <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
     </div>
   </template>
+  </div>
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref, reactive } from 'vue'
+import { onMounted, defineComponent, ref, Ref, reactive, shallowRef, PropType } from 'vue'
 import DangLoader from 'components/vote-list/loader.vue'
 import CustomButton from 'components/functional/customButton.vue'
-import { stackAlertError } from '@/store/alertStore'
 import { formatNumber } from 'shared/src/utils/misc'
 import ImagePreview from 'components/post/imagePreview.vue'
 import type { IProfileToken, IProfileNFT, IProfilePOAP } from 'shared/src/types/web3/wallet'
 import AddIcon from 'icons/src/add.vue'
 import { fetchFromWallet, resources, chains } from 'shared/src/utils/requests/web3Wallet'
 
-const API_BASE = import.meta.env.VITE_YUP_API_BASE
-// CustomButton
 
 export default defineComponent({
   name: 'WalletPage',
@@ -114,11 +113,19 @@ export default defineComponent({
     accountEVMAddr: {
       type: String,
       default: ''
-    }
+    },
+    apiBase : {
+      type: String,
+      required: true
+    },
+    stackAlertError: {
+      type: Function as PropType<(msg: string) => void>,
+      required: true
+    },
   },
   setup(props) {
     const isLoading = ref(true)
-    const catComp = ref(null) as Ref<unknown>
+    const catComp = shallowRef(null) as Ref<unknown>
     const nothingToShow = ref(false)
     const ethTokens = ref([]) as Ref< IProfileToken[]>
     const polyTokens = ref([]) as Ref< IProfileToken[]>
@@ -140,7 +147,7 @@ export default defineComponent({
       limit: 11,
       res: resources,
       ch: chains,
-      apiBase: API_BASE
+      apiBase: props.apiBase
     }
  
     const getProfileWallet = async ({
@@ -236,7 +243,7 @@ export default defineComponent({
         await Promise.all(promises)
         return r
       } catch {
-        stackAlertError('Error fetching wallet data')
+        props.stackAlertError('Error fetching wallet data')
         return r
       }
     }
@@ -361,15 +368,6 @@ export default defineComponent({
 
 <style lang="scss">
 .wallet-section {
-  // .glassCard {
-  //   background: var(--glass-menu-bg);
-  //   color: var(--glassTxt);
-  //   box-shadow: 0 8px 32px 0 var(--glassShadow);
-  //   backdrop-filter: blur(4px);
-  //   -webkit-backdrop-filter: blur(4px);
-  //   border-radius: 10px;
-  //   border: 1px solid rgba(255, 255, 255, 0.18);
-  // }
 
   .token {
     width: 14rem;
@@ -381,15 +379,5 @@ export default defineComponent({
     max-height: 40rem;
   }
 }
-// .grid-missing:last-child:nth-child(3n - 1) {
-//   grid-column-end: -2;
-// }
 
-// .grid-missing:nth-last-child(2):nth-child(3n + 1) {
-//   grid-column-end: 4;
-// }
-
-// .grid-missing:last-child:nth-child(3n - 2) {
-//   grid-column-end: 5;
-// }
 </style>

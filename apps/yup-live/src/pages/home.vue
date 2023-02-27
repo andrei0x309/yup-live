@@ -19,6 +19,8 @@ import TableNav from '@/components/content/table-nav.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMainStore, openConnectModal } from '@/store/main'
 
+const BASE_URL = import.meta.env.VITE_BASE_URL
+
 export default defineComponent({
   name: 'HomePage',
   components: {
@@ -85,6 +87,10 @@ export default defineComponent({
       title: computed(() => siteData.title),
       description: computed(() => siteData.description),
       meta: [
+        {
+          name: 'og:image',
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`
+        },
         {
           name: 'description',
           content: computed(() => siteData.description)
@@ -199,6 +205,7 @@ export default defineComponent({
     background-color: #0202029a;
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
+    color: aliceblue;
   }
 
   .btn.active {

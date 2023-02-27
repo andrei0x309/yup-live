@@ -6,9 +6,11 @@
     >
       <component
         :is="!postTypeLoading ? postTypeCom : undefined"
-        :key="`post-loaded-${postTypeLoading}`"
+        :key="`post-loaded-${postTypeLoading}|${comments.length}`"
         :full="full"
         :post="processedPost"
+        :comments="post.tag  === 'farcaster' ? comments : undefined"
+        :replyComp=" replyComp ? replyComp : undefined"
       />
       <div class="flex flex-row items-end w-full px-4 mt-4">
         <div class="flex border-t border-gray-700 w-full py-4">
@@ -21,8 +23,8 @@
               :negativeWeight="processedPost.negativeWeight"
               :hasVote="refHasVote"
             />
+            <router-link v-if="commentsNum > 2" :to="`/post/${processedPost.id}`"  ><ComentsIcon class="inline-block w-5 mr-2" />{{ commentsNum }}</router-link>
             <InfoIcon v-if="!isHidenInfo" class="ml-auto hidden lg:flex mr-4 cursor-pointer" @click="updatePostInfo" />
-            <!-- <Comments v-if="hasComments" :postId="processedPost.id" :commentsCount="commentsCount" /> -->
           </div>
           <div class="flex items-center flex-shrink-0 px-2">
             <div v-if="!noYUPPost"  class="flex items-center space-x-1">
@@ -56,6 +58,10 @@ import { timeAgo } from 'shared/src/utils/time'
 import InfoIcon from 'icons/src/infoIcon.vue'
 import { hasVote } from 'shared/src/utils/requests/vote'
 import type { Vote } from 'shared/src/types/vote'
+import ComentsIcon from 'icons/src/comments.vue'
+ 
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
 
 export default defineComponent({
   name: 'Post',
@@ -66,7 +72,8 @@ export default defineComponent({
     FavIco,
     PostMenu,
     CollectMenu,
-    InfoIcon
+    InfoIcon,
+    ComentsIcon
   },
   props: {
     post: {
@@ -114,7 +121,6 @@ export default defineComponent({
       //   isTwitter: false,
     })
     const store = useMainStore()
-    const iconsColor = ref(store.theme === 'dark' ? '#ccc' : '#020201')
     const postTypeLoading = ref(true)
     const postShareInfo = reactive({}) as unknown as { url: string; title: string; text: string }
     const postTypeClass = ref('')
@@ -127,14 +133,12 @@ export default defineComponent({
 
     const votingKey = ref(0)
     const menuKey = ref(0)
+    const comments = ref([])
+    const commentsNum = ref(0)
+    const replyComp = shallowRef(null) as Ref<ReturnType<typeof defineComponent>>
 
-    store.$subscribe(() => {
-      if (store.theme === 'dark') {
-        iconsColor.value = '#ccc'
-      } else {
-        iconsColor.value = '#020201'
-      }
-    })
+    // store.$subscribe(() => {
+    // })
 
     watch(refHasVote, (newVal) => {
       refHasVote.value = newVal
@@ -183,6 +187,19 @@ export default defineComponent({
           case 'farcaster':
             processedPost.web3Preview = props.post.web3Preview
             postTypeCom.value = (await props.postTypesPromises.preloadFarcaster).default
+            if(!props.noYUPPost) {
+            import('shared/src/utils/requests/farcaster').then((module) => {
+              module.getComments(API_BASE, props.post.web3Preview?.meta?.threadMerkleRoot ?? props.post?.web3Preview?.meta?.threadHash).then((res) => {
+                if(res){
+                  comments.value = res.comments
+                  commentsNum.value = res.numComments - 1
+                }
+              })
+            })
+            import('@/components/content/post/sendCastModal.vue').then((module) => {
+              replyComp.value = module.default
+            })
+          }
             break
           case 'lens':
             processedPost.web3Preview = props.post.web3Preview
@@ -243,7 +260,6 @@ export default defineComponent({
 
     return {
       processedPost,
-      iconsColor,
       postTypeCom,
       postTypeLoading,
       postShareInfo,
@@ -252,7 +268,10 @@ export default defineComponent({
       refHasVote,
       hasVoteDeleted,
       votingKey,
-      menuKey
+      menuKey,
+      comments,
+      commentsNum,
+      replyComp
     }
   }
 })

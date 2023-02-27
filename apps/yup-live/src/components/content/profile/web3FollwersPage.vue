@@ -13,7 +13,7 @@
       </h2>
       <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-[60rem]">
       <Web3ProfileCard
         v-for="userdata of accountsData"
         :key="userdata._id"
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref } from 'vue'
+import { onMounted, defineComponent, ref, Ref, shallowRef } from 'vue'
 import Web3ProfileCard from '@/components/content/profile/web3ProfileCard.vue'
 import DangLoader from 'components/vote-list/loader.vue'
 import type { IWeb3Profile } from "shared/src/types/web3Profile";
@@ -34,10 +34,7 @@ import { getFollowers } from "shared/src/utils/requests/web3Follows";
 import AddIcon from 'icons/src/add.vue'
 import BtnSpinner from 'icons/src/btnSpinner.vue';
 
-
-
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-
 
 export default defineComponent({
   name: 'Web3FollowersPage',
@@ -60,7 +57,7 @@ export default defineComponent({
     const isLoading = ref(true)
     const hasMore = ref(true)
     const accountsData = ref([]) as Ref<IWeb3Profile[]>
-    const catComp = ref(null) as Ref<unknown>
+    const catComp = shallowRef(null) as Ref<unknown>
     const loadingFollowers = ref(false)
 
     const getProfilesData = async (accounts: string[]) => {
@@ -89,7 +86,8 @@ export default defineComponent({
 
     onMounted(async () => {
       if (props.followersList.length > 0) {
-        accountsData.value = await getProfilesData(props.followersList)
+        hasMore.value = props.followersList.length === 10
+        accountsData.value = await getProfilesData(props.followersList.slice(0, 9))
       } else {
         catComp.value = (await import('icons/src/catEmpty.vue')).default
       }

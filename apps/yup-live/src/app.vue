@@ -8,17 +8,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, onBeforeMount } from "vue";
 import HeaderComp from "@/components/theme/header.vue";
 import FooterCom from "@/components/theme/footer.vue";
 import { getThemeMode } from "./utils";
-import { onBeforeMount } from "vue";
 import { useMainStore } from "@/store/main";
 import { useCollectionStore, getCollections } from "./store/collections";
 import type { ICollection } from "shared/src/types/store";
 import { useRoute } from "vue-router";
 import AlertStack from "components/functional/alertStack.vue";
-import { deleteMeta } from "shared/src/utils/head";
 import { setAlertStack, useAlertStack } from "@/store/alertStore";
 import { farcasterAuthCheck } from "shared/src/utils/requests/farcaster";
 
@@ -39,6 +37,7 @@ export default defineComponent({
     const mainStore = useMainStore();
     const collectionStore = useCollectionStore();
     const route = useRoute();
+  
 
     onBeforeMount(() => {
       try {
@@ -59,11 +58,6 @@ export default defineComponent({
       } catch (error) {
         console.error("Failed, to set store", error);
       }
-      try {
-        deleteMeta();
-      } catch (error) {
-        console.error("Failed to delete meta", error);
-      }
     });
 
     return {
@@ -71,11 +65,6 @@ export default defineComponent({
       setAlertStack,
       useAlertStack,
     };
-
-    // onMounted(() => {
-    //   console.log('isAuth', isLoggedIn.value)
-    //   console.log(instance)
-    // })
   },
 });
 </script>

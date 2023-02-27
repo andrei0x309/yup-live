@@ -55,7 +55,7 @@ import {
   IonLoading,
 onIonViewWillEnter
 } from "@ionic/vue";
-import { defineComponent, ref, Ref } from "vue";
+import { defineComponent, ref, Ref, shallowRef } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 import { postTypesPromises } from 'components/post-types/post-types'
 import Post from '@/components/copy/post/post.vue'
@@ -101,7 +101,7 @@ export default defineComponent({
     const postsIndex = ref(0)
     const postInfo = ref(null) as Ref<unknown>
     const feedLoading = ref(false)
-    const catComp = ref(null) as Ref<unknown>
+    const catComp = shallowRef(null) as Ref<unknown>
 
 
     const getFeedPosts = async (start = 0) => {

@@ -9,6 +9,17 @@
             <img :src="account.avatar" class="w-8 h-8 mr-2 rounded-full ring-1 ring-gray-300 dark:ring-gray-500 inline-block" :alt="account.handle" loading="lazy" @error="onError" />
             <router-link :to="`/web3-profile/${account._id}`"> {{ account.handle }}</router-link>
             <router-link :to="`/web3-profile/${account._id}`" class="view-btn ml-2">VIEW</router-link>
+                  <FollowUnfollwBtn 
+          :evmAddr="account._id?? ''"
+          class="inline-block ml-2 view-btn text-[0.75rem] mt-3 w-22 p-1 text-center"
+          :iconClass="'inline-block w-3 mr-0'"
+          :deps="{
+            apiBase: API_BASE,
+            useMainStore,
+            stackAlertWarning,
+            stackAlertSuccess,
+          }"
+          />
         </li>
     </ul>
     <ul>
@@ -16,6 +27,17 @@
             <img :src="account.avatar" class="w-8 h-8 mr-2 rounded-full ring-1 ring-gray-300 dark:ring-gray-500 inline-block" :alt="account.handle" loading="lazy" @error="onError" />
             <router-link :to="`/web3-profile/${account._id}`"> {{ account.handle }} </router-link>
             <router-link :to="`/web3-profile/${account._id}`" class="view-btn ml-2">VIEW</router-link>
+            <FollowUnfollwBtn 
+            :evmAddr="account._id?? ''"
+            class="inline-block ml-2 view-btn text-[0.75rem] mt-3 w-22 p-1 text-center"
+            :iconClass="'inline-block w-3 mr-0'"
+            :deps="{
+            apiBase: API_BASE,
+            useMainStore,
+            stackAlertWarning,
+            stackAlertSuccess,
+            }"
+            />
         </li>
     </ul>
   </div>
@@ -27,12 +49,16 @@ import { defineComponent, onMounted } from "vue";
 import type { IWeb3ProfileRecommendation } from "shared/src/types/web3Profile";
 import { makeRandAvatar } from 'shared/src/utils/accounts'
 import DangLoader from 'components/vote-list/loader.vue'
-
+import FollowUnfollwBtn from "components/profile/followUnfollowBtn.vue"
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+import { useMainStore, openConnectModal, } from "@/store/main";
+import { stackAlertWarning, stackAlertSuccess } from "@/store/alertStore";
 
 export default defineComponent({
   name: "RecommandedCard",
   components: {
-    DangLoader
+    DangLoader,
+    FollowUnfollwBtn
   },
   props: {
     data : {
@@ -55,6 +81,11 @@ export default defineComponent({
             const target = e.target as HTMLImageElement;
             target.src = makeRandAvatar(target?.getAttribute('alt') ?? '')
         },
+        API_BASE,
+        useMainStore,
+        openConnectModal,
+        stackAlertWarning, 
+        stackAlertSuccess
     }
   },
 });

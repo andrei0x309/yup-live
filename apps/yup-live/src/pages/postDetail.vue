@@ -18,6 +18,8 @@ import { postTypesPromises } from 'components/post-types/post-types'
 
 // import { useMainStore } from '@/store/main'
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 export default defineComponent({
   name: 'PostDetail',
   components: {
@@ -53,6 +55,10 @@ export default defineComponent({
       title: computed(() => siteData.title),
       description: computed(() => siteData.description),
       meta: [
+        {
+          name: 'og:image',
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`
+        },
         {
           name: 'description',
           content: computed(() => siteData.description)

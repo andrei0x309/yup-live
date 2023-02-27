@@ -1,23 +1,24 @@
 <template>
   <div>
   <div v-if="postType === 'single'" ref="postWrap" class="p-4">
-    <FarcasterPostBody :mainPost="mainPost" :postId="post.id" />
+    <FarcasterPostBody :replyComp="replyComp" :mainPost="mainPost" :postId="post.id" />
   </div>
   <div v-else-if="postType === 'reply'" ref="postWrap" class="p-4">
-    <FarcasterPostBody :mainPost="mainPost" :postId="post.id" :isReply="true" />
-    <FarcasterPostBody :mainPost="replyPost" :postId="post.id" />
+    <FarcasterPostBody :replyComp="replyComp" :mainPost="mainPost" :postId="post.id" :isReply="true" />
+    <FarcasterPostBody :replyComp="replyComp" :mainPost="replyPost" :postId="post.id" />
   </div>
   <div v-else-if="postType === 'full'" ref="postWrap" class="p-4">
     <FarcasterPostBody :mainPost="mainPost" :postId="post.id" />
+    <component :is="replyComp" v-if="replyComp" :showReplyButton="true" :replyTo="{fid: mainPost.userFid, hash:mainPost.hash}"  />
     <div v-if="comments.length > 0" class="p-2 flex-col">
       <h2 class="pl-4 text-left">Comments:</h2>
-      <FarcasterPostBody v-for="comment in comments" :key="comment.thread" class="mb-4 comBorder" :mainPost="comment" :isCom="true" />
+      <FarcasterPostBody :replyComp="replyComp" v-for="comment in comments" :key="comment.thread" class="mb-4 comBorder" :mainPost="comment" :isCom="true" />
     </div>
   </div>
 </div>
 </template>
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref } from 'vue'
+import { onMounted, defineComponent, ref, Ref, PropType } from 'vue'
 import { isImage } from 'shared/src/utils/misc'
 import { timeAgo } from 'shared/src/utils/time'
 import type { mediaType } from 'shared/src/types/post'
@@ -42,6 +43,14 @@ export default defineComponent({
     full: {
       type: Boolean,
       default: false
+    },
+    replyComp: {
+      type: Object as PropType<null | ReturnType<typeof defineComponent> >,
+      default: null
+    },
+    comments: {
+      type: Array as PropType<Array<Web3FarcasterRawReply>>,
+      default: () => []
     }
   },
   setup(props) {
@@ -58,7 +67,9 @@ export default defineComponent({
       isVerified: '',
       mediaEntities: [] as mediaType[],
       createdAt: '',
-      thread: ''
+      thread: '',
+      userFid: '',
+      hash: ''
     }) as Ref<Web3PostFarcaster>
 
     const replyPost = ref({
@@ -69,7 +80,9 @@ export default defineComponent({
       isVerified: false,
       mediaEntities: [] as mediaType[],
       createdAt: '',
-      thread: ''
+      thread: '',
+      userFid: '',
+      hash: ''
     }) as Ref<Web3PostFarcaster>
 
     const comments = ref([]) as Ref<Array<Web3PostFarcaster>>
@@ -124,18 +137,6 @@ export default defineComponent({
       return retArr
     }
 
-    const getComments = async (thread: string) => {
-      const req = await fetch(`${API_BASE}/farcaster/v2/thread-casts?castHash=${thread}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      })
-      if (req.ok) {
-        return (await req.json())?.result?.casts ?? []
-      } else {
-        return []
-      }
-    }
-
     const fillPost = (filler: Web3FarcasterRaw): Web3PostFarcaster => {
       const postBuilder = {} as Web3PostFarcaster
       postBuilder.userAvatar = filler?.creator?.avatarUrl as string
@@ -146,6 +147,8 @@ export default defineComponent({
       postBuilder.verified = filler?.meta?.isVerifiedAvatar
       postBuilder.createdAt = timeAgo(filler?.createdAt)
       postBuilder.thread = filler?.meta?.threadMerkleRoot ?? filler?.meta?.threadHash as string
+      postBuilder.hash = filler?.meta?.hash as string
+      postBuilder.userFid = filler?.creator?.meta?.fid as string
       return postBuilder
     }
 
@@ -159,6 +162,8 @@ export default defineComponent({
       postBuilder.mediaEntities = parseMediaOpenGraph(filler?.attachments?.openGraph ?? [])
       postBuilder.createdAt = timeAgo(new Date(filler?.timestamp ?? filler?.body?.publishedAt ?? Date.now() - Math.random() * 35000).toISOString())
       postBuilder.thread = filler?.threadHash ?? filler?.threadMerkleRoot  as string
+      postBuilder.hash = filler?.hash as string
+      postBuilder.userFid = filler?.author?.fid as string
       return postBuilder
     }
 
@@ -167,7 +172,6 @@ export default defineComponent({
 
       switch (postType.value) {
         case 'single': {
-          console.log('single', props.post.web3Preview)
           mainPost.value = fillPost(props.post.web3Preview)
           break
         }
@@ -176,31 +180,18 @@ export default defineComponent({
           mainPost.value = fillReply(props.post.web3Preview.meta.parents[0])
           if (props.full) {
             postType.value = 'full'
-            getComments(mainPost.value?.thread).then((r) => {
               const lCom = []
-              for (const e of r ?? []) {
+              for (const e of props.comments ?? []) {
                 lCom.push(fillReply(e))
               }
               lCom.shift()
               comments.value = lCom
-            })
           } else {
             replyPost.value = fillPost(props.post.web3Preview)
           }
           break
         }
       }
-
-      getComments(mainPost.value?.thread).then((r) => {
-              const lCom = []
-              for (const e of r ?? []) {
-                lCom.push(fillReply(e))
-              }
-              lCom.shift()
-              comments.value = lCom
-            }).then(() => {
-              console.log('comments NO', comments.value.length, mainPost.value, comments.value)
-            });
     })
 
     return {

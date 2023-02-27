@@ -7,14 +7,12 @@
 
 
         <div class="profile w-full mb-4 flex flex-row">
-          <DangLoader v-if="isLoadingUser" class="mt-28" :unset="true" />
+          <DangLoader v-if="isLoadingUser" class="mt-28 mb-20" :unset="true" />
           <template v-else>
             <ProfileCard 
             :key="`following-${isFollowing}`"
             :userData="userData"
             :isOwnAccount="isOwnAccount"
-            :isFollowing="isFollowing"
-            :isAuth="isAuth"
              />
             <ProfileInfoCard class="mt-8" :bio="userData.bio" :fields="userFields" />
           </template>
@@ -84,12 +82,11 @@
         </o-tabs>
         <button
           v-if="feedTab === 'farcaster'"
-          class="bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-lg my-2"
+          class="bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-lg mt-4"
           @click="openCastModal = true"
         >
           Create Cast
         </button>
-
         <InfScroll :key="`${postLoaded}-loaded`" :postLoaded="postLoaded" @hit="onHit">
           <template #content>
             <div v-if="posts.length > 0" class="flex flex-row mx-auto">
@@ -134,16 +131,20 @@
         :collectionPromise="collectionsPagePromise"
       />
       <Web3FollwersPage
-        v-if="currentMenuTab === MENU_BUTTONS.followers"
+        v-if="currentMenuTab === MENU_BUTTONS.followers && followers !== null"
+        :key="followers.length"
         :followersList="followers"
         :handle="userData.username"
         :addr="userData.evmAddress"
       />
       <WalletPage
-        v-if="currentMenuTab === MENU_BUTTONS.wallet"
+        v-if="currentMenuTab === MENU_BUTTONS.wallet "
         :key="userData.evmAddress"
         :accountId="userId"
         :accountEVMAddr="userData.evmAddress"
+        :stackAlertError = "stackAlertError"
+        :apiBase="API_BASE"
+
       />
       <SettingsPage
         v-if="currentMenuTab === MENU_BUTTONS.settings"
@@ -151,78 +152,9 @@
         :userData="userData"
       />
 
-      <!-- <InfScroll
-        v-if="currentMenuTab === MENU_BUTTONS.web3 && postLoaded"
-        :key="`${postLoaded}-loaded`"
-        :postLoaded="postLoaded"
-        @hit="onHit"
-      >
-        <template #content>
-          <div v-if="posts.length > 0" class="flex flex-row mx-auto">
-            <div class="flex flex-col">
-              <Post
-                v-for="post of posts"
-                :id="(post as Record<string, any>)._id.postid"
-                :key="(post  as Record<string, any>)._id.postid"
-                :post="(post as Record<string, any>)"
-                :postTypesPromises="postTypesPromises"
-                :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
-                @updatepostinfo="
-                  (postid: string) => {
-                    postInfo = posts.find((p: any): boolean => postid === p._id.postid)
-                  }
-                "
-              />
-              <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
-            </div>
-            <PostInfo
-              :key="(postInfo as Record<string, any>)._id.postid"
-              class="hidden lg:flex"
-              :post="(postInfo as Record<string, any>)"
-            />
-          </div>
-          <div v-else>
-            <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
-            <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
-          </div>
-        </template>
-      </InfScroll> -->
     </div>
   </div>
-  <o-modal v-model:active="openCastModal" contentClass="modalDefault">
-    <section class="body-font relative">
-      <div class="container px-5 py-2 mx-auto flex">
-        <div
-          class="glassCard rounded-lg p-8 flex flex-col md:ml-auto w-full mt-8 relative shadow-md"
-        >
-          <h2 class="text-lg mb-1 font-medium title-font">Send Cast</h2>
-          <div class="relative mb-4">
-            <Alert :key="castErrorKey" :hidden="!castError.length" :message="castError" title="Error" type="error" />
-            <small>imgur links will be parsed</small>
-            <label
-              for="castField"
-              class="leading-7 text-sm text-gray-600 dark:text-gray-300"
-              >Cast Content</label
-            >
-            <textarea
-              id="castField"
-              v-model="castContent"
-              class="w-full text-gray-600 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
-            >
-            </textarea>
-            <small>Character limit: {{ castContentCharCount }} / 320</small>
-          </div>
-          <button
-            :disabled="isSendingCast"
-            class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg"
-            @click="sendCast"
-          >
-            <BtnSpinner v-if="isSendingCast" class="inline mr-2" />Send
-          </button>
-        </div>
-      </div>
-    </section>
-  </o-modal>
+  <SendCastModal :key="`${openCastModal}k`" :openModal="openCastModal" @update:open-modal="(v) => (openCastModal = v)" @success="castSent" />
 </template>
 
 <script lang="ts">
@@ -236,6 +168,7 @@ import {
   ref,
   watch,
   defineAsyncComponent,
+  shallowRef
 } from "vue";
 import { useHead, HeadObject } from "@vueuse/head";
 import DangLoader from "components/vote-list/loader.vue";
@@ -260,21 +193,19 @@ import LineLoader from "components/functional/lineLoader.vue";
 import {
   createActionUsage,
   createUserData,
-  getUserFollowing
 } from "shared/src/utils/requests/accounts";
 import type { NameValue } from "shared/src/types/account";
 import type { ICollection } from "shared/src/types/store";
 import Web3FollwersPage from "@/components/content/profile/web3FollwersPage.vue"
-import WalletPage from "@/components/content/profile/walletPage.vue";
-import { stackAlertSuccess } from "@/store/alertStore";
-import { FCSendCast } from "shared/src/utils/farcaster";
 import Alert from "components/functional/alert.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import { utilsAFGetCreated } from "shared/src/utils/requests/accountFeeds";
 import { truncteEVMAddr } from "shared/src/utils/misc";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
+import { stackAlertError  } from "@/store/alertStore";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export default defineComponent({
   name: "ProfilePage",
@@ -289,11 +220,16 @@ export default defineComponent({
     PostInfo,
     LineLoader,
     Web3FollwersPage,
-    WalletPage,
     Alert,
     BtnSpinner,
+    SendCastModal: defineAsyncComponent(
+      () => import("@/components/content/post/sendCastModal.vue")
+    ),
     SettingsPage: defineAsyncComponent(
       () => import("@/components/content/profile/settingsPage.vue")
+    ),
+    WalletPage: defineAsyncComponent(
+      () => import("components/profile/walletPage.vue")
     ),
   },
   setup() {
@@ -307,7 +243,6 @@ export default defineComponent({
     const isLoadingUser = ref(true);
     const influence: Ref<null | string> = ref(null);
     const historicInfluence: Ref<Array<Record<string, string | number>>> = ref([]);
-    const iconsColor = ref(store.theme === "dark" ? "#ccc" : "#020201");
     const userFields = ref([]) as Ref<Array<NameValue>>;
     const posts = ref([]) as Ref<Array<unknown>>;
     const postsIndex = ref(0);
@@ -318,32 +253,22 @@ export default defineComponent({
         ? (MENU_BUTTONS as { [key: string]: string })[accountRoute]
         : MENU_BUTTONS.feed
     );
-    const catComp = ref(null) as Ref<unknown>;
+    const catComp = shallowRef(null) as Ref<unknown>;
 
     const collections = useCollectionStore();
     const collectionsEx = useCollectionStoreEx();
     const postInfo = ref(null) as Ref<unknown>;
-    const followers = ref([]) as Ref<string[]>;
+    const followers = ref(null) as Ref<string[] | null>;
     const isOwnAccount = ref(
       store?.isLoggedIn && store?.userData.account === userId.value
     );
     const hasFarcaster = ref(store?.isLoggedIn && store?.farcaster);
     const feedTab = ref("votes");
-    const openCastModal = ref(false);
-    const isSendingCast = ref(false);
-    const castContent = ref("");
     let nextFaracasterCursor = "";
     let lastFarcasterIndex = -1;
-    const castContentCharCount = computed(() => castContent.value.length);
-    const castError = ref("");
-    const castErrorKey = ref(0);
     const isAuth = ref(store.isLoggedIn);
     const externalPosts = ref(false)
-
-    const showCastError = (msg: string) => {
-      castError.value = msg;
-      castErrorKey.value += 1;
-    };
+    const openCastModal = ref(false)
     const isFollowing = ref(true);
 
     const userData = (ref({
@@ -399,8 +324,8 @@ export default defineComponent({
           content: computed(() => route.fullPath),
         },
         {
-          name: "og:image",
-          content: computed(() => userData.value?.avatar),
+          name: 'og:image',
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-web3-profile.png`
         },
         {
           name: "twitter:card",
@@ -420,7 +345,7 @@ export default defineComponent({
         },
         {
           name: "twitter:image",
-          content: computed(() => userData.value?.avatar),
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-web3-profile.png`
         },
       ],
     } as unknown) as Ref<HeadObject>);
@@ -441,11 +366,6 @@ export default defineComponent({
         );
       }
 
-      if (store.theme === "dark") {
-        iconsColor.value = "#ccc";
-      } else {
-        iconsColor.value = "#020201";
-      }
     });
 
     watch(currentMenuTab, (newValue) => {
@@ -472,6 +392,7 @@ export default defineComponent({
         }
       });
     };
+
 
     const getHomeFeedPosts = async (start = 0) => {
       if (!userId.value) return [];
@@ -605,6 +526,11 @@ export default defineComponent({
       });
     };
 
+    const castSent = () => {
+      openCastModal.value = false;
+      resetPosts();
+    };
+
     const menuChange = (tabId: string) => {
       currentMenuTab.value = tabId;
       if (currentMenuTab.value === MENU_BUTTONS.feed) {
@@ -663,19 +589,6 @@ export default defineComponent({
         //   }
         // });
         
-        if(store.userData.account) {
-          getUserFollowing(store.userData.account as string).then((r) => {
-          if (!r.error) {
-            const following = (r?.data ?? []) as string[];
-            isFollowing.value = !following.some(
-              (f) => f === userData.value._id
-            );
-          } else {
-            console.error(r.msg);
-          }
-        });
-        }
-
 
         if (userId.value !== store.userData.account) {
           collectionsEx.collectionsPromise = getCollections(
@@ -723,26 +636,7 @@ export default defineComponent({
       // do nothing
     });
 
-    const sendCast = async () => {
-      if (!castContent.value) {
-        showCastError("Cast cannot be empty");
-        return;
-      } else if (castContent.value.length > 320) {
-        showCastError("Cast cannot be longer than 280 characters")
-        return;
-      }
-      isSendingCast.value = true;
-      const res = await FCSendCast(store.farcaster, castContent.value, API_BASE);
-      if (!res.error) {
-        castContent.value = "";
-        openCastModal.value = false;
-        await getByActiveTab();
-        stackAlertSuccess("Cast sent!");
-      } else {
-        showCastError(res.message)
-      }
-      isSendingCast.value = false;
-    };
+
 
     return {
       search,
@@ -752,7 +646,6 @@ export default defineComponent({
       userId,
       influence,
       historicInfluence,
-      iconsColor,
       isLoadingUser,
       userFields,
       posts,
@@ -770,18 +663,15 @@ export default defineComponent({
       catComp,
       isOwnAccount,
       feedTab,
-      openCastModal,
-      isSendingCast,
-      castContent,
-      sendCast,
-      castContentCharCount,
-      castError,
-      castErrorKey,
       hasFarcaster,
       isFollowing,
       isAuth,
       externalPosts,
-      truncteEVMAddr
+      truncteEVMAddr,
+      openCastModal,
+      stackAlertError,
+      API_BASE,
+      castSent
     };
   },
 });

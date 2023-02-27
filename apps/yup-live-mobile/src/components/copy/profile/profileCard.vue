@@ -136,7 +136,7 @@ export default defineComponent({
 
 <style lang="scss">
 html {
-  --profile-card-bg: #c7bfb8eb;
+  --profile-card-bg: #ffffff61;  
   --profile-card-head1: #ffd375d9;
   --profile-card-head2: #818181;
   --profile-av-holder-sh1: #cbcbcb;

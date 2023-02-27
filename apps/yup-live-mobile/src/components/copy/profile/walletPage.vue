@@ -114,7 +114,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref, reactive } from 'vue'
+import { onMounted, defineComponent, ref, Ref, reactive, shallowRef } from 'vue'
 import DangLoader from 'components/vote-list/loader.vue'
 import CustomButton from 'components/functional/customButton.vue'
 import { stackAlertError } from '@/store/alertStore'
@@ -149,7 +149,7 @@ export default defineComponent({
       poaps?: any[]
     }>
     const isLoading = ref(true)
-    const catComp = ref(null) as Ref<unknown>
+    const catComp = shallowRef(null) as Ref<unknown>
     const nothingToShow = ref(false)
     const ethTokens = ref([]) as Ref< IProfileToken[]>
     const polyTokens = ref([]) as Ref< IProfileToken[]>

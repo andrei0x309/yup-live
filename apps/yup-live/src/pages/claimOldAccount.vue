@@ -175,10 +175,13 @@ import { wait } from "shared/src/utils/time";
 import { useRoute } from 'vue-router'
 import EOSIcon from "icons/src/eos.vue";
 import TwitterIcon from "icons/src/twitter.vue";
+import { digestSha256 } from "shared/src/utils/misc";
 
 const providerOptionsProm = import("shared/src/utils/evm");
 const web3Mprom = import("web3modal");
 const ethers = import("ethers");
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export default defineComponent({
   name: "ClaimPage",
@@ -257,18 +260,16 @@ export default defineComponent({
         {
           name: 'twitter:description',
           content: computed(() => siteData.description)
-        }
+        },
+        {
+          name: 'og:image',
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-changelog.png`
+        },
       ]
     } as unknown as Ref<HeadObject>)
 
 
-    const digestSha256 = async (message: string) => {
-      const msgUint8 = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-      return hashHex;
-    };
+
 
     onMounted(async () => {
       providerOptionsProm.then((pLib) => {

@@ -21,23 +21,32 @@
                   <p class="p-2">You can't follow yourself</p>
                 </div>
               </template>
-              <button :disabled="true" class="button opacity-70 cursor-not-allowed">FOLLOW <AddFollow /></button>
-            </o-tooltip>
-    </template>
-    <template v-else-if="!isAuth">
-      <o-tooltip :triggers="['hover']" :autoClose="true" :multiline="true">
-              <template #content>
-                <div class="followToolTip">
-                  <p class="p-2">You can't follow if you're not connected</p>
-                </div>
-              </template>
-              <button :disabled="true" class="button opacity-70 cursor-not-allowed">FOLLOW <AddFollow /></button>
+              <FollowUnfollwBtn 
+    :evmAddr="userData.evmAddress"
+    class="mt-10 view-btn text-[0.85rem]  w-22 p-1 text-center"
+    :iconClass="'inline-block w-3 mr-0'"
+    :deps="{
+            apiBase: API_BASE,
+            useMainStore,
+            stackAlertWarning,
+            stackAlertSuccess,
+          }"
+    :disabled="true"
+     />
             </o-tooltip>
     </template>
     <template v-else>
-      <button :disabled="isActionLoading" class="button" @click="localIsFollowing ? follow() : unfollow()">
-      <BtnSpinner v-if="isActionLoading" class="inline w-3" />
-      {{ FOLLOW_TEXT }} <AddFollow /></button>
+      <FollowUnfollwBtn 
+    :evmAddr="userData.evmAddress"
+    class="mt-10 view-btn text-[0.85rem] w-22 p-1 text-center mx-auto"
+    :iconClass="'inline-block w-3 mr-0'"
+    :deps="{
+            apiBase: API_BASE,
+            useMainStore,
+            stackAlertWarning,
+            stackAlertSuccess,
+          }"
+     />
   </template>
     <div class="ds-info">
       <div class="ds pens">
@@ -65,17 +74,16 @@
   </div>
 </template>
 
+
 <script lang="ts">
 import { onMounted, defineComponent, ref, PropType } from 'vue'
 import ProfileUseBar from '@/components/content/profile/useBar.vue'
 import { makeRandAvatar } from 'shared/src/utils/accounts'
 import type { NameValue } from 'shared/src/types/account'
-import { stackAlertError, stackAlertSuccess } from '@/store/alertStore'
-import { fetchWAuth } from 'shared/src/utils/auth'
-import { useMainStore } from '@/store/main'
-import BtnSpinner from 'icons/src/btnSpinner.vue'
 import FollowersIcon from 'icons/src/followers.vue'
-import AddFollow from 'icons/src/addFollow.vue'
+import FollowUnfollwBtn from "components/profile/followUnfollowBtn.vue"
+import { useMainStore, openConnectModal } from '@/store/main'
+import { stackAlertWarning, stackAlertSuccess } from '@/store/alertStore'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -83,9 +91,8 @@ export default defineComponent({
   name: 'ProfileCard',
   components: {
     ProfileUseBar,
-    AddFollow,
     FollowersIcon,
-    BtnSpinner
+    FollowUnfollwBtn
   },
   props: {
     postInfo: {
@@ -103,6 +110,7 @@ export default defineComponent({
         username: '',
         avatar: '',
         nextReset: '',
+        evmAddress: '',
         followers: 0,
         balance: 0,
         weight: 0,
@@ -118,74 +126,14 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
-    isAuth: {
-      type: Boolean,
-      default: false
-    },
-    isFollowing: {
-      type: Boolean,
-      default: true
-    }
   },
   setup(props) {
     const source = ref(props.userData.avatar)
-    const localIsFollowing = ref(props.isFollowing)
-    const store = useMainStore()
-    const isActionLoading = ref(false)
-    const FTEXT = 'FOLLOW'
-    const UTEXT = 'UNFOLLOW'
-    const FOLLOW_TEXT = ref(localIsFollowing.value ? FTEXT : UTEXT)
-    // const isLoading = ref(true)
 
     const onError = () => {
       source.value = makeRandAvatar(props.userData.username)
     }
 
-    // const onLoad = () => {
-    //   isLoading.value = false
-    // }
-
-    const follow = () => {
-      isActionLoading.value = true
-      fetchWAuth(store, `${API_BASE}/v2/followers?accountToFollow=${props.userData._id}`, {
-        method: 'POST'
-      })
-        .then((res) => {
-          if (res.ok) {
-            localIsFollowing.value = false
-            FOLLOW_TEXT.value = UTEXT
-            stackAlertSuccess('You are now following ' + props.userData.username)
-          } else {
-            stackAlertError('Something went wrong')
-          }
-          isActionLoading.value = false
-        })
-        .catch((err) => {
-          stackAlertError(String(err))
-          isActionLoading.value = false
-        })
-    }
-
-    const unfollow = () => {
-      isActionLoading.value = true
-      fetchWAuth(store, `${API_BASE}/v2/followers?accountToUnfollow=${props.userData._id}`, {
-        method: 'DELETE'
-      })
-        .then((res) => {
-          if (res.ok) {
-            FOLLOW_TEXT.value = FTEXT
-            localIsFollowing.value = true
-            stackAlertSuccess('You are no longer following ' + props.userData.username)
-          } else {
-            stackAlertError('Something went wrong')
-          }
-          isActionLoading.value = false
-        })
-        .catch((err) => {
-          stackAlertError(String(err))
-          isActionLoading.value = false
-        })
-    }
 
     onMounted(() => {
       // nothing
@@ -194,14 +142,11 @@ export default defineComponent({
     return {
       onError,
       source,
-      unfollow,
-      follow,
-      localIsFollowing,
-      isActionLoading,
-      FOLLOW_TEXT
-      // onLoad,
-      // isLoading,
-      // isError,
+      useMainStore,
+      openConnectModal,
+      stackAlertWarning,
+      stackAlertSuccess,
+      API_BASE
     }
   }
 })
@@ -209,7 +154,7 @@ export default defineComponent({
 
 <style lang="scss">
 html {
-  --profile-card-bg: #c7bfb8eb;
+  --profile-card-bg: #ffffff61;
   --profile-card-head1: #ffd375d9;
   --profile-card-head2: #818181;
   --profile-av-holder-sh1: #cbcbcb;
@@ -256,8 +201,8 @@ html[class='dark'] {
     top: 0;
     right: 0;
     left: 0;
-    height: 4.4rem;
-    background: radial-gradient(ellipse at bottom, var(--profile-card-head1) 0%, var(--profile-card-head2) 100%);
+    height: 5.4rem;
+    background: radial-gradient(ellipse at bottom, #4e4691 0%, #1d102a 100%);
     overflow: hidden;
   }
   #stars {
@@ -395,7 +340,7 @@ html[class='dark'] {
   }
   .ds-info {
     position: relative;
-    top: 4rem;
+    top: 1rem;
     left: 8%;
     display: flex;
 
@@ -406,7 +351,7 @@ html[class='dark'] {
       left: -300px;
       width: calc(250px / 3);
       text-align: center;
-      color: white;
+      color: var(--glassTxt);
       animation: fadeInMove 2s;
       animation-fill-mode: forwards;
       h6 {
@@ -431,7 +376,7 @@ html[class='dark'] {
     right: 0;
     left: 5%;
     width: 90%;
-    top: 5.3rem;
+    top: 2.3rem;
     animation: mvBottom 1.5s;
     h6 {
       font-weight: 700;

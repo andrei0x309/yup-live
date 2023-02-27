@@ -133,7 +133,7 @@
 import { onMounted, defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'FarcasterIcon',
+  name: 'AnimatedCat',
   setup() {
     onMounted(() => {
       // nothing

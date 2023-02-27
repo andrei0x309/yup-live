@@ -287,7 +287,7 @@ body.dark {
 
 .titleToolbar {
   font-weight: bolder;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   text-align: center;
   margin-bottom: 0;
   display: block;
@@ -318,5 +318,16 @@ body.dark {
     opacity: 1;
   }
 }
+
+.glassCard {
+    margin-top: 1rem;
+    background-color: var(--glass-menu-bg);
+    padding: 2rem;
+    border-radius: 1rem;
+    filter: grayscale(0.1);
+    background: linear-gradient(234deg, rgba(80, 76, 76, 0.1411764706), rgba(24, 24, 24, 0.5490196078)), linear-gradient(39deg, rgba(98, 92, 92, 0.2117647059), rgba(32, 31, 31, 0.5607843137));
+    color: aliceblue;
+    box-shadow: 2px 2px #2b2d2e;
+  }
 
 </style>

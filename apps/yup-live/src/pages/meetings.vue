@@ -99,7 +99,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, Ref } from "vue";
+import { defineComponent, onMounted, ref, Ref, reactive } from "vue";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 import { stackAlertError } from "@/store/alertStore"
 import { useRoute } from "vue-router"
@@ -107,6 +107,9 @@ import ShareIcon from "icons/src/share.vue";
 import RadarIcon from "icons/src/radar.vue"
 import DangLoader from "components/vote-list/loader.vue"
 import Alert from "components/functional/alert.vue"
+import { useHead, HeadObject } from '@vueuse/head'
+
+const BASE_URL = import.meta.env.VITE_BASE_URL
 
 export default defineComponent({
   name: "MeetingRecordings",
@@ -136,6 +139,58 @@ export default defineComponent({
     const page = ref(0)
     const dbLastMeetings = ref([]) as Ref<Meeting[]>
     const singleVideo = ref([]) as Ref<Meeting[]>
+
+    const siteData = reactive({
+      title: `YUP Meetings History`,
+      description: `See previeous community meetings and recordings`
+    })
+
+    useHead({
+      title: siteData.title,
+      description: siteData.description,
+      meta: [
+        {
+          name: 'og:image',
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`
+        },
+        {
+          name: 'description',
+          content: siteData.description
+        },
+        {
+          name: 'og:type',
+          content: 'website'
+        },
+        {
+          name: 'og:title',
+          content:  siteData.title
+        },
+        {
+          name: 'og:description',
+          content:  siteData.description
+        },
+        {
+          name: 'og:url',
+          content: route.fullPath
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image'
+        },
+        {
+          name: 'twitter:url',
+          content: route.fullPath
+        },
+        {
+          name: 'twitter:title',
+          content: siteData.title
+        },
+        {
+          name: 'twitter:description',
+          content: () => siteData.description
+        }
+      ]
+    } as unknown as Ref<HeadObject>)
 
     const getPastMeetings = async (page: number) => {
       const res = await fetch(`${endpointBase}/get-meetings`, {

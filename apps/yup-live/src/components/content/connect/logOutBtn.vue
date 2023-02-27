@@ -28,6 +28,8 @@ export default defineComponent({
       localStorage.removeItem('address')
       localStorage.removeItem('account')
       localStorage.removeItem('authToken')
+      localStorage.removeItem('farcaster')
+      localStorage.removeItem('fid')
       store.userData = {
         avatar: '',
         account: '',

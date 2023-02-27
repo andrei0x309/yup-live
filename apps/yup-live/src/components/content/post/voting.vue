@@ -8,7 +8,7 @@
         :isSolid="refHasVote && lastVote"
         @click="doVote(true)"
       />
-      <span v-html="formatNumber(positiveWeightRef, 2)"></span>
+      <span v-if="positiveWeightRef > 0" v-html="formatNumber(positiveWeightRef, 2)"></span>
     </o-tooltip>
     <o-tooltip v-model:active="showDown" :triggers="['hover']" :autoClose="true" :multiline="true">
       <template #content> x{{ rating }} </template>
@@ -18,7 +18,7 @@
         :isSolid="refHasVote && !lastVote"
         @click="doVote(false)"
       />
-      <span v-html="formatNumber(negativeWeightRef, 2)"></span>
+      <span v-if="negativeWeightRef > 0" v-html="formatNumber(negativeWeightRef, 2)"></span>
     </o-tooltip>
   </div>
 </template>
