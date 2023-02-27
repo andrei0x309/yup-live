@@ -7,9 +7,14 @@
         {{ post.createdAt }}
       </p>
     </span>
+    <div class="flex flex-col">
     <span class="inline-block mfavIco">
-      <NFTIco  class="w-9 h-9"/>
+      <NFTIco  class="w-10 h-10 p-1"/>
     </span>
+    <span class="inline-block mreplyIco mr-4 text-[0.8rem]" style="-webkit-text-stroke: 0.03rem #151515;">
+      ERC721
+    </span>
+  </div>
   </div>
   <VideoPlayer v-if="post.isVideo" :key="`${post.image}-video`" :videoSource="post.web3Preview?.meta?.imageUrl" />
   <ImagePreview v-else :key="post.image" :source="post.web3Preview?.meta?.imageUrl" imgClass="min-w-60" />

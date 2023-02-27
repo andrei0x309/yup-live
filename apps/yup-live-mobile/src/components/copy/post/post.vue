@@ -42,17 +42,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive, ref, Ref, shallowRef, watch } from 'vue'
+import { defineComponent, onMounted, reactive, ref, Ref, shallowRef, watch, PropType } from 'vue'
 import ImagePreview from 'components/post/imagePreview.vue'
 import Voting from '@/components/copy/post/voting.vue'
 import FavIco from 'components/post/favIco.vue'
 import ClockIcon from 'icons/src/clock.vue'
 import PostMenu from './menu/postMenu.vue'
 import { useMainStore } from '@/store/main'
-import { timeAgo } from 'shared/src/utils/time'
 import { hasVote } from 'shared/src/utils/requests/vote'
 import type { Vote } from 'shared/src/types/vote'
 // import { chatbubble } from "ionicons/icons";
+import { processPost } from 'shared/src/utils/post'
+import type { IPost, IProcessedPost } from 'shared/src/types/post'
 
 export default defineComponent({
   name: 'PostComponent',
@@ -66,7 +67,7 @@ export default defineComponent({
   props: {
     post: {
       required: false,
-      type: Object,
+      type: Object as PropType<IPost>,
       default: () => ({})
     },
     isHidenInfo: {
@@ -102,7 +103,8 @@ export default defineComponent({
       //   isMirror: false,
       //   isWeb3: false,
       //   isTwitter: false,
-    })
+    }) as unknown as IProcessedPost
+
     const store = useMainStore()
     const iconsColor = ref(store.theme === 'dark' ? '#ccc' : '#020201')
     const postTypeLoading = ref(true)
@@ -128,33 +130,6 @@ export default defineComponent({
       refHasVote.value = newVal
       menuKey.value++
     })
-
-    const processPost = () => {
-      processedPost.id = props.post._id.postid
-      processedPost.title = props.post.previewData.title
-      let content = props?.post?.previewData?.description ?? 'No description available'
-      content = content.length > 261 ? `${content.substring(0, 261)}...` : content
-      processedPost.content = content
-      let image = props.post.previewData.img
-      if (image && image.match(/\.gif.*?fm=jpg/)) {
-        image = image.replace(/fm=jpg/, 'fm=gif')
-      }
-      processedPost.image = image
-      if (processedPost.image) {
-        const videoExt = ['.mp4', '.webm', '.ogg', '.avi']
-        processedPost.isVideo = videoExt.some((ext) => processedPost.image.includes(ext))
-      }
-      processedPost.createdAt = timeAgo(props.post.createdAt)
-      processedPost.url = props.post.url
-      processedPost.positiveWeight = props.post.rawPositiveWeight ?? props.post.positiveWeight ?? 0
-      processedPost.negativeWeight = props.post.rawNegativeWeight ?? props.post.negativeWeight ?? 0
-      cloneWeights.positiveWeight = props.post.rawPositiveWeight ?? props.post.positiveWeight ?? 0
-      cloneWeights.negativeWeight = props.post.rawNegativeWeight ?? props.post.negativeWeight ?? 0
-
-      postShareInfo.title = processedPost.title
-      postShareInfo.url =  'https://yup-live.pages.dev/post/' + processedPost.id
-      postShareInfo.text = processedPost.content
-    }
 
     const updatePostInfo = () => {
       ctx.emit('updatepostinfo', props.post._id.postid)
@@ -204,7 +179,7 @@ export default defineComponent({
         }
         postTypeLoading.value = false
       })
-      processPost()
+      processPost(props.post, processedPost, cloneWeights, postShareInfo)
       }
     })
 
@@ -306,12 +281,13 @@ html[class='dark'] {
 }
 
 .pPost.mirror {
-  word-break: break-all;
+  word-break: break-word;
+  overflow-x: hidden;
 }
 
 div.w3TweetTypeBody {
   text-align: left;
-  word-break: break-all;
+  word-break: break-word;
 
   .reply-line {
     border-left: 2px solid rgba(255, 127, 80, 0.699);
