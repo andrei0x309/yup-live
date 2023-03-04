@@ -25,6 +25,7 @@ export interface IWeb3Profile {
     avatar?: string
     handle?: string
     evmAddress: string
+    [key: string]: any
 }
 
 export interface IWeb3ProfileRecommendation {

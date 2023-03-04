@@ -31,8 +31,6 @@ import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref } from
 import { useHead, HeadObject } from '@vueuse/head'
 import { useRoute, useRouter } from 'vue-router'
 
-const BASE_URL = process.env.VITE_BASE_URL
-
 export default defineComponent({
   name: 'ErrorPage',
   components: {},
@@ -84,7 +82,7 @@ export default defineComponent({
         },
         {
           name: 'og:image',
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`
+          content: `/share/yup-live-ogs/og-yup-live-default.png`
         },
       ]
     } as unknown as Ref<HeadObject>)

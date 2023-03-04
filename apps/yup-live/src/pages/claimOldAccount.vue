@@ -181,8 +181,6 @@ const providerOptionsProm = import("shared/src/utils/evm");
 const web3Mprom = import("web3modal");
 const ethers = import("ethers");
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-
 export default defineComponent({
   name: "ClaimPage",
   components: {
@@ -263,7 +261,7 @@ export default defineComponent({
         },
         {
           name: 'og:image',
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-changelog.png`
+          content: `/share/yup-live-ogs/og-yup-live-changelog.png`
         },
       ]
     } as unknown as Ref<HeadObject>)

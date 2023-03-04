@@ -19,8 +19,6 @@ import TableNav from '@/components/content/table-nav.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMainStore, openConnectModal } from '@/store/main'
 
-const BASE_URL = import.meta.env.VITE_BASE_URL
-
 export default defineComponent({
   name: 'HomePage',
   components: {
@@ -89,7 +87,7 @@ export default defineComponent({
       meta: [
         {
           name: 'og:image',
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`
+          content: `/share/yup-live-ogs/og-yup-live-default.png`
         },
         {
           name: 'description',

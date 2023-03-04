@@ -61,21 +61,41 @@
           position="centred"
           variant="warning"
           navTypeClass="boxed"
-        >
-          <o-tab-item value="votes">
+        > 
+
+         <template v-if="defaultAccountFeed === 'content'">
+          <o-tab-item value="content">
             <template #header>
-              <span> Votes </span>
+              <ContentIcon class="w-5 mr-2 inline-block"/>
+              <span> Created Content </span>
+            </template>
+          </o-tab-item>
+          <o-tab-item value="likes">
+            <template #header>
+              <LikesIcon class="w-5 mr-2 inline-block"/>
+              <span> Likes </span>
+            </template>
+          </o-tab-item>
+        </template>
+        <template v-else>
+          <o-tab-item value="likes">
+            <template #header>
+              <LikesIcon class="w-5 mr-2 inline-block"/>
+              <span> Likes </span>
             </template>
           </o-tab-item>
 
           <o-tab-item value="content">
             <template #header>
+              <ContentIcon class="w-5 mr-2 inline-block"/>
               <span> Created Content </span>
             </template>
           </o-tab-item>
+          </template>
 
           <o-tab-item v-if="isOwnAccount && hasFarcaster" value="farcaster">
             <template #header>
+              <ProfileFarcasterIcon class="w-5 mr-2 inline-block"/>
               <span> Farcaster </span>
             </template>
           </o-tab-item>
@@ -96,7 +116,7 @@
                   :id="(post as Record<string, any>)._id.postid"
                   :key="(post  as Record<string, any>)._id.postid"
                   :noYUPPost="externalPosts"
-                  :post="(post as Record<string, any>)"
+                  :post="(post as IPost)"
                   :postTypesPromises="postTypesPromises"
                   :isHidenInfo="((post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid) || feedTab === 'farcaster'"
                   @updatepostinfo="
@@ -203,9 +223,13 @@ import { utilsAFGetCreated } from "shared/src/utils/requests/accountFeeds";
 import { truncteEVMAddr } from "shared/src/utils/misc";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
 import { stackAlertError  } from "@/store/alertStore";
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+import type { IPost } from "shared/src/types/post";
+import ContentIcon from "icons/src/content.vue";
+import LikesIcon from "icons/src/likes.vue"; 
+import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export default defineComponent({
   name: "ProfilePage",
@@ -222,6 +246,9 @@ export default defineComponent({
     Web3FollwersPage,
     Alert,
     BtnSpinner,
+    ContentIcon,
+    LikesIcon,
+    ProfileFarcasterIcon,
     SendCastModal: defineAsyncComponent(
       () => import("@/components/content/post/sendCastModal.vue")
     ),
@@ -263,7 +290,8 @@ export default defineComponent({
       store?.isLoggedIn && store?.userData.account === userId.value
     );
     const hasFarcaster = ref(store?.isLoggedIn && store?.farcaster);
-    const feedTab = ref("votes");
+    const defaultAccountFeed = localStorage.getItem("defaultAccountFeed") || "content";
+    const feedTab = ref(defaultAccountFeed === 'content' ? 'content': 'likes');
     let nextFaracasterCursor = "";
     let lastFarcasterIndex = -1;
     const isAuth = ref(store.isLoggedIn);
@@ -325,7 +353,7 @@ export default defineComponent({
         },
         {
           name: 'og:image',
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-web3-profile.png`
+          content: `$/share/yup-live-ogs/og-yup-live-web3-profile.png`
         },
         {
           name: "twitter:card",
@@ -345,7 +373,7 @@ export default defineComponent({
         },
         {
           name: "twitter:image",
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-web3-profile.png`
+          content: `/share/yup-live-ogs/og-yup-live-web3-profile.png`
         },
       ],
     } as unknown) as Ref<HeadObject>);
@@ -470,7 +498,7 @@ export default defineComponent({
       }
     };
 
-    let getFeedPosts = getHomeFeedPosts;
+    let getFeedPosts = defaultAccountFeed === 'content' ? getCreatedFeedPosts : getHomeFeedPosts;
 
     const scrollIntoView = (id: string) => {
       const el = document.getElementById(id);
@@ -603,7 +631,6 @@ export default defineComponent({
           ) as Promise<ICollection[]>;
         }
         if (currentMenuTab.value === MENU_BUTTONS.feed) {
-          getFeedPosts = getHomeFeedPosts;
           resetPosts();
         } 
         
@@ -612,7 +639,7 @@ export default defineComponent({
     });
 
     const getByActiveTab = async () => {
-      if (feedTab.value === "votes") {
+      if (feedTab.value === "likes") {
         externalPosts.value = false
         getFeedPosts = getHomeFeedPosts;
       } else if (feedTab.value === "content") {
@@ -671,7 +698,8 @@ export default defineComponent({
       openCastModal,
       stackAlertError,
       API_BASE,
-      castSent
+      castSent,
+      defaultAccountFeed
     };
   },
 });

@@ -9,9 +9,11 @@
         <div class="profile w-full mb-4 flex flex-row">
           <DangLoader v-if="isLoadingUser" class="mt-28" :unset="true" />
           <template v-else>
-<Web3ProfileCard :web3Profile="web3Profile" :followersCount="followersCount" />
-<RecommandedCard :data="recommandedProfiles" :isAuth="isAuth" />
-
+        <Web3ProfileCard
+        :web3Profile="web3Profile" :followersCount="followersCount"
+        :deps="web3Deps"
+        />
+        <RecommandedCard :data="recommandedProfiles" :isAuth="isAuth" /> 
 
           </template>
         </div>
@@ -81,7 +83,7 @@
                   :id="(post as Record<string, any>)._id.postid"
                   :key="(post  as Record<string, any>)._id.postid"
                   :noYUPPost="externalPosts"
-                  :post="(post as Record<string, any>)"
+                  :post="(post as IPost)"
                   :postTypesPromises="postTypesPromises"
                   :isHidenInfo="((post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid) || feedTab === 'farcaster'"
                   @updatepostinfo="
@@ -151,7 +153,7 @@ import DangLoader from "components/vote-list/loader.vue";
 // import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 // import ProfileMenu from "@/components/content/profile/menu.vue";
 // import Post from "@/components/content/post/post.vue";
-import { useMainStore } from "@/store/main";
+import { useMainStore, openConnectModal } from "@/store/main";
 import { useRoute } from "vue-router";
 
 import { wait } from "shared/src/utils/time";
@@ -169,20 +171,25 @@ import { utilsAFGetCreated } from "shared/src/utils/requests/accountFeeds";
 import { fetchWeb3Profile, fetchRecommendedWeb3Profiles } from "shared/src/utils/requests/web3Profiles";
 import type { IWeb3Profile, IWeb3ProfileRecommendation } from "shared/src/types/web3Profile";
 import { truncteEVMAddr } from "shared/src/utils/misc";
-
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
 import RecommandedCard from "@/components/content/profile/recommendedCard.vue";
 import ContentIcon from "icons/src/content.vue";
-
 import FollowersOutline from "icons/src/followersOutline.vue";
 import PostInfo from "@/components/content/post/postInfo.vue";
 import LineLoader from "components/functional/lineLoader.vue";
-import Web3ProfileCard from "@/components/content/profile/web3ProfileCard.vue";
-import { stackAlertError } from "@/store/alertStore";
-
+import Web3ProfileCard from "components/profile/web3ProfileCard.vue";
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
+import type { IPost } from 'shared/src/types/post'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+const web3Deps = {
+  openConnectModal,
+  useMainStore,
+  stackAlertWarning,
+  stackAlertSuccess,
+  apiBase:API_BASE
+}
 
 export default defineComponent({
   name: "ProfilePage",
@@ -220,7 +227,7 @@ export default defineComponent({
     const apiErrorMsg = ref("");
     const isLoadingUser = ref(true);
     const influence: Ref<null | string> = ref(null);
-    const posts = ref([]) as Ref<Array<unknown>>;
+    const posts = ref([]) as Ref<Array<IPost>>;
     const postsIndex = ref(0);
     const postLoaded = ref(false);
     const feedLoading = ref(false);
@@ -257,7 +264,7 @@ export default defineComponent({
       meta: [
         {
           name: 'og:image',
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-web3-profile.png`
+          content: `$/share/yup-live-ogs/og-yup-live-web3-profile.png`
         },
         {
           name: "description",
@@ -297,7 +304,7 @@ export default defineComponent({
         },
         {
           name: "twitter:image",
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-web3-profile.png`
+          content: `/share/yup-live-ogs/og-yup-live-web3-profile.png`
         },
       ],
     } as unknown) as Ref<HeadObject>);
@@ -503,7 +510,8 @@ export default defineComponent({
       followersCount,
       followers,
       API_BASE,
-      stackAlertError
+      stackAlertError,
+      web3Deps,
     };
   },
 });

@@ -18,7 +18,7 @@ import AddFollowIcon from "icons/src/addFollow.vue";
 import DeleteIcon from "icons/src/delete.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import { isFollowing, follow, unfollow } from "shared/src/utils/requests/web3Follows";
-import type { IMainStore } from "shared/src/types/store";
+import type { IDepsWeb3Profile } from "shared/src/types/web3/web3Deps";
 
 export default defineComponent({
   name: "FollowUnfollwBtn",
@@ -43,13 +43,7 @@ export default defineComponent({
       default: false,
     },
     deps: {
-        type: Object as PropType<{
-            apiBase: string,
-            useMainStore: () => IMainStore,
-            stackAlertWarning?: (msg: string) => void,
-            stackAlertSuccess?: (msg: string) => void,
-            openConnectModal?: (store: IMainStore) => void
-        }>,
+        type: Object as PropType<IDepsWeb3Profile>,
         required: true
     }
   },

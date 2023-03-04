@@ -53,6 +53,9 @@
           class="glassCard rounded-lg p-8 flex flex-col md:ml-auto w-full mt-10 md:mt-0 relative shadow-md"
         >
           <h2 class="text-lg mb-1 font-medium title-font">Edit Account Details</h2>
+          <h3>Edit avatar</h3>
+          <DangLoader v-if="isAvatarLoading" />
+          <VACropper v-else class="mb-4" :avatar="avatar" @cropped="uploadAvatar" />
           <div class="relative mb-4">
             <label
               for="fullnameField"
@@ -63,7 +66,7 @@
               id="fullnameField"
               v-model="fullName"
               type="text"
-              class="w-full  text-gray-600 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+              class="w-full dark:bg-stone-800 dark:text-gray-300 text-gray-600 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
             />
           </div>
           <div class="relative mb-4">
@@ -75,13 +78,13 @@
             <textarea
               id="bioField"
               v-model="bio"
-              class="w-full text-gray-600 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-22 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
+              class="w-full dark:bg-stone-800 dark:text-gray-300 dark:text-gray-200 text-gray-600 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-22 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
             >
             </textarea>
           </div>
           <button
             :disabled="isEditLoading"
-            class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg"
+            class="bg-stone-700 border-0 py-2 px-6 focus:outline-none hover:bg-stone-900 rounded text-lg"
             @click="onEditProfile"
           >
             <BtnSpinner v-if="isEditLoading" class="inline mr-2" />Edit
@@ -100,6 +103,11 @@
       <o-switch v-model="feedPersonalization" :rounded="true" position="right" size="small" variant="warning" @change="changeFeedPersonalization"
         >&nbsp;&nbsp;{{ feedPersonalization ? 'Disable' : 'Enable' }}</o-switch
       ></div>
+       
+        <div class="block my-3">
+                <span class="block my-2">Home Feed on yup profile</span>
+                <o-radio v-for="feed of Object.entries(mapFeeds)" :key="feed[0]" v-model="defaultAccountFeed" :native-value="feed[0]" @change="changeDefaultFeed">{{ feed[1] }}</o-radio>
+                </div>
         </div>
       </div>
     </section>
@@ -167,6 +175,8 @@ import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import { claimAndLinkTwitter, twitterCheckAndUnlink } from "shared/src/utils/requests/twitter";
 import { FCSendCast } from "shared/src/utils/farcaster";
 import { digestSha256 } from "shared/src/utils/misc";
+import { VACropper } from 'vue-cup-avatar'
+import 'vue-cup-avatar/dist/style.css'
 
 const providerOptionsProm = import('shared/src/utils/evm')
 const web3Mprom = import("web3modal");
@@ -180,7 +190,7 @@ const EIP_191_PREFIX = "eip191:";
 
 export default defineComponent({
   name: "SettingsPage",
-  components: { DangLoader, CustomButton, BtnSpinner, TwitterIcon, ProfileFarcasterIcon },
+  components: { DangLoader, CustomButton, BtnSpinner, TwitterIcon, ProfileFarcasterIcon, VACropper },
   props: {
     userData: {
       type: Object as PropType<IUserData>,
@@ -193,6 +203,7 @@ export default defineComponent({
     const store = useMainStore();
     const bio = ref(props.userData.bio);
     const fullName = ref(props.userData.fullname);
+    const avatar = ref(props.userData.avatar)
     const isEditLoading = ref(false);
     const isDeleteLoading = ref(false);
     const isConnectToFarcaster = ref(false);
@@ -206,6 +217,12 @@ export default defineComponent({
     const feedPersonalization = ref(false);
     const sendFarcasterConnectMsg = ref(false)
     const twFollowersAsKeywords = ref(false)
+    const isAvatarLoading = ref(false)
+    const mapFeeds = {
+      'likes': 'Likes',
+      'content': 'Web3 created Content',
+    }
+    const defaultAccountFeed = ref(localStorage.getItem('defaultAccountFeed') || 'likes')
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let ethersLib: any;
@@ -313,10 +330,8 @@ export default defineComponent({
           const token = data?.result?.token?.secret;
           if (token) {
             const dataTosend = {
-              social: {
-                platforms: {
+              auth: {
                   farcaster: token,
-                },
               },
             };
             getFidByToken(token, API_BASE).then(fid => {
@@ -325,7 +340,7 @@ export default defineComponent({
                 localStorage.setItem("fid", fid as string);
               }
             } )
-            const req = await fetchWAuth(store, `${API_BASE}/accounts/social`, {
+            const req = await fetchWAuth(store, `${API_BASE}/web3-auth`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -385,11 +400,9 @@ export default defineComponent({
           return;
         }
         const delBody = {
-          social: {
-            platforms: ['farcaster']
-          },
+            auth: ['farcaster']
         }
-        const reqDel = await fetchWAuth(store, `${API_BASE}/accounts/social`, {
+        const reqDel = await fetchWAuth(store, `${API_BASE}/web3-auth`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -433,12 +446,12 @@ export default defineComponent({
     };
 
     const checkConnectedToFarcaster = async () => {
-      const req = await fetchWAuth(store, `${API_BASE}/accounts/social/list`, {
+      const req = await fetchWAuth(store, `${API_BASE}/web3-auth/list`, {
         method: "GET",
       });
       if (req.ok) {
         const data = await req.json();
-        const farcaster = data?.social?.farcaster;
+        const farcaster = data?.auth?.farcaster;
         if (farcaster) {
           isConnectedToFarcaster.value = true;
           farcasterToken.value = farcaster;
@@ -496,6 +509,53 @@ export default defineComponent({
       isLoading.value = false;
     });
 
+    const uploadAvatar = (blob: Blob) => {
+        isAvatarLoading.value = true
+      	const fr = new FileReader()
+        fr.onloadend = async() => {
+         try {
+          const split = (fr.result as string)?.split(',')
+          const body = {
+            data: split[1],
+            contentType: split[0].split(':')[1],
+            key: 'avatar',
+          }
+          const res = await fetch('https://api.yup.io/accounts/account/profileImage', {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: { 'Content-Type': 'application/json' },
+          })
+          if(!res.ok) {
+            stackAlertError("Error while uploading avatar, try later.")
+            return
+          }
+          const data = await res.json()
+          if (
+        await editProfile({
+          avatar: data.url,
+          authToken: store.userData.authToken,
+        })
+      ) {
+        stackAlertSuccess("Account was changed.");
+      } else {
+        stackAlertError("Error while uploading avatar, try later.");
+      }
+      avatar.value = data.url
+
+      isAvatarLoading.value = false
+      } catch(e) {
+        stackAlertError("Error while uploading avatar, try later.")
+      }
+    }
+
+        fr.readAsDataURL(blob)
+    }
+
+    const changeDefaultFeed = () => {
+      localStorage.setItem("defaultAccountFeed", defaultAccountFeed.value)
+    }
+
+
     return {
       isLoading,
       formatNumber,
@@ -520,13 +580,19 @@ export default defineComponent({
       twitterLink,
       twitterUnlink,
       sendFarcasterConnectMsg,
-      twFollowersAsKeywords
+      twFollowersAsKeywords,
+      avatar,
+      isAvatarLoading,
+      uploadAvatar,
+      mapFeeds,
+      defaultAccountFeed,
+      changeDefaultFeed
     };
   },
 });
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .settings-section {
   width: 100%;
   max-width: 35rem;

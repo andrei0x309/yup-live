@@ -49,8 +49,6 @@ import ChartD3 from '@/components/content/chart-d3.vue'
 import { useMainStore } from '@/store/main'
 import { useRoute } from 'vue-router'
 
-const BASE_URL = process.env.BASE_URL
-
 export default defineComponent({
   name: 'EmissionsPage',
   components: {
@@ -80,7 +78,7 @@ export default defineComponent({
       meta: [
         {
           name: 'og:image',
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`
+          content: `$/share/yup-live-ogs/og-yup-live-default.png`
         },
         {
           name: 'description',

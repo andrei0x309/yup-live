@@ -41,6 +41,7 @@
     "text-clipper": "^2.2.0",
     "util": "^0.12.5",
     "vue": "^3.2.41",
+    "vue-cup-avatar": "^0.1.4",
     "vue-router": "^4.1.6",
     "web3modal": "^1.9.10",
     "yarn": "^1.22.19"

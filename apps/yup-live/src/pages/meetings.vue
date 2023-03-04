@@ -109,8 +109,6 @@ import DangLoader from "components/vote-list/loader.vue"
 import Alert from "components/functional/alert.vue"
 import { useHead, HeadObject } from '@vueuse/head'
 
-const BASE_URL = import.meta.env.VITE_BASE_URL
-
 export default defineComponent({
   name: "MeetingRecordings",
   components: {
@@ -151,7 +149,7 @@ export default defineComponent({
       meta: [
         {
           name: 'og:image',
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`
+          content: `$/share/yup-live-ogs/og-yup-live-default.png`
         },
         {
           name: 'description',

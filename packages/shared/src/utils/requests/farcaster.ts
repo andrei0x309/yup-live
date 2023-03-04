@@ -42,15 +42,15 @@ export const farcasterAuthCheck = async (store: IMainStore, apiBase: string = AP
             });
         }
     } else {
-        fetchWAuth(store, `${apiBase}/accounts/social/list`).then(
+        fetchWAuth(store, `${apiBase}/web3-auth/list`).then(
             async (res) => {
                 try {
                     const req = await res.json();
                     if (res.ok) {
-                        if (req?.social?.farcaster) {
-                            store.farcaster = req.social.farcaster;
-                            localStorage.setItem("farcaster", req.social.farcaster);
-                            getFidByToken(req.social.farcaster, API_BASE).then((fid) => {
+                        if (req?.auth?.farcaster) {
+                            store.farcaster = req.auth.farcaster;
+                            localStorage.setItem("farcaster", req.auth.farcaster);
+                            getFidByToken(req.auth.farcaster, API_BASE).then((fid) => {
                                 if (fid) {
                                     store.fid = fid as string;
                                     localStorage.setItem("fid", fid as string);

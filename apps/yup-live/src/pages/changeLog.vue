@@ -55,8 +55,6 @@ import CustomButton from "components/functional/customButton.vue";
 import AddIcon from "icons/src/add.vue";
 import { useHead } from "@vueuse/head";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-
 export default defineComponent({
   name: "ChangeLog",
   components: {
@@ -79,12 +77,26 @@ export default defineComponent({
         },
         {
           name: 'og:image',
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-changelog.png`
+          content: `/share/yup-live-ogs/og-yup-live-changelog.png`
         },
       ]
     })
 
     const changes = [
+      {
+        date: "03 MARCH - 2023",
+        title: "Changes",
+        changes: [
+            'change farcaster connect to web3Auth model due to backend changes',
+            'added initial web3Profile creator on full post page on large screens',
+            'added icons for profile tabs on Yup profile page',
+            'moved web3 profile to shared state so can be reused',
+            'added ability for users to change their default first feed on the profile',
+            'switch to content created as the first tab feed for yup profiles',
+            'made and added my own library for editing avatar with advanced crop and transform features (vue-cup-avatar)',
+            'other minor fixes and style changes'
+        ]
+      },
       {
         date: "28 FEB - 2023",
         title: "Changes",

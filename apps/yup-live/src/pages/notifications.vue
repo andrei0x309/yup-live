@@ -207,8 +207,6 @@ import ClockIcon from 'icons/src/clock.vue'
 import { getNotifications } from 'shared/src/utils/notifications'
 import type { NotifType } from 'shared/src/types/notification'
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-
 export default defineComponent({
   name: 'Notifications',
   components: {
@@ -241,7 +239,7 @@ export default defineComponent({
       meta: [
         {
           name: 'og:image',
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`
+          content: `/share/yup-live-ogs/og-yup-live-default.png`
         },
         {
           name: 'description',

@@ -99,8 +99,6 @@ const FEED_APIS: Record<string, string> = {
   twitter: 'https://api.yup.io/feed/twitter'
 }
 
-const BASE_URL = import.meta.env.VITE_BASE_URL
-
 export default defineComponent({
   name: 'FeedsPage',
   components: {
@@ -136,7 +134,7 @@ export default defineComponent({
       meta: [
         {
           name: 'og:image',
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-feeds.png`
+          content: `/share/yup-live-ogs/og-yup-live-feeds.png`
         },
         {
           name: 'description',
