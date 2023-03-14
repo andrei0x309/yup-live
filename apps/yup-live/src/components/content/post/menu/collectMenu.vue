@@ -9,7 +9,7 @@
   >
     <template #content>
       <ul class="w-30 text-justify collectMenu">
-        <li class="pt-1 cursor-pointer" @click="onNewCollection"><AddIcon class="inline w-5 mr-2 text-[0.9rem]" />New collection</li>
+        <li class="pt-1 cursor-pointer" @click="onNewCollection"><AddIcon class="inline w-5 mr-2 text-[0.9rem]" />New Folder</li>
         <li class="w-55 border-b-1 h-1 mt-1 mb-1">&nbsp;</li>
         <li
           v-for="collection in collectionsStore.collections"
@@ -23,10 +23,10 @@
         </li>
       </ul>
     </template>
-    <button class="p-2 m-2 colbutton">Collect <CollectIcon class="w-6 inline mr-2" /></button>
+    <button class="p-2 m-2 colbutton">Save <CollectIcon class="w-6 inline mr-2" /></button>
   </o-tooltip>
   <o-modal v-model:active="newCollectionModal" contentClass="modal-body grid grid-cols-1 gap-4 content-center" @close="modalWasClosed">
-    <h2 class="mt-2 p-4 text-[1.3rem]">Create New Collection</h2>
+    <h2 class="mt-2 p-4 text-[1.3rem]">Create New Folder</h2>
     <Alert ref="alertComp" class="mx-4" />
     <input v-model="colName" type="text" name="text" placeholder="Collection Name" />
     <textarea v-model="colDesc" name="text" class="mx-auto" placeholder="Description"></textarea>

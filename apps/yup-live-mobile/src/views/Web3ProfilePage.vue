@@ -19,18 +19,11 @@
             <div class="profile w-full mb-4 flex flex-row">
               <DangLoader v-if="isLoadingUser" class="mt-28" :unset="true" />
               <template v-else>
-                <ProfileCard :userData="userData">
-                  <template #settings>
-                    <ion-icon
-                      :icon="settingsOutline"
-                      @click="openSettings"
-                      button
-                      class="settingsIcon"
-                    />
-                  </template>
-                </ProfileCard>
+                <Web3ProfileCard
+              :web3Profile="web3Profile" :followersCount="followersCount"
+              :deps="web3Deps"
+              />
 
-                <!-- <ProfileInfoCard class="mt-8" :bio="userData.bio" :fields="userFields" /> -->
               </template>
             </div>
           </template>
@@ -106,7 +99,7 @@
                     v-for="post of posts"
                     :id="(post as Record<string, any>)._id.postid"
                     :key="(post  as Record<string, any>)._id.postid"
-                    :post="post"
+                    :post="(post as IPost)"
                     :postTypesPromises="postTypesPromises"
                     :deps="postDeps"
                     :mobile="true"
@@ -128,51 +121,51 @@
             :stackAlertError="stackAlertError"
           />
           <!-- <CollectionsPage
-        v-if="currentMenuTab === MENU_BUTTONS.collections"
-        :accountId="userId"
-        :collections="collectionsPageCollections"
-        :collectionPromise="collectionsPagePromise"
-      />
-      <FollowersPage v-if="currentMenuTab === MENU_BUTTONS.followers" :followersList="followers" :account="userData.username" />
-      <div v-if="currentMenuTab === MENU_BUTTONS.settings">
-        <p class="text-[1.3rem] mt-2 uppercase">THIS TAB IS NOT IMPLEMENTED YET</p>
-      </div> -->
+          v-if="currentMenuTab === MENU_BUTTONS.collections"
+          :accountId="userId"
+          :collections="collectionsPageCollections"
+          :collectionPromise="collectionsPagePromise"
+        />
+        <FollowersPage v-if="currentMenuTab === MENU_BUTTONS.followers" :followersList="followers" :account="userData.username" />
+        <div v-if="currentMenuTab === MENU_BUTTONS.settings">
+          <p class="text-[1.3rem] mt-2 uppercase">THIS TAB IS NOT IMPLEMENTED YET</p>
+        </div> -->
           <!-- <InfScroll
-        v-if="currentMenuTab === MENU_BUTTONS.web3 && postLoaded"
-        :key="`${postLoaded}-loaded`"
-        :postLoaded="postLoaded"
-        @hit="onHit"
-      >
-        <template #content>
-          <div v-if="posts.length > 0" class="flex flex-row mx-auto">
-            <div class="flex flex-col">
-              <Post
-                v-for="post of posts"
-                :id="(post as Record<string, any>)._id.postid"
-                :key="(post  as Record<string, any>)._id.postid"
-                :post="(post as Record<string, any>)"
-                :postTypesPromises="postTypesPromises"
-                :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
-                @updatepostinfo="
-                  (postid: string) => {
-                    postInfo = posts.find((p: any): boolean => postid === p._id.postid)
-                  }
-                "
+          v-if="currentMenuTab === MENU_BUTTONS.web3 && postLoaded"
+          :key="`${postLoaded}-loaded`"
+          :postLoaded="postLoaded"
+          @hit="onHit"
+        >
+          <template #content>
+            <div v-if="posts.length > 0" class="flex flex-row mx-auto">
+              <div class="flex flex-col">
+                <Post
+                  v-for="post of posts"
+                  :id="(post as Record<string, any>)._id.postid"
+                  :key="(post  as Record<string, any>)._id.postid"
+                  :post="(post as Record<string, any>)"
+                  :postTypesPromises="postTypesPromises"
+                  :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
+                  @updatepostinfo="
+                    (postid: string) => {
+                      postInfo = posts.find((p: any): boolean => postid === p._id.postid)
+                    }
+                  "
+                />
+                <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
+              </div>
+              <PostInfo
+                :key="(postInfo as Record<string, any>)._id.postid"
+                class="hidden lg:flex"
+                :post="(postInfo as Record<string, any>)"
               />
-              <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
             </div>
-            <PostInfo
-              :key="(postInfo as Record<string, any>)._id.postid"
-              class="hidden lg:flex"
-              :post="(postInfo as Record<string, any>)"
-            />
-          </div>
-          <div v-else>
-            <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
-            <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
-          </div>
-        </template>
-      </InfScroll> -->
+            <div v-else>
+              <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
+              <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
+            </div>
+          </template>
+        </InfScroll> -->
         </div>
       </div>
     </ion-content>
@@ -190,15 +183,12 @@ import {
   IonList,
   IonRefresher,
   IonRefresherContent,
-  IonIcon,
   modalController,
 } from "@ionic/vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 
 import { defineComponent, onUnmounted, Ref, ref, shallowRef } from "vue";
 import DangLoader from "components/vote-list/loader.vue";
-import ProfileCard from "@/components/profile/profileCard.vue";
-// import ProfileInfoCard from '@/components/content/profile/infoCard.vue'
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 import { useMainStore } from "@/store/main";
 import { useRoute } from "vue-router";
@@ -220,6 +210,8 @@ import {
   stackAlertWarning,
 } from "@/store/alertStore";
 import PostMenu from "@/components/post/menu/postMenu.vue";
+import { IWeb3Profile } from "shared/src/types/web3Profile";
+import { fetchWeb3Profile } from "shared/src/utils/requests/web3Profiles";
 
 // import PostInfo from '@/components/content/post/postInfo.vue'
 // import { useCollectionStore, useCollectionStoreEx, getCollections } from '@/store/collections'
@@ -229,8 +221,19 @@ import PostMenu from "@/components/post/menu/postMenu.vue";
 // import type { ICollection } from 'shared/src/types/store'
 // import FollowersPage from '@/components/content/profile/followersPage.vue'
 
+import Web3ProfileCard from "components/profile/web3ProfileCard.vue";
+
+
 import { config } from "shared/src/utils/config";
 const { API_BASE } = config;
+
+const web3Deps = {
+  openConnectModal: () => "",
+  useMainStore,
+  stackAlertWarning,
+  stackAlertSuccess,
+  apiBase:API_BASE
+}
 
 const postDeps: IPostDeps = {
   stackAlertError,
@@ -246,7 +249,7 @@ export default defineComponent({
   name: "ProfilePage",
   components: {
     DangLoader,
-    ProfileCard,
+    Web3ProfileCard,
     // ProfileInfoCard,
     // ProfileMenu,
     Post,
@@ -265,15 +268,16 @@ export default defineComponent({
     IonList,
     IonRefresher,
     IonRefresherContent,
-    IonIcon,
   },
   setup() {
     const route = useRoute();
+    const userAddr = ref(route.params.addr as string);
     const store = useMainStore();
     const userId = ref("");
-    // const accountRoute = route.params.accountRoute as string
+    const accountRoute = route.params.accountRoute as string
+    const web3Profile = ref(null) as Ref<IWeb3Profile | null>;
 
-    const accountPages = ["feed", "created", "wallet"];
+    const accountPages = ["created", "wallet", "followers"];
 
     const search = ref("");
     const apiError = ref(false);
@@ -295,10 +299,11 @@ export default defineComponent({
     // const collections = useCollectionStore()
     // const collectionsEx = useCollectionStoreEx()
     const postInfo = ref(null) as Ref<unknown>;
-    const followers = ref([]) as Ref<string[]>;
     const isAuth = ref(store.isLoggedIn);
     // let LoadTimeout = 0
     const walletKeyRefresh = ref(0);
+    const followersCount = ref(0);
+    const followers = ref([]) as Ref<Array<string>>; 
 
     const userData = (ref({
       _id: "",
@@ -444,44 +449,55 @@ export default defineComponent({
     //   }
     // })
 
-    const userLoad = (noLoading = false) => {
-      userId.value =
-        (route.params.userId as string) ?? (store.userData.account as string);
-      createUserData(userId.value, true).then((uD) => {
-        if (uD.error) {
-          apiErrorMsg.value = `Account { ${userId.value} } not found`;
-          apiError.value = true;
-        } else {
-          userData.value = Object.assign(userData.value, uD.data?.userData);
-          userId.value = userData.value._id as string;
-          // userFields.value = uD.data?.userFields ?? []
-          getActionUsage(userData.value._id as string);
-        }
+    // const userLoad = (noLoading = false) => {
+    //   userId.value =
+    //     (route.params.userId as string) ?? (store.userData.account as string);
+    //   createUserData(userId.value, true).then((uD) => {
+    //     if (uD.error) {
+    //       apiErrorMsg.value = `Account { ${userId.value} } not found`;
+    //       apiError.value = true;
+    //     } else {
+    //       userData.value = Object.assign(userData.value, uD.data?.userData);
+    //       userId.value = userData.value._id as string;
+    //       // userFields.value = uD.data?.userFields ?? []
+    //       getActionUsage(userData.value._id as string);
+    //     }
 
-        getFollowers(API_BASE, userData.value.evmAddress).then((res) => {
-          if (res) {
-            followers.value = res.followers.map((f: { _id: string }) => f._id) ?? [];
-            userData.value.followers = res.totalCount;
-          }
-        });
+    //     getFollowers(API_BASE, userData.value.evmAddress).then((res) => {
+    //       if (res) {
+    //         followers.value = res.followers.map((f: { _id: string }) => f._id) ?? [];
+    //         userData.value.followers = res.totalCount;
+    //       }
+    //     });
 
-        if (currentAccountPage.value === "feed") {
-          getFeedPosts = getHomeFeedPosts;
-        } else if (currentAccountPage.value === "none") {
-          // getFeedPosts = getCreatedFeedPosts
-        }
-        resetPosts(noLoading).then(async () => {
-          if (posts.value.length < 1) {
-            // catComp.value = (await import('icons/src/catEmpty.vue')).default
-          }
-        });
+    //     if (currentAccountPage.value === "feed") {
+    //       getFeedPosts = getHomeFeedPosts;
+    //     } else if (currentAccountPage.value === "none") {
+    //       // getFeedPosts = getCreatedFeedPosts
+    //     }
+    //     resetPosts(noLoading).then(async () => {
+    //       if (posts.value.length < 1) {
+    //         // catComp.value = (await import('icons/src/catEmpty.vue')).default
+    //       }
+    //     });
 
-        isLoadingUser.value = false;
-      });
-    };
+    //     isLoadingUser.value = false;
+    //   });
+    // };
 
     onIonViewDidEnter(async () => {
-      userLoad();
+      web3Profile.value = await fetchWeb3Profile(API_BASE, userAddr.value)
+      if(!web3Profile.value) {
+        apiErrorMsg.value = `Account { ${userAddr.value} } not found`;
+        apiError.value = true;
+      }
+
+      getFollowers(API_BASE, userAddr.value).then((res) => {
+        if(res) {
+          followers.value = res.followers.map((f: { _id: string}) => f._id)
+          followersCount.value = res.totalCount
+        }
+      });
     });
 
     // onIonViewWillLeave( () => clearTimeout(LoadTimeout))
@@ -564,6 +580,9 @@ export default defineComponent({
       API_BASE,
       stackAlertError,
       postDeps,
+      web3Deps,
+      web3Profile,
+      followersCount,
     };
   },
 });

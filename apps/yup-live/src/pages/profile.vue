@@ -116,9 +116,11 @@
                   :id="(post as Record<string, any>)._id.postid"
                   :key="(post  as Record<string, any>)._id.postid"
                   :noYUPPost="externalPosts"
-                  :post="(post as IPost)"
+                  :post="(post)"
                   :postTypesPromises="postTypesPromises"
                   :isHidenInfo="((post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid) || feedTab === 'farcaster'"
+                  :deps="postDeps"
+                  :castModal="() => import('@/components/content/post/sendCastModal.vue')"
                   @updatepostinfo="
                   (postid: string) => {
                     postInfo = posts.find((p: any): boolean => postid === p._id.postid)
@@ -196,9 +198,8 @@ import ProfileCard from "@/components/content/profile/profileCard.vue";
 import ProfileInfoCard from "@/components/content/profile/infoCard.vue";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 import ProfileMenu from "@/components/content/profile/menu.vue";
-import { useMainStore } from "@/store/main";
+import { useMainStore, openConnectModal } from "@/store/main";
 import { useRoute } from "vue-router";
-import Post from "@/components/content/post/post.vue";
 import { wait } from "shared/src/utils/time";
 import {
   useCollectionStore,
@@ -222,14 +223,31 @@ import BtnSpinner from "icons/src/btnSpinner.vue";
 import { utilsAFGetCreated } from "shared/src/utils/requests/accountFeeds";
 import { truncteEVMAddr } from "shared/src/utils/misc";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
-import { stackAlertError  } from "@/store/alertStore";
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import type { IPost } from "shared/src/types/post";
 import ContentIcon from "icons/src/content.vue";
 import LikesIcon from "icons/src/likes.vue"; 
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
+import Post from "components/post/post.vue";
+import PostMenu from '@/components/content/post/menu/postMenu.vue'
+import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
+import type { IPostDeps } from 'shared/src/types/post'
+import type { IMainStore } from 'shared/src/types/store'
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
+
+const postDeps: IPostDeps = {
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+  openConnectModal,
+  useMainStore: useMainStore as unknown as () => IMainStore,
+  apiBase: API_BASE,
+  PostMenu: PostMenu,
+  CollectMenu: CollectMenu
+}
 
 export default defineComponent({
   name: "ProfilePage",
@@ -271,7 +289,7 @@ export default defineComponent({
     const influence: Ref<null | string> = ref(null);
     const historicInfluence: Ref<Array<Record<string, string | number>>> = ref([]);
     const userFields = ref([]) as Ref<Array<NameValue>>;
-    const posts = ref([]) as Ref<Array<unknown>>;
+    const posts = ref([]) as Ref<Array<IPost>>;
     const postsIndex = ref(0);
     const postLoaded = ref(false);
     const feedLoading = ref(false);
@@ -699,7 +717,8 @@ export default defineComponent({
       stackAlertError,
       API_BASE,
       castSent,
-      defaultAccountFeed
+      defaultAccountFeed,
+      postDeps
     };
   },
 });

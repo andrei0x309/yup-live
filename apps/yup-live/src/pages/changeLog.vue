@@ -5,7 +5,7 @@
         class="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl m-8 text-[#d7a73cd1]"
         style="text-shadow: 2px 2px 2px var(--glass-menu-bg)"
       >
-        Changelog
+        Changelog Yup Live Web/Android
       </h1>
 
       <section
@@ -61,71 +61,87 @@ export default defineComponent({
     CustomButton,
   },
   setup() {
-
-
     const siteData = {
       title: `Yup Live ChangeLog`,
       description: `Sumary of changes to yup live, all code is open source and available on github`,
-    }
+    };
 
     useHead({
       title: siteData.title,
       meta: [
         {
-          name: 'description',
-          content: siteData.description
+          name: "description",
+          content: siteData.description,
         },
         {
-          name: 'og:image',
-          content: `/share/yup-live-ogs/og-yup-live-changelog.png`
+          name: "og:image",
+          content: `/share/yup-live-ogs/og-yup-live-changelog.png`,
         },
-      ]
-    })
+      ],
+    });
 
     const changes = [
+      {
+        date: "14 MARCH - 2023",
+        title: "Changes",
+        changes: [
+          "added a conditional button to check web3Profile on post detail yup-live",
+          "hide follow button on web3Profile if your account is the same as web3Profile",
+          "added radar icon or comment icon to easy access of post detail",
+          "overite web3Profile for farcaster accounts with web3Profile of connected address",
+          "switched farcaster native comments to yup farcaster comments",
+          "added radar icon on vote list to easy access of post detail",
+          "added more explicit rating errors",
+          "made info button on post detail more to open a modal with more info",
+          "added ability to explore nested comments on farcaster",
+          "consolidated voting component as reusable component",
+          "consolidated post component as reusable component",
+          "submitted mobile android yup live version 10(1.0.9)",
+        ],
+      },
       {
         date: "03 MARCH - 2023",
         title: "Changes",
         changes: [
-            'change farcaster connect to web3Auth model due to backend changes',
-            'added initial web3Profile creator on full post page on large screens',
-            'added icons for profile tabs on Yup profile page',
-            'moved web3 profile to shared state so can be reused',
-            'added ability for users to change their default first feed on the profile',
-            'switch to content created as the first tab feed for yup profiles',
-            'made and added my own library for editing avatar with advanced crop and transform features (vue-cup-avatar)',
-            'other minor fixes and style changes'
-        ]
+          "change farcaster connect to web3Auth model due to backend changes",
+          "added initial web3Profile creator on full post page on large screens",
+          "added icons for profile tabs on Yup profile page",
+          "moved web3 profile to shared state so can be reused",
+          "added ability for users to change their default first feed on the profile",
+          "switch to content created as the first tab feed for yup profiles",
+          "made and added my own library for editing avatar with advanced crop and transform features (vue-cup-avatar)",
+          "other minor fixes and style changes",
+        ],
       },
       {
         date: "28 FEB - 2023",
         title: "Changes",
         changes: [
-          'added web3 profiles',
-          'added associated links between yup profile and web3 profile',
-          'switch follows to wbe3 follows, now users can follow any web3 profile',
-          'deprecated old wallet page',
-          'switch to wallet assets using new web3 profiles endpoints for mobile and web yup-live',
-          'added comment number for farcaster',
-          'added possibility to reply to any farcaster post or comment if you have farcaster connected',
-          'improved the SSG process a bit',
-          'rewrote the followers\' page to use web3 profiles and pagination',
-          'added new OG images for main static pages',
-          'added recommended web3 profiles on large screens on web3Profile page',
-          'some style adjustments',
-          'added option to sent confirmation cast on farcaster connect',
-          'added option to insert twitter followers as personal keywords on twitter link',
-          'submited mobile android yup live version 1.0.9'
-        ]
+          "added web3 profiles",
+          "added associated links between yup profile and web3 profile",
+          "switch follows to wbe3 follows, now users can follow any web3 profile",
+          "deprecated old wallet page",
+          "switch to wallet assets using new web3 profiles endpoints for mobile and web yup-live",
+          "added comment number for farcaster",
+          "added possibility to reply to any farcaster post or comment if you have farcaster connected",
+          "improved the SSG process a bit",
+          "rewrote the followers' page to use web3 profiles and pagination",
+          "added new OG images for main static pages",
+          "added recommended web3 profiles on large screens on web3Profile page",
+          "some style adjustments",
+          "added option to sent confirmation cast on farcaster connect",
+          "added option to insert twitter followers as personal keywords on twitter link",
+          "submited mobile android yup live version 1.0.9",
+        ],
       },
       {
         date: "23 FEB - 2023",
         title: "Changes",
         changes: [
-          'moved and refactor checking the auth for farcaster if you previously connected your farcaster',
-          'minor seo SSG improvements, no SSR yet to avoid costs',
-          'other minor changes like removing some warnings'
-        ]
+          "moved and refactor checking the auth for farcaster if you previously connected your farcaster",
+          "minor seo SSG improvements, no SSR yet to avoid costs",
+          "other minor changes like removing some warnings",
+        ],
       },
       {
         date: "22 FEB - 2023",

@@ -27,9 +27,10 @@
                 v-for="post of posts"
                 :id="(post as Record<string, any>)._id.postid"
                 :key="(post  as Record<string, any>)._id.postid"
-                :post="(post as Record<string, any>)"
+                :post="(post)"
                 :postTypesPromises="postTypesPromises"
                 :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
+                :deps="postDeps"
                 @updatepostinfo="
                   (postid: string) => {
                     postInfo = posts.find((p: any): boolean => postid === p._id.postid)
@@ -60,10 +61,32 @@ import { useHead, HeadObject } from '@vueuse/head'
 import DangLoader from 'components/vote-list/loader.vue'
 import { useRoute } from 'vue-router'
 import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
-import Post from '@/components/content/post/post.vue'
 import { postTypesPromises } from 'components/post-types/post-types'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
 import PostInfo from '@/components/content/post/postInfo.vue'
+import Post from "components/post/post.vue";
+import PostMenu from '@/components/content/post/menu/postMenu.vue'
+import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
+import type { IPostDeps } from 'shared/src/types/post'
+import type { IMainStore } from 'shared/src/types/store'
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
+import { openConnectModal, useMainStore } from "@/store/main";
+import type { IPost } from 'shared/src/types/post'
+
+
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
+
+const postDeps: IPostDeps = {
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+  openConnectModal,
+  useMainStore: useMainStore as unknown as () => IMainStore,
+  apiBase: API_BASE,
+  PostMenu: PostMenu,
+  CollectMenu: CollectMenu
+}
 
 // import { useMainStore } from '@/store/main'
 export default defineComponent({
@@ -87,7 +110,7 @@ export default defineComponent({
 
     const route = useRoute()
     const collectionId = route.params.collectionId as string
-    const posts = ref([]) as Ref<Array<unknown>>
+    const posts = ref([]) as Ref<Array<IPost>>
     const postsIndex = ref(0)
     const postInfo = ref(null) as Ref<unknown>
 
@@ -210,7 +233,8 @@ export default defineComponent({
       postInfo,
       feedLoading,
       catComp,
-      loadLinerComp
+      loadLinerComp,
+      postDeps
     }
   }
 })

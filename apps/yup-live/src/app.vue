@@ -103,6 +103,7 @@ html {
   --bg-color: #dfded7d4;
   --bg-content: #222222ba;
   --logoBg: #ffffffcf;
+  --post-card-bg: #f9f9f93b;
 
   --headerColor1: #1f2937;
   --headerColor2: #9ca3af;
@@ -125,6 +126,7 @@ html[class="dark"] {
   --bg-color: #111;
   --bg-content: #222;
   --logoBg: #080808cf;
+  --post-card-bg: #2626263b;
 
   --headerColor1: #131313;
   --headerColor2: #151515;

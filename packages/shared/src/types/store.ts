@@ -15,6 +15,8 @@ export interface IMainStore {
   modalLoginState?: boolean
   farcaster?: string
   fid?: string
+  $subscribe: (fn: (store?: IMainStore) => void) => () => void
+  deletePost?: string
 }
 
 export interface ICollection {

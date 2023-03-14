@@ -39,6 +39,10 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/AccountPage.vue')
       },
       {
+        path: 'web3-profile/:addr',
+        component: () => import('@/views/Web3ProfilePage.vue')
+      },
+      {
         path: 'post/:postId',
         component: () => import('@/views/PostPage.vue')
       },

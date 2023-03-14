@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="!isSelf">
     <BtnSpinner v-if="isLoading" />
     <template v-else>
       <button v-if="isFollower" :disabled="disabled" @click="doUnfollow">
@@ -51,9 +51,12 @@ export default defineComponent({
     const isLoading = ref(false);
     const isFollower = ref(false);
     const store = props.deps.useMainStore();
+    const isSelf = ref(false);
 
     const checkIsFollower = async () => {
       if (store.isLoggedIn) {
+        isSelf.value = store.userData.address.toLocaleLowerCase() === props.evmAddr.toLocaleLowerCase();
+        if(isSelf.value) return;
         isLoading.value = true;
         isFollower.value = await isFollowing(
           props.deps.apiBase,
@@ -107,6 +110,7 @@ export default defineComponent({
       isFollower,
       doFollow,
       doUnfollow,
+      isSelf
     };
   },
 });

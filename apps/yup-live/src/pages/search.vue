@@ -142,9 +142,10 @@
                 v-for="post of posts"
                 :id="(post as Record<string, any>)._id.postid"
                 :key="(post  as Record<string, any>)._id.postid"
-                :post="(post as Record<string, any>)"
+                :post="(post)"
                 :postTypesPromises="postTypesPromises"
                 :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
+                :deps="postDeps"
                 @updatepostinfo="
                   (postid: string) => {
                     postInfo = posts.find((p: any): boolean => postid === p._id.postid)
@@ -192,7 +193,6 @@ import { postTypesPromises } from 'components/post-types/post-types'
 // import { useRoute } from 'vue-router'
 // import CustomButton from "components/functional/customButton.vue";
 // import { getPolyContractAddresses } from "@yupio/contract-addresses";
-import { useMainStore, openConnectModal } from "@/store/main";
 // import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 // import { search, getWithFilters  } from  'shared/utils/requests/searchFilters'
 import { search, getWithFilters  } from  'shared/src/utils/requests/searchFilters'
@@ -205,12 +205,30 @@ import { SearchPlatforms,
   IFEED_PLATFORM_SETTING
   
 } from 'shared/src/types/search'
-import Post from "@/components/content/post/post.vue";
+import Post from "components/post/post.vue";
 import PostInfo from "@/components/content/post/postInfo.vue";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 import LineLoader from "components/functional/lineLoader.vue";
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
+import { useMainStore, openConnectModal } from '@/store/main'
+import { IPostDeps } from 'shared/src/types/post'
+import type { IPost } from 'shared/src/types/post'
+import type { IMainStore } from 'shared/src/types/store'
+import PostMenu from '@/components/content/post/menu/postMenu.vue'
+import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
+const postDeps: IPostDeps = {
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+  openConnectModal,
+  useMainStore: useMainStore as unknown as () => IMainStore,
+  apiBase: API_BASE,
+  PostMenu: PostMenu,
+  CollectMenu: CollectMenu
+}
 
 export default defineComponent({
   name: "Search",
@@ -229,7 +247,7 @@ export default defineComponent({
     const searchLoading = ref(false);
     const activeTab = ref("0") as Ref<string>;
     const store = useMainStore();
-    const posts = ref([]) as Ref<Array<unknown>>
+    const posts = ref([]) as Ref<Array<IPost>>
     const searchStarted = ref(false)
     const isAuth = ref(store.isLoggedIn)
 
@@ -241,7 +259,7 @@ export default defineComponent({
     const postInfo = ref(null) as Ref<unknown>
     const catComp = shallowRef(null) as Ref<unknown>
     // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-    let getFeedPosts = async (start = 0) => [] as Array<unknown>
+    let getFeedPosts = async (start = 0) => [] as Array<IPost>
 
  
     const feedIndex = ref(FILTERED_FEED_ALL)
@@ -373,7 +391,7 @@ export default defineComponent({
         },
         {
           name: 'og:image',
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-search.png`
+          content: `/share/yup-live-ogs/og-yup-live-search.png`
         },
       ]
     } as unknown) as Ref<HeadObject>);
@@ -426,7 +444,8 @@ export default defineComponent({
       filterInput,
       filtersSetting,
       FILTRED_FEED_SETTING,
-      makeFilter
+      makeFilter,
+      postDeps
     };
   },
 });

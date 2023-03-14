@@ -156,26 +156,26 @@ import { useMainStore } from '@/store/main'
 import { useRoute } from 'vue-router'
 import { isValidAddress, formatNumber, truncteEVMAddr } from 'shared/src/utils/misc'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
-import { stackAlertWarning, stackAlertSuccess } from '@/store/alertStore'
+import { stackAlertWarning } from '@/store/alertStore'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
 import type { MirrorAccountResponse, YUPAccountResponse, FarcasterAccountResponse, LensAccountResponse } from 'shared/src/types/web3/web3Socials'
 import RadarIcon from 'icons/src/radar.vue'
 import GoToIcon from 'icons/src/goTo.vue'
 import LensIcon from 'icons/src/lens.vue'
 import CustomButton from 'components/functional/customButton.vue'
+import { getLensUserData } from 'shared/src/utils/requests/lens'
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-const providerOptionsProm = import('shared/src/utils/evm')
-const web3Mprom = import('web3modal')
-const ethers = import('ethers')
+// const providerOptionsProm = import('shared/src/utils/evm')
+// const web3Mprom = import('web3modal')
+// const ethers = import('ethers')
 
 const refRadarIcon = RadarIcon
 const refGoToIcon = GoToIcon
 const refLensIcon = LensIcon
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
-const lensGraphQl = 'https://api.lens.dev'
 const mirrorEndpoint = 'https://mirror-endpoint.deno.dev'
 
 export default defineComponent({
@@ -196,12 +196,12 @@ export default defineComponent({
     const isDataLoading = ref(false)
     const store = useMainStore()
     const isLoggedIn = ref(store.isLoggedIn)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let ethersLib: any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let userProvider: any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let w3Modal: any
+    // // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // let ethersLib: any
+    // // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // let userProvider: any
+    // // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // let w3Modal: any
 
     store.$subscribe(() => {
       isLoggedIn.value = store.isLoggedIn
@@ -264,109 +264,7 @@ export default defineComponent({
       // do nothing
     })
 
-    const getLensUserData = async (address: string) => {
-      try {
-        const req = await fetch(`${lensGraphQl}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            query: `query DefaultProfile {
-  defaultProfile(request: { ethereumAddress: "${address}"}) {
-    id
-    name
-    bio
-    isDefault
-    attributes {
-      displayType
-      traitType
-      key
-      value
-    }
-    followNftAddress
-    metadata
-    handle
-    picture {
-      ... on NftImage {
-        contractAddress
-        tokenId
-        uri
-        chainId
-        verified
-      }
-      ... on MediaSet {
-        original {
-          url
-          mimeType
-        }
-      }
-    }
-    coverPicture {
-      ... on NftImage {
-        contractAddress
-        tokenId
-        uri
-        chainId
-        verified
-      }
-      ... on MediaSet {
-        original {
-          url
-          mimeType
-        }
-      }
-    }
-    ownedBy
-    dispatcher {
-      address
-      canUseRelay
-    }
-    stats {
-      totalFollowers
-      totalFollowing
-      totalPosts
-      totalComments
-      totalMirrors
-      totalPublications
-      totalCollects
-    }
-    followModule {
-      ... on FeeFollowModuleSettings {
-        type
-        contractAddress
-        amount {
-          asset {
-            name
-            symbol
-            decimals
-            address
-          }
-          value
-        }
-        recipient
-      }
-      ... on ProfileFollowModuleSettings {
-       type
-      }
-      ... on RevertFollowModuleSettings {
-       type
-      }
-    }
-  }
-}`
-          })
-        })
-        if (req.ok) {
-          const data = await req.json()
-          if (!data?.data?.defaultProfile) {
-            return null
-          }
-          return data
-        }
-      } catch {
-        // ignore
-      }
-      return null
-    }
+    
 
     const getYupData = async (address: string) => {
       try {
@@ -473,141 +371,74 @@ export default defineComponent({
       isDataLoading.value = false
     }
 
-    const prepareForTransaction = async () => {
-      if (!userProvider) {
-        try {
-          await web3Mprom
-          const inst = await w3Modal.connect()
-          ethersLib = await ethers
-          userProvider = new ethersLib.providers.Web3Provider(inst)
-        } catch {
-          stackAlertWarning('User rejected connection')
-          return false
-        }
-      }
-      const { chainId } = await userProvider.getNetwork()
-      if (chainId !== 137) {
-        stackAlertWarning(`You are on wrong network(${chainId}), please switch to polygon(137)`)
-        return false
-      }
-      return true
-    }
+    // const prepareForTransaction = async () => {
+    //   if (!userProvider) {
+    //     try {
+    //       await web3Mprom
+    //       const inst = await w3Modal.connect()
+    //       ethersLib = await ethers
+    //       userProvider = new ethersLib.providers.Web3Provider(inst)
+    //     } catch {
+    //       stackAlertWarning('User rejected connection')
+    //       return false
+    //     }
+    //   }
+    //   const { chainId } = await userProvider.getNetwork()
+    //   if (chainId !== 137) {
+    //     stackAlertWarning(`You are on wrong network(${chainId}), please switch to polygon(137)`)
+    //     return false
+    //   }
+    //   return true
+    // }
 
-    const onLens = async () => {
-      if (!(await prepareForTransaction())) {
-        return null
-      }
-      const signer = await userProvider.getSigner()
-      console.log(signer)
-      let signature
-      const req = await fetch(`${lensGraphQl}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: `query Challenge {
-  challenge(request: { address: "${await signer.getAddress()}" }) {
-    text
-  }
-}`
-        })
-      })
-      if (req.ok) {
-        const {
-          data: {
-            challenge: { text }
-          }
-        } = await req.json()
-        console.log(text)
-        try {
-          signature = await signer.signMessage(text)
-        } catch (error) {
-          stackAlertWarning('User rejected signature')
-          return null
-        }
-        if (signature) {
-          const req = await fetch(`${lensGraphQl}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              query: `mutation Authenticate {
-  authenticate(request: {
-    address: "${await signer.getAddress()}",
-    signature: "${signature}"
-  }) {
-    accessToken
-    refreshToken
-  }
-}`
-            })
-          })
+    // const lensFollowMutate = async (id: string) => {
+    //   {
+    //     const req = await fetch(`${lensGraphQl}`, {
+    //       method: 'POST',
+    //       headers: { 'Content-Type': 'application/json', 'x-access-token': 'Bearer ' + localStorage.getItem('lensAuthToken') },
+    //       body: JSON.stringify({
+    //         query: `mutation ProxyAction($request: ProxyActionRequest!) {\n  proxyAction(request: $request)\n}`,
+    //         operationName: 'ProxyAction',
+    //         variables: {
+    //           request: {
+    //             follow: {
+    //               freeFollow: {
+    //                 profileId: `${id}`
+    //               }
+    //             }
+    //           }
+    //         }
+    //       })
+    //     })
+    //     if (req.ok) {
+    //       const data = await req.json()
+    //       if ('errors' in data) {
+    //         stackAlertWarning(data.errors[0].message)
+    //       } else {
+    //         stackAlertSuccess(`Follow ok for account ${id}`)
+    //       }
+    //     }
+    //   }
+    // }
 
-          if (req.ok) {
-            const respData = await req.json()
-            if (!('authenticate' in (respData?.data ?? {}))) {
-              stackAlertWarning("You don't have a LENS account")
-              return
-            }
-            const {
-              data: {
-                authenticate: { accessToken, refreshToken }
-              }
-            } = respData
-            localStorage.setItem('lensAuthToken', accessToken)
-            localStorage.setItem('lensRefreshToken', refreshToken)
-            stackAlertSuccess('Lens auth OK')
-          }
-        }
-      }
-    }
-
-    const lensFollowMutate = async (id: string) => {
-      {
-        const req = await fetch(`${lensGraphQl}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-access-token': 'Bearer ' + localStorage.getItem('lensAuthToken') },
-          body: JSON.stringify({
-            query: `mutation ProxyAction($request: ProxyActionRequest!) {\n  proxyAction(request: $request)\n}`,
-            operationName: 'ProxyAction',
-            variables: {
-              request: {
-                follow: {
-                  freeFollow: {
-                    profileId: `${id}`
-                  }
-                }
-              }
-            }
-          })
-        })
-        if (req.ok) {
-          const data = await req.json()
-          if ('errors' in data) {
-            stackAlertWarning(data.errors[0].message)
-          } else {
-            stackAlertSuccess(`Follow ok for account ${id}`)
-          }
-        }
-      }
-    }
-
-    const lensFollow = async (id: string) => {
-      if ((await onLens()) !== null) {
-        await lensFollowMutate(id)
-      }
-    }
+    // const lensFollow = async (id: string) => {
+    //   if ((await onLens()) !== null) {
+    //     await lensFollowMutate(id)
+    //   }
+    // }
 
     onMounted(async () => {
-      providerOptionsProm.then((pLib) => {
-        web3Mprom.then((lib) => {
-          const { default: libDefault } = lib
-          w3Modal = new libDefault({
-            network: 'matic', // optional
-            cacheProvider: false, // optional
-            providerOptions: pLib.providerOptions, // required
-            theme: store.theme
-          })
-        })
-      })
+      // providerOptionsProm.then((pLib) => {
+      //   web3Mprom.then((lib) => {
+      //     const { default: libDefault } = lib
+      //     w3Modal = new libDefault({
+      //       network: 'matic', // optional
+      //       cacheProvider: false, // optional
+      //       providerOptions: pLib.providerOptions, // required
+      //       theme: store.theme
+      //     })
+      //   })
+      // })
 
       isDataLoading.value = true
       if (addr.value) {
@@ -631,7 +462,7 @@ export default defineComponent({
       refGoToIcon,
       truncteEVMAddr,
       parseIpfs,
-      lensFollow,
+      // lensFollow,
       refLensIcon
     }
   }

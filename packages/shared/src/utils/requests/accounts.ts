@@ -2,6 +2,8 @@ import { getNormalizedValue, getMaxVote, MAX_DELETE_VOTE, MAX_FOLLOW_USAGE, make
 import { formatNumber, truncteEVMAddr } from '../misc'
 import type { IUserData } from '../../types/account'
 import type { NameValue } from '../../types/account'
+import type { IMainStore } from '../../types/store'
+import type { Ref } from 'vue'
 
 import { config } from '../config'
 
@@ -187,4 +189,102 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
 
   returnData.userFields = userInfoFields
   return { error: false, data: returnData }
+}
+
+export const editProfile = async ({
+  bio,
+  fullname,
+  avatar,
+  authToken,
+  loadState = null
+}: {
+  bio?: string
+  fullname?: string
+  avatar?: string
+  authToken: string
+  loadState?: null | Function,
+}) => {
+  const body = {} as Record<string, string>
+  if (bio) body.bio = bio
+  if (fullname) body.fullname = fullname
+  if (avatar) body.avatar = avatar
+  if (Object.keys(body).length > 0) {
+    if (loadState) {
+      loadState('start', 'Try setting up bio and fullname')
+    }
+    try {
+      const req = await fetch(`${API_BASE}/accounts/edit-account`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(body)
+      })
+      if (req.ok) {
+        return true
+      }
+      return false
+    } catch (e) {
+      if (loadState) {
+        loadState('start', '')
+      }
+      return false
+    }
+  }
+}
+
+export const uploadAvatar = ({
+  blob,
+  isAvatarLoading,
+  stackAlertError,
+  store,
+  avatar,
+  stackAlertSuccess
+}: {
+  blob: Blob
+  isAvatarLoading: Ref<boolean>
+  stackAlertError: (msg: string) => void
+  stackAlertSuccess: (msg: string) => void
+  store: IMainStore
+  avatar: Ref<string>
+}) => {
+  isAvatarLoading.value = true
+  const fr = new FileReader()
+  fr.onloadend = async () => {
+    try {
+      const split = (fr.result as string)?.split(',')
+      const body = {
+        data: split[1],
+        contentType: split[0].split(':')[1],
+        key: 'avatar',
+      }
+      const res = await fetch('https://api.yup.io/accounts/account/profileImage', {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json' },
+      })
+      if (!res.ok) {
+        stackAlertError("Error while uploading avatar, try later.")
+        return
+      }
+      const data = await res.json()
+      if (
+        await editProfile({
+          avatar: data.url,
+          authToken: store.userData.authToken,
+        })
+      ) {
+        stackAlertSuccess("Account was changed.");
+      } else {
+        stackAlertError("Error while uploading avatar, try later.");
+      }
+      avatar.value = data.url
+
+      isAvatarLoading.value = false
+    } catch (e) {
+      stackAlertError("Error while uploading avatar, try later.")
+    }
+  }
+  fr.readAsDataURL(blob)
 }

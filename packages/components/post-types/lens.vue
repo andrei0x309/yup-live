@@ -10,19 +10,17 @@
 
 <script lang="ts">
 // import { useMainStore } from '@/store/main'
-import { onMounted, defineComponent, ref, Ref } from 'vue'
+import { onMounted, defineComponent, ref, Ref, PropType } from 'vue'
 // import LinkPreview from '../linkPreview.vue'
 import { timeAgo } from 'shared/src/utils/time'
 import { isImage } from 'shared/src/utils/misc'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
-import LensPostBody from './lens/lensPostBody.vue'
+import LensPostBody from './inner/lensPostBody.vue'
 // import MD from 'markdown-it'
-import { commentLensQuery, lensIdToRaw, convertToWeb3Raw, rawToLensId } from 'shared/src/utils/web3/lens'
+import { getLensComments, lensIdToRaw, rawToLensId } from 'shared/src/utils/web3/lens'
 import type { OpenGraphPreview, mediaType } from 'shared/src/types/post'
 import type { Web3LensRaw, Web3PostLens } from 'shared/src/types/web3/lens'
 import type { Web3Media } from 'shared/src/types/web3/media'
-
-const lensGraphQl = 'https://api.lens.dev'
 
 export default defineComponent({
   name: 'PostLens',
@@ -32,6 +30,10 @@ export default defineComponent({
       required: false,
       type: Object,
       default: () => ({})
+    },
+    comments: {
+      type: Array as PropType<Array<any>>,
+      default: () => []
     },
     full: {
       type: Boolean,
@@ -131,31 +133,15 @@ export default defineComponent({
       return postBuilder
     }
 
-    const getLensComments = async (id: string) => {
-      const req = await fetch(lensGraphQl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(commentLensQuery(id))
-      })
-      if (req.ok) {
-        const data = await req.json()
-        const web3RawLensPosts = [] as Web3LensRaw[]
-        for (const item of data?.data?.publications?.items ?? []) {
-          web3RawLensPosts.push(convertToWeb3Raw(item))
-        }
-        console.log(web3RawLensPosts)
-        return web3RawLensPosts
-      }
-      return []
-    }
+
 
     onMounted(() => {
       mainPost.value = fillPost(props.post?.web3Preview)
-      // if (props.full) {
+      if (props.full) {
       getLensComments(lensIdToRaw(props.post?.web3Preview?.id)).then((comments) => {
         lensComments.value = comments.map((c) => fillPost(c))
       })
-      // }
+      }
     })
 
     return {

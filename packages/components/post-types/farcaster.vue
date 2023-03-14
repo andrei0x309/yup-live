@@ -24,7 +24,8 @@ import { timeAgo } from 'shared/src/utils/time'
 import type { mediaType } from 'shared/src/types/post'
 import type { Web3Media } from 'shared/src/types/web3/media'
 import type { Web3PostFarcaster, Web3FarcasterRaw, Web3FarcasterRawReply } from 'shared/src/types/web3/farcaster'
-import FarcasterPostBody from './lens/farcasterPostBody.vue'
+import FarcasterPostBody from './inner/farcasterPostBody.vue'
+import { getFarcasterPostType } from 'shared/src/utils/requests/farcaster'
 
 import { config } from "shared/src/utils/config";
 const { API_BASE } = config;
@@ -49,8 +50,12 @@ export default defineComponent({
       default: null
     },
     comments: {
-      type: Array as PropType<Array<Web3FarcasterRawReply>>,
+      type: Array as PropType<Array<any>>,
       default: () => []
+    },
+    apiBase: {
+      type: String,
+      default: API_BASE
     }
   },
   setup(props) {
@@ -86,12 +91,6 @@ export default defineComponent({
     }) as Ref<Web3PostFarcaster>
 
     const comments = ref([]) as Ref<Array<Web3PostFarcaster>>
-
-    const getWeb3Type = () => {
-      if (props.post?.web3Preview?.meta?.parents?.length > 0) return 'reply'
-      return 'single'
-    }
- 
 
     const parseBody = (text: string) => {
       return text
@@ -137,7 +136,7 @@ export default defineComponent({
       return retArr
     }
 
-    const fillPost = (filler: Web3FarcasterRaw): Web3PostFarcaster => {
+    const fillPost = (filler: Web3FarcasterRaw, postId = ""): Web3PostFarcaster => {
       const postBuilder = {} as Web3PostFarcaster
       postBuilder.userAvatar = filler?.creator?.avatarUrl as string
       postBuilder.userHandle = filler?.creator?.handle as string
@@ -149,6 +148,7 @@ export default defineComponent({
       postBuilder.thread = filler?.meta?.threadMerkleRoot ?? filler?.meta?.threadHash as string
       postBuilder.hash = filler?.meta?.hash as string
       postBuilder.userFid = filler?.creator?.meta?.fid as string
+      if(postId) postBuilder.postId = postId
       return postBuilder
     }
 
@@ -168,7 +168,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      postType.value = getWeb3Type()
+      postType.value = getFarcasterPostType(props.post)
 
       switch (postType.value) {
         case 'single': {
@@ -181,10 +181,9 @@ export default defineComponent({
           if (props.full) {
             postType.value = 'full'
               const lCom = []
-              for (const e of props.comments ?? []) {
-                lCom.push(fillReply(e))
+              for (const e of (props.comments ?? []).slice(1) ) {
+                lCom.push(fillPost(e.web3Preview, e._id.postid))
               }
-              lCom.shift()
               comments.value = lCom
           } else {
             replyPost.value = fillPost(props.post.web3Preview)

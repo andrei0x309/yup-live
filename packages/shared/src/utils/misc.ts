@@ -1,3 +1,5 @@
+import type { Ref } from 'vue'
+
 const gini = function (data: number[], unordered = true) {
   if (!Array.isArray(data)) {
     throw new Error('Data set is not an array.')
@@ -97,5 +99,9 @@ export const digestSha256 = async (message: string) => {
   const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   return hashHex;
 };
+
+export const deRef = <T> (ref: Ref<T>): T => {
+  return (ref as any)._rawValue
+}
 
 export { gini, exportFile, convertToCSV, formatNumber, truncteEVMAddr, isValidAddress }

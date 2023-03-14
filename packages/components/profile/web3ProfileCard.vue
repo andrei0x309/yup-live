@@ -1,55 +1,56 @@
 <template>
   <figure class="snip1344">
     <DangLoader v-if="isLoading" />
-    <img :src="web3Profile?.avatar" alt="profile-sample1" class="background" />
+    <img :src="lWeb3Profile?.avatar" alt="profile-sample1" class="background" />
     <div v-if="followersCount > 0" class="followers">
       <FollowersIcon class="inline-block w-4 mr-2" />{{ followersCount }}
     </div>
-    <div v-if="web3Profile?.yupScore ?? 0 > 0" class="yupScore">
+    <div v-if="lWeb3Profile?.yupScore ?? 0 > 0" class="yupScore">
       <ScoreIcon class="inline-block w-4 mr-2" />{{
-        Math.trunc(web3Profile?.yupScore ?? 0)
+        Math.trunc(lWeb3Profile?.yupScore ?? 0)
       }}
     </div>
     <img
       :key="avatar"
       :src="avatar"
       class="web3Avatar w-21 h-21 mr-2 rounded-full ring-1 ring-gray-300 dark:ring-gray-500 inline-block"
-      :alt="`avatar ${web3Profile?.avatar}`"
+      :alt="`avatar ${lWeb3Profile?.avatar}`"
       loading="lazy"
       @error="onError"
     />
 
     <figcaption>
-      <h3>[ {{ web3Profile?.handle }} ]<span>Additional Handles</span></h3>
+      <h3>[ {{ lWeb3Profile?.handle }} ]<span>Additional Handles</span></h3>
       <div class="handles">
-        <div v-if="web3Profile?.ens?.handle">
-          <ProfileEthIcon class="mr-2 w-3 inline-block" /> {{ web3Profile.ens.handle }}
+        <div v-if="lWeb3Profile?.ens?.handle">
+          <ProfileEthIcon class="mr-2 w-3 inline-block" /> {{ lWeb3Profile.ens.handle }}
         </div>
-        <div v-if="web3Profile?.yup?.handle">
-          <ProfileYupIcon class="mr-2 w-4 inline-block" /> {{ web3Profile.yup.handle }}
-          <router-link :to="`/profile/${web3Profile.yup.handle}`" class="view-btn"
+        <div v-if="lWeb3Profile?.yup?.handle">
+          <ProfileYupIcon class="mr-2 w-4 inline-block" /> {{ lWeb3Profile.yup.handle }}
+          <router-link :to="`/profile/${lWeb3Profile.yup.handle}`" class="view-btn"
             >VIEW</router-link
           >
         </div>
-        <div v-if="web3Profile?.twitter?.handle">
-          <TwitterIcon class="mr-2 w-5 inline-block" /> {{ web3Profile.twitter.handle }}
+        <div v-if="lWeb3Profile?.twitter?.handle">
+          <TwitterIcon class="mr-2 w-5 inline-block" /> {{ lWeb3Profile.twitter.handle }}
         </div>
-        <div v-if="web3Profile?.farcaster?.handle">
+        <div v-if="lWeb3Profile?.farcaster?.handle">
           <ProfileFarcasterIcon class="mr-2 w-4 inline-block" />
-          {{ web3Profile.farcaster.handle }}
+          {{ lWeb3Profile.farcaster.handle }}
         </div>
-        <div v-if="web3Profile?.lens?.handle">
-          <ProfileLensIcon class="mr-2 w-4 inline-block" /> {{ web3Profile.lens.handle }}
+        <div v-if="lWeb3Profile?.lens?.handle">
+          <ProfileLensIcon class="mr-2 w-4 inline-block" /> {{ lWeb3Profile.lens.handle }}
         </div>
 
         <FollowUnfollwBtn
-          :evmAddr="web3Profile?.evmAddress ?? ''"
+          :evmAddr="id"
           class="ml-10 view-btn text-[0.85rem] mt-3 w-22 p-1 text-center"
           :iconClass="'inline-block w-3 mr-0'"
           :deps="deps"
         />
-        <!-- <a href="#"><i class="ion-social-reddit-outline"></i></a><a href="#"> <i class="ion-social-twitter-outline"></i></a><a href="#"> <i class="ion-social-vimeo-outline"></i></a>
-       -->
+        <router-link v-if="addViewBtn" :to="`/web3-profile/${id}`" class="ml-10 view-btn text-[0.85rem] mt-3 w-22 p-1 text-center inline-block"
+            >Check</router-link>
+        
       </div>
     </figcaption>
   </figure>
@@ -70,6 +71,7 @@ import ScoreIcon from "icons/src/score.vue";
 import FollowersIcon from "icons/src/followers.vue";
 import FollowUnfollwBtn from "components/profile/followUnfollowBtn.vue";
 import type { IDepsWeb3Profile  } from 'shared/src/types/web3/web3Deps'
+import { fetchWeb3Profile } from 'shared/src/utils/requests/web3Profiles'
 
 export default defineComponent({
   name: "Web3ProfileCard",
@@ -89,10 +91,20 @@ export default defineComponent({
       type: Object as PropType<IWeb3Profile | null>,
       required: true,
     },
+    overWriteEVM: {
+      type: String as PropType<string | null>,
+      required: false,
+      default: null,
+    },
     followersCount: {
       type: Number,
       required: false,
       default: 0,
+    },
+    addViewBtn: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
     deps: {
       type: Object as PropType<IDepsWeb3Profile>,
@@ -102,20 +114,28 @@ export default defineComponent({
   setup(props) {
     const isLoading = ref(true);
     const avatar = ref(props.web3Profile?.avatar ?? "");
+    const id = ref(props.overWriteEVM ?? props.web3Profile?.evmAddress ?? props.web3Profile?._id ?? "");
+    const lWeb3Profile = ref(props.web3Profile);
 
-    onMounted(() => {
-      if (!props.web3Profile?.avatar) {
-        avatar.value = makeRandAvatar(props.web3Profile?.evmAddress ?? "");
+    onMounted(async () => {
+      if(props.overWriteEVM) {
+        lWeb3Profile.value = await fetchWeb3Profile(props.deps.apiBase, props.overWriteEVM)
+      }
+
+      if (!lWeb3Profile.value?.avatar) {
+        avatar.value = makeRandAvatar(id.value);
       }
       isLoading.value = false;
     });
 
     return {
       onError: () => {
-        avatar.value = makeRandAvatar(props.web3Profile?.evmAddress ?? "");
+        avatar.value = makeRandAvatar(id.value);
       },
       isLoading,
-      avatar
+      avatar,
+      id,
+      lWeb3Profile
     };
   },
 });

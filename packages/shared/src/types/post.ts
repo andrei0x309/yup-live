@@ -1,4 +1,5 @@
-import type { reactive } from 'vue'
+import type { reactive, defineComponent } from 'vue'
+import type { IVotingDeps } from 'shared/src/types/vote'
 export interface IPost {
   _id: {
     postid: string
@@ -116,4 +117,9 @@ export interface OpenGraphPreview {
 export interface mediaType {
   type: string
   url: string
+}
+
+export interface IPostDeps extends IVotingDeps {
+  CollectMenu?: ReturnType<typeof defineComponent>
+  PostMenu?: ReturnType<typeof defineComponent>
 }

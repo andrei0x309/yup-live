@@ -2,30 +2,77 @@
   <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <div class="bg-color table-list w-full mb-4 min-h-[75vh] flex justify-start">
       <div class="flex">
-      <div>
-        <h2 class="mb-4  text-[1.2rem]">Post UUIDv4: <span class="opacity-80 text-[1.1rem]">{{ postId }}</span></h2>
-        <DangLoader v-if="isDataLoading" />
-        <Post
-          v-else
-          :id="postId"
-          :full="true"
-          :post="processedPost"
-          :postTypesPromises="postTypesPromises"
-          class="w-full max-w-[60rem]"
-          @updatepostinfo="openInfoModal"
-        />
-      </div>
-      <div  v-if="processedPost?.web3CreatorProfile && processedPost?.web3CreatorProfil?.noData !== true">
-        <h2 class="mb-4">Post Creator</h2>
-        <Web3ProfileCard
-           class="ml-8"
-          :web3Profile="(processedPost.web3CreatorProfile as unknown as IWeb3Profile) ?? null"
-          :followersCount="followersCount"
-          :deps="web3Deps"
-        />
+        <div>
+          <h2 class="mb-4 text-[1.2rem]">
+            Post UUIDv4: <span class="opacity-80 text-[1.1rem]">{{ postId }}</span>
+          </h2>
+          <DangLoader v-if="isDataLoading" />
+          <Post
+            v-else
+            :id="postId"
+            :full="true"
+            :post="processedPost"
+            :postTypesPromises="postTypesPromises"
+            class="w-full max-w-[60rem]"
+            :deps="postDeps"
+            :castModal="() => import('@/components/content/post/sendCastModal.vue')"
+            @updatepostinfo="openInfoModal"
+          />
+        </div>
+        <div
+          v-if="
+            processedPost?.web3CreatorProfile &&
+            processedPost?.web3CreatorProfil?.noData !== true
+          "
+          class="hidden lg:block min-w-[21rem]"
+        >
+          <h2 class="mb-4">Post Creator</h2>
+          <Web3ProfileCard
+            class="ml-8"
+            :web3Profile="(processedPost.web3CreatorProfile as IWeb3Profile) ?? null"
+            :overWriteEVM="
+              processedPost.tag === 'farcaster' && processedPost?.previewData?.creator
+                ? processedPost?.previewData?.creator
+                : undefined
+            "
+            :followersCount="followersCount"
+            :deps="web3Deps"
+            :addViewBtn="true"
+          />
+        </div>
       </div>
     </div>
-    </div>
+    <o-modal v-model:active="infoModalOpen" contentClass="modal-body">
+      <h2 class="text-[1.4rem] p-4">Post Info</h2>
+      <ul class="m-auto">
+        <li class="p-2"><span class="font-bold">Post ID:</span> {{ postId }}</li>
+        <li class="p-2"><span class="font-bold">Type:</span> {{ processedPost?.tag }}</li>
+        <li class="p-2">
+          <span class="font-bold">Creator:</span>
+          {{ processedPost?.previewData?.creator }}
+        </li>
+        <li class="p-2">
+          <span class="font-bold">Positive Weight:</span>
+          {{ processedPost?.rawPositiveWeight ?? processedPost?.positiveWeight ?? 0 }}
+        </li>
+        <li class="p-2">
+          <span class="font-bold">Negative Weight:</span>
+          {{ processedPost?.rawNegativeWeight ?? processedPost?.negativeWeight ?? 0 }}
+        </li>
+        <li class="p-2">
+          <span class="font-bold">Total Likes:</span>
+          {{ processedPost?.catVotes?.overall?.up ?? 0 }}
+        </li>
+        <li class="p-2">
+          <span class="font-bold">Total Dislikes:</span>
+          {{ processedPost?.catVotes?.overall?.down ?? 0 }}
+        </li>
+        <li class="p-2">
+          <span class="font-bold">Total Creator Rewards:</span>
+          {{ processedPost?.totalCreatorRewards ?? 0 }}
+        </li>
+      </ul>
+    </o-modal>
   </div>
 </template>
 
@@ -43,25 +90,39 @@ import {
 import { useHead, HeadObject } from "@vueuse/head";
 import DangLoader from "components/vote-list/loader.vue";
 import { useRoute } from "vue-router";
-import Post from "@/components/content/post/post.vue";
 import { postTypesPromises } from "components/post-types/post-types";
 import Web3ProfileCard from "components/profile/web3ProfileCard.vue";
-import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
+import { stackAlertSuccess, stackAlertWarning, stackAlertError } from "@/store/alertStore";
+import Post from "components/post/post.vue";
 import type { IPost } from "shared/src/types/post";
 import { useMainStore, openConnectModal } from "@/store/main";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-import type { IWeb3Profile } from "shared/src/types/web3Profile";
+import { IPostDeps } from 'shared/src/types/post'
+import type { IMainStore } from "shared/src/types/store";
+import PostMenu from '@/components/content/post/menu/postMenu.vue'
+import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
+import { IWeb3Profile } from 'shared/src/types/web3Profile'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 const web3Deps = {
   openConnectModal,
-  useMainStore,
+  useMainStore: useMainStore as unknown as () => IMainStore,
   stackAlertWarning,
   stackAlertSuccess,
   apiBase: API_BASE,
 };
+
+const postDeps: IPostDeps = {
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+  openConnectModal,
+  useMainStore: useMainStore as unknown as () => IMainStore,
+  apiBase: API_BASE,
+  PostMenu: PostMenu,
+  CollectMenu: CollectMenu
+}
 
 export default defineComponent({
   name: "PostDetail",
@@ -78,10 +139,12 @@ export default defineComponent({
     },
   },
   setup(props) {
+    type  ExIPost  =  IPost  &  {  web3CreatorProfile:  IWeb3Profile  |  null  |  undefined  }
+
     const route = useRoute();
     const postId = ref(route.params.postId as string);
     const isDataLoading = ref(true);
-    const processedPost = ref(props.post);
+    const processedPost = ref(props.post as ExIPost);
     const infoModalOpen = ref(false);
     const followersCount = ref(0);
 
@@ -188,6 +251,8 @@ export default defineComponent({
       openInfoModal,
       web3Deps,
       followersCount,
+      infoModalOpen,
+      postDeps
     };
   },
 });

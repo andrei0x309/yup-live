@@ -28,10 +28,15 @@
       </o-table-column>
 
       <o-table-column v-slot="props" field="url" label="CONTENT">
-        <a :href="props.row.url" rel="nofollow" target="_blank">
-          <LinkIcon :key="iconsColor" :color="iconsColor" />
-          {{ limitUrlSize(props.row.url) }}</a
-        >
+          <p>
+          {{ limitUrlSize(props.row.url) }}
+          <a :href="props.row.url" rel="nofollow" target="_blank">
+        <LinkIcon  :key="iconsColor"  class="w-3 inline-block mx-2" :color="iconsColor" />
+      </a>
+      <router-link :to="`/post/${props.row.postId}`">
+        <RadarIcon class="w-3 inline-block mx-2" />
+      </router-link>
+      </p>
       </o-table-column>
 
       <o-table-column v-slot="props" field="rating" label="SENTIMENT">
@@ -91,6 +96,8 @@ import UserIcon from "icons/src/user.vue";
 import DateIcon from "icons/src/date.vue";
 import LinkIcon from "icons/src/link.vue";
 import { useMainStore } from "@/store/main";
+import RadarIcon from 'icons/src/radar.vue'
+
 
 import {
   onMounted,
@@ -105,7 +112,7 @@ import {
 
 export default defineComponent({
   name: "VoteList",
-  components: { Thumbs, DangLoader, UserIcon, DateIcon, LinkIcon },
+  components: { Thumbs, DangLoader, UserIcon, DateIcon, LinkIcon, RadarIcon },
   props: {
     pageNum: {
       required: true,
@@ -140,6 +147,7 @@ export default defineComponent({
           category: "popularity",
           like: true,
           tag: "loading...",
+          postId: ''
         });
       }
       return data;
@@ -222,6 +230,7 @@ export default defineComponent({
           rating: (vote as { rating: number }).rating,
           tag: (vote as { post: { tag: string } }).post.tag,
           url: (vote as { post: { url: string } }).post.url,
+          postId: (vote as { post: { _id: { postid: string } } }).post._id.postid,
           category: (vote as { category: string }).category,
           voter: (vote as { voter: string }).voter,
           like: (vote as { like: boolean }).like,

@@ -47,7 +47,11 @@
         {{ mainPost.createdAt }}
       </p>
     </span>
+    <div class="flex">
+    <router-link v-if="(numComments ?? 0) > 1" :to="`/post/${mainPost.postId}?nested=1`">
+    <ComentsIcon class="inline-block w-5 mr-2" />{{ numComments }}</router-link>
     <component :is="replyComp" v-if="replyComp" :showReplyButton="true" :replyTo="{fid: mainPost.userFid, hash:mainPost.hash}"  />
+  </div>
   </div>
 </template>
 
@@ -60,6 +64,13 @@ import FarcasterIcon from "icons/src/farcaster.vue";
 import ImagePreview from "components/post/imagePreview.vue";
 import VerifiedIcon from "icons/src/verified.vue";
 import ClockIcon from "icons/src/clock.vue";
+import ComentsIcon from 'icons/src/comments.vue'
+import { getFarcasterYupThread } from "shared/src/utils/requests/farcaster";
+import { ref } from "vue";
+
+import { config } from "shared/src/utils/config";
+const { API_BASE } = config;
+
 export default defineComponent({
   name: "PostFarcasterBody",
   components: {
@@ -69,15 +80,12 @@ export default defineComponent({
     ImagePreview,
     VerifiedIcon,
     ClockIcon,
+    ComentsIcon
   },
   props: {
     mainPost: {
       type: Object as PropType<Web3PostFarcaster>,
       required: true,
-    },
-    postId: {
-      type: String,
-      default: "",
     },
     isReply: {
       type: Boolean,
@@ -91,11 +99,33 @@ export default defineComponent({
       type: Object as PropType<ReturnType<typeof defineComponent>>,
       default: null,
     },
+    apiBase: {
+      type: String,
+      default: API_BASE,
+    },
   },
-  setup() {
+  setup(props) {
+    const numComments = ref(0)
+
     onMounted(() => {
-      // nothing
+      if(props.mainPost.postId) {
+      getFarcasterYupThread({
+        apiBase: props.apiBase,
+        postId: props.mainPost.postId,
+      }).then((res: {
+        numComments: number;
+      }) => {
+        numComments.value = res.numComments - 1
+        console.log(res.numComments, 'commmeeents')
+      });
+      }
     });
+
+    return {
+      numComments
+
+    };
+
   },
 });
 </script>

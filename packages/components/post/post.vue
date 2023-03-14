@@ -22,15 +22,25 @@
               :positiveWeight="processedPost.positiveWeight"
               :negativeWeight="processedPost.negativeWeight"
               :hasVote="refHasVote"
+              :deps="deps"
+              :mobile="mobile"
             />
-            <router-link v-if="commentsNum > 2" :to="`/post/${processedPost.id}`"  ><ComentsIcon class="inline-block w-5 mr-2" />{{ commentsNum }}</router-link>
-            <InfoIcon v-if="!isHidenInfo" class="ml-auto hidden lg:flex mr-4 cursor-pointer" @click="updatePostInfo" />
+            <div class="flex ml-auto">
+            <router-link v-if="commentsNum > 2" class=" mr-2" :to="`/post/${processedPost.id}`"  ><ComentsIcon class="inline-block w-5 mr-2" />{{ commentsNum }}</router-link>
+            <router-link v-else-if="!full" :to="`/post/${processedPost.id}`"  ><RadarIcon class="inline-block w-4 mr-2" /></router-link>
+            <InfoIcon v-if="!isHidenInfo" class="hidden w-5 lg:flex ml-2 mr-4 cursor-pointer" @click="updatePostInfo" />
+            </div>
           </div>
           <div class="flex items-center flex-shrink-0 px-2">
             <div v-if="!noYUPPost"  class="flex items-center space-x-1">
-              <CollectMenu :postId="processedPost.id" />
-              <PostMenu
-                :key="menuKey"
+              <component v-if="deps.CollectMenu"
+                 v-bind:is="deps.CollectMenu"
+                :key="deps.CollectMenu"
+               :postId="processedPost.id" />
+              <component
+                v-if="deps.PostMenu"
+                :key="`${menuKey}-${deps.PostMenu}`"
+                v-bind:is="deps.PostMenu"
                 v-model:vote="refHasVote"
                 :postId="processedPost.id"
                 :postShareInfo="postShareInfo"
@@ -48,22 +58,20 @@
 <script lang="ts">
 import { defineComponent, onMounted, reactive, ref, Ref, shallowRef, watch, PropType } from 'vue'
 import ImagePreview from 'components/post/imagePreview.vue'
-import Voting from '@/components/content/post/voting.vue'
+import Voting from 'components/post/voting.vue'
 import FavIco from 'components/post/favIco.vue'
 import ClockIcon from 'icons/src/clock.vue'
-import PostMenu from './menu/postMenu.vue'
-import CollectMenu from './menu/collectMenu.vue'
-import { useMainStore } from '@/store/main'
 import InfoIcon from 'icons/src/infoIcon.vue'
 import { hasVote } from 'shared/src/utils/requests/vote'
 import type { Vote } from 'shared/src/types/vote'
 import ComentsIcon from 'icons/src/comments.vue'
+import RadarIcon from 'icons/src/radar.vue'
 import { processPost } from 'shared/src/utils/post'
 import type { IPost, IProcessedPost } from 'shared/src/types/post'
-
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-
-
+import { useRoute } from 'vue-router'
+import type { Web3LensRaw } from 'shared/src/types/web3'
+import type { IPostDeps  } from 'shared/src/types/post'
+ 
 export default defineComponent({
   name: 'Post',
   components: {
@@ -71,10 +79,9 @@ export default defineComponent({
     ClockIcon,
     Voting,
     FavIco,
-    PostMenu,
-    CollectMenu,
     InfoIcon,
-    ComentsIcon
+    ComentsIcon,
+    RadarIcon
   },
   props: {
     post: {
@@ -98,11 +105,27 @@ export default defineComponent({
       type: Boolean,
       required: false,
       default: false
-    }
+    },
+    mobile: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    deps: {
+      type: Object as PropType<IPostDeps>,
+      required: true
+    },
+    castModal: {
+      type: Object as PropType<() => Promise<{ default: any}>>,
+      required: false,
+      default: undefined
+    },
   },
   emits: ['updatepostinfo'],
   setup(props, ctx) {
     const postTypeCom: Ref<ReturnType<typeof defineComponent>> = shallowRef(undefined)
+    const route = useRoute()
+    const nested = (route.query.nested as string) ?? ''
 
     const processedPost = reactive({
       id: '',
@@ -122,7 +145,7 @@ export default defineComponent({
       //   isTwitter: false,
     }) as unknown as IProcessedPost
 
-    const store = useMainStore()
+    const store = props?.deps?.useMainStore() 
     const postTypeLoading = ref(true)
     const postShareInfo = reactive({}) as unknown as { url: string; title: string; text: string }
     const postTypeClass = ref('')
@@ -135,7 +158,7 @@ export default defineComponent({
 
     const votingKey = ref(0)
     const menuKey = ref(0)
-    const comments = ref([])
+    const comments = ref([]) as Ref<unknown[]>
     const commentsNum = ref(0)
     const replyComp = shallowRef(null) as Ref<ReturnType<typeof defineComponent>>
 
@@ -153,6 +176,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
+        console.log('post mounted', props.deps)
       checkPostType(props.post as unknown as { url: string; tag: string }).then(async (type) => {
         postTypeClass.value = type
         switch (type) {
@@ -165,19 +189,33 @@ export default defineComponent({
             postTypeCom.value = (await props.postTypesPromises.preloadFarcaster).default
             if(!props.noYUPPost) {
             import('shared/src/utils/requests/farcaster').then((module) => {
-              module.getComments(API_BASE, props.post.web3Preview?.meta?.threadMerkleRoot ?? props.post?.web3Preview?.meta?.threadHash).then((res) => {
+              const commId = !nested ? props.post.web3Preview?.meta?.parentPostId : props.post._id.postid
+
+              module.getFarcasterYupThread({apiBase: props.deps.apiBase, postId: commId}).then((res) => {
                 if(res){
                   comments.value = res.comments
                   commentsNum.value = res.numComments - 1
                 }
               })
             })
-            import('@/components/content/post/sendCastModal.vue').then((module) => {
+            if(!props.mobile && props.castModal) {
+              props.castModal().then((module) => {
               replyComp.value = module.default
             })
+             }
           }
             break
           case 'lens':
+            import('shared/src/utils/web3/lens').then((module) => {
+              module.getLensComments(module.lensIdToRaw(props.post?.web3Preview?.id ?? '')).then((res) => {
+                if(res){
+                  comments.value = res as Web3LensRaw[]
+                  commentsNum.value = res.length
+                }
+              })
+ 
+            })
+
             processedPost.web3Preview = props.post.web3Preview 
             postTypeCom.value = (await props.postTypesPromises.preloadLens).default
             break
@@ -247,21 +285,14 @@ export default defineComponent({
       menuKey,
       comments,
       commentsNum,
-      replyComp
+      replyComp,
+      nested,
     }
   }
 })
 </script>
 
 <style lang="scss">
-html {
-  --post-card-bg: #f9f9f93b;
-}
-
-html[class='dark'] {
-  --post-card-bg: #2626263b;
-}
-
 .postCard {
   background-color: var(--post-card-bg);
   border: 1px solid #00000047;

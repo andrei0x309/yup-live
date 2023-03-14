@@ -26,8 +26,10 @@
                 v-for="post of posts"
                 :id="(post as Record<string, any>)._id.postid"
                 :key="(post  as Record<string, any>)._id.postid"
-                :post="(post as Record<string, any>)"
+                :post="(post)"
                 :postTypesPromises="postTypesPromises"
+                :deps="postDeps"
+                :mobile="true"
               />
               <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
             </div>
@@ -58,12 +60,29 @@ onIonViewWillEnter
 import { defineComponent, ref, Ref, shallowRef } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 import { postTypesPromises } from 'components/post-types/post-types'
-import Post from '@/components/copy/post/post.vue'
 import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
 import LineLoader from 'components/functional/lineLoader.vue'
+import Post from 'components/post/post.vue'
+import PostMenu from '@/components/post/menu/postMenu.vue'
+import type { IPostDeps } from 'shared/src/types/post'
+import type { IMainStore } from 'shared/src/types/store'
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
+import { useMainStore } from "@/store/main";
+import { IPost } from "shared/src/types/post";
 
 import { config } from 'shared/src/utils/config'
 const { API_BASE } = config
+
+const postDeps: IPostDeps = {
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+  openConnectModal: () => '',
+  useMainStore: useMainStore as unknown as () => IMainStore,
+  apiBase: API_BASE,
+  PostMenu,
+}
+
 const FEED_APIS = `${API_BASE}/feed`
 
 export default defineComponent({
@@ -96,7 +115,7 @@ export default defineComponent({
   ]
 
     const defaultFeed = 'dailyhits'
-    const posts = ref([]) as Ref<Array<unknown>>
+    const posts = ref([]) as Ref<Array<IPost>>
     const activeFeed = ref(defaultFeed) as Ref<string>
     const postsIndex = ref(0)
     const postInfo = ref(null) as Ref<unknown>
@@ -172,7 +191,8 @@ export default defineComponent({
       postInfo,
       activeFeed,
       feedLoading,
-      catComp
+      catComp,
+      postDeps
     }
 
   }

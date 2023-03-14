@@ -86,6 +86,8 @@
                   :post="(post as IPost)"
                   :postTypesPromises="postTypesPromises"
                   :isHidenInfo="((post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid) || feedTab === 'farcaster'"
+                  :deps="postDeps"
+                  :castModal="() => import('@/components/content/post/sendCastModal.vue')"
                   @updatepostinfo="
                     (postid: string) => {
                       postInfo = posts.find((p: any): boolean => postid === p._id.postid)
@@ -148,20 +150,13 @@ import {
 } from "vue";
 import { useHead, HeadObject } from "@vueuse/head";
 import DangLoader from "components/vote-list/loader.vue";
-// import ProfileCard from "@/components/content/profile/profileCard.vue";
-// import ProfileInfoCard from "@/components/content/profile/infoCard.vue";
-// import InfScroll from "components/functional/inf-scroll/infScroll.vue";
-// import ProfileMenu from "@/components/content/profile/menu.vue";
-// import Post from "@/components/content/post/post.vue";
 import { useMainStore, openConnectModal } from "@/store/main";
 import { useRoute } from "vue-router";
 
 import { wait } from "shared/src/utils/time";
 import { MENU_BUTTONS } from "@/components/content/profile/menuButtonEnums";
 import { postTypesPromises } from "components/post-types/post-types";
-// import PostInfo from "@/components/content/post/postInfo.vue";
-// import LineLoader from "components/functional/lineLoader.vue";
-import Post from "@/components/content/post/post.vue";
+import Post from 'components/post/post.vue'
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 
 import Alert from "components/functional/alert.vue";
@@ -180,6 +175,10 @@ import LineLoader from "components/functional/lineLoader.vue";
 import Web3ProfileCard from "components/profile/web3ProfileCard.vue";
 import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 import type { IPost } from 'shared/src/types/post'
+import PostMenu from '@/components/content/post/menu/postMenu.vue'
+import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
+import type { IPostDeps } from 'shared/src/types/post'
+import type { IMainStore } from 'shared/src/types/store'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -189,6 +188,17 @@ const web3Deps = {
   stackAlertWarning,
   stackAlertSuccess,
   apiBase:API_BASE
+}
+
+const postDeps: IPostDeps = {
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+  openConnectModal,
+  useMainStore: useMainStore as unknown as () => IMainStore,
+  apiBase: API_BASE,
+  PostMenu: PostMenu,
+  CollectMenu: CollectMenu
 }
 
 export default defineComponent({
@@ -512,6 +522,7 @@ export default defineComponent({
       API_BASE,
       stackAlertError,
       web3Deps,
+      postDeps
     };
   },
 });

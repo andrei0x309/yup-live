@@ -13,9 +13,9 @@
           <template v-if="!isConnectedToFarcaster">
           <small class="mt-2">You need to sign with the custody address of farcaster address.</small>
           <button
-            :disabled="isConnectToFarcaster || !checkedConnectToFarcaster"
+            :disabled="isConnectToFarcaster"
             class="bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-lg"
-            @click="connectToFarcaster"
+            @click="doConnectToFarcaster"
           > 
             <ProfileFarcasterIcon class="w-6 inline mr-2" /> 
             <BtnSpinner v-if="isConnectToFarcaster" class="inline mr-2" />Connect to
@@ -29,11 +29,11 @@
             v-else
             :disabled="isDisconnectFromFarcaster"
             class="bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
-            @click="disconnectFromFarcaster"
+            @click="doDisconnectFromFarcaster"
             >            <BtnSpinner v-if="isDisconnectFromFarcaster" class="inline mr-2" /><ProfileFarcasterIcon class="w-6 inline mr-2" /> 
 
             Disconnect from Farcaster</button>
-        <template  v-if="!isConnectedToTwitter">
+      <template  v-if="!isConnectedToTwitter">
         <button class="mt-4 bg-sky-500 border-0 py-2 px-6 focus:outline-none hover:bg-sky-700 rounded text-lg" @click="twitterLink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Connect to Twitter</button>
         <o-checkbox v-model="twFollowersAsKeywords" class="p-2" :native-value="true">
         <span class="ml-2">Insert my twitter followers into personal keywords.</span>
@@ -43,6 +43,25 @@
         v-else
         class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
          @click="twitterUnlink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Disconnect from Twitter</button>
+
+        <template  v-if="!isConnectedToLens">
+          <span class="ml-2">Connect to lens is disabled due to being in development.</span>
+         <button
+         disabled
+        class="mt-4 bg-green-500 border-0 py-2 px-6 focus:outline-none hover:bg-green-600 rounded text-lg"
+        @click="doConnectLens"
+        >
+        <ProfileLensIcon class="w-6 inline mr-2" /> <BtnSpinner v-if="isConnectToLens" class="inline mr-2" /> Connect to Lens
+        </button>
+        </template>
+        <template v-else>
+        <button
+        class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+        @click="doDisconnectLens"
+        > <ProfileLensIcon class="w-6 inline mr-2" /> <BtnSpinner v-if="isConnectToLens" class="inline mr-2" /> Disconnect from Lens</button>
+        <button class="view-btn" @click="doTestLensPost">Do test lens POST</button>
+      </template>
+      
 
         </div>
       </div>
@@ -164,33 +183,31 @@ import { formatNumber } from "shared/src/utils/misc";
 import { fetchWAuth } from "shared/src/utils/auth";
 import { useMainStore } from "@/store/main";
 import GoToIcon from "icons/src/goTo.vue";
-import { editProfile } from "shared/src/utils/login-signup";
+import { editProfile } from "shared/src/utils/requests/accounts";
 const refGoTo = GoToIcon;
 import type { IUserData } from "shared/src/types/account";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import { useRouter } from "vue-router";
-import { getFidByToken } from 'shared/src/utils/farcaster'
 import TwitterIcon from "icons/src/twitter.vue";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
-import { claimAndLinkTwitter, twitterCheckAndUnlink } from "shared/src/utils/requests/twitter";
-import { FCSendCast } from "shared/src/utils/farcaster";
-import { digestSha256 } from "shared/src/utils/misc";
+import ProfileLensIcon from "icons/src/profileLens.vue";
+import { claimAndLinkTwitter, twitterCheckAndUnlink } from "shared/src/utils/requests/twitter"
+import { web3Libs } from "shared/src/utils/evmTxs";
+import { uploadAvatar } from "shared/src/utils/requests/accounts";
+import { connectToFarcaster, disconnectFromFarcaster } from "shared/src/utils/requests/farcaster";
 import { VACropper } from 'vue-cup-avatar'
-import 'vue-cup-avatar/dist/style.css'
+import { ethersLib, getWeb3Modal, web3Modal, userProvider } from "shared/src/utils/evmTxs";
+import { getLensUserData, authLens, setDispatcher, setAuthLens, disconnectLens } from "shared/src/utils/requests/lens"
+//setDispatcherYup
 
-const providerOptionsProm = import('shared/src/utils/evm')
-const web3Mprom = import("web3modal");
-const ethers = import("ethers");
-const canonicalize = import("canonicalize");
-const buffer = import("buffer/");
+import 'vue-cup-avatar/dist/style.css'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
-const EIP_191_PREFIX = "eip191:";
 
 export default defineComponent({
   name: "SettingsPage",
-  components: { DangLoader, CustomButton, BtnSpinner, TwitterIcon, ProfileFarcasterIcon, VACropper },
+  components: { DangLoader, CustomButton, BtnSpinner, TwitterIcon, ProfileFarcasterIcon, VACropper, ProfileLensIcon },
   props: {
     userData: {
       type: Object as PropType<IUserData>,
@@ -207,8 +224,7 @@ export default defineComponent({
     const isEditLoading = ref(false);
     const isDeleteLoading = ref(false);
     const isConnectToFarcaster = ref(false);
-    const checkedConnectToFarcaster = ref(false);
-    const isConnectedToFarcaster = ref(false);
+    const isConnectedToFarcaster = ref(store.farcaster ? true : false);
     const isConnectedToTwitter = ref(props.userData.twitterInfo?.userId ? true : false);
     const isLoadingTwitter = ref(false);
     const isDisconnectFromFarcaster = ref(false);
@@ -218,18 +234,15 @@ export default defineComponent({
     const sendFarcasterConnectMsg = ref(false)
     const twFollowersAsKeywords = ref(false)
     const isAvatarLoading = ref(false)
+    const isConnectedToLens = ref(localStorage.getItem('lensRefreshToken') ? true : false)
+    const isConnectToLens = ref(false)
     const mapFeeds = {
       'likes': 'Likes',
       'content': 'Web3 created Content',
     }
     const defaultAccountFeed = ref(localStorage.getItem('defaultAccountFeed') || 'likes')
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let ethersLib: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let userProvider: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let w3Modal: any;
+    const { ethers, providerOptionsProm, web3Mprom } = web3Libs();
 
     const deleteAccount = async () => {
       isDeleteLoading.value = true;
@@ -252,29 +265,92 @@ export default defineComponent({
       router.push("/");
     };
 
-
-    const signChallenge = async (payload: Record<string, unknown>, signer: unknown) => {
-      const canFn = (await canonicalize).default;
-      let signature;
-      try {
-        signature = await (signer as {
-          signMessage: (a: string) => typeof a;
-        }).signMessage(canFn(payload) as string);
-      } catch (error) {
-        return;
+    const doConnectLens = async () => {
+      if(isConnectToLens.value) {
+        return
       }
-      return signature;
+      isConnectToLens.value = true
+      const user = await getLensUserData(store.userData.address)
+      if(!user) {
+        stackAlertError("No lens user found, please set your default account in lens")
+        isConnectToLens.value = false
+        return
+      }
+      const profileId = user.data.defaultProfile.id
+      const auth = await authLens({
+      depUserProvider: userProvider,
+      ethers,
+      ethersLib,
+      w3Modal: web3Modal,
+      web3Mprom
+      })
+      if(!auth) {
+        stackAlertError("Error while authenticating lens")
+        isConnectToLens.value = false
+        return
+      }
+      const { accessToken:authToken, refreshToken } = auth
+      const sigDisp = await setDispatcher(
+      { 
+        profileId,
+        authToken,
+        userProvider
+      })
+      if(!sigDisp) {
+        stackAlertError("Error while signing dispatcher")
+        isConnectToLens.value = false
+        return
+      }
+      // const yupSetDis = setDispatcherYup({
+      //   store,
+      //   apiBase: API_BASE,
+      //   ...sigDisp
+      // })
+      // if(!yupSetDis) {
+      //   stackAlertError("Error while sending TX for dispatcher")
+      //   isConnectToLens.value = false
+      //   return
+      // }
+      await setAuthLens({
+        store,
+        apiBase: API_BASE,
+        accessToken: authToken,
+        refreshToken
+      })
+      isConnectedToLens.value = true
+      isConnectToLens.value = false
+      stackAlertSuccess("Successfully connected to lens")
+    }
+
+    const doConnectToFarcaster = async () => {
+      await connectToFarcaster({
+        ethers,
+        ethersLib,
+        isConnectedToFarcaster,
+        isConnectToFarcaster,
+        sendFarcasterConnectMsg,
+        stackAlertError,
+        stackAlertSuccess,
+        store,
+        userProvider,
+        w3Modal: web3Modal,
+        web3Mprom,
+        apiBase: API_BASE,
+      })
     };
 
-    //   const verifyCustodyBearer = async (custodyBearerToken: string, payload: any, address: string) => {
-    //     const bufferLib = (await buffer).Buffer;
-    //     const canFn = (await canonicalize).default;
-    //   const recoveredAddress = ethersLib.utils.recoverAddress(
-    //     ethersLib.utils.hashMessage(canFn(payload)),
-    //     ethersLib.utils.hexlify(bufferLib.from(custodyBearerToken.split(':')[1], 'base64'))
-    //   );
-    //   return recoveredAddress === address;
-    // }
+    const doDisconnectFromFarcaster = async () => {
+      await disconnectFromFarcaster({
+        farcasterToken,
+        isConnectedToFarcaster,
+        isDisconnectFromFarcaster,
+        stackAlertError,
+        stackAlertSuccess,
+        store,
+        apiBase: API_BASE,
+      })
+    };
+
 
     const changeFeedPersonalization = async () => {
       const LSFP = localStorage.getItem("feedPersonalization");
@@ -287,147 +363,6 @@ export default defineComponent({
       }
     }
      
-
-    const connectToFarcaster = async () => {
-      try {
-        isConnectToFarcaster.value = true;
-        await web3Mprom;
-        const inst = await w3Modal.connect();
-        ethersLib = await ethers;
-        userProvider = new ethersLib.providers.Web3Provider(inst);
-        const signer = userProvider.getSigner();
-        const timestamp = Date.now();
-        const payload = {
-        method: "generateToken",
-        params: {
-          timestamp,
-        },
-      };
-        const sig = await signChallenge(payload, signer);
-        if (!sig) {
-          stackAlertError(
-            "Error while connecting to farcaster, user rejected signature request"
-          );
-          isConnectToFarcaster.value = false;
-          return false;
-        }
-
-        const bufferLib = (await buffer).Buffer;
-        const signatureString = bufferLib
-          .from(ethersLib.utils.arrayify(sig)).toString('base64');
-        const cusAuth = EIP_191_PREFIX + signatureString;
-
-        const req = await fetch(`${API_BASE}/proxy/farcaster/v2/auth`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${cusAuth}`,
-          },
-          body: JSON.stringify(payload),
-        });
-        if (req.ok) {
-          const data = await req.json();
-          const token = data?.result?.token?.secret;
-          if (token) {
-            const dataTosend = {
-              auth: {
-                  farcaster: token,
-              },
-            };
-            getFidByToken(token, API_BASE).then(fid => {
-              if(fid) {
-                store.fid = fid as string;
-                localStorage.setItem("fid", fid as string);
-              }
-            } )
-            const req = await fetchWAuth(store, `${API_BASE}/web3-auth`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(dataTosend),
-            });
-            if (req.ok) {
-              stackAlertSuccess("Connected to farcaster successfully");
-              isConnectedToFarcaster.value = true;
-              store.farcaster = token;
-              if(sendFarcasterConnectMsg.value) {
-                const text = 'I just connected my farcaster address to https://yup-live.pages.dev \nVerification hash: ' + digestSha256(token);
-                await FCSendCast(token, text, API_BASE)
-              }
-              localStorage.setItem("farcaster", token);
-            } else {
-              stackAlertError("Error while connecting to farcaster: " + (await req.text()));
-            }
-          } else {
-            stackAlertError("Error while connecting to farcaster: " + (await req.text()));
-          }
-        } else {
-          stackAlertError("Error while connecting to farcaster: " + (await req.text()));
-        }
-        isConnectToFarcaster.value = false;
-      } catch {
-        isConnectToFarcaster.value = false;
-        stackAlertError(
-          "Error while connecting to farcaster: User rejected connect request"
-        );
-      }
-    };
-
-    const disconnectFromFarcaster = async () => {
-      try {
-        if(!isConnectedToFarcaster.value) {
-          stackAlertError("You are not connected to farcaster");
-          return;
-        }
-        isDisconnectFromFarcaster.value = true;
-        const payload = {
-          method: "revokeToken",
-          params: {
-            timestamp:  Date.now(),
-          }
-        }
-        const req = await fetch(`${API_BASE}/proxy/farcaster/v2/auth`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${farcasterToken.value}`,
-          },
-          body: JSON.stringify(payload),
-        });
-        if (!req.ok) {
-          stackAlertError("Error while disconnecting from farcaster: " + (await req.text()));
-          return;
-        }
-        const delBody = {
-            auth: ['farcaster']
-        }
-        const reqDel = await fetchWAuth(store, `${API_BASE}/web3-auth`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(delBody),
-        });
-        if (reqDel.ok) {
-          localStorage.removeItem("farcaster");
-          localStorage.removeItem("fid");
-          store.farcaster = "";
-          store.fid = "";
-          stackAlertSuccess("Disconnected from farcaster successfully");
-          isConnectedToFarcaster.value = false;
-        } else {
-          // stackAlertError("Error while disconnecting from farcaster: " + (await req.text()));
-        }
-        isDisconnectFromFarcaster.value = false;
-      } catch (e) {
-        stackAlertError(
-          "Error while disconnecting from farcaster: User rejected connect request"
-        );
-        isDisconnectFromFarcaster.value = false;
-      }
-    };
-
 
     const onEditProfile = async () => {
       isEditLoading.value = true;
@@ -443,21 +378,6 @@ export default defineComponent({
         stackAlertError("Error trying to edit.");
       }
       isEditLoading.value = false;
-    };
-
-    const checkConnectedToFarcaster = async () => {
-      const req = await fetchWAuth(store, `${API_BASE}/web3-auth/list`, {
-        method: "GET",
-      });
-      if (req.ok) {
-        const data = await req.json();
-        const farcaster = data?.auth?.farcaster;
-        if (farcaster) {
-          isConnectedToFarcaster.value = true;
-          farcasterToken.value = farcaster;
-        }
-      }
-      checkedConnectToFarcaster.value = true;
     };
 
     const twitterLink = async () => {
@@ -493,68 +413,47 @@ export default defineComponent({
     }
 
     onMounted(async () => {
-      providerOptionsProm.then((pLib) => {
-        web3Mprom.then((lib) => {
-          const { default: libDefault } = lib
-          w3Modal = new libDefault({
-            network: 'matic', // optional
-            cacheProvider: false, // optional
-            providerOptions: pLib.providerOptions, // required
-            theme: store.theme
-          })
-        })
-      })
+      getWeb3Modal({
+        providerOptionsProm,
+        web3Mprom,
+        theme: store.theme as 'dark' | 'light',
+        disableInjectedProvider: false,
+      }
+      ).then((w3m) => {
+        web3Modal.value = w3m;
+      });
       feedPersonalization.value = !!(localStorage.getItem("feedPersonalization") || "")
-      checkConnectedToFarcaster()
       isLoading.value = false;
     });
 
-    const uploadAvatar = (blob: Blob) => {
-        isAvatarLoading.value = true
-      	const fr = new FileReader()
-        fr.onloadend = async() => {
-         try {
-          const split = (fr.result as string)?.split(',')
-          const body = {
-            data: split[1],
-            contentType: split[0].split(':')[1],
-            key: 'avatar',
-          }
-          const res = await fetch('https://api.yup.io/accounts/account/profileImage', {
-            method: 'POST',
-            body: JSON.stringify(body),
-            headers: { 'Content-Type': 'application/json' },
-          })
-          if(!res.ok) {
-            stackAlertError("Error while uploading avatar, try later.")
-            return
-          }
-          const data = await res.json()
-          if (
-        await editProfile({
-          avatar: data.url,
-          authToken: store.userData.authToken,
-        })
-      ) {
-        stackAlertSuccess("Account was changed.");
-      } else {
-        stackAlertError("Error while uploading avatar, try later.");
-      }
-      avatar.value = data.url
-
-      isAvatarLoading.value = false
-      } catch(e) {
-        stackAlertError("Error while uploading avatar, try later.")
-      }
-    }
-
-        fr.readAsDataURL(blob)
-    }
-
+   
     const changeDefaultFeed = () => {
       localStorage.setItem("defaultAccountFeed", defaultAccountFeed.value)
     }
 
+    const doDisconnectLens = async () => {
+      const req = await disconnectLens({
+        store,
+        apiBase: API_BASE,
+      })
+      if(!req) {
+        stackAlertError("Error while disconnecting from lens");
+      } else {
+        stackAlertSuccess("Disconnected from lens successfully");
+        isConnectedToLens.value = false;
+      }
+    }
+
+    const doTestLensPost = async () => {
+      const req = await fetchWAuth(store, `${API_BASE}/lens/create-test-post`, {
+        method: "POST",
+      });
+      if(!req) {
+        stackAlertError("Error while posting to lens");
+      } else {
+        stackAlertSuccess("Posted to lens successfully");
+      }
+    }
 
     return {
       isLoading,
@@ -568,7 +467,6 @@ export default defineComponent({
       isEditLoading,
       isDeleteLoading,
       isConnectToFarcaster,
-      checkedConnectToFarcaster,
       connectToFarcaster,
       isConnectedToFarcaster,
       disconnectFromFarcaster,
@@ -586,7 +484,14 @@ export default defineComponent({
       uploadAvatar,
       mapFeeds,
       defaultAccountFeed,
-      changeDefaultFeed
+      changeDefaultFeed,
+      doConnectToFarcaster,
+      doDisconnectFromFarcaster,
+      doConnectLens,
+      isConnectToLens,
+      isConnectedToLens,
+      doDisconnectLens,
+      doTestLensPost
     };
   },
 });

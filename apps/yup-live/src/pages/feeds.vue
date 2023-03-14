@@ -48,9 +48,11 @@
                 v-for="post of posts"
                 :id="(post as Record<string, any>)._id.postid"
                 :key="(post  as Record<string, any>)._id.postid"
-                :post="(post as Record<string, any>)"
+                :post="(post)"
                 :postTypesPromises="postTypesPromises"
                 :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
+                :deps="deps"
+                :castModal="() => import('@/components/content/post/sendCastModal.vue')"
                 @updatepostinfo="
                   (postid: string) => {
                     postInfo = posts.find((p: any): boolean => postid === p._id.postid)
@@ -84,9 +86,31 @@ import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
 // import { useMainStore } from '@/store/main'
 import { postTypesPromises } from 'components/post-types/post-types'
 import { useRoute } from 'vue-router'
-import Post from '@/components/content/post/post.vue'
+import Post from 'components/post/post.vue'
 import PostInfo from '@/components/content/post/postInfo.vue'
 import LineLoader from 'components/functional/lineLoader.vue'
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
+import { useMainStore, openConnectModal } from '@/store/main'
+import { IPostDeps } from 'shared/src/types/post'
+import type { IPost } from 'shared/src/types/post'
+import type { IMainStore } from 'shared/src/types/store'
+import PostMenu from '@/components/content/post/menu/postMenu.vue'
+import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
+
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
+
+const deps: IPostDeps = {
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+  openConnectModal,
+  useMainStore: useMainStore as unknown as () => IMainStore,
+  apiBase: API_BASE,
+  PostMenu: PostMenu,
+  CollectMenu: CollectMenu
+}
+
 
 const FEED_APIS: Record<string, string> = {
   dailyhits: 'https://api.yup.io/feed/dailyhits',
@@ -115,7 +139,7 @@ export default defineComponent({
     const feeds = ['dailyhits', 'crypto', 'nfts', 'mirror', 'recent', 'farcaster', 'lens', 'twitter']
     const defaultFeed = (route.params.feedId as string) ?? 'dailyhits'
     let userId = (route.query.userId as string) ?? ''
-    const posts = ref([]) as Ref<Array<unknown>>
+    const posts = ref([]) as Ref<Array<IPost>>
     const activeFeed = ref(defaultFeed) as Ref<string>
     const postsIndex = ref(0)
     const postInfo = ref(null) as Ref<unknown>
@@ -256,7 +280,8 @@ export default defineComponent({
       activeFeed,
       feedLoading,
       catComp,
-      userId
+      userId,
+      deps
     }
   }
 })

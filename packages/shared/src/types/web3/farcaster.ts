@@ -13,6 +13,8 @@ export interface Web3PostFarcaster {
   createdAt: string
   thread: string
   hash: string
+  numComments?: number
+  postId?: string
 }
 
 export interface Web3FarcasterRawReply {

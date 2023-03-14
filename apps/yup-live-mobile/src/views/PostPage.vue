@@ -14,6 +14,8 @@
         :post="processedPost"
         :postTypesPromises="postTypesPromises"
         @updatepostinfo="openInfoModal"
+        :deps="postDeps"
+        :mobile="true"
       />
   </template>
 </div>
@@ -29,15 +31,32 @@ import {
   defineComponent,
   onUnmounted,
   ref,
+  PropType
 } from "vue";
 import DangLoader from "components/vote-list/loader.vue";
 import { useRoute } from "vue-router";
-import Post from "@/components/copy/post/post.vue";
 import { postTypesPromises } from "components/post-types/post-types";
 import HeaderBar from "@/components/template/header-bar.vue";
+import PostMenu from '@/components/post/menu/postMenu.vue'
+import type { IPostDeps } from 'shared/src/types/post'
+import type { IMainStore } from 'shared/src/types/store'
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
+import { useMainStore } from "@/store/main";
+import Post from 'components/post/post.vue'
+import { IPost } from "shared/src/types/post";
 
 import { config } from "shared/src/utils/config";
 const { API_BASE } = config;
+
+const postDeps: IPostDeps = {
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+  openConnectModal: () => '',
+  useMainStore: useMainStore as unknown as () => IMainStore,
+  apiBase: API_BASE,
+  PostMenu,
+}
 
 export default defineComponent({
   name: "PostDetail",
@@ -50,7 +69,7 @@ export default defineComponent({
   },
   props: {
     post: {
-      type: Object,
+      type: Object as PropType<IPost>,
       required: false,
       default: () => ({}),
     },
@@ -98,6 +117,7 @@ export default defineComponent({
       postId,
       postTypesPromises,
       openInfoModal,
+      postDeps
     };
   },
 });

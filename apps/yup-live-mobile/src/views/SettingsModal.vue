@@ -144,7 +144,7 @@ import { stackAlertError, stackAlertSuccess } from "@/store/alertStore";
 import { fetchWAuth } from 'shared/src/utils/auth'
 import { useMainStore } from "@/store/main";
 // import GoToIcon from 'icons/src/goTo.vue'
-import { editProfile } from "shared/src/utils/login-signup"
+import { editProfile } from "shared/src/utils/requests/accounts"
 // const refGoTo = GoToIcon
 import type { IUserData } from "shared/src/types/account";
 import { useRouter } from "vue-router";

@@ -77,9 +77,11 @@
                 v-for="post of posts"
                 :id="(post as Record<string, any>)._id.postid"
                 :key="(post  as Record<string, any>)._id.postid"
-                :post="(post as Record<string, any>)"
+                :post="(post)"
                 :postTypesPromises="postTypesPromises"
                 :top-detection="false"
+                :mobile="true"
+                :deps="postDeps"
               />
               <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
               <div v-if="noMoreResults">
@@ -129,14 +131,29 @@ Ref
 } from 'vue'
 
 import { postTypesPromises } from 'components/post-types/post-types'
-import Post from '@/components/copy/post/post.vue'
 import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
 import LineLoader from 'components/functional/lineLoader.vue'
-// import { config } from 'shared/src/utils/config'
+import { config } from 'shared/src/utils/config'
 import { search as yupSearch } from 'shared/src/utils/requests/searchFilters'
+import Post from 'components/post/post.vue'
+import PostMenu from '@/components/post/menu/postMenu.vue'
+import type { IPostDeps } from 'shared/src/types/post'
+import type { IMainStore } from 'shared/src/types/store'
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
+import { useMainStore } from "@/store/main";
+import { IPost } from "shared/src/types/post";
 
-// const { API_BASE } = config
-import { stackAlertWarning } from '@/store/alertStore'
+const { API_BASE } = config
+
+const postDeps: IPostDeps = {
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+  openConnectModal: () => '',
+  useMainStore: useMainStore as unknown as () => IMainStore,
+  apiBase: API_BASE,
+  PostMenu,
+}
 
 export default defineComponent({
 name: 'TokenMetrics',
@@ -155,7 +172,7 @@ components: {IonPage, IonContent, IonSearchbar, HeaderBar, IonRadioGroup,
     // IonSegmentButton
  },
 setup() {
-const posts = ref([]) as Ref<Array<unknown>>
+const posts = ref([]) as Ref<Array<IPost>>
 const postsIndex = ref(0)
 const searchStarted = ref(false)
 const feedLoading = ref(false)
@@ -233,7 +250,8 @@ const onHit = async (type: string) => {
     searchStarted,
     noMoreResults,
     checkSearch,
-    currentSegment
+    currentSegment,
+    postDeps
   }
 }
 })

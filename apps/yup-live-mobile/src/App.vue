@@ -23,6 +23,7 @@
 <script lang="ts">
 import { config } from "shared/src/utils/config";
 config.setConfig({ API_BASE: "https://api.yup.io", POLY_RPC: "https://polygon-rpc.com" });
+
 import {
   IonApp,
   IonRouterOutlet,
@@ -225,12 +226,14 @@ export default defineComponent({
 html {
   --glass-menu-bg: #fafafa7a;
   --glassTxt: #222;
+  --post-card-bg: #f9f9f93b;
 }
 
 html.dark,
 body.dark {
   --glassTxt: aliceblue;
   --glass-menu-bg: #14141463;
+  --post-card-bg: #2626263b;
 }
 
 .gradient-text {

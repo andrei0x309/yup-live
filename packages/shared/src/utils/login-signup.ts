@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import type { providers } from 'ethers'
 import { config } from './config'
+import { editProfile } from './requests/accounts'
 
 const { API_BASE } = config
 
@@ -27,49 +28,6 @@ export const web3ModalInstantiate = async (
                 type: 'error',
                 message: 'User closed connect modal.'
             })
-        }
-    }
-}
-
-export const editProfile = async ({
-    bio,
-    fullname,
-    avatar,
-    authToken,
-    loadState = null
-}: {
-    bio?: string
-    fullname?: string
-    avatar?: string
-    authToken: string
-    loadState?: null | Function,
-}) => {
-    const body = {} as Record<string, string>
-    if (bio) body.bio = bio
-    if (fullname) body.fullname = fullname
-    if (avatar) body.avatar = avatar
-    if (Object.keys(body).length > 0) {
-        if (loadState) {
-            loadState('start', 'Try setting up bio and fullname')
-        }
-        try {
-            const req = await fetch(`${API_BASE}/accounts/edit-account`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify(body)
-            })
-            if (req.ok) {
-                return true
-            }
-            return false
-        } catch (e) {
-            if (loadState) {
-                loadState('start', '')
-            }
-            return false
         }
     }
 }

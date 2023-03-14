@@ -23,7 +23,7 @@ const useMainStore = defineStore('main', {
       modalLoginState: true   
     }
   }
-})
+}) as unknown as () => IMainStore
 
 const useGraphStore = defineStore('graph', {
   state: () => {

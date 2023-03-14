@@ -23,11 +23,11 @@
       </div>
       <div class="ds projects">
         <h6 title="Number of projects created by the user">Influence</h6>
-        <p>{{ userData.weight }}</p>
+        <p>{{ userData.weight }}/10</p>
       </div>
       <div class="ds posts">
         <h6 title="Number of posts">Score</h6>
-        <p>{{ userData.score }}</p>
+        <p>{{ userData.score }}/100</p>
       </div>
     </div>
     <div class="ds-actions">
@@ -43,8 +43,8 @@
       <div v-if="userData?.web3Handles?.farcaster ?? userData?.web3Handles?.lens">
         <h6 class="pt-2">External Handles</h6>
         <div class="flex mx-auto justify-center my-2">
-      <ion-chip v-if="userData?.web3Handles?.farcaster" style="display: flex;" class="opacity-70 h-10" ><div><p>Farcaster</p><b>{{userData?.web3Handles?.farcaster}}</b></div></ion-chip>
-      <ion-chip v-if="userData?.web3Handles?.lens" style="display: flex;" class="opacity-70 h-10" ><div><p>Lens</p><b>{{userData?.web3Handles?.lens}}</b></div></ion-chip>
+      <ion-chip v-if="userData?.web3Handles?.farcaster" style="display: flex;" class="opacity-70 h-12" ><div><p>Farcaster</p><b>{{userData?.web3Handles?.farcaster}}</b></div></ion-chip>
+      <ion-chip v-if="userData?.web3Handles?.lens" style="display: flex;" class="opacity-70 h-12" ><div><p>Lens</p><b>{{userData?.web3Handles?.lens}}</b></div></ion-chip>
       </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { IMainStore } from 'shared/src/types/store'
 
 const useMainStore = defineStore('main', {
     state: () => {
@@ -19,7 +20,7 @@ const useMainStore = defineStore('main', {
             fid: ''
         }
     }
-})
+}) as unknown as () => IMainStore
 
 const useSettingsStore = defineStore('setiings', {
     state: () => {
