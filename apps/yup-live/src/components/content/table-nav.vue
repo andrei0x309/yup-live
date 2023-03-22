@@ -24,7 +24,7 @@ export default defineComponent({
   setup(props) {
     const links = [
       {
-        name: 'Vote List',
+        name: 'Yup Social',
         path: '/'
       },
       {

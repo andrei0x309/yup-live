@@ -1,7 +1,7 @@
 <template>
   <div :class="`flex justify-between m-1 md:m-6 flex-row pPost ${postTypeClass}`">
     <div
-      class="flex flex-col max-w-2xl mx-auto rounded-b-none postCard w-full"
+      class="flex flex-col max-w-2xl mx-auto rounded-b-none postCard w-full min-w-[23rem]"
      :style="full && post.tag === 'mirror' ? 'max-width: 56rem;' : ''"
     >
       <component

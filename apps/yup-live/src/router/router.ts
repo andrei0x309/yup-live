@@ -18,6 +18,16 @@ const routes = [
     component: HomePage
   },
   {
+    path: '/vote-list',
+    name: 'VoteList',
+    component: HomePage
+  },
+  {
+    path: '/vote-list/:pageNo',
+    name: 'PaginatedVoteList',
+    component: HomePage
+  },
+  {
     path: '/rewards',
     name: 'Rewards',
     component: HomePage

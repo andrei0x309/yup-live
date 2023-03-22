@@ -269,6 +269,11 @@ export const disconnectFromFarcaster = async ({
 };
 
 export const getFarcasterYupThread = async ({ postId, apiBase = API_BASE }: { postId: string, apiBase: string }) => {
+    const empty = {
+        comments: [],
+        numComments: 0,
+    }
+    if (!postId) return empty;
     const req = await fetch(`${apiBase}/farcaster/thread?postId=${postId}`);
     if (req.ok) {
         const data = await req.json();
@@ -279,8 +284,5 @@ export const getFarcasterYupThread = async ({ postId, apiBase = API_BASE }: { po
             }
         }
     }
-    return {
-        comments: [],
-        numComments: 0,
-    }
+    return empty;
 }

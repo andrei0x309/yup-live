@@ -2,11 +2,12 @@
   <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <TokenMetrics />
     <TableNav :key="`table-nav-${pageActive}`" :linkActive="pageActive" />
-    <VoteList v-if="pages.default === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />
+    <YupList v-if="pages.default === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />
     <Rewards v-if="pages.rewards === pageActive" :key="`rewards-${pageActive}`" :pageNum="pageNum" :type="(type as string)" />
     <Sellers v-if="pages.topSellers === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />
     <GiniWeeks v-if="pages.gini === pageActive" :key="`gini-${pageActive}`" />
     <GiniTrend v-if="pages.giniTrend === pageActive" :key="`gini-trend-${pageActive}`" />
+    <!-- <VoteList v-if="pages.voteList === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" /> -->
   </div>
 </template>
 
@@ -14,7 +15,7 @@
 import { onMounted, defineComponent, ref, reactive, computed, onUnmounted, Ref, watch, defineAsyncComponent } from 'vue'
 import { useHead, HeadObject } from '@vueuse/head'
 import TokenMetrics from '@/components/content/token-metrics.vue'
-import VoteList from '@/components/content/vote-list.vue'
+import YupList from '@/components/content/yup-list.vue'
 import TableNav from '@/components/content/table-nav.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMainStore, openConnectModal } from '@/store/main'
@@ -23,12 +24,13 @@ export default defineComponent({
   name: 'HomePage',
   components: {
     TokenMetrics,
-    VoteList,
+    YupList,
     TableNav,
     Rewards: defineAsyncComponent(() => import('@/components/content/rewards-earners.vue')),
     Sellers: defineAsyncComponent(() => import('@/components/content/top-sellers.vue')),
     GiniWeeks: defineAsyncComponent(() => import('@/components/content/gini-weeks.vue')),
-    GiniTrend: defineAsyncComponent(() => import('@/components/content/gini-trend.vue'))
+    GiniTrend: defineAsyncComponent(() => import('@/components/content/gini-trend.vue')),
+    // VoteList: defineAsyncComponent(() => import('@/components/content/vote-list.vue'))
   },
   setup() {
     const route = useRoute()
@@ -42,7 +44,8 @@ export default defineComponent({
       topSellers: 'Top Sellers',
       gini: 'Rewards Gini Index',
       giniTrend: 'Recent Gini Trend',
-      default: 'Vote List'
+      // voteList: 'Vote List',
+      default: 'Yup Social'
     }
 
     const getPageActive = (path: string) => {
@@ -57,6 +60,8 @@ export default defineComponent({
           return pages.gini
         case '/gini-trend':
           return pages.giniTrend
+        // case '/vote-list':
+        //   return pages.voteList
         case '/login': {
           setTimeout(() => {
             openConnectModal(store)

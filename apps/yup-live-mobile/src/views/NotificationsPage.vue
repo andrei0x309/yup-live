@@ -55,7 +55,7 @@
                   <p class="ml-3 mt-3 flex items-center w-full">
                     <b class="mr-2 opacity-60" style="transform: rotate(90deg);width: 2.5rem;">URL</b
                     ><span style="font-size: 0.78rem"
-                      ><router-link :to="`/tabs/post/${notification?.post?.postid}`">{{ notification?.post?.url }}</router-link></span
+                      ><router-link :to="`/tabs/post/${notification?.post?.postid}`">{{ notification?.post?.url?.length > 30 ? notification?.post?.url?.slice(0, 28) + '...' : notification?.post?.url?.length }}</router-link></span
                     >
                   </p>
                   <p class="ml-3 flex items-center mt-4 self-end"><ClockIcon class="h4 w-4 mr-1" />{{ timeAgo(notification.createdAt) }}</p>

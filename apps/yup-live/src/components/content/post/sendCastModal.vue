@@ -115,7 +115,7 @@ export default defineComponent({
         return;
       }
       isSendingCast.value = true;
-      const res = await FCSendCast(farcasterToken.value, castContent.value, API_BASE, props.replyTo);
+      const res = await FCSendCast(farcasterToken.value as string, castContent.value, API_BASE, props.replyTo);
       if (!res.error) {
         castContent.value = "";
         ctx.emit('success')

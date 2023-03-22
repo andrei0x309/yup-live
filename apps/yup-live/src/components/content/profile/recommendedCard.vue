@@ -1,8 +1,8 @@
 <template>
   
-  <div class="recommanded text-left ml-6 hidden lg:block">
+  <div v-if="data.length" class="recommanded text-left ml-6 hidden lg:block">
     <h2 class="text-xl font-bold mb-2">Web3Profiles to {{  isAuth ? 'follow': 'view'  }}</h2>
-    <DangLoader v-if="!data.length" />
+    <DangLoader v-if="!data.length" :unset="false" class="mt-10" />
     <div class="flex">
     <ul>
         <li v-for="account of data.slice(0, 5)" :key="account._id" class="p-2">
@@ -63,7 +63,8 @@ export default defineComponent({
   props: {
     data : {
       type: Array<IWeb3ProfileRecommendation>,
-      required: true
+      required: true,
+      default: []
     },
     isAuth: {
       type: Boolean,

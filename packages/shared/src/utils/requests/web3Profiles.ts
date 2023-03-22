@@ -34,10 +34,10 @@ export const fetchRecommendedWeb3Profiles = async (apiBase: string = API_BASE, s
         if (res.ok) {
             return req
         } else {
-            return null
+            return []
         }
     } catch (error) {
         console.error('Failed to fetch web3 profiles', error)
-        return null
+        return []
     }
 }

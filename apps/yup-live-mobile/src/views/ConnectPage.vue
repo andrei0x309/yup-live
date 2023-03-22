@@ -93,8 +93,12 @@
           </ion-card-content>
         </ion-card>
       </div>
-      <div class="mt-20 mb-6">
+      <div class="mt-20 mb-4">
         <ion-button class="info-btn" fill="clear" @click="(infoModalOpen = true)" >INFO - YUP</ion-button>
+      </div>
+
+      <div class="mt-2 mb-6">
+        <ion-button class="info-btn" fill="clear" @click="(reviewModalLogin = true)" >Review Login</ion-button>
       </div>
     </ion-content>
 
@@ -142,6 +146,36 @@
             </ul>
           </li>
         </ul>
+      </ion-content>
+    </ion-modal>
+
+    <ion-modal :is-open="reviewModalLogin">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Review Login</ion-title>
+          <ion-buttons slot="end">
+            <ion-button @click="(infoModalOpen = false)">Close</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <h3 class="text-center mb-4">AppStore Review Login</h3>
+         
+        <ion-card-content class="ion-justify-content-center">
+        <ion-item mode="ios">
+          <ion-label>Username</ion-label>
+          <ion-input v-model="reviewUsername" placeholder=""></ion-input>
+        </ion-item>
+ 
+        <ion-item mode="ios">
+          <ion-label>Password</ion-label>
+          <ion-input v-model="reviewPassword" placeholder=""></ion-input>
+        </ion-item>
+
+        <CustomButton :disabled="loading" class="ion-margin" text="Log in" @click="reviewLogin"  />
+      </ion-card-content>
+
+       
       </ion-content>
     </ion-modal>
 
@@ -218,7 +252,7 @@ export default defineComponent({
     IonAccordionGroup,
     IonToast,
     HeaderBar,
-      IonModal,
+    IonModal,
     IonToolbar,
     IonTitle,
     IonHeader,
@@ -238,6 +272,9 @@ export default defineComponent({
     const tostMsg = ref("");
     const router = useRouter();
     const infoModalOpen = ref(false);
+    const reviewModalLogin = ref(false);
+    const reviewUsername = ref("");
+    const reviewPassword = ref("");
 
     const segmentChange = (value: any) => {
       currentSegment.value = value.detail.value;
@@ -260,6 +297,40 @@ export default defineComponent({
         toastState.value = true;
       }
     };
+
+    const reviewLogin = async () => {
+      reviewModalLogin.value = false;
+      loading.value = true;
+      try {
+      const req = await fetch('https://dev.api.yup.io/accounts/log-in/demo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: reviewUsername.value,
+          password: reviewPassword.value
+        })
+      })
+      const res = await req.json()
+
+      const loginRes = {
+            address:res.address,
+            _id: res.accountId,
+            avatar: null,
+            weight: "1",
+            signature: '',
+            authToken: res.jwt,
+            username: res.username
+        }
+
+      await doLogin(loginRes)
+      loading.value = false;
+    } catch {
+      loading.value = false;
+    }
+    }
+
 
     const doLogin = (params: Awaited<ReturnType<typeof onSignup>>) => {
       if (params) {
@@ -347,7 +418,11 @@ export default defineComponent({
       loading,
       toastState,
       tostMsg,
-      infoModalOpen
+      infoModalOpen,
+      reviewModalLogin,
+      reviewPassword,
+      reviewUsername,
+      reviewLogin
     };
   },
 });

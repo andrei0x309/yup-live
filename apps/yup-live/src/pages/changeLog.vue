@@ -82,6 +82,15 @@ export default defineComponent({
 
     const changes = [
       {
+        date: "22 MARCH - 2023",
+        title: "Changes",
+        changes: [
+          "added social posts of yup from twitter and farcaster",
+          "fix to stop farcaster request to be sent when post not loaded yet",
+          "fix recommended in case of empty list",
+        ],
+      },
+      {
         date: "14 MARCH - 2023",
         title: "Changes",
         changes: [
