@@ -83,6 +83,8 @@ import type { PartialAccountInfo } from 'shared/src/types/account'
 import type { Vote } from 'shared/src/types/vote'
 import { report } from 'shared/src/utils/requests/report'
 import { reasons, reportType } from 'shared/src/types/report'
+import { OTooltip } from '@oruga-ui/oruga-next'
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
 
@@ -102,7 +104,8 @@ export default defineComponent({
     DangLoader,
     AvatarBtn,
     RetryIcon,
-    FlagIcon
+    FlagIcon,
+    OTooltip
   },
   props: {
     postId: {

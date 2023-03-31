@@ -76,21 +76,10 @@ import type { IPost } from "shared/src/types/post";
 import type { IMainStore } from "shared/src/types/store";
 import PostMenu from "@/components/content/post/menu/postMenu.vue";
 import CollectMenu from "@/components/content/post/menu/collectMenu.vue";
+import { onMounted, defineComponent, ref, onUnmounted, Ref, inject } from "vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
-const deps: IPostDeps = {
-  stackAlertError,
-  stackAlertSuccess,
-  stackAlertWarning,
-  openConnectModal,
-  useMainStore: (useMainStore as unknown) as () => IMainStore,
-  apiBase: API_BASE,
-  PostMenu: PostMenu,
-  CollectMenu: CollectMenu,
-};
-
-import { onMounted, defineComponent, ref, onUnmounted, Ref } from "vue";
 
 export default defineComponent({
   name: "SocialList",
@@ -106,6 +95,18 @@ export default defineComponent({
     const isDataLoading = ref(false);
     const curPage = ref(Number(props.pageNum));
     const store = useMainStore();
+    const deps: IPostDeps = {
+    stackAlertError,
+    stackAlertSuccess,
+    stackAlertWarning,
+    openConnectModal,
+    useMainStore: (useMainStore as unknown) as () => IMainStore,
+    apiBase: API_BASE,
+    PostMenu: PostMenu,
+    CollectMenu: CollectMenu,
+    ToolTip: inject('ToolTip') as ReturnType<typeof defineComponent>,
+  };
+
 
     const iconsColor = ref(store.theme === "dark" ? "#ccc" : "#020201");
 

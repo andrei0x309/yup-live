@@ -44,6 +44,7 @@ import { fetchWAuth } from 'shared/src/utils/auth'
 import { stackAlertError, stackAlertSuccess } from '@/store/alertStore'
 import CustomButton from 'components/functional/customButton.vue'
 import Alert from 'components/functional/alert.vue'
+import { OTooltip } from '@oruga-ui/oruga-next'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
 const refAddIcon = AddIcon
@@ -54,7 +55,8 @@ export default defineComponent({
     CollectIcon,
     AddIcon,
     CustomButton,
-    Alert
+    Alert,
+    OTooltip
   },
   props: {
     postId: {

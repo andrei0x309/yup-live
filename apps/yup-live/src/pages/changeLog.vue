@@ -82,6 +82,16 @@ export default defineComponent({
 
     const changes = [
       {
+        date: "30 MARCH - 2023",
+        title: "Changes",
+        changes: [
+          'deprecated claim old account using twitter',
+          'removed twitter connect due to inadequate backend api changes',
+          'updated mobile / yup live signup requirements',
+          'update mobile to ionic 7'
+        ],
+      },
+      {
         date: "22 MARCH - 2023",
         title: "Changes",
         changes: [

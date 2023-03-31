@@ -33,26 +33,31 @@
             >            <BtnSpinner v-if="isDisconnectFromFarcaster" class="inline mr-2" /><ProfileFarcasterIcon class="w-6 inline mr-2" /> 
 
             Disconnect from Farcaster</button>
-      <template  v-if="!isConnectedToTwitter">
-        <button class="mt-4 bg-sky-500 border-0 py-2 px-6 focus:outline-none hover:bg-sky-700 rounded text-lg" @click="twitterLink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Connect to Twitter</button>
-        <o-checkbox v-model="twFollowersAsKeywords" class="p-2" :native-value="true">
+      <!-- <template  v-if="!isConnectedToTwitter">
+        <button disabled class="mt-4 bg-sky-500 border-0 py-2 px-6 focus:outline-none hover:bg-sky-700 rounded text-lg opacity-50" @click="twitterLink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Connect to Twitter</button>
+        <o-checkbox v-model="twFollowersAsKeywords" disabled class="p-2" :native-value="true">
         <span class="ml-2">Insert my twitter followers into personal keywords.</span>
+        
       </o-checkbox>
-    </template>
-        <button
-        v-else
-        class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
-         @click="twitterUnlink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Disconnect from Twitter</button>
+      <span class="ml-2 mt-1 text-[0.75rem]">Disabled Twitter linking as in my view backend implementation is not compliant with GDPR Article 4, ( bundling linking with harvesting followers )</span>
 
+    </template>
+    <template v-else>
+        <button
+        disabled
+        class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg opacity-50"
+         @click="twitterUnlink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Disconnect from Twitter</button>
+         <span class="ml-2 mt-1 text-[0.75rem]">Disabled Twitter linking as in my view backend implementation is not compliant with GDPR Article 4, ( bundling linking with harvesting followers )</span>
+      </template> -->
         <template  v-if="!isConnectedToLens">
-          <span class="ml-2">Connect to lens is disabled due to being in development.</span>
          <button
          disabled
-        class="mt-4 bg-green-500 border-0 py-2 px-6 focus:outline-none hover:bg-green-600 rounded text-lg"
+        class="mt-4 bg-green-500 border-0 py-2 px-6 focus:outline-none hover:bg-green-600 rounded text-lg opacity-50"
         @click="doConnectLens"
         >
         <ProfileLensIcon class="w-6 inline mr-2" /> <BtnSpinner v-if="isConnectToLens" class="inline mr-2" /> Connect to Lens
         </button>
+        <span class="ml-2 mt-1 text-[0.75rem]">Connect to lens is disabled due to being in development.</span>
         </template>
         <template v-else>
         <button
@@ -188,7 +193,7 @@ const refGoTo = GoToIcon;
 import type { IUserData } from "shared/src/types/account";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import { useRouter } from "vue-router";
-import TwitterIcon from "icons/src/twitter.vue";
+// import TwitterIcon from "icons/src/twitter.vue";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import ProfileLensIcon from "icons/src/profileLens.vue";
 import { claimAndLinkTwitter, twitterCheckAndUnlink } from "shared/src/utils/requests/twitter"
@@ -207,7 +212,7 @@ const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   name: "SettingsPage",
-  components: { DangLoader, CustomButton, BtnSpinner, TwitterIcon, ProfileFarcasterIcon, VACropper, ProfileLensIcon },
+  components: { DangLoader, CustomButton, BtnSpinner, ProfileFarcasterIcon, VACropper, ProfileLensIcon },
   props: {
     userData: {
       type: Object as PropType<IUserData>,

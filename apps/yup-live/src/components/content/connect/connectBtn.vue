@@ -10,14 +10,17 @@
     <NotifBtn class="mr-2" />
     <LogOutBtn class="mr-2" />
   </button>
-  <o-modal v-model:active="refConnectMod" contentClass="modal-body" @close="modalWasClosed">
+  <o-modal
+    v-model:active="refConnectMod"
+    contentClass="modal-body"
+    @close="modalWasClosed"
+  >
     <template v-if="libWallLoading">
       <p class="p-4">{{ loadingMessage }}</p>
       <DangLoader />
     </template>
     <component
       :is="!libWallLoading ? refDynLogComp : undefined"
-      :key="libWallLoading"
       :loadState="compLoadState"
       :loginState="refLoginState"
       :setAlert="setAlert"
@@ -27,88 +30,93 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref, shallowRef, onUnmounted } from 'vue'
-import WalletIcon from 'icons/src/walletIcon.vue'
-import DangLoader from 'components/vote-list/loader.vue'
-import type { dComponent } from 'shared/src/types/vue'
-import { useMainStore } from '@/store/main'
-import AvatarBtn from 'components/functional/avatarBtn.vue'
-import NotifBtn from './notifBtn.vue'
-import LogOutBtn from './logOutBtn.vue'
+import { onMounted, defineComponent, ref, Ref, shallowRef, onUnmounted } from "vue";
+import WalletIcon from "icons/src/walletIcon.vue";
+import DangLoader from "components/vote-list/loader.vue";
+import type { dComponent } from "shared/src/types/vue";
+import { useMainStore } from "@/store/main";
+import AvatarBtn from "components/functional/avatarBtn.vue";
+import NotifBtn from "./notifBtn.vue";
+import LogOutBtn from "./logOutBtn.vue";
 
 export default defineComponent({
-  name: 'ConnectButton',
+  name: "ConnectButton",
   components: {
     WalletIcon,
     DangLoader,
     AvatarBtn,
     NotifBtn,
-    LogOutBtn
+    LogOutBtn,
   },
   setup() {
-    const refConnectMod = ref(false)
-    const refLoginState = ref(true)
-    const libWallLoading = ref(false)
-    const refDynLogComp: Ref<dComponent> = shallowRef(undefined)
+    const refConnectMod = ref(false);
+    const refLoginState = ref(true);
+    const libWallLoading = ref(false);
+    const refDynLogComp: Ref<dComponent> = shallowRef(undefined);
     const alertProps = {
       hidden: true,
-      title: '',
-      message: '',
-      type: 'error'
-    }
-    const mainStore = useMainStore()
-    const isAuth = ref(mainStore.isLoggedIn)
-    const loadingMessage = ref('')
+      title: "",
+      message: "",
+      type: "error",
+    };
+    const mainStore = useMainStore();
+    const isAuth = ref(mainStore.isLoggedIn);
+    const loadingMessage = ref("");
 
     mainStore.$subscribe(() => {
-      isAuth.value = mainStore.isLoggedIn
+      isAuth.value = mainStore.isLoggedIn;
       if (mainStore.openConnectModal) {
-        connectModal()
+        connectModal();
       }
-    })
+    });
 
     const compLoadState = (state: string, message: string) => {
-      loadingMessage.value = message
-      if (state === 'start') {
-        libWallLoading.value = true
-      } else if (state === 'end') {
-        libWallLoading.value = false
-      } else if (state === 'close') {
-        refConnectMod.value = false
+      loadingMessage.value = message;
+      if (state === "start") {
+        libWallLoading.value = true;
+      } else if (state === "end") {
+        libWallLoading.value = false;
+      } else if (state === "close") {
+        refConnectMod.value = false;
       }
-    }
+    };
 
-    const setAlert = (aProps: { hidden: boolean; title: string; message: string; type: string }) => {
-      alertProps.hidden = false
-      alertProps.title = aProps.type
-      alertProps.message = aProps.message
-      alertProps.type = aProps.type
-    }
+    const setAlert = (aProps: {
+      hidden: boolean;
+      title: string;
+      message: string;
+      type: string;
+    }) => {
+      alertProps.hidden = false;
+      alertProps.title = aProps.type;
+      alertProps.message = aProps.message;
+      alertProps.type = aProps.type;
+    };
 
     const connectModal = async () => {
-      libWallLoading.value = true
-      refConnectMod.value = true
-      refLoginState.value = mainStore.modalLoginState
-      refDynLogComp.value = (await import('./loginSignup.vue')).default
-      libWallLoading.value = false
-    }
+      libWallLoading.value = true;
+      refConnectMod.value = true;
+      refLoginState.value = mainStore.modalLoginState as boolean;
+      refDynLogComp.value = (await import("./loginSignup.vue")).default;
+      libWallLoading.value = false;
+    };
 
     const closeModal = () => {
-      refConnectMod.value = false
-    }
+      refConnectMod.value = false;
+    };
 
     const modalWasClosed = () => {
-      alertProps.hidden = true
-      mainStore.openConnectModal = false
-    }
+      alertProps.hidden = true;
+      mainStore.openConnectModal = false;
+    };
 
     onUnmounted(() => {
-      refDynLogComp?.value.removeEventListener('loading', compLoadState)
-    })
+      refDynLogComp?.value.removeEventListener("loading", compLoadState);
+    });
 
     onMounted(() => {
       // nothing
-    })
+    });
 
     return {
       connectModal,
@@ -122,10 +130,10 @@ export default defineComponent({
       modalWasClosed,
       isAuth,
       loadingMessage,
-      refLoginState
-    }
-  }
-})
+      refLoginState,
+    };
+  },
+});
 </script>
 
 <style lang="scss">
@@ -139,7 +147,8 @@ header .loggedBtn {
   transition: all 0.3s ease-in-out;
   position: relative;
   top: 0.1rem;
-  box-shadow: inset -1px -1px 3rem 2px var(--logoBg), -2px 2px 2px 2px var(--logoBg), 2px -2px 2px 2px var(--logoBg);
+  box-shadow: inset -1px -1px 3rem 2px var(--logoBg), -2px 2px 2px 2px var(--logoBg),
+    2px -2px 2px 2px var(--logoBg);
 }
 
 .connectButton {
@@ -174,7 +183,7 @@ header .loggedBtn {
   }
   &:before,
   &:after {
-    content: '';
+    content: "";
     display: block;
     position: absolute;
   }
@@ -208,5 +217,4 @@ header .loggedBtn {
     z-index: 45;
   }
 }
-
 </style>

@@ -149,6 +149,7 @@ import TokenIcon from 'icons/src/tokenYup.vue'
 import ETHIcon from 'icons/src/eth.vue'
 import FileDownloadIcon from 'icons/src/fileDownload.vue'
 import QuickSwapIcon from 'icons/src/quickSwap.vue'
+import { OTooltip } from '@oruga-ui/oruga-next'
 
 import {
   onMounted,
@@ -163,7 +164,7 @@ import {
 
 export default defineComponent({
   name: 'TopSellers',
-  components: { DangLoader, UserIcon, ETHIcon, TokenIcon, FileDownloadIcon, InfoIcon, QuickSwapIcon, BtnSpinner },
+  components: { DangLoader, UserIcon, ETHIcon, TokenIcon, FileDownloadIcon, InfoIcon, QuickSwapIcon, BtnSpinner, OTooltip },
   props: {
     pageNum: {
       required: true,

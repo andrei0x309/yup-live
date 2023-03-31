@@ -85,7 +85,7 @@ import {
   onUnmounted,
   Ref,
   ref,
-  PropType,
+  PropType
 } from "vue";
 import { useHead, HeadObject } from "@vueuse/head";
 import DangLoader from "components/vote-list/loader.vue";
@@ -102,8 +102,21 @@ import type { IMainStore } from "shared/src/types/store";
 import PostMenu from '@/components/content/post/menu/postMenu.vue'
 import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
 import { IWeb3Profile } from 'shared/src/types/web3Profile'
+import { OTooltip } from '@oruga-ui/oruga-next'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
+const postDeps: IPostDeps = {
+      stackAlertError,
+      stackAlertSuccess,
+      stackAlertWarning,
+      openConnectModal,
+      useMainStore: useMainStore as unknown as () => IMainStore,
+      apiBase: API_BASE,
+      PostMenu: PostMenu,
+      CollectMenu: CollectMenu,
+      ToolTip: OTooltip
+    }
 
 const web3Deps = {
   openConnectModal,
@@ -113,16 +126,6 @@ const web3Deps = {
   apiBase: API_BASE,
 };
 
-const postDeps: IPostDeps = {
-  stackAlertError,
-  stackAlertSuccess,
-  stackAlertWarning,
-  openConnectModal,
-  useMainStore: useMainStore as unknown as () => IMainStore,
-  apiBase: API_BASE,
-  PostMenu: PostMenu,
-  CollectMenu: CollectMenu
-}
 
 export default defineComponent({
   name: "PostDetail",
@@ -140,7 +143,6 @@ export default defineComponent({
   },
   setup(props) {
     type  ExIPost  =  IPost  &  {  web3CreatorProfile:  IWeb3Profile  |  null  |  undefined  }
-
     const route = useRoute();
     const postId = ref(route.params.postId as string);
     const isDataLoading = ref(true);

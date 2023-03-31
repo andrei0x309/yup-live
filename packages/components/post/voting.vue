@@ -1,6 +1,7 @@
 <template>
   <div v-if="!mobile" class="flex gap-4">
-    <o-tooltip
+    <component
+      :is="toolTipComponent"
       v-model:active="showUp"
       :triggers="['hover']"
       :autoClose="true"
@@ -17,8 +18,9 @@
         v-if="positiveWeightRef > 0"
         v-html="formatNumber(positiveWeightRef, 2)"
       ></span>
-    </o-tooltip>
-    <o-tooltip
+    </component>
+    <component
+      :is="toolTipComponent"
       v-model:active="showDown"
       :triggers="['hover']"
       :autoClose="true"
@@ -35,7 +37,7 @@
         v-if="negativeWeightRef > 0"
         v-html="formatNumber(negativeWeightRef, 2)"
       ></span>
-    </o-tooltip>
+    </component>
   </div>
   <div v-else class="flex gap-4">
     <div>
@@ -115,6 +117,11 @@ export default defineComponent({
       required: false,
       type: Boolean,
       default: false,
+    },
+    toolTipComponent: {
+      required: false,
+      type: Object as PropType<unknown>,
+      default: undefined,
     },
   },
   emits: ["update:vote"],

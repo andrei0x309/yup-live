@@ -8,7 +8,6 @@ import 'virtual:windi.css'
 import '@/assets/oruga-patched.scss'
 import '@/assets/app.scss'
 
-
 // import { createHead } from "@vueuse/head";
 import {
   Dropdown,
@@ -20,12 +19,10 @@ import {
   Skeleton,
   Switch,
   Radio,
-  Tooltip,
   Checkbox,
 } from '@oruga-ui/oruga-next'
 import { createPinia } from 'pinia'
 import { Buffer } from 'buffer'
-
 
 globalThis.Buffer = Buffer
 export const createApp = ViteSSG(
@@ -49,8 +46,8 @@ export const createApp = ViteSSG(
     app.use(Switch)
     app.use(Radio)
     app.use(Table)
-    app.use(Tooltip)
     app.use(Checkbox)
+
 
     if (import.meta.env.SSR) {
       // this will be stringified and set to window.__INITIAL_STATE__

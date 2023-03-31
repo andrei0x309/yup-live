@@ -20,7 +20,7 @@
           check
         </button>
       </div>
-      <DangLoader v-if="isDataLoading" :unset="true" />
+      <DangLoader v-if="isDataLoading" class="mt-8" :unset="true" />
       <div v-if="!isDataLoading && influence" class="flex flex-wrap m-auto">
         <div>
           <h2>
@@ -51,8 +51,7 @@
       </div>
       <div
         v-if="apiError && !isDataLoading"
-        style="max-width: 40rem; margin: auto"
-        class="alert flex flex-row items-center bg-red-200 p-5 rounded border-b-2 border-red-300"
+        class=" w-max-[30rem] justify-center justify-self-center alert flex flex-row items-center bg-red-200 p-5 rounded border-b-2 border-red-300 mt-8"
       >
         <div class="alert-icon flex items-center bg-red-100 border-2 border-red-500 justify-center h-10 w-10 flex-shrink-0 rounded-full">
           <span class="text-red-500">

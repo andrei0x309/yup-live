@@ -84,6 +84,7 @@ import FollowersIcon from 'icons/src/followers.vue'
 import FollowUnfollwBtn from "components/profile/followUnfollowBtn.vue"
 import { useMainStore, openConnectModal } from '@/store/main'
 import { stackAlertWarning, stackAlertSuccess } from '@/store/alertStore'
+import { OTooltip } from '@oruga-ui/oruga-next'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -92,7 +93,8 @@ export default defineComponent({
   components: {
     ProfileUseBar,
     FollowersIcon,
-    FollowUnfollwBtn
+    FollowUnfollwBtn,
+    OTooltip
   },
   props: {
     postInfo: {

@@ -233,21 +233,21 @@ import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
 import type { IPostDeps } from 'shared/src/types/post'
 import type { IMainStore } from 'shared/src/types/store'
 import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
-
+import { OTooltip } from '@oruga-ui/oruga-next'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
-
 const postDeps: IPostDeps = {
-  stackAlertError,
-  stackAlertSuccess,
-  stackAlertWarning,
-  openConnectModal,
-  useMainStore: useMainStore as unknown as () => IMainStore,
-  apiBase: API_BASE,
-  PostMenu: PostMenu,
-  CollectMenu: CollectMenu
-}
+    stackAlertError,
+    stackAlertSuccess,
+    stackAlertWarning,
+    openConnectModal,
+    useMainStore: useMainStore as unknown as () => IMainStore,
+    apiBase: API_BASE,
+    PostMenu: PostMenu,
+    CollectMenu: CollectMenu,
+    ToolTip: OTooltip
+  }
 
 export default defineComponent({
   name: "ProfilePage",

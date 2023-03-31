@@ -302,7 +302,7 @@ export default defineComponent({
       reviewModalLogin.value = false;
       loading.value = true;
       try {
-      const req = await fetch('https://dev.api.yup.io/accounts/log-in/demo', {
+      const req = await fetch('https://api.yup.io/accounts/log-in/demo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

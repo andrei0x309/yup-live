@@ -24,6 +24,7 @@
               :hasVote="refHasVote"
               :deps="deps"
               :mobile="mobile"
+              :toolTipComponent="deps.ToolTip"
             />
             <div class="flex ml-auto">
             <router-link v-if="commentsNum > 2" class=" mr-2" :to="`/post/${processedPost.id}`"  ><ComentsIcon class="inline-block w-5 mr-2" />{{ commentsNum }}</router-link>

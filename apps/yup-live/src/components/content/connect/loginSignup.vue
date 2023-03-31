@@ -3,16 +3,43 @@
     <div class="header">
       <h2>{{ formTitle }}</h2>
     </div>
-    <Alert v-bind="alertProps" style="max-width: 26rem; margin-left: auto; margin-right: auto" />
-    <form v-if="!isLogin" id="registration-form" class="mt-12" @submit.prevent>
-      <input v-model="username" type="text" name="pass" placeholder="Username" />
+    <Alert
+      v-bind="alertProps"
+      style="max-width: 26rem; margin-left: auto; margin-right: auto"
+    />
+    <form v-if="!isLogin" id="registration-form" class="mt-8" @submit.prevent>
+      <div class="mx-4 text-left -mt-4 glassCard text-[0.9rem]">
+        <p class="mt-2 mb-4">To sign-up you need to pass one of the following requirements:</p>
+        <ul>
+          <li class="p-1 ml-4">Address has yup token balance of 25k</li>
+          <li class="p-1 ml-4">
+            Address has a
+            <a
+              class="underline underline-offset-4"
+              href="https://docs.yup.io/protocol/yup-score"
+              rel="nofollow"
+              >yup score</a
+            >
+            of 25
+          </li>
+          <li class="p-1 ml-4">Address has been added to onboard allow list</li>
+        </ul>
+      </div>
+
+      <input v-model="username" type="text" name="pass" placeholder="Username*" />
       <input v-model="fullname" type="text" name="text" placeholder="Full name" />
       <textarea v-model="bio" name="text" placeholder="Bio"></textarea>
       <button class="login-btn" @click="onSignupLocal">Sign Up</button>
     </form>
 
     <form v-else class="login-view" @submit.prevent>
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-30 mx-auto" style="opacity: 0.75" viewBox="0 0 366 366" fill="none">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-30 mx-auto"
+        style="opacity: 0.75"
+        viewBox="0 0 366 366"
+        fill="none"
+      >
         <path
           d="M182.911 366C82.1487 366 0 283.851 0 182.911C0 81.9697 82.1487 0 182.911 0C283.672 0 365.821 82.1487 365.821 182.911C365.821 283.672 283.851 366 182.911 366ZM182.911 17.3604C91.6342 17.3604 17.1814 91.6342 17.1814 183.089C17.1814 274.545 91.4553 348.819 182.911 348.819C274.366 348.819 348.64 274.545 348.64 183.089C348.64 91.6342 274.366 17.3604 182.911 17.3604Z"
           fill="currentColor"
@@ -36,133 +63,155 @@
     <div>
       <button class="option" @click="isLogin ? onNewUser() : onBack()">
         <p class="option-text">
-          <svg v-if="!isLogin" class="backIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            v-if="!isLogin"
+            class="backIcon"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <g>
               <path d="M0 0h24v24H0z" fill="none" />
-              <path fill="currentColor" d="M8 7v4L2 6l6-5v4h5a8 8 0 1 1 0 16H4v-2h9a6 6 0 1 0 0-12H8z" />
+              <path
+                fill="currentColor"
+                d="M8 7v4L2 6l6-5v4h5a8 8 0 1 1 0 16H4v-2h9a6 6 0 1 0 0-12H8z"
+              />
             </g>
           </svg>
-          {{ isLogin ? `New user` : 'Back' }}
+          {{ isLogin ? `New user` : "Back" }}
         </p>
       </button>
-        <p style="opacity: 0.7; font-size: 0.7rem; padding: 2rem">
+      <p style="opacity: 0.7; font-size: 0.7rem; padding: 2rem">
         Don't have a wallet YET😱? Consider using this wallet I made:
-        <a style="text-decoration: underline;display: block" href="https://chrome.google.com/webstore/detail/clear-evm-wallet-clw/djlahdpfkflehaepgohnnodmaajabdlg?hl=en&authuser=0" target="_blank">Clear EVM Wallet (CLW)</a>
+        <a
+          style="text-decoration: underline; display: block"
+          href="https://chrome.google.com/webstore/detail/clear-evm-wallet-clw/djlahdpfkflehaepgohnnodmaajabdlg?hl=en&authuser=0"
+          target="_blank"
+          >Clear EVM Wallet (CLW)</a
+        >
       </p>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref } from 'vue'
-import { ethers } from 'ethers'
-import Web3Modal from 'web3modal'
-import Alert from 'components/functional/alert.vue'
-import { useMainStore } from '@/store/main'
-import { providerOptions } from 'shared/src/utils/evm'
-import type { PartialAccountInfo } from 'shared/src/types/account'
-import { onLogin, onSignup } from 'shared/src/utils/login-signup'
-import { closeConnectModal } from '@/store/main'
+import { onMounted, defineComponent, ref, Ref } from "vue";
+import { ethers } from "ethers";
+import Web3Modal from "web3modal";
+import Alert from "components/functional/alert.vue";
+import { useMainStore } from "@/store/main";
+import { providerOptions } from "shared/src/utils/evm";
+import type { PartialAccountInfo } from "shared/src/types/account";
+import { onLogin, onSignup } from "shared/src/utils/login-signup";
+import { closeConnectModal } from "@/store/main";
 
 export default defineComponent({
-  name: 'LoginSignup',
+  name: "LoginSignup",
   components: {
-    Alert
+    Alert,
   },
   props: {
     loadState: {
       type: Function,
-      default: () => ({})
+      default: () => ({}),
     },
     setAlert: {
       type: Function,
-      default: () => ({})
+      default: () => ({}),
     },
     alertProps: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
     loginState: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
-  emits: ['loading'],
+  emits: ["loading"],
   setup(props) {
-    const provider = ref(null) as unknown as Ref<ethers.providers.Web3Provider>
-    const web3Modal = ref(null) as unknown as Ref<Web3Modal>
-    const isLogin = ref(props.loginState)
-    const formTitle = ref(isLogin.value ? 'Log in': 'Sign up')
-    const mainStore = useMainStore()
-    const fullname = ref('')
-    const username = ref('')
-    const bio = ref('')
+    const provider = (ref(null) as unknown) as Ref<ethers.providers.Web3Provider>;
+    const web3Modal = (ref(null) as unknown) as Ref<Web3Modal>;
+    const isLogin = ref(props.loginState);
+    const formTitle = ref(isLogin.value ? "Log in" : "Sign up");
+    const mainStore = useMainStore();
+    const fullname = ref("");
+    const username = ref("");
+    const bio = ref("");
 
     const onBack = () => {
-      formTitle.value = 'Log in'
-      isLogin.value = true
-    }
+      formTitle.value = "Log-in";
+      isLogin.value = true;
+    };
 
     const onNewUser = () => {
-      formTitle.value = 'Sign up'
-      isLogin.value = false
-    }
+      formTitle.value = "Gated Sign-up";
+      isLogin.value = false;
+    };
 
-
-    const doLogin = ({ address, account, signature, authToken }: { address: string; account: PartialAccountInfo; signature: string, authToken: string }) => {
+    const doLogin = ({
+      address,
+      account,
+      signature,
+      authToken,
+    }: {
+      address: string;
+      account: PartialAccountInfo;
+      signature: string;
+      authToken: string;
+    }) => {
       try {
-        localStorage.setItem('address', address)
-        localStorage.setItem('account', account._id)
-        localStorage.setItem('signature', signature)
-        localStorage.setItem('authToken', authToken)
-        localStorage.setItem('avatar', account.avatar)
-        localStorage.setItem('weight', String(account.weight))
+        localStorage.setItem("address", address);
+        localStorage.setItem("account", account._id);
+        localStorage.setItem("signature", signature);
+        localStorage.setItem("authToken", authToken);
+        localStorage.setItem("avatar", account.avatar);
+        localStorage.setItem("weight", String(account.weight));
         mainStore.userData = {
           address,
           account: account._id,
           signature,
           avatar: account.avatar,
           weight: account.weight as number,
-          authToken
-        }
-        mainStore.isLoggedIn = true
+          authToken,
+        };
+        mainStore.isLoggedIn = true;
       } catch (error) {
-        console.error('Failed to set auth data', error)
+        console.error("Failed to set auth data", error);
       }
-    }
+    };
 
     const doExtensionLogin = (a: unknown) => {
       try {
-        type setYupAuthFn = (a: unknown) => (typeof a)
-        (window as unknown as {yupSetAuth: setYupAuthFn}).yupSetAuth(a)
+        type setYupAuthFn = (a: unknown) => typeof a;
+        ((window as unknown) as { yupSetAuth: setYupAuthFn }).yupSetAuth(a);
       } catch {
         // ignore
       }
-    }
+    };
 
     const doAllLogin = (params: Awaited<ReturnType<typeof onSignup>>) => {
-      if(params) {
-      const { address, _id, avatar, weight, signature, authToken, username } = params
-      doLogin({
-            address,
-            account: {
-                _id,
-                avatar,
-                weight
-            },
-            signature,
-            authToken
-        })
+      if (params) {
+        const { address, _id, avatar, weight, signature, authToken, username } = params;
+        doLogin({
+          address,
+          account: {
+            _id,
+            avatar,
+            weight,
+          },
+          signature,
+          authToken,
+        });
         doExtensionLogin({
-            ethSignature: signature,
-            userId: _id,
-            address,
-            authToken,
-            username
-        })
-        props.loadState('close')
+          ethSignature: signature,
+          userId: _id,
+          address,
+          authToken,
+          username,
+        });
+        props.loadState("close");
       }
-    }
+    };
 
     const onSignupLocal = async () => {
       const signupResult = await onSignup({
@@ -175,14 +224,14 @@ export default defineComponent({
         bio: bio.value,
         fullname: fullname.value,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        web3M: web3Modal as any
-      })
-      doAllLogin(signupResult)
-      if(signupResult?._id){
-        closeConnectModal(mainStore)
+        web3M: web3Modal as any,
+      });
+      doAllLogin(signupResult);
+      if (signupResult?._id) {
+        closeConnectModal(mainStore);
       }
-    }
-    
+    };
+
     const onLoginLocal = async () => {
       const loginResult = await onLogin({
         loadState: props.loadState,
@@ -191,25 +240,23 @@ export default defineComponent({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         provider: provider as any,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        web3M: web3Modal as any
-      })
-      console.log(loginResult)
-      doAllLogin(loginResult)
-      if(loginResult?._id){
-        closeConnectModal(mainStore)
+        web3M: web3Modal as any,
+      });
+      doAllLogin(loginResult);
+      if (loginResult?._id) {
+        closeConnectModal(mainStore);
       }
-    }
-
-
+    };
 
     onMounted(() => {
       web3Modal.value = new Web3Modal({
-        network: 'matic', // optional
+        network: "matic", // optional
         cacheProvider: false, // optional
         providerOptions, // required
-        theme: mainStore.theme
-      })
-    })
+        theme: mainStore.theme,
+      });
+      console.log("tt2");
+    });
 
     return {
       onSignupLocal,
@@ -220,10 +267,10 @@ export default defineComponent({
       isLogin,
       fullname,
       username,
-      bio
-    }
-  }
-})
+      bio,
+    };
+  },
+});
 </script>
 
 <style lang="scss">

@@ -122,4 +122,5 @@ export interface mediaType {
 export interface IPostDeps extends IVotingDeps {
   CollectMenu?: ReturnType<typeof defineComponent>
   PostMenu?: ReturnType<typeof defineComponent>
+  ToolTip?: ReturnType<typeof defineComponent>
 }

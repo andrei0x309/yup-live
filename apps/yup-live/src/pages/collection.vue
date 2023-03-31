@@ -72,20 +72,19 @@ import type { IMainStore } from 'shared/src/types/store'
 import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 import { openConnectModal, useMainStore } from "@/store/main";
 import type { IPost } from 'shared/src/types/post'
-
-
+import { OTooltip } from '@oruga-ui/oruga-next'
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
-
 const postDeps: IPostDeps = {
-  stackAlertError,
-  stackAlertSuccess,
-  stackAlertWarning,
-  openConnectModal,
-  useMainStore: useMainStore as unknown as () => IMainStore,
-  apiBase: API_BASE,
-  PostMenu: PostMenu,
-  CollectMenu: CollectMenu
+    stackAlertError,
+    stackAlertSuccess,
+    stackAlertWarning,
+    openConnectModal,
+    useMainStore: useMainStore as unknown as () => IMainStore,
+    apiBase: API_BASE,
+    PostMenu: PostMenu,
+    CollectMenu: CollectMenu,
+    ToolTip: OTooltip
 }
 
 // import { useMainStore } from '@/store/main'
@@ -99,7 +98,7 @@ export default defineComponent({
     PostInfo
   },
   setup() {
-    const API_BASE = import.meta.env.VITE_YUP_API_BASE
+
     const loading = ref(true)
     const collectionData = ref({}) as unknown as Ref<{ ownerId: string; ownerAvatar: string; name: string }>
     const catComp = shallowRef(null) as Ref<unknown>

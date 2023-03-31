@@ -163,11 +163,6 @@ const routes = [
     component: () => import('@/pages/feeds.vue')
   },
   {
-    path: '/link-existing-account',
-    name: 'Link Existing Account',
-    component: () => import('@/pages/claimOldAccount.vue')
-  },
-  {
     path: '/score',
     name: 'Yup Score',
     component: () => import('@/pages/score.vue')

@@ -154,12 +154,12 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
   }
   if (ethInfo?.isMirror) {
     userInfoFields.splice(2, 0, {
-      name: 'Mirror Account',
+      name: 'Was EOS Mirror',
       value: 'Yes'
     })
   } else {
     userInfoFields.splice(2, 0, {
-      name: 'Mirror Account',
+      name: 'Was EOS Mirror',
       value: 'No'
     })
   }
