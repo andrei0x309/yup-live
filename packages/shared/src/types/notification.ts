@@ -10,4 +10,9 @@ export interface NotifType {
     }
     image: string
     createdAt: string
+    EVMRecipient: {
+        handle: string
+        avatar: string
+        address: string
+    }
 }

@@ -82,6 +82,14 @@ export default defineComponent({
 
     const changes = [
       {
+        date: "03 April - 2023",
+        title: "Changes",
+        changes: [
+          're-enabled twitter link with new endpoints',
+          'added folowers notifications'
+        ],
+      },
+      {
         date: "30 MARCH - 2023",
         title: "Changes",
         changes: [

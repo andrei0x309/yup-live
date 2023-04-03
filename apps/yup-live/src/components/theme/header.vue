@@ -218,7 +218,7 @@ export default defineComponent({
 
     const linksFs = [
       {
-        text: "Vote Explorer",
+        text: "Yup Social Posts",
         path: "/",
       },
       {

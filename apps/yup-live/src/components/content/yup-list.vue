@@ -11,11 +11,11 @@
     <div>
       <div v-if="data[0] || data[1]" class="flex justify-center flex-col lg:flex-row">
         <div>
-        <h3>YUP Tweet</h3>
+        <h3>YUP Recent Tweet</h3>
         <Post :post="data[0]" :deps="deps" :postTypesPromises="postTypesPromises" :isHidenInfo="true" />
         </div>
         <div>
-        <h3>YUP Cast</h3>
+        <h3>YUP Recent Cast</h3>
         <Post :post="data[1]" :deps="deps" :postTypesPromises="postTypesPromises" :isHidenInfo="true" />
         </div>
       </div>

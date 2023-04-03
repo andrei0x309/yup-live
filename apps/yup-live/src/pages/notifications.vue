@@ -84,6 +84,27 @@
                 </div>
               </div>
             </template>
+            <template v-else-if="['follow', 'unfollow'].includes(notification.action)">
+              <div :class="`notBLine inline-block p-1 mr-3`"></div>
+            <div class="flex w-full">
+              <div class="flex flex-col">
+              <AvatarBtn
+                :key="notification?.EVMRecipient?.avatar"
+                class="w-9 h-9 mx-auto mt-4"
+                :pSource="notification?.EVMRecipient?.avatar"
+                :isSelf="false"
+                :isTwitter="false"
+                :pAccount="notification?.EVMRecipient?.handle"
+              />
+              </div>
+              <div class="flex flex-col w-full">
+                <div class="flex">
+                  <p class="ml-3 flex items-center pb-2 mt-4"><b class="mr-2 opacity-60">{{ notification?.EVMRecipient?.handle || `${notification.EVMRecipient?.address?.slice(0, 6)}...` }}</b> {{ `${notification.action === 'follow' ? 'followed' : 'unfollowed'}` }} you</p>
+                </div>
+                <p class="ml-3 flex items-center mt-4 self-end"><ClockIcon class="h4 w-4 mr-1" />{{ timeAgo(notification.createdAt) }}</p>
+              </div>
+            </div>
+            </template>
           </div>
         </o-tab-item>
 
@@ -135,7 +156,6 @@
             </div>
           </div>
         </o-tab-item>
-
         <o-tab-item value="2" label="Rewards">
           <DangLoader v-if="loading" class="-mt-4" />
           <div v-if="!loading && !notifications?.length">
@@ -166,6 +186,38 @@
                 <p class="ml-6 flex items-center mt-6">
                   <b class="mr-2 opacity-60">{{ notification?.quantity ?? 'unknown' }}</b> YUP
                 </p>
+                <p class="ml-3 flex items-center mt-4 self-end"><ClockIcon class="h4 w-4 mr-1" />{{ timeAgo(notification.createdAt) }}</p>
+              </div>
+            </div>
+          </div>
+        </o-tab-item>
+        <o-tab-item value="3" label="Followers">
+        <DangLoader v-if="loading" class="-mt-4" />
+          <div v-if="!loading && !notifications?.length">
+            <p class="text-center text-[1.4rem] mt-10">No followers notifications exists</p>
+          </div>
+          <div
+            v-for="notification of notifications"
+            v-else
+            :key="notification._id"
+            class="shadow-md p-4 flex flex-row rounded-lg relative notComp"
+          >
+            <div :class="`notBLine inline-block p-1 mr-3`"></div>
+            <div class="flex w-full">
+              <div class="flex flex-col">
+              <AvatarBtn
+                :key="notification?.EVMRecipient?.avatar"
+                class="w-9 h-9 mx-auto mt-4"
+                :pSource="notification?.EVMRecipient?.avatar"
+                :isSelf="false"
+                :isTwitter="false"
+                :pAccount="notification?.EVMRecipient?.handle"
+              />
+              </div>
+              <div class="flex flex-col w-full">
+                <div class="flex">
+                  <p class="ml-3 flex items-center pb-2 mt-4"><b class="mr-2 opacity-60">{{ notification?.EVMRecipient?.handle || `${notification.EVMRecipient?.address?.slice(0, 6)}...` }}</b> {{ `${notification.action === 'follow' ? 'followed' : 'unfollowed'}` }} you</p>
+                </div>
                 <p class="ml-3 flex items-center mt-4 self-end"><ClockIcon class="h4 w-4 mr-1" />{{ timeAgo(notification.createdAt) }}</p>
               </div>
             </div>
@@ -206,6 +258,7 @@ import ImagePreview from 'components/post/imagePreview.vue'
 import ClockIcon from 'icons/src/clock.vue'
 import { getNotifications } from 'shared/src/utils/notifications'
 import type { NotifType } from 'shared/src/types/notification'
+import AvatarBtn from 'components/functional/avatarBtn.vue'
 
 export default defineComponent({
   name: 'Notifications',
@@ -214,7 +267,8 @@ export default defineComponent({
     ThumbsDown,
     ThumbsUp,
     ImagePreview,
-    ClockIcon
+    ClockIcon,
+    AvatarBtn
   },
   setup() {
     const loading = ref(false)
@@ -312,6 +366,8 @@ export default defineComponent({
         notifications.value = (await getNotifications({userId, type: 'vote' })).reverse()
       } else if (activeTab.value === '2') {
         notifications.value = (await getNotifications({userId, type: 'reward' })).reverse()
+      } else if (activeTab.value === '3') {
+        notifications.value = (await getNotifications({userId, type: 'all-followers' })).reverse()
       }
     }
 

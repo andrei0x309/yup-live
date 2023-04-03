@@ -6,42 +6,33 @@ import { IErrorObj } from 'shared/src/types/errorObj'
 
 const { API_BASE } = config
 
-export const claimAndLinkTwitter = async (store: IMainStore, addFollowers = false): Promise<IErrorObj> => {
+const PERMISSIONS = ['addFollowers', 'addOAuthCredentials']
+
+export const linkTwitter = async (store: IMainStore, addFollowers = false, linkAuth = true): Promise<IErrorObj> => {
     try {
-        const reqTwitterChallenge = await fetch(`${API_BASE}/v1/auth/oauth-challenge`, {
+        const permissions = []
+        if (addFollowers) {
+            permissions.push(PERMISSIONS[0])
+        }
+        if (linkAuth) {
+            permissions.push(PERMISSIONS[1])
+        }
+
+        const reqTwitterChallenge = await fetchWAuth(store, `${API_BASE}/oauth/twitter`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                domain: "twitter.com",
-            }),
+                permissions
+            })
         });
         if (!reqTwitterChallenge.ok) {
             return { error: true, msg: "Error generating twitter challenge, please try again later.", stage: "initial" }
         }
-        const {
-            token: verificationToken,
-            _id: verificationId,
-        } = await reqTwitterChallenge.json();
-
-        const reqTwitterAuth = await fetch(`${API_BASE}/v1/auth/twitter`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json;charset=utf-8",
-            },
-            body: JSON.stringify({
-                verificationToken,
-                verificationId,
-                oauthReferrer: "onboarding",
-            }),
-        });
-        if (!reqTwitterAuth.ok) {
-            return { error: true, msg: "Error on auth of Twitter challenge, please try again later.", stage: "initial" }
-        }
-        const oauthRes = await reqTwitterAuth.json();
-        window.open(oauthRes.redirectPath, "_blank");
-        return await twitterAuthCheck(store, verificationId, verificationToken, addFollowers);
+        const { oauthChallenge: { _id: oauthChallengeId }, redirectPath } = await reqTwitterChallenge.json();
+        window.open(redirectPath, "_blank");
+        return await twitterAuthCheck(store, oauthChallengeId);
 
     } catch (err) {
         return { error: true, msg: "Network Error API DOWN, please try again later.", stage: "initial" }
@@ -50,13 +41,11 @@ export const claimAndLinkTwitter = async (store: IMainStore, addFollowers = fals
 
 const twitterAuthCheck = async (
     store: IMainStore,
-    verificationId: string,
-    verificationToken: string,
-    addFollowers = false
+    oauthChallengeId: string,
 ): Promise<IErrorObj> => {
     try {
         const reqTwitterAuth = await fetch(
-            `${API_BASE}/v1/auth/oauth-challenge?verificationId=${verificationId}`,
+            `${API_BASE}/oauth/twitter/status?oauthChallengeId=${oauthChallengeId}`,
             {
                 method: "GET",
                 headers: {
@@ -66,33 +55,19 @@ const twitterAuthCheck = async (
         );
         const data = await reqTwitterAuth.json();
         if (data?.confirmed) {
-            const reqTwitterClaim = await fetchWAuth(store, `${API_BASE}/accounts/twitter/link`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json;charset=utf-8",
-                },
-                body: JSON.stringify({
-                    verificationId,
-                    verificationToken,
-                }),
-            });
-            if (reqTwitterClaim.ok) {
-                return { error: false, msg: "Twitter account linked successfully.", stage: "success" }
-            } else {
-                return { error: true, msg: "Error on linking Twitter account, please try again later.", stage: "initial" }
-            }
+            return { error: false, msg: "Twitter account linked successfully.", stage: "success" }
         } else {
             await wait(350);
-            return await twitterAuthCheck(store, verificationId, verificationToken);
+            return await twitterAuthCheck(store, oauthChallengeId);
         }
     } catch {
         return { error: true, msg: "Network Error API DOWN, please try again later.", stage: "initial" }
     }
 };
 
-export const twitterCheckAndUnlink = async (store: IMainStore): Promise<IErrorObj> => {
+export const unlinkTwitter = async (store: IMainStore): Promise<IErrorObj> => {
     try {
-        const result = await fetchWAuth(store, `${API_BASE}/accounts/twitter/unlink`, {
+        const result = await fetchWAuth(store, `${API_BASE}/oauth/twitter`, {
             method: "DELETE",
             headers: {
                 'Content-Type': 'application/json'

@@ -312,6 +312,13 @@ export default defineComponent({
           password: reviewPassword.value
         })
       })
+      if(!req.ok) {
+        loading.value = false;
+        toastState.value = true;
+        tostMsg.value = 'Invalid username or password';
+        return;
+      }
+
       const res = await req.json()
 
       const loginRes = {
