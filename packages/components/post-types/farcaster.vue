@@ -26,6 +26,7 @@ import type { Web3Media } from 'shared/src/types/web3/media'
 import type { Web3PostFarcaster, Web3FarcasterRaw, Web3FarcasterRawReply } from 'shared/src/types/web3/farcaster'
 import FarcasterPostBody from './inner/farcasterPostBody.vue'
 import { getFarcasterPostType } from 'shared/src/utils/requests/farcaster'
+import type { IPostDeps } from "shared/src/types/post";
 
 import { config } from "shared/src/utils/config";
 const { API_BASE } = config;
@@ -56,6 +57,10 @@ export default defineComponent({
     apiBase: {
       type: String,
       default: API_BASE
+    },
+    deps: {
+      type: Object as PropType<IPostDeps>,
+      default: () => ({})
     }
   },
   setup(props) {
@@ -68,6 +73,7 @@ export default defineComponent({
       userName: '',
       userHandle: '',
       userAvatar: '',
+      userAddress: '',
       body: '',
       isVerified: '',
       mediaEntities: [] as mediaType[],
@@ -81,6 +87,7 @@ export default defineComponent({
       userName: '',
       userHandle: '',
       userAvatar: '',
+      userAddress: '',
       body: '',
       isVerified: false,
       mediaEntities: [] as mediaType[],
@@ -141,6 +148,7 @@ export default defineComponent({
       postBuilder.userAvatar = filler?.creator?.avatarUrl as string
       postBuilder.userHandle = filler?.creator?.handle as string
       postBuilder.userName = filler?.creator?.fullname as string
+      postBuilder.userAddress = filler?.creator?.meta?.connectedAddr as string
       postBuilder.body = parseBody(filler.content ?? '')
       postBuilder.mediaEntities = parseMedia(filler?.attachments ?? [])
       postBuilder.verified = filler?.meta?.isVerifiedAvatar
@@ -157,6 +165,7 @@ export default defineComponent({
       postBuilder.userAvatar =  filler.author?.pfp?.url ?? filler?.meta?.avatar ?? 'N/A' as string
       postBuilder.userHandle =  filler?.author?.username ?? filler?.body?.username ?? 'N/A' as string
       postBuilder.userName = filler?.author?.displayName ?? filler?.meta?.displayName ?? 'N/A' as string
+      postBuilder.userAddress = filler?.body?.address as string
       postBuilder.body = parseBody(filler?.text ?? filler?.body?.data?.text ?? '' as string)
       postBuilder.verified = filler.author?.pfp?.verified ?? filler?.meta?.isVerifiedAvatar ?? false
       postBuilder.mediaEntities = parseMediaOpenGraph(filler?.attachments?.openGraph ?? [])

@@ -5,13 +5,14 @@
     <ion-content :fullscreen="true">
       <ion-list style="position: sticky;top: 0;z-index: 2;">
     <ion-item>
-      <ion-select v-model="activeFeed" @ionChange="feedChange" :value="feeds[0][0]" style="margin:auto;" interface="action-sheet" placeholder="Select Feed">
+      <ion-select v-model="activeFeed" :value="feeds[0][0]" style="margin:auto;" interface="action-sheet" placeholder="Select Feed" @ionChange="feedChange">
         <ion-select-option v-for="feed of feeds" :key="feed[0]" :value="feed[0]">{{feed[1]}}</ion-select-option>
       </ion-select>
     </ion-item>
   </ion-list>
   
   <ion-loading
+      :key="`${loading}-loading`"
       :is-open="loading"
       message="Loading..."
       :duration="3000"

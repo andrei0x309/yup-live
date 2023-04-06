@@ -179,6 +179,7 @@ import PostMenu from '@/components/content/post/menu/postMenu.vue'
 import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
 import type { IPostDeps } from 'shared/src/types/post'
 import type { IMainStore } from 'shared/src/types/store'
+import { OTooltip } from '@oruga-ui/oruga-next'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -198,11 +199,12 @@ const postDeps: IPostDeps = {
   useMainStore: useMainStore as unknown as () => IMainStore,
   apiBase: API_BASE,
   PostMenu: PostMenu,
-  CollectMenu: CollectMenu
+  CollectMenu: CollectMenu,
+  ToolTip: OTooltip
 }
 
 export default defineComponent({
-  name: "ProfilePage",
+  name: "Web3ProfilePage",
   components: {
     DangLoader,
     // ProfileCard,

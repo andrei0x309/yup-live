@@ -1,14 +1,14 @@
 <template>
   <div>
     <div class="flex justify-between mt-4 px-4" style="z-index: 1;z-index: 1;position: absolute;width: 100%;">
-    <span class="flex mtime h-min space-x-1 items-center rounded-full text-xs font-medium">
+    <span class="flex mtime h-min space-x-1 items-center rounded-full text-xs font-medium mt-2">
       <ClockIcon class="w-5 h-5" />
       <p class="font-semibold text-xs">
         {{ post.createdAt }}
       </p>
     </span>
     <div class="flex flex-col">
-    <span class="inline-block mfavIco">
+    <span class="flex mfavIco">
       <NFTIco  class="w-10 h-10 p-1"/>
     </span>
     <span class="inline-block mreplyIco mr-4 text-[0.8rem]" style="-webkit-text-stroke: 0.03rem #151515;">

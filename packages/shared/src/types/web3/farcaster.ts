@@ -5,6 +5,7 @@ export interface Web3PostFarcaster {
   userName: string
   userHandle: string
   userAvatar: string
+  userAddress: string
   userFid: string
   body: string
   publishedAt?: string
@@ -29,6 +30,7 @@ export interface Web3FarcasterRawReply {
     data?: {
       text: string
     }
+    address: string
     username: string
     publishedAt: number
   }

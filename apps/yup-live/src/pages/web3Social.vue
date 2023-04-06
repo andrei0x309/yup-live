@@ -30,6 +30,7 @@
               <AvatarBtn
                 :key="yupAccount.avatar"
                 class="w-9 h-9 mx-auto"
+                imgClass="w-9 h-9"
                 :pSource="yupAccount.avatar"
                 :isSelf="false"
                 :isTwitter="false"
@@ -76,6 +77,7 @@
               <AvatarBtn
                 :key="mirrorAccount.data.userProfile.avatarURL"
                 class="w-9 h-9 mx-auto"
+                imgClass="w-9 h-9"
                 :pSource="mirrorAccount.data.userProfile.avatarURL"
                 :isSelf="false"
                 :isTwitter="true"
@@ -108,6 +110,7 @@
               <AvatarBtn
                 :key="lensAccount.data.defaultProfile.picture.original.url"
                 class="w-9 h-9 mx-auto"
+                imgClass="w-9 h-9"
                 :pSource="parseIpfs(lensAccount.data.defaultProfile.picture.original.url)"
                 :isSelf="false"
                 :isTwitter="true"

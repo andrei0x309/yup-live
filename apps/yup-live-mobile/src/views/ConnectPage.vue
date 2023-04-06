@@ -37,8 +37,8 @@
         style="width: auto"
         class="my-8 mx-4 p-1"
         :value="currentSegment"
-        @ion-change="segmentChange"
         mode="ios"
+        @ion-change="segmentChange"
       >
         <ion-segment-button value="login">
           <ion-label>Login</ion-label>
@@ -55,7 +55,7 @@
           </ion-card-header>
 
           <ion-card-content class="ion-justify-content-center">
-            <p class="ion-padding">Action requires an <b>EVM</b> mobile wallet.</p>
+            <p class="ion-padding">Action requires an <b>Ethereum</b> mobile wallet.</p>
             <CustomButton :disabled="loading"  class="ion-margin" text="Login" @click="onLoginLocal" />
           </ion-card-content>
         </ion-card>
@@ -67,7 +67,7 @@
           </ion-card-header>
 
           <ion-card-content class="ion-justify-content-center">
-            <ion-item mode="ios">
+        <ion-item mode="ios">
           <ion-label>Username</ion-label>
           <ion-input v-model="username" placeholder="yupster1337"></ion-input>
         </ion-item>
@@ -76,7 +76,7 @@
                 <ion-item slot="header" color="light">
                   <ion-label>Details (optional)</ion-label>
                 </ion-item>
-                <div class="ion-padding" slot="content">
+                <div slot="content" class="ion-padding">
                   <ion-item>
                     <ion-label>Full Name</ion-label>
                     <ion-input placeholder="Sam Bankman-Fried"></ion-input>
@@ -90,6 +90,9 @@
             </ion-accordion-group>
             <p class="ion-padding">Action requires an <b>EVM</b> mobile wallet.</p>
             <CustomButton :disabled="loading" class="ion-margin" text="SignUp" @click="onSignupLocal"  />
+            <ion-item mode="ios" class="text-[0.85rem] opacity-80">
+          Sign Up is gated check conditions by tapping the "INFO - YUP" button.
+        </ion-item>
           </ion-card-content>
         </ion-card>
       </div>
@@ -111,14 +114,14 @@
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
-      <ion-content class="ion-padding">
+      <ion-content class="ion-padding pb-10">
         <h3 class="text-center mb-4">TLDR</h3>
         <p>
           This application provides access to certain features of the YUP social network.
         </p>
 
         <h3 class="mt-4 text-center mb-4">FAQ:</h3>
-        <ul class="mb-8">
+        <ul class="mb-14">
           <li>
             <ul class="mb-4">
               <li class="mb-2">Q: Why do I need a wallet installed on my device?</li>
@@ -130,7 +133,7 @@
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: Is the signup open?</li>
-              <li class="mb-2">A: Yes, but you need to have a little activity on the ETH address you use to sign-up, no activity addresses are not allowed to signup.</li>
+              <li class="mb-2">A: No, is currently gated by requiring to meet one of 3 conditions: 1 Yup Score of 25, 2 Be on Allow List, 3 Yup Balance of 25k.</li>
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: What I can do on YUP?</li>
@@ -180,6 +183,7 @@
     </ion-modal>
 
     <ion-loading
+      :key="`loading-${loading}`"
       :is-open="loading"
       cssClass="my-custom-class"
       message="Please wait..."
@@ -188,9 +192,9 @@
     </ion-loading>
     <ion-toast
       :is-open="toastState"
-      @didDismiss="toastState = false"
       :message="tostMsg"
       :duration="4550"
+      @didDismiss="toastState = false"
     ></ion-toast>
   </ion-page>
 </template>

@@ -7,7 +7,7 @@
            <ion-icon :icon="MenuIcon" ></ion-icon>
           </ion-button>
         </ion-menu-toggle>
-        <ion-button v-show="route.fullPath.includes('/tabs/post')" @click="goBack">
+        <ion-button v-show="route.fullPath && !route.fullPath.includes('/tabs/feeds')" @click="goBack">
            <ion-icon :icon="arrowBack" ></ion-icon>
           </ion-button>
         </ion-buttons>

@@ -3,20 +3,22 @@
     <div class="flex p-2 overflow-hidden">
       <AvatarBtn
         :key="mainPost.userAvatar"
-        class="w-9 h-9"
+        class="w-9 h-9 cursor-pointer"
+        imgClass="w-9 h-9"
         :pSource="mainPost.userAvatar"
         :isSelf="false"
         :isTwitter="true"
         :pAccount="mainPost.userHandle"
+        @click="() => {goToCreator()}"
       />
-      <div class="flex flex-col text-justify pl-3">
+      <div class="flex flex-col text-justify pl-3 cursor-pointer" @click="() => {goToCreator()}">
         <span>{{ mainPost.userName }}</span>
         <span class="opacity-70"
           >@{{ mainPost.userHandle }}
           <VerifiedIcon v-if="mainPost.verified" class="verIcon"
         /></span>
       </div>
-      <span v-if="!isCom" class="inline-block mfavIco ml-auto">
+      <span v-if="!isCom" class="flex mfavIco ml-auto">
         <FarcasterIcon class="w-5 h-5" />
       </span>
       <span v-else class="inline-block ml-auto"><FarcasterIcon class="w-3 h-3" /></span>
@@ -67,6 +69,8 @@ import ClockIcon from "icons/src/clock.vue";
 import ComentsIcon from 'icons/src/comments.vue'
 import { getFarcasterYupThread } from "shared/src/utils/requests/farcaster";
 import { ref } from "vue";
+import type { IPostDeps } from "shared/src/types/post";
+import { useRouter } from 'vue-router'
 
 import { config } from "shared/src/utils/config";
 const { API_BASE } = config;
@@ -103,9 +107,22 @@ export default defineComponent({
       type: String,
       default: API_BASE,
     },
+    deps: {
+      type: Object as PropType<IPostDeps>,
+      default: null,
+    },
   },
   setup(props) {
     const numComments = ref(0)
+    const router = useRouter()
+
+    const goToCreator = () => {
+      if(props.mainPost.userAddress) {
+      router.push(`/web3-profile/${props.mainPost.userAddress}`)
+      } else {
+        props?.deps?.stackAlertWarning && props.deps.stackAlertWarning('User does not have a connected address')
+      }
+    }
 
     onMounted(() => {
       if(props.mainPost.postId) {
@@ -122,8 +139,8 @@ export default defineComponent({
     });
 
     return {
-      numComments
-
+      numComments,
+      goToCreator
     };
 
   },

@@ -91,6 +91,7 @@
               <AvatarBtn
                 :key="notification?.EVMRecipient?.avatar"
                 class="w-9 h-9 mx-auto mt-4"
+                imgClass="w-9 h-9"
                 :pSource="notification?.EVMRecipient?.avatar"
                 :isSelf="false"
                 :isTwitter="false"
@@ -208,9 +209,9 @@
               <AvatarBtn
                 :key="notification?.EVMRecipient?.avatar"
                 class="w-9 h-9 mx-auto mt-4"
+                imgClass="w-9 h-9"
                 :pSource="notification?.EVMRecipient?.avatar"
                 :isSelf="false"
-                :isTwitter="false"
                 :pAccount="notification?.EVMRecipient?.handle"
               />
               </div>
@@ -367,7 +368,7 @@ export default defineComponent({
       } else if (activeTab.value === '2') {
         notifications.value = (await getNotifications({userId, type: 'reward' })).reverse()
       } else if (activeTab.value === '3') {
-        notifications.value = (await getNotifications({userId, type: 'all-followers' })).reverse()
+        notifications.value = (await getNotifications({userId, type: 'follow' })).reverse()
       }
     }
 

@@ -6,11 +6,11 @@
       <ion-tabs
         style="border-top: 2px solid #1a1a1a"
       >
-        <ion-router-outlet  ref="outlet" id="content-page" />
+        <ion-router-outlet  id="content-page" ref="outlet" />
 
         <ion-tab-bar slot="bottom">
           <ion-tab-button tab="account" href="/tabs/account">
-            <AvatarBtn class="w-8 h-8 mt-1" :isSelf="true" :pSource="avatar" :key="avatar" :isTwitter="true" />
+            <AvatarBtn :key="avatar" imgClass="h-8 w-8" :useMainStore="useMainStore" class="w-8 h-8 mt-1" :isSelf="true" :pSource="avatar" :isTwitter="true" />
             <ion-label>Account</ion-label>
           </ion-tab-button>
 
@@ -50,6 +50,7 @@ import { setAlertStack, useAlertStack } from '@/store/alertStore'
 import AlertStack from 'components/functional/alertStack.vue'
 
 export default defineComponent({
+  name: "BottomNavigation",
   components: {
     IonPage,
     IonContent,
@@ -63,7 +64,6 @@ export default defineComponent({
     AvatarBtn,
     AlertStack
     },
-  name: "BottomNavigation",
   setup() {
     const store = useMainStore();
     const avatar = ref('');
@@ -92,7 +92,8 @@ export default defineComponent({
       account,
       setAlertStack,
       useAlertStack,
-      outlet
+      outlet,
+      useMainStore
     };
   },
 });

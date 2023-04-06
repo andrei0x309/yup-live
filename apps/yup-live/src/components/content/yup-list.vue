@@ -20,7 +20,7 @@
         </div>
       </div>
       <div v-if="isDataLoading" class="min-h-[20rem]">
-        <DangLoader />
+        <DangLoader :unset="true" class="mt-8" />
       </div>
     </div>
 
@@ -76,10 +76,10 @@ import type { IPost } from "shared/src/types/post";
 import type { IMainStore } from "shared/src/types/store";
 import PostMenu from "@/components/content/post/menu/postMenu.vue";
 import CollectMenu from "@/components/content/post/menu/collectMenu.vue";
-import { onMounted, defineComponent, ref, onUnmounted, Ref, inject } from "vue";
+import { onMounted, defineComponent, ref, onUnmounted, Ref } from "vue";
+import { OTooltip } from '@oruga-ui/oruga-next'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-
 
 export default defineComponent({
   name: "SocialList",
@@ -104,7 +104,7 @@ export default defineComponent({
     apiBase: API_BASE,
     PostMenu: PostMenu,
     CollectMenu: CollectMenu,
-    ToolTip: inject('ToolTip') as ReturnType<typeof defineComponent>,
+    ToolTip: OTooltip
   };
 
 

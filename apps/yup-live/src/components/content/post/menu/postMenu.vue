@@ -27,7 +27,7 @@
         <h2>Last 20 Interactions</h2>
         <ul class="m-auto">
           <li v-for="voter of voters" :key="voter.a._id" class="p-4">
-            <AvatarBtn class="m-auto" :pSource="voter.a.avatar" :pAccount="voter.a._id" :isSelf="false" />
+            <AvatarBtn imgClass="h-5 w-5" class="m-auto h-5 w-5" :pSource="voter.a.avatar" :pAccount="voter.a._id" :isSelf="false" />
             <p>
               <b>{{ voter.a.username }}</b> voted
             </p>

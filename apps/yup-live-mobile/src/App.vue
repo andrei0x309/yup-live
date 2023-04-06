@@ -4,13 +4,14 @@
     <ion-router-outlet />
 
     <ion-toast
-      :is-open="toastState"
-      @didDismiss="toastState = false"
       :key="toastMsg"
+      :is-open="toastState"
       :message="toastMsg"
       :duration="4550"
+      @didDismiss="toastState = false"
     ></ion-toast>
     <ion-loading
+        :key="`loading-${loading}`"
         :is-open="loading"
         message="Please wait..."
         :duration="5000"
@@ -322,7 +323,17 @@ body.dark {
   }
 }
 
-.glassCard {
+.view-btn {
+      font-size: 0.7rem;
+      border: 1px solid #949d9d;
+      border-radius: 0.3rem;
+      padding: 0.1rem 0.2rem;
+    }
+    .view-btn:hover {
+      background-color: #383838;
+    }
+
+  .glassCard {
     margin-top: 1rem;
     background-color: var(--glass-menu-bg);
     padding: 2rem;

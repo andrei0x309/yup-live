@@ -9,9 +9,27 @@ const routes: Array<RouteRecordRaw> = [
     component: ConnectPage
   },
   {
+    path: '/post/',
+    redirect () {
+      return `/tabs/post/`
+    },
+  },
+  {
     path: '/post/:postId',
     redirect (to) {
       return `/tabs/post/${to.params.postId}`
+    },
+  },
+  {
+    path: '/profile/:userId',
+    redirect (to) {
+      return `/tabs/account/${to.params.userId}`
+    },
+  },
+  {
+    path: '/web3-profile/:addr',
+    redirect (to) {
+      return `/tabs/web3-profile/${to.params.addr}`
     },
   },
   {
@@ -21,6 +39,11 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '',
         redirect: 'feeds',
+      },
+      {
+        path: 'web3-profile/:addr',
+        name: 'Web3ProfileWithAddr',
+        component: () => import('@/views/Web3ProfilePage.vue')
       },
       {
         path: 'feeds',
@@ -62,6 +85,10 @@ const routes: Array<RouteRecordRaw> = [
         path: 'search',
         component: () => import('@/views/SearchPage.vue')
       },
+      {
+        path: 'info',
+        component: () => import('@/views/InfoPage.vue')
+      }
     ],
   },
   // {

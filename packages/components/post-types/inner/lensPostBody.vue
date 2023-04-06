@@ -1,19 +1,24 @@
 <template>
   <div class="p-4">
     <div class="flex p-2 overflow-hidden">
+      <router-link :to="`/web3-profile/${mainPost.userAddress}`">
       <AvatarBtn
         :key="mainPost.userAvatar"
         class="w-9 h-9"
+        imgClass="w-9 h-9"
         :pSource="parseIpfs(mainPost.userAvatar)"
         :isSelf="false"
         :isTwitter="true"
         :pAccount="mainPost.userHandle"
       />
+      </router-link>
+      <router-link :to="`/web3-profile/${mainPost.userAddress}`">
       <div class="flex flex-col text-justify pl-3">
         <span>{{ mainPost.userName }}</span>
         <span class="mainPost-70">@{{ mainPost.userHandle }} <VerifiedIcon v-if="mainPost.verified" class="verIcon" /></span>
       </div>
-      <span class="inline-block mfavIco ml-auto">
+      </router-link>
+      <span class="flex mfavIco ml-auto">
         <LensIcon class="w-6 h-6 lensIcon" />
       </span>
     </div>

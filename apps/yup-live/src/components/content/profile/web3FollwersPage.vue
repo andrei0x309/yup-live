@@ -18,6 +18,8 @@
         v-for="userdata of accountsData"
         :key="userdata._id"
         :web3Profile="userdata"
+        :deps="web3Deps"
+        :addViewBtn="true"
       />
     </div>
     <button v-if="hasMore" class="view-btn mt-4 text-[0.92rem] p-3" @click="loadMore"><AddIcon class="inline-block w-4 mr-2" />Load More <BtnSpinner v-if="loadingFollowers" class="inline-block w-4 ml-2" /></button>
@@ -26,15 +28,25 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, ref, Ref, shallowRef } from 'vue'
-import Web3ProfileCard from '@/components/content/profile/web3ProfileCard.vue'
+import Web3ProfileCard from 'components/profile/web3ProfileCard.vue'
 import DangLoader from 'components/vote-list/loader.vue'
 import type { IWeb3Profile } from "shared/src/types/web3Profile";
-import { fetchWeb3Profile } from "shared/src/utils/requests/web3Profiles";
+import { getProfilesData } from "shared/src/utils/requests/web3Profiles";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
 import AddIcon from 'icons/src/add.vue'
 import BtnSpinner from 'icons/src/btnSpinner.vue';
+import { useMainStore, openConnectModal, } from "@/store/main";
+import { stackAlertWarning, stackAlertSuccess } from "@/store/alertStore";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
+const web3Deps = {
+  openConnectModal,
+  useMainStore: useMainStore,
+  stackAlertWarning,
+  stackAlertSuccess,
+  apiBase: API_BASE,
+};
 
 export default defineComponent({
   name: 'Web3FollowersPage',
@@ -60,20 +72,11 @@ export default defineComponent({
     const catComp = shallowRef(null) as Ref<unknown>
     const loadingFollowers = ref(false)
 
-    const getProfilesData = async (accounts: string[]) => {
-      return (await Promise.all(
-        accounts.map(async (a) => {
-            return await fetchWeb3Profile(API_BASE, a)
-        })
-      )).filter((p) => p) as IWeb3Profile[]
-    }
-
     const loadMore = async () => {
       try {
       if(loadingFollowers.value || !hasMore.value) return
       loadingFollowers.value = true
       let newProfiles =  (await getFollowers(API_BASE, props.addr, accountsData.value.length, 11)).followers.map((f: { _id: string}) => f._id)
-      console.log('sssssssssssss', newProfiles)
       newProfiles = await getProfilesData(newProfiles)
       hasMore.value = newProfiles.length === 11
       accountsData.value = [...accountsData.value, ...newProfiles.slice(0, 10)]
@@ -100,7 +103,8 @@ export default defineComponent({
       catComp,
       loadMore,
       loadingFollowers,
-      hasMore
+      hasMore,
+      web3Deps
     }
   }
 })

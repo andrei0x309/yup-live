@@ -55,6 +55,7 @@ export default defineComponent({
       userName: '',
       userHandle: '',
       userAvatar: '',
+      userAddress: '',
       body: '',
       isVerified: '',
       mediaEntities: [] as mediaType[],
@@ -122,6 +123,7 @@ export default defineComponent({
       postBuilder.userAvatar = filler?.creator?.avatarUrl ?? filler?.creator?.avatar as string
       postBuilder.userHandle = filler?.creator?.handle as string
       postBuilder.userName = filler?.creator?.fullname as string
+      postBuilder.userAddress = filler?.creator?.address as string
       postBuilder.body = parseBody((filler.content ?? ''), true)
       postBuilder.mediaEntities = parseMedia(filler?.attachments ?? [])
       postBuilder.verified = filler?.meta?.isVerifiedAvatar

@@ -7,8 +7,8 @@
         <div class="bg-color flex flex-col">
           <template v-if="!apiError">
             <ion-refresher
-              mode="ios"
               slot="fixed"
+              mode="ios"
               :pull-factor="0.5"
               :pull-min="100"
               :pull-max="200"
@@ -23,14 +23,12 @@
                   <template #settings>
                     <ion-icon
                       :icon="settingsOutline"
-                      @click="openSettings"
                       button
                       class="settingsIcon"
+                      @click="openSettings"
                     />
                   </template>
                 </ProfileCard>
-
-                <!-- <ProfileInfoCard class="mt-8" :bio="userData.bio" :fields="userFields" /> -->
               </template>
             </div>
           </template>
@@ -61,17 +59,18 @@
             </div>
           </div>
         </div>
+        <router-link v-if="!isLoadingUser" class="asocLink" :to="`/web3-profile/${userData.evmAddress}`">View Web3 profile</router-link>
         <ion-list style="position: sticky; top: 0; z-index: 2">
           <ion-item>
             <ion-select
               v-model="currentAccountPage"
-              @ionChange="accountPageChange"
               style="margin: auto"
               interface="action-sheet"
               placeholder="Select Feed"
+              @ionChange="accountPageChange"
             >
               <ion-select-option :value="accountPages[0]">Likes Feed</ion-select-option>
-              <ion-select-option :value="accountPages[1]">Web3 Feed</ion-select-option>
+              <ion-select-option :value="accountPages[1]">Created Content</ion-select-option>
               <ion-select-option :value="accountPages[2]">Wallet</ion-select-option>
             </ion-select>
           </ion-item>
@@ -96,8 +95,8 @@
             "
             :key="`${postLoaded}-loaded`"
             :postLoaded="postLoaded"
-            @hit="onHit"
             :top-detection="false"
+            @hit="onHit"
           >
             <template #content>
               <div v-if="posts.length > 0" class="flex flex-row mx-auto">
@@ -115,7 +114,7 @@
                 </div>
               </div>
               <div v-else>
-                <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
+                <h2 class="text-[1.3rem] mt-8 uppercase text-center">User did not create content</h2>
               </div>
             </template>
           </InfScroll>
@@ -486,7 +485,7 @@ export default defineComponent({
 
     // onIonViewWillLeave( () => clearTimeout(LoadTimeout))
 
-    const accountPageChange = async (event?: any) => {
+    const accountPageChange = async () => {
       if (currentAccountPage.value === accountPages[0]) {
         postLoaded.value = false;
         postsIndex.value = 0;
@@ -569,7 +568,7 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .profile {
   justify-content: space-evenly;
 
@@ -579,5 +578,24 @@ export default defineComponent({
     top: 1rem;
     font-size: 1.4rem;
   }
+
+}
+.asocLink {
+  text-transform: uppercase;
+    font-size: 0.85rem;
+    border: 1px solid rgb(50 50 50);
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.4rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+    box-shadow: 1px 2px 20px 2px #49108670;
+    transition: all 0.3s ease-in-out;
+    justify-content: center;
+    display: flex;
+    width: 10rem;
+    margin-left: auto;
+    margin-right: auto;
+    color: #d1b899;
+    margin-top: -1rem;
 }
 </style>

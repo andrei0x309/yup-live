@@ -11,23 +11,26 @@
     </ion-header>
     <ion-content class="ion-padding">
       <ion-list>
-      <ion-item @click="doLogOut" button>
+      <ion-item button @click="doLogOut">
       <LogOutIcon class="w-5 mr-4" /> Log Out
       </ion-item>
       </ion-list>
 
       <ion-list class="mt-2">
-        <ion-item @click="goTo('/tabs/search')" button>
+        <ion-item button @click="goTo('/tabs/search')">
       <ion-icon :icon="searchOutline" class="w-5 mr-4" /> Search
       </ion-item>
-        <ion-item @click="goTo('/tabs/metrics')" button>
+        <ion-item button @click="goTo('/tabs/metrics')">
       <ion-icon :icon="podiumOutline" class="w-5 mr-4" /> General Metrics
       </ion-item>
-        <ion-item @click="goTo('/tabs/live')" button>
+        <ion-item button @click="goTo('/tabs/live')">
       <ActivityIcon class="w-5 mr-4" /> Live Activity
       </ion-item>
-      <ion-item @click="goTo('/tabs/meetings')" button>
+      <ion-item button @click="goTo('/tabs/meetings')">
         <ion-icon :icon="listOutline" class="w-5 mr-4" /> Community Meetings
+      </ion-item>
+      <ion-item button @click="goTo('/tabs/info')">
+        <InfoIcon class="w-5 mr-4" /> About & Info
       </ion-item>
       </ion-list>
 
@@ -49,6 +52,7 @@ import { useMainStore } from "@/store/main";
 import { useRouter } from "vue-router";
 import LogOutIcon from 'icons/src/logout.vue'
 import ActivityIcon from '@/icons/activity.vue'
+import InfoIcon from 'icons/src/infoIcon.vue'
 
 export default defineComponent({
   name: "HeaderMenu",
@@ -56,7 +60,7 @@ export default defineComponent({
     IonHeader,
     IonToolbar,
     IonMenu, IonTitle, IonContent, IonMenuToggle, IonIcon,
-    IonItem, IonList, LogOutIcon, ActivityIcon
+    IonItem, IonList, LogOutIcon, ActivityIcon, InfoIcon
   },
   props: {
     text: {

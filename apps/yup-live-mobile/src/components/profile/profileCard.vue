@@ -36,9 +36,9 @@
         Next Reset: <b>{{ userData.nextReset }}</b>
       </p>
       <div class="flex mx-auto justify-center my-2">
-      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-12" ><div><p>Like</p><b>{{userData.actionBars.vote}}</b></div></ion-chip>
-      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-12" ><div><p>Delete</p><b>{{userData.actionBars.deleteVote}}</b></div></ion-chip>
-      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-12" ><div><p>Follow</p><b>{{userData.actionBars.follow}}</b></div></ion-chip>
+      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-14" ><div><p>Like</p><b>{{userData.actionBars.vote}}</b></div></ion-chip>
+      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-14" ><div><p>Delete</p><b>{{userData.actionBars.deleteVote}}</b></div></ion-chip>
+      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-14" ><div><p>Follow</p><b>{{userData.actionBars.follow}}</b></div></ion-chip>
       </div>
       <div v-if="userData?.web3Handles?.farcaster ?? userData?.web3Handles?.lens">
         <h6 class="pt-2">External Handles</h6>

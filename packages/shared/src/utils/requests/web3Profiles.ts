@@ -41,3 +41,11 @@ export const fetchRecommendedWeb3Profiles = async (apiBase: string = API_BASE, s
         return []
     }
 }
+
+export const getProfilesData = async (accounts: string[]) => {
+    return (await Promise.all(
+        accounts.map(async (a) => {
+            return await fetchWeb3Profile(API_BASE, a)
+        })
+    )).filter((p) => p) as IWeb3Profile[]
+}

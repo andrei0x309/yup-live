@@ -1,14 +1,14 @@
 <template>
   <ion-page>
-    <HeaderBar text="ACCOUNT" :menu="true" />
+    <HeaderBar text="WEB3 PROFILE" :menu="true" />
 
     <ion-content :fullscreen="true">
       <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto mb-8">
         <div class="bg-color flex flex-col">
           <template v-if="!apiError">
             <ion-refresher
-              mode="ios"
               slot="fixed"
+              mode="ios"
               :pull-factor="0.5"
               :pull-min="100"
               :pull-max="200"
@@ -17,7 +17,7 @@
               <ion-refresher-content pulling-text="Refershing..."></ion-refresher-content>
             </ion-refresher>
             <div class="profile w-full mb-4 flex flex-row">
-              <DangLoader v-if="isLoadingUser" class="mt-28" :unset="true" />
+              <DangLoader v-if="isLoadingProfile" class="mt-28" :unset="true" />
               <template v-else>
                 <Web3ProfileCard
               :web3Profile="web3Profile" :followersCount="followersCount"
@@ -58,14 +58,13 @@
           <ion-item>
             <ion-select
               v-model="currentAccountPage"
-              @ionChange="accountPageChange"
               style="margin: auto"
               interface="action-sheet"
               placeholder="Select Feed"
+              @ionChange="pageChange"
             >
-              <ion-select-option :value="accountPages[0]">Likes Feed</ion-select-option>
-              <ion-select-option :value="accountPages[1]">Web3 Feed</ion-select-option>
-              <ion-select-option :value="accountPages[2]">Wallet</ion-select-option>
+              <ion-select-option :value="accountPages[0]">Created Content</ion-select-option>
+              <ion-select-option :value="accountPages[1]">Wallet</ion-select-option>
             </ion-select>
           </ion-item>
         </ion-list>
@@ -75,7 +74,7 @@
         >
           <template
             v-if="
-              [accountPages[0], accountPages[1]].includes(currentAccountPage) &&
+              [accountPages[0]].includes(currentAccountPage) &&
               !postLoaded
             "
           >
@@ -84,13 +83,13 @@
           </template>
           <InfScroll
             v-if="
-              [accountPages[0], accountPages[1]].includes(currentAccountPage) &&
+              [accountPages[0]].includes(currentAccountPage) &&
               postLoaded
             "
             :key="`${postLoaded}-loaded`"
             :postLoaded="postLoaded"
-            @hit="onHit"
             :top-detection="false"
+            @hit="onHit"
           >
             <template #content>
               <div v-if="posts.length > 0" class="flex flex-row mx-auto">
@@ -108,15 +107,15 @@
                 </div>
               </div>
               <div v-else>
-                <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
+                <h2 class="text-[1.3rem] mt-8 uppercase text-center">User did not create content</h2>
               </div>
             </template>
           </InfScroll>
           <WalletPage
-            v-else-if="accountPages[2] === currentAccountPage"
-            :key="`${userData.evmAddress}${walletKeyRefresh}`"
-            :accountId="userId"
-            :accountEVMAddr="userData.evmAddress"
+            v-else-if="accountPages[1] === currentAccountPage"
+            :key="`${userAddr}${walletKeyRefresh}`"
+            :accountId="web3Profile?.handle || userAddr"
+            :accountEVMAddr="userAddr"
             :apiBase="API_BASE"
             :stackAlertError="stackAlertError"
           />
@@ -183,7 +182,6 @@ import {
   IonList,
   IonRefresher,
   IonRefresherContent,
-  modalController,
 } from "@ionic/vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 
@@ -192,13 +190,10 @@ import DangLoader from "components/vote-list/loader.vue";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 import { useMainStore } from "@/store/main";
 import { useRoute } from "vue-router";
-import { wait } from "shared/src/utils/time";
 import { postTypesPromises } from "components/post-types/post-types";
 import LineLoader from "components/functional/lineLoader.vue";
-import { createActionUsage, createUserData } from "shared/src/utils/requests/accounts";
 import WalletPage from "components/profile/walletPage.vue";
 import { settingsOutline } from "ionicons/icons";
-import SettingsModal from "@/views/SettingsModal.vue";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
 import Post from "components/post/post.vue";
 import type { IPost } from "shared/src/types/post";
@@ -273,8 +268,6 @@ export default defineComponent({
     const route = useRoute();
     const userAddr = ref(route.params.addr as string);
     const store = useMainStore();
-    const userId = ref("");
-    const accountRoute = route.params.accountRoute as string
     const web3Profile = ref(null) as Ref<IWeb3Profile | null>;
 
     const accountPages = ["created", "wallet", "followers"];
@@ -282,7 +275,7 @@ export default defineComponent({
     const search = ref("");
     const apiError = ref(false);
     const apiErrorMsg = ref("");
-    const isLoadingUser = ref(true);
+    const isLoadingProfile = ref(true);
     const influence: Ref<null | string> = ref(null);
     const historicInfluence: Ref<Array<Record<string, string | number>>> = ref([]);
     // const userFields = ref([]) as Ref<Array<NameValue>>
@@ -305,42 +298,10 @@ export default defineComponent({
     const followersCount = ref(0);
     const followers = ref([]) as Ref<Array<string>>; 
 
-    const userData = (ref({
-      _id: "",
-      username: "",
-      followers: 0,
-      following: 0,
-      totalVotes: 0,
-      balance: "",
-      balanceNum: 0,
-      weight: "",
-      avatar: "",
-      bio: "",
-      score: "",
-      cum_deposit_time: 0,
-      nextReset: "",
-      evmAddress: "",
-      actionBars: {
-        vote: "",
-        deleteVote: "",
-        follow: "",
-      },
-    }) as unknown) as Ref<Awaited<ReturnType<typeof createUserData>>["data"]["userData"]>;
     // const router = useRouter()
 
     store.$subscribe(async () => {
       isAuth.value = store.isLoggedIn;
-
-      if (store.deletePost) {
-        const el = document?.getElementById(store.deletePost);
-        if (el) {
-          el.style.opacity = "0";
-        }
-        await wait(600);
-        posts.value = posts.value.filter(
-          (p) => (p as { _id: { postid: string } })._id.postid !== store.deletePost
-        );
-      }
     });
 
     // watch(currentMenuTab, (newValue) => {
@@ -354,37 +315,15 @@ export default defineComponent({
     //   // }
     // })
 
-    const getActionUsage = (userId: string) => {
-      createActionUsage(userId, userData.value.balanceNum).then((d) => {
-        if (!d.error) {
-          userData.value.nextReset = d.nextReset as string;
-          userData.value.actionBars.deleteVote = d.actionBars?.deleteVote as string;
-          userData.value.actionBars.follow = d.actionBars?.follow as string;
-          userData.value.actionBars.vote = d.actionBars?.vote as string;
-        }
-      });
-    };
-
-    const getHomeFeedPosts = async (start = 0) => {
-      const res = await fetch(
-        `${API_BASE}/feed/account/${userId.value}?start=${start}&limit=10`
-      );
-      const data = await res.json();
-      return data.posts.sort(
-        (a: any, b: any) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-    };
-
     const getCreatedFeedPosts = async (start = 0) => {
       const res = await fetch(
-        `${API_BASE}/profile/posts/${userData.value.evmAddress}/?start=${start}&limit=10`
+        `${API_BASE}/profile/posts/${userAddr.value}/?start=${start}&limit=10`
       );
       const data = await res.json();
       return data.posts;
     };
 
-    let getFeedPosts = getHomeFeedPosts;
+    let getFeedPosts = getCreatedFeedPosts;
 
     const onHit = async (type: string) => {
       feedLoading.value = true;
@@ -421,95 +360,29 @@ export default defineComponent({
       });
     };
 
-    // const menuChange = (tabId: string) => {
-    //   currentMenuTab.value = tabId
-    //   if (currentMenuTab.value === MENU_BUTTONS.feed) {
-    //     getFeedPosts = getHomeFeedPosts
-    //     resetPosts()
-    //   }
-    //   // else if (currentMenuTab.value === MENU_BUTTONS.web3) {
-    //   //   getFeedPosts = getCreatedFeedPosts
-    //   //   resetPosts()
-    //   // }
-    // }
-
-    // const collectionsPageCollections = computed(() => {
-    //   if (userId !== store.userData.account) {
-    //     return collectionsEx.collections
-    //   } else {
-    //     return collections.collections
-    //   }
-    // })
-
-    // const collectionsPagePromise = computed(() => {
-    //   if (userId !== store.userData.account) {
-    //     return collectionsEx.collectionsPromise as Promise<ICollection[]>
-    //   } else {
-    //     return collections.collectionsPromise as Promise<ICollection[]>
-    //   }
-    // })
-
-    // const userLoad = (noLoading = false) => {
-    //   userId.value =
-    //     (route.params.userId as string) ?? (store.userData.account as string);
-    //   createUserData(userId.value, true).then((uD) => {
-    //     if (uD.error) {
-    //       apiErrorMsg.value = `Account { ${userId.value} } not found`;
-    //       apiError.value = true;
-    //     } else {
-    //       userData.value = Object.assign(userData.value, uD.data?.userData);
-    //       userId.value = userData.value._id as string;
-    //       // userFields.value = uD.data?.userFields ?? []
-    //       getActionUsage(userData.value._id as string);
-    //     }
-
-    //     getFollowers(API_BASE, userData.value.evmAddress).then((res) => {
-    //       if (res) {
-    //         followers.value = res.followers.map((f: { _id: string }) => f._id) ?? [];
-    //         userData.value.followers = res.totalCount;
-    //       }
-    //     });
-
-    //     if (currentAccountPage.value === "feed") {
-    //       getFeedPosts = getHomeFeedPosts;
-    //     } else if (currentAccountPage.value === "none") {
-    //       // getFeedPosts = getCreatedFeedPosts
-    //     }
-    //     resetPosts(noLoading).then(async () => {
-    //       if (posts.value.length < 1) {
-    //         // catComp.value = (await import('icons/src/catEmpty.vue')).default
-    //       }
-    //     });
-
-    //     isLoadingUser.value = false;
-    //   });
-    // };
 
     onIonViewDidEnter(async () => {
       web3Profile.value = await fetchWeb3Profile(API_BASE, userAddr.value)
       if(!web3Profile.value) {
-        apiErrorMsg.value = `Account { ${userAddr.value} } not found`;
+        apiErrorMsg.value = `Web Profile { ${userAddr.value} } not found`;
         apiError.value = true;
       }
+
+      resetPosts()
 
       getFollowers(API_BASE, userAddr.value).then((res) => {
         if(res) {
           followers.value = res.followers.map((f: { _id: string}) => f._id)
           followersCount.value = res.totalCount
         }
+        isLoadingProfile.value = false
       });
     });
 
     // onIonViewWillLeave( () => clearTimeout(LoadTimeout))
 
-    const accountPageChange = async (event?: any) => {
+    const pageChange = async () => {
       if (currentAccountPage.value === accountPages[0]) {
-        postLoaded.value = false;
-        postsIndex.value = 0;
-        getFeedPosts = getHomeFeedPosts;
-        posts.value = await getFeedPosts(postsIndex.value);
-        postLoaded.value = true;
-      } else if (currentAccountPage.value === accountPages[1]) {
         postLoaded.value = false;
         postsIndex.value = 0;
         getFeedPosts = getCreatedFeedPosts;
@@ -519,29 +392,17 @@ export default defineComponent({
     };
 
     const handleRefresh = async (event: any) => {
-      if ([accountPages[0], accountPages[1]].includes(currentAccountPage.value)) {
+      if ([accountPages[0]].includes(currentAccountPage.value)) {
         postLoaded.value = false;
         postsIndex.value = 0;
         posts.value = await getFeedPosts(postsIndex.value);
         postLoaded.value = true;
-      } else if (currentAccountPage.value === accountPages[2]) {
+      } else if (currentAccountPage.value === accountPages[1]) {
         walletKeyRefresh.value++;
       }
       event.target.complete();
     };
 
-    const openSettings = async () => {
-      const modal = await modalController.create({
-        component: SettingsModal,
-        componentProps: {
-          userData: userData.value,
-        },
-      });
-      modal.present();
-      const { role } = await modal.onWillDismiss();
-      if (role === "confirm") return true;
-      return false;
-    };
 
     onUnmounted(() => {
       // do nothing
@@ -551,11 +412,9 @@ export default defineComponent({
       search,
       apiError,
       apiErrorMsg,
-      userData,
-      userId,
       influence,
       historicInfluence,
-      isLoadingUser,
+      isLoadingProfile,
       // userFields,
       posts,
       onHit,
@@ -571,18 +430,18 @@ export default defineComponent({
       followers,
       catComp,
       isAuth,
-      accountPageChange,
+      pageChange,
       accountPages,
       walletKeyRefresh,
       handleRefresh,
       settingsOutline,
-      openSettings,
       API_BASE,
       stackAlertError,
       postDeps,
       web3Deps,
       web3Profile,
       followersCount,
+      userAddr
     };
   },
 });

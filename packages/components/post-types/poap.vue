@@ -4,7 +4,7 @@
       <span class="inline-block favIco">
         <PoapIcon class="w-5" />
       </span>
-      <span class="flex mtime h-min space-x-1 items-center rounded-full text-xs font-medium">
+      <span class="flex mtime h-min space-x-1 items-center rounded-full text-xs font-medium mt-2">
         <ClockIcon class="w-5 h-5" />
         <p class="font-semibold text-xs">Minted</p>
         <p class="font-semibold text-xs">
@@ -17,6 +17,7 @@
         <AvatarBtn
           :key="`${mainPost.userAvatar}`"
           class="w-9 h-9"
+          imgClass="w-9 h-9"
           :pSource="mainPost.userAvatar"
           :isSelf="false"
           :isTwitter="true"

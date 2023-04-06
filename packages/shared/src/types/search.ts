@@ -48,3 +48,9 @@ export interface IFEEDSave {
     query: ISearchFilters
     name: string
 }
+
+export interface ISearchWeb3Profile {
+    _id: string
+    handle: string
+    avatar: string
+}

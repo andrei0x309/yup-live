@@ -126,6 +126,7 @@ export default defineComponent({
         avatar.value = makeRandAvatar(id.value);
       }
       isLoading.value = false;
+      console.log(props,'asdddddddddddddddddddddddddddddddddddd')
     });
 
     return {

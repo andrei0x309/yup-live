@@ -5,6 +5,7 @@ export interface Web3PostLens {
   userName: string
   userHandle: string
   userAvatar: string
+  userAddress: string
   body: string
   createdAt?: string
   verified?: boolean

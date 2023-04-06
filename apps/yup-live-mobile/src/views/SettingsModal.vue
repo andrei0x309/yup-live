@@ -9,12 +9,12 @@
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-      <ion-accordion-group :value="defaultAccordionOpen" v-if="!loading">
+      <ion-accordion-group v-if="!loading" :value="defaultAccordionOpen">
         <ion-accordion value="1">
           <ion-item slot="header" color="light">
             <ion-label>Account</ion-label>
           </ion-item>
-          <div class="ion-padding" slot="content">
+          <div slot="content" class="ion-padding">
             <section class="body-font relative">
   <div class="container py-2 mx-auto flex">
     <div class="glassCard rounded-lg p-4 flex flex-col md:ml-auto w-full mt-2 md:mt-0 relative shadow-md">
@@ -48,11 +48,31 @@
 </section>
           </div>
         </ion-accordion>
-        <ion-accordion :disabled="true" value="2">
+        <ion-accordion  value="2">
+          <ion-item slot="header" color="light">
+            <ion-label>Social Connect</ion-label>
+          </ion-item>
+          <div slot="content" class="ion-padding">
+            <template  v-if="!isConnectedToTwitter">
+        <button class="mt-4 bg-sky-500 border-0 py-2 px-6 focus:outline-none hover:bg-sky-700 rounded text-lg" @click="twitterLink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Connect to Twitter</button>
+        <!-- <o-checkbox v-model="twFollowersAsKeywords" class="p-2" :native-value="true">
+        <span class="ml-2">Insert my twitter followers into personal keywords.</span>
+      </o-checkbox>
+       -->
+    </template>
+    <template v-else>
+        <button
+        class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+         @click="twitterUnlink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Disconnect from Twitter</button>
+      </template>
+
+          </div>
+        </ion-accordion>
+        <ion-accordion :disabled="true" value="3">
           <ion-item slot="header" color="light">
             <ion-label>Feed (NOT-IMPLEMENTED)</ion-label>
           </ion-item>
-          <div class="ion-padding" slot="content">
+          <div slot="content" class="ion-padding">
             <ion-list>          
                 <ion-item>
                   Enabling feed personalization will make feeds to be tailored to your account.
@@ -61,9 +81,9 @@
                   <ion-label>Enable Feed Personalization</ion-label>
                   <ion-toggle
                     :key="updateKey"
-                    @ion-change="changeSetting('personalization')"
                     slot="end"
                     :checked="localSettings.personalizedFeeds"
+                    @ion-change="changeSetting('personalization')"
                   ></ion-toggle>
                 </ion-item>
                 <ion-item>
@@ -73,9 +93,9 @@
                 <ion-label>Enabling actions tracking</ion-label>
                 <ion-toggle
                   :key="updateKey"
-                  @ion-change="changeSetting('tracking')"
                   slot="end"
                   :checked="localSettings.accountTracking"
+                  @ion-change="changeSetting('tracking')"
                 ></ion-toggle>
               </ion-item>
             </ion-list>
@@ -84,11 +104,12 @@
       </ion-accordion-group>
       <ion-toast
         :is-open="toastState"
-        @didDismiss="toastState = false"
         :message="toastMsg"
         :duration="1500"
+        @didDismiss="toastState = false"
       ></ion-toast>
       <ion-loading
+        :key="`loading-${loading}`"
         :is-open="loading"
         cssClass="my-custom-class"
         message="Please wait..."
@@ -148,6 +169,9 @@ import { editProfile } from "shared/src/utils/requests/accounts"
 // const refGoTo = GoToIcon
 import type { IUserData } from "shared/src/types/account";
 import { useRouter } from "vue-router";
+import { linkTwitter, unlinkTwitter } from "shared/src/utils/requests/twitter"
+import TwitterIcon from "icons/src/twitter.vue";
+
 
 import { config } from 'shared/src/utils/config'
 const { API_BASE } = config
@@ -175,7 +199,8 @@ export default defineComponent({
     IonButtons,
     IonAlert,
     IonToast,
-    BtnSpinner
+    BtnSpinner,
+    TwitterIcon
   },
   props: {
     userData: {
@@ -210,6 +235,10 @@ export default defineComponent({
     const isEditLoading = ref(false)
     const isDeleteLoading = ref(false)
     const router = useRouter()
+    const isConnectedToTwitter = ref(props.userData.twitterInfo?.userId ? true : false);
+    const twFollowersAsKeywords = ref(false)
+    const isLoadingTwitter = ref(false);
+
 
  
     const deleteAccount = async () => {
@@ -261,6 +290,38 @@ export default defineComponent({
     const close = () => {
         return modalController?.dismiss(null, 'cancel');
     }
+
+    const twitterLink = async () => {
+      if(isLoadingTwitter.value) {
+        return;
+      }
+      isLoadingTwitter.value = true;
+      const connect = await linkTwitter(store, twFollowersAsKeywords.value)
+      if(connect.error) {
+        stackAlertError("Error while connecting to twitter");
+        
+      } else {
+        stackAlertSuccess("Connected to twitter successfully");
+        isConnectedToTwitter.value = true;
+      }
+      isLoadingTwitter.value = false;
+    }
+
+    const twitterUnlink = async () => {
+      if(isLoadingTwitter.value) {
+        return;
+      }
+      isLoadingTwitter.value = true;
+      const req = await unlinkTwitter(store)
+      if(req.error) {
+        stackAlertError("Error while disconnecting from twitter");
+        
+      } else {
+        stackAlertSuccess("Disconnected from twitter successfully");
+        isConnectedToTwitter.value = false;
+      }
+      isLoadingTwitter.value = false;
+    }
  
     return {
       loading,
@@ -285,7 +346,11 @@ export default defineComponent({
       wasDelConfirmed,
       changeSetting,
       localSettings,
-      close
+      close,
+      twitterUnlink,
+      twitterLink,
+      isConnectedToTwitter,
+      isLoadingTwitter
     };
   },
 });

@@ -8,6 +8,7 @@
           <AvatarBtn
             :key="collectionData.ownerId"
             class="h-6 w-6 inline-block mx-2"
+            imgClass="h-6 w-6"
             :isSelf="false"
             :pAccount="collectionData.ownerId"
             :pSource="collectionData.ownerAvatar"

@@ -24,6 +24,11 @@
             </template>
             <div class="flex flex-col p-4 thinSBox">
               <div class="control">
+                Search for:
+                <div class="block my-3">
+                <o-radio v-for="searchFor of searchForOptions" :key="searchFor" v-model="searchForModel" :native-value="searchFor">{{ searchFor }}</o-radio>
+                </div>
+                <template v-if="searchForModel === 'posts'">
               Relevant - 
               <o-switch :rounded="true" position="right" size="small" variant="warning" @change="changeSearchSort(searchSort)"
                 >&nbsp;-  New</o-switch
@@ -33,6 +38,7 @@
         <span class="ml-2">{{ platfrom }}</span>
       </o-checkbox>
     </div>
+  </template>
       <div class="flex rounded bg-gray-200 max-w-[30rem] m-auto mt-2">
         <input
           v-model="searchInput"
@@ -41,7 +47,11 @@
           placeholder="some keywords"
           @keypress="($event) => {
             if ($event.key === 'Enter') {
-              makeSearch()
+              if(searchForModel === 'posts') {
+                makeSearch()
+              } else {
+                makeSearchProfiles()
+              }
             }
           }"
         />
@@ -51,7 +61,14 @@
           class="m-2 rounded px-4 px-4 py-2 font-semibold text-gray-100"
           :class="searchInput.length > 0 ? 'bg-purple-500' : 'bg-gray-500 cursor-not-allowed'"
           :disabled="searchInput.length == 0"
-          @click="() => {  makeSearch() }"
+          @click="() => {  
+            if(searchForModel === 'posts') {
+                makeSearch()
+              } else {
+                makeSearchProfiles()
+              }
+
+           }"
         >
           Search
         </button>
@@ -134,7 +151,9 @@
         <p class="p-4">Loading Data</p>
         <DangLoader :unset="true" />
       </template>
-      <InfScroll v-else :key="`${feedLoading}-loaded`" :postLoaded="true" @hit="onHit">
+      <template v-else>
+        <template v-if="searchForModel === 'posts'">
+        <InfScroll :key="`${feedLoading}-loaded`" :postLoaded="true" @hit="onHit">
         <template #content>
           <div v-if="posts.length > 0" class="flex flex-row mx-auto">
             <div class="flex flex-col">
@@ -168,8 +187,34 @@
           </div>
         </template>
       </InfScroll>
-
+    </template>
+    <template v-else>
+      <InfScroll :key="`${feedLoading}-loaded`" :postLoaded="true" @hit="onHitProfiles">
+        <template #content>
+          <div v-if="profiles.length > 0" class="flex flex-row mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-[60rem] mb-8">
+              <Web3ProfileCard
+                v-for="userdata of profiles"
+                :key="userdata._id"
+                :web3Profile="userdata"
+                :deps="web3Deps"
+                :addViewBtn="true"
+              />
+              <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
+            </div>
+          </div>
+          <div v-else>
+            <h2 class="text-[1.3rem] mt-2 uppercase">
+            {{  searchStarted ? 'No results found' : 'Hit enter or Search to find results' }}
+            </h2>
+            <component :is="catComp" v-if="catComp !== null" class="max-w-80 mx-auto" />
+          </div>
+        </template>
+      </InfScroll>
       </template>
+      
+      </template>
+    </template>
     </div>
   </div>
 </template>
@@ -195,7 +240,7 @@ import { postTypesPromises } from 'components/post-types/post-types'
 // import { getPolyContractAddresses } from "@yupio/contract-addresses";
 // import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 // import { search, getWithFilters  } from  'shared/utils/requests/searchFilters'
-import { search, getWithFilters  } from  'shared/src/utils/requests/searchFilters'
+import { search, getWithFilters, searchProfiles  } from  'shared/src/utils/requests/searchFilters'
 import { SearchPlatforms, 
   FILTERED_FEED_INDEXES, 
   FILTRED_FEED_SETTING, 
@@ -216,8 +261,15 @@ import type { IPost } from 'shared/src/types/post'
 import type { IMainStore } from 'shared/src/types/store'
 import PostMenu from '@/components/content/post/menu/postMenu.vue'
 import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
+import { OTooltip } from '@oruga-ui/oruga-next'
+import { getProfilesData } from "shared/src/utils/requests/web3Profiles";
+import Web3ProfileCard from 'components/profile/web3ProfileCard.vue'
+import type { IWeb3Profile } from "shared/src/types/web3Profile";
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
+const searchForOptions = ['posts', 'profiles']
 
 const postDeps: IPostDeps = {
   stackAlertError,
@@ -227,8 +279,17 @@ const postDeps: IPostDeps = {
   useMainStore: useMainStore as unknown as () => IMainStore,
   apiBase: API_BASE,
   PostMenu: PostMenu,
-  CollectMenu: CollectMenu
+  CollectMenu: CollectMenu,
+  ToolTip: OTooltip
 }
+
+const web3Deps = {
+  openConnectModal,
+  useMainStore: useMainStore as unknown as () => IMainStore,
+  stackAlertWarning,
+  stackAlertSuccess,
+  apiBase: API_BASE,
+};
 
 export default defineComponent({
   name: "Search",
@@ -239,7 +300,8 @@ export default defineComponent({
     Post,
     PostInfo,
     InfScroll,
-    LineLoader
+    LineLoader,
+    Web3ProfileCard
   },
   setup() {
     const loading = ref(true);
@@ -248,6 +310,7 @@ export default defineComponent({
     const activeTab = ref("0") as Ref<string>;
     const store = useMainStore();
     const posts = ref([]) as Ref<Array<IPost>>
+    const profiles = ref([]) as Ref<Array<IWeb3Profile>>
     const searchStarted = ref(false)
     const isAuth = ref(store.isLoggedIn)
 
@@ -255,11 +318,12 @@ export default defineComponent({
     const searchPlarfroms = ref(SearchPlatforms)
     const searchSort = ref('relevant')
     const searchInput = ref('')
-    const postsIndex = ref(0)
+    const itemIndex = ref(0)
     const postInfo = ref(null) as Ref<unknown>
     const catComp = shallowRef(null) as Ref<unknown>
     // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
     let getFeedPosts = async (start = 0) => [] as Array<IPost>
+    const searchForModel = ref(searchForOptions[0])
 
  
     const feedIndex = ref(FILTERED_FEED_ALL)
@@ -269,6 +333,7 @@ export default defineComponent({
     const filterPlatfroms = ref(SearchPlatforms)
     const filterCreators = ref('')
     const filterInput = ref('')
+    const noMorePosts = ref(false)
 
     store.$subscribe(() => {
       isAuth.value = store.isLoggedIn
@@ -280,6 +345,14 @@ export default defineComponent({
           activeTab.value = '0'
           openConnectModal(store)
         }
+      }
+    })
+
+    watch(searchForModel, () => {
+      if(searchForModel.value === 'posts') {
+        itemIndex.value = posts.value.length
+      } else {
+        itemIndex.value = profiles.value.length
       }
     })
 
@@ -298,11 +371,30 @@ export default defineComponent({
       searchLoading.value = true
       getFeedPosts = doSearch
       searchStarted.value = true
-      postsIndex.value = 0
+      itemIndex.value = 0
       const mewPosts = await doSearch()
       postInfo.value = mewPosts[0]
       posts.value = mewPosts
-      postsIndex.value += posts.value.length
+      itemIndex.value += posts.value.length
+      if(mewPosts.length < 10) {
+        noMorePosts.value = true
+      }
+      searchLoading.value = false
+    }
+
+    const makeSearchProfiles = async () => {
+      searchLoading.value = true
+      searchStarted.value = true
+      itemIndex.value = 0
+      const newProfileAddresses = (await searchProfiles({input:searchInput.value, start:itemIndex.value})).map((item) => item._id)
+      const newProfiles = await getProfilesData(newProfileAddresses)
+      itemIndex.value += newProfileAddresses.length
+      profiles.value = newProfiles
+      if(newProfiles.length < 10) {
+        noMorePosts.value = true
+      }
+      
+      itemIndex.value += posts.value.length
       searchLoading.value = false
     }
   
@@ -347,28 +439,44 @@ export default defineComponent({
       searchLoading.value = true
       getFeedPosts = doFilter
       searchStarted.value = true
-      postsIndex.value = 0
+      itemIndex.value = 0
       const mewPosts = await doFilter()
       postInfo.value = mewPosts[0]
       posts.value = mewPosts
-      postsIndex.value += posts.value.length
+      itemIndex.value += posts.value.length
       searchLoading.value = false
     }
-    
-
 
     const onHit = async (type: string) => {
       if(feedLoading.value) return
       if(!posts.value.length) return
       feedLoading.value = true
        if (type === 'down' && posts.value.length <= 30) {
-        postsIndex.value += 10
-        const newPosts = await getFeedPosts(postsIndex.value)
+        const newPosts = await getFeedPosts(itemIndex.value)
+        itemIndex.value += newPosts.length
         posts.value = [...posts.value, ...newPosts]
       } else if (type === 'down' && posts.value.length >= 30) {
-        postsIndex.value += 10
-        const newPosts = await getFeedPosts(postsIndex.value)
+        const newPosts = await getFeedPosts(itemIndex.value)
+        itemIndex.value += newPosts.length
         posts.value = [...posts.value.slice(10), ...newPosts]
+      }
+      feedLoading.value = false
+    }
+
+    const onHitProfiles = async (type: string) => {
+      if(feedLoading.value) return
+      if(!posts.value.length) return
+      feedLoading.value = true
+       if (type === 'down' && posts.value.length <= 30) {
+        const newProfileAddresses = (await searchProfiles({input:searchInput.value, start:itemIndex.value})).map((item) => item._id)
+        const newProfiles = await getProfilesData(newProfileAddresses)
+        itemIndex.value += newProfileAddresses.length
+        profiles.value = [...profiles.value, ...newProfiles]
+      } else if (type === 'down' && posts.value.length >= 30) {
+        const newProfileAddresses = (await searchProfiles({input:searchInput.value, start:itemIndex.value})).map((item) => item._id)
+        const newProfiles = await getProfilesData(newProfileAddresses)
+        itemIndex.value += newProfileAddresses.length
+        profiles.value = [...profiles.value.slice(10), ...newProfiles]
       }
       feedLoading.value = false
     }
@@ -434,7 +542,6 @@ export default defineComponent({
       SearchPlatforms,
       searchStarted,
       searchLoading,
-
       FILTERED_FEED_INDEXES,
       changeFilterSortBy,
       changeFilterSortOrder,
@@ -445,7 +552,13 @@ export default defineComponent({
       filtersSetting,
       FILTRED_FEED_SETTING,
       makeFilter,
-      postDeps
+      postDeps,
+      searchForModel,
+      searchForOptions,
+      profiles,
+      onHitProfiles,
+      makeSearchProfiles,
+      web3Deps
     };
   },
 });

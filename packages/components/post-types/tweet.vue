@@ -5,6 +5,7 @@
       <AvatarBtn
         :key="mainTweet.userAvatar"
         class="w-9 h-9"
+        imgClass="w-9 h-9"
         :pSource="mainTweet.userAvatar"
         :isSelf="false"
         :isTwitter="true"
@@ -14,7 +15,7 @@
         <span>{{ mainTweet.userName }}</span>
         <span class="opacity-70">@{{ mainTweet.userHandle }} <VerifiedIcon v-if="mainTweet.verified" class="verIcon" /></span>
       </div>
-      <span class="inline-block mfavIco ml-auto"><TwitterIcon class="w-6 h-6 tIcon" /></span>
+      <span class="flex mfavIco ml-auto"><TwitterIcon class="w-6 h-6 tIcon" /></span>
     </div>
     <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
       <div class="indent"></div>
@@ -51,6 +52,7 @@
         <AvatarBtn
           :key="mainTweet.userAvatar"
           class="w-9 h-9"
+          imgClass="w-9 h-9"
           :pSource="mainTweet.userAvatar"
           :isSelf="false"
           :isTwitter="true"
@@ -78,6 +80,7 @@
         <AvatarBtn
           :key="replyOrQuote.userAvatar"
           class="w-7 h-7"
+          imgClass="w-7 h-7"
           :pSource="replyOrQuote.userAvatar"
           :isSelf="false"
           :isTwitter="true"
@@ -112,6 +115,7 @@
         <AvatarBtn
           :key="mainTweet.userAvatar"
           class="w-9 h-9"
+          imgClass="w-9 h-9"
           :pSource="mainTweet.userAvatar"
           :isSelf="false"
           :isTwitter="true"
@@ -142,6 +146,7 @@
           <AvatarBtn
             :key="replyOrQuote.userAvatar"
             class="w-9 h-9"
+            imgClass="w-9 h-9"
             :pSource="replyOrQuote.userAvatar"
             :isSelf="false"
             :isTwitter="true"

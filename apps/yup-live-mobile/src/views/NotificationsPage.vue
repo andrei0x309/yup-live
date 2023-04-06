@@ -6,8 +6,8 @@
         style="width: auto"
         class=""
         :value="currentSegment"
-        @ion-change="segmentChange"
         mode="ios"
+        @ion-change="segmentChange"
       >
         <ion-segment-button value="all">
           <ion-label>All</ion-label>
@@ -43,7 +43,7 @@
                     :previewClass="`max-h-16 max-w-16 rounded-[0.2rem]`"
                     :noPreviewClass="`max-h-16 max-w-16 min-h-16 min-max-w-16 imgNotRadius`"
                   />
-                  <component v-else :is="notification.image" />
+                  <component :is="notification.image" v-else />
                 </div>
                 <div class="flex flex-col w-full">
                   <div class="flex">
@@ -102,6 +102,7 @@
 
  
       <ion-loading
+      :key="`k${loading}`"
       :is-open="loading"
       message="Please wait..."
       :duration="3000"
@@ -183,7 +184,7 @@ export default defineComponent({
       if(currentSegment.value === "all") {
         notifications.value = (await getNotifications({ userId: store.userData.account, type: 'all'}))?.reverse().map(addTwitterIcon) ?? []
       } else {
-        notifications.value = (await getNotifications({ userId: store.userData.account, type: 'rewards'}))?.reverse() ?? []
+        notifications.value = (await getNotifications({ userId: store.userData.account, type: 'reward'}))?.reverse() ?? []
       }
     };
 

@@ -16,6 +16,7 @@
               :source="token.symbol === 'WETH' ? '/res/svg/purple-eth.svg' : token.image"
               :imgClass="`${token.symbol === 'WETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full rounded-t-full`"
               :noPreviewClass="`${token.symbol === 'WETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full rounded-t-full`"
+              style="border-radius: 9999px;"
               :noPreviewParagraph="false"
             />
             <p class="p-3">Balance: {{ formatNumber(token.balance, 4) }}</p>
@@ -32,6 +33,7 @@
               :source="token.symbol === 'ETH' ? '/res/svg/purple-eth.svg' : token.image"
               :imgClass="`${token.symbol === 'ETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full rounded-t-full`"
               :noPreviewClass="`${token.symbol === 'ETH' ? 'h-15 w-15' : 'h-13 w-13'} rounded-full rounded-t-full`"
+              style="border-radius: 9999px;"
               :noPreviewParagraph="false"
             />
             <p class="p-3">Balance: {{ formatNumber(token.balance, 4) }}</p>

@@ -1,6 +1,18 @@
 import { config } from '../config'
-import { ISearchBody } from '../../types/search'
+import type { ISearchBody, ISearchWeb3Profile } from '../../types/search'
 const { API_BASE } = config
+
+export const searchProfiles = async ({
+    input = '', start = 0, limit = 10
+}: { input: string; start?: number; limit?: number }): Promise<Array<ISearchWeb3Profile>> => {
+    try {
+        const res = await fetch(`${API_BASE}/web3-profiles/search?start=${start}&limit=${limit}&searchText=${input}`)
+        const data = await res.json()
+        return data.filter((p: unknown) => p)
+    } catch {
+        return []
+    }
+}
 
 export const search = async ({
     offset = 0, byRencency = '', platforms = [] as string[], input = '', limit = 10

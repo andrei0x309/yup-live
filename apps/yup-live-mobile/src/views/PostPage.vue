@@ -13,9 +13,9 @@
         :full="true"
         :post="processedPost"
         :postTypesPromises="postTypesPromises"
-        @updatepostinfo="openInfoModal"
         :deps="postDeps"
         :mobile="true"
+        @updatepostinfo="openInfoModal"
       />
   </template>
 </div>

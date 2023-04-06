@@ -189,7 +189,7 @@ const refGoTo = GoToIcon;
 import type { IUserData } from "shared/src/types/account";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import { useRouter } from "vue-router";
-// import TwitterIcon from "icons/src/twitter.vue";
+import TwitterIcon from "icons/src/twitter.vue";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import ProfileLensIcon from "icons/src/profileLens.vue";
 import { linkTwitter, unlinkTwitter } from "shared/src/utils/requests/twitter"
@@ -208,7 +208,7 @@ const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   name: "SettingsPage",
-  components: { DangLoader, CustomButton, BtnSpinner, ProfileFarcasterIcon, VACropper, ProfileLensIcon },
+  components: { DangLoader, CustomButton, BtnSpinner, ProfileFarcasterIcon, VACropper, ProfileLensIcon, TwitterIcon },
   props: {
     userData: {
       type: Object as PropType<IUserData>,

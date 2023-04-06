@@ -6,7 +6,9 @@
     </div>
   </button>
   <button v-else class="logo loggedBtn">
-    <AvatarBtn class="mr-2" />
+    <router-link :to="`/profile/${mainStore.userData.account}`">
+    <AvatarBtn :useMainStore="useMainStore" class="mr-2" style="width: 2.3rem; height: 2.3rem;" />
+    </router-link>
     <NotifBtn class="mr-2" />
     <LogOutBtn class="mr-2" />
   </button>
@@ -131,6 +133,8 @@ export default defineComponent({
       isAuth,
       loadingMessage,
       refLoginState,
+      useMainStore,
+      mainStore
     };
   },
 });
