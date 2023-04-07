@@ -19,7 +19,7 @@
 
       <template v-if="currentSegment === 'search'">
         <div class="bg-color search-controls w-full">
-          <form @submit.prevent="() => search">
+          <form @submit.prevent="() => search()">
             <ion-searchbar
               v-model="searchText"
               :animated="true"
@@ -27,47 +27,35 @@
               placeholder="Your search query"
             ></ion-searchbar>
           </form>
-          Sort by
+          <div class="text-[0.9rem] mt-4">
+          Sort by<br>
           <ion-radio-group v-model="sortBy" value="relevance">
-            <ion-item>
-              <ion-label>Relevance</ion-label>
-              <ion-radio aria-label="relevance" value="relevance" class="mt-2 mr-4" />
-            </ion-item>
-            <ion-item>
-              <ion-label>Recency</ion-label>
-              <ion-radio aria-label="recency" value="recency" class="mt-2 mr-4" />
-            </ion-item>
+              <ion-radio aria-label="relevance" value="relevance" class="mt-4 mr-4 text-[0.9rem]" >Relevance</ion-radio>
+              <ion-radio aria-label="recency" value="recency" class="mt-4 mr-4" >Recency</ion-radio>
           </ion-radio-group>
+        </div>
+        <div class="text-[0.9rem] mt-4">
           <template v-if="sortBy === 'recency'">
-            Order
+            Order<br>
             <ion-radio-group v-model="recencyType" value="desc" class="fadeIn">
-              <ion-item>
-                <ion-label>Newer First</ion-label>
-                <ion-radio aria-label="desc" value="desc" class="mt-2 mr-4" />
-              </ion-item>
-              <ion-item>
-                <ion-label>Older First</ion-label>
-                <ion-radio value="asc" class="mt-2 mr-4" />
-              </ion-item>
+                <ion-radio aria-label="desc" value="desc" class="mt-4 mr-4" >Newer First</ion-radio>
+                <ion-radio value="asc" class="mt-4 mr-4" >Older First</ion-radio>
             </ion-radio-group>
           </template>
-          Filter Platform
+        </div>
+        <div class="text-[0.9rem] mt-4">
+          Filter Platform<br>
           <ion-radio-group v-model="filterPlatforms" value="all">
-            <ion-item>
-              <ion-label>All</ion-label>
-              <ion-radio aria-label="all" value="all" class="mt-2 mr-4" />
-            </ion-item>
-            <ion-item>
-              <ion-label>Specific</ion-label>
-              <ion-radio aria-label="specific" value="specific" class="mt-2 mr-4" />
-            </ion-item>
+              <ion-radio aria-label="all" value="all" class="mt-4 mr-4" >All</ion-radio>
+              <ion-radio aria-label="specific" value="specific" class="mt-4 mr-4" >Specific</ion-radio>
           </ion-radio-group>
+        </div>
           <ion-select
             v-if="filterPlatforms !== 'all'"
             v-model="platforms"
             placeholder="Platforms"
             :multiple="true"
-            class="fadeIn"
+            class="fadeIn mt-4"
           >
             <ion-select-option aria-label="youtube" value="youtube"
               >Youtube</ion-select-option
@@ -89,7 +77,7 @@
               >General</ion-select-option
             >
           </ion-select>
-          <ion-button class="search-btn" fill="clear" @click="() => search"
+          <ion-button class="search-btn" fill="clear" @click="() => search()"
             >Search</ion-button
           >
         </div>
@@ -211,7 +199,6 @@ import {
   IonSelect,
   IonButton,
   IonLabel,
-  IonItem,
   IonLoading,
   IonSegment,
   IonSegmentButton,
@@ -269,7 +256,6 @@ export default defineComponent({
     LineLoader,
     Post,
     IonLabel,
-    IonItem,
     IonLoading,
     IonSegment,
     IonSegmentButton,
@@ -282,8 +268,7 @@ export default defineComponent({
 
     const posts = ref([]) as Ref<Array<IPost>>;
     const profiles = ref([]) as Ref<Array<ISearchWeb3Profile>>;
-    const postsIndex = ref(0);
-    const profilesIndex = ref(0);
+    const itemIndex = ref(0);
     const searchStarted = ref(false);
     const feedLoading = ref(false);
     const loading = ref(false);
@@ -314,6 +299,11 @@ export default defineComponent({
     const segmentChange = async (value: any) => {
       currentSegment.value = value.detail.value;
       noMoreResults.value = false;
+      if (value.detail.value === "search") {
+        itemIndex.value = posts.value.length;
+      } else {
+        itemIndex.value = profiles.value.length;    
+      }
     };
 
     const onHitProfiles = async (type: string) => {
@@ -327,7 +317,7 @@ export default defineComponent({
         feedLoading.value = false;
         return;
       }
-      profilesIndex.value += newProfiles.length;
+      itemIndex.value += newProfiles.length;
       if (type === "down" && profiles.value.length <= 30) {
         profiles.value = [...profiles.value, ...newProfiles];
       } else if (type === "down" && profiles.value.length >= 30) {
@@ -341,13 +331,13 @@ export default defineComponent({
         return;
       }
       feedLoading.value = true;
-      const newPosts = await getFeedPosts(postsIndex.value);
+      const newPosts = await getFeedPosts(itemIndex.value);
       if (newPosts.length === 0) {
         noMoreResults.value = true;
         feedLoading.value = false;
         return;
       }
-      postsIndex.value += newPosts.length;
+      itemIndex.value += newPosts.length;
       if (type === "down" && posts.value.length <= 30) {
         posts.value = [...posts.value, ...newPosts];
       } else if (type === "down" && posts.value.length >= 30) {
@@ -374,18 +364,16 @@ export default defineComponent({
       noMoreResults.value = false;
       if (searchProfiles) {
         profiles.value = (await getSearchProfiles()) ?? [];
-        profilesIndex.value += profiles.value.length;
-        console.log(profiles.value);
+        itemIndex.value += posts.value.length;
       } else {
         posts.value = (await getFeedPosts()) ?? [];
-        postsIndex.value += posts.value.length;
+        itemIndex.value += posts.value.length;
       }
       loading.value = false;
     };
 
     return {
       posts,
-      postsIndex,
       postTypesPromises,
       loading,
       onHit,

@@ -6,9 +6,10 @@
       <FollowersIcon class="inline-block w-4 mr-2" />{{ followersCount }}
     </div>
     <div v-if="lWeb3Profile?.yupScore ?? 0 > 0" class="yupScore">
+      <router-link :to="`/score/${id}`">
       <ScoreIcon class="inline-block w-4 mr-2" />{{
         Math.trunc(lWeb3Profile?.yupScore ?? 0)
-      }}
+      }}</router-link>
     </div>
     <img
       :key="avatar"
@@ -20,7 +21,7 @@
     />
 
     <figcaption>
-      <h3>[ {{ lWeb3Profile?.handle }} ]<span>Additional Handles</span></h3>
+      <h3>[ {{ lWeb3Profile?.handle || `${id.slice(0, 6)}...`  }} ]<span>Additional Handles</span></h3>
       <div class="handles">
         <div v-if="lWeb3Profile?.ens?.handle">
           <ProfileEthIcon class="mr-2 w-3 inline-block" /> {{ lWeb3Profile.ens.handle }}
@@ -148,6 +149,7 @@ export default defineComponent({
   overflow: hidden;
   height: 25rem;
   max-width: 20rem;
+  min-width: 18rem;
   width: 100%;
   color: aliceblue;
   text-align: center;

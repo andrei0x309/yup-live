@@ -29,6 +29,9 @@
       <ion-item button @click="goTo('/tabs/meetings')">
         <ion-icon :icon="listOutline" class="w-5 mr-4" /> Community Meetings
       </ion-item>
+      <ion-item button @click="goTo(`/tabs/score/${store.userData?.address}`)">
+        <ScoreIcon class="w-5 mr-4" /> Yup Score
+      </ion-item>
       <ion-item button @click="goTo('/tabs/info')">
         <InfoIcon class="w-5 mr-4" /> About & Info
       </ion-item>
@@ -53,6 +56,8 @@ import { useRouter } from "vue-router";
 import LogOutIcon from 'icons/src/logout.vue'
 import ActivityIcon from '@/icons/activity.vue'
 import InfoIcon from 'icons/src/infoIcon.vue'
+import ScoreIcon from 'icons/src/score.vue'
+
 
 export default defineComponent({
   name: "HeaderMenu",
@@ -60,7 +65,7 @@ export default defineComponent({
     IonHeader,
     IonToolbar,
     IonMenu, IonTitle, IonContent, IonMenuToggle, IonIcon,
-    IonItem, IonList, LogOutIcon, ActivityIcon, InfoIcon
+    IonItem, IonList, LogOutIcon, ActivityIcon, InfoIcon, ScoreIcon
   },
   props: {
     text: {
@@ -102,7 +107,8 @@ export default defineComponent({
         goTo,
         podiumOutline,
         searchOutline,
-        listOutline
+        listOutline,
+        store
     };
   },
 });

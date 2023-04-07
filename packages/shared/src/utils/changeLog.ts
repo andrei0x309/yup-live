@@ -1,5 +1,18 @@
 export const recentChanges = [
     {
+        date: "07 April - 2023",
+        title: "Changes",
+        changes: [
+            'search improvements',
+            'added score page to yup live mobile',
+            'added link to yup score from every web3Profil on web app and mobile',
+            'added Guide Pointers to yup live mobile',
+            'added link from follow notifications to web3Profiles',
+            'added support for follow notifications on yup live mobile',
+            'new 1.1.3 version of yup live mobile',
+        ],
+    },
+    {
         date: "05 April - 2023",
         title: "Changes",
         changes: [

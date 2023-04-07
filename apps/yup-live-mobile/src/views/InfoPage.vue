@@ -76,11 +76,11 @@
         >
       </div>
 
-      <!-- <div class="mt-2 mb-6">
+      <div class="mt-2 mb-6">
         <ion-button class="info-btn" fill="clear" @click="guideModalOpen = true"
           >App Guide</ion-button
         >
-      </div> -->
+      </div>
     </ion-content>
 
     <ion-modal :is-open="changesModalOpen">
@@ -136,10 +136,25 @@
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding">
-        <h3 class="text-center mb-4">AppStore Review Login</h3>
-
-        <ion-card-content class="ion-justify-content-center">
-
+        <h3 class="text-center mb-4">Guide Pointers</h3>
+        <ion-card-content class="ion-justify-content-center pb-10 log-page">
+          <ol>
+          <li>Tapping avatars and handles of web3 users will open their web3 profile page.</li>
+          <li>Web3 profiles are active users from ethereum and polygon networks.</li>
+          <li>Web3 profiles will show indexed content and data connected to that user</li>
+          <li>Tapping on the star of a web3 profile will open the yup score page of that profile</li>
+          <li>Yup score is an blockchain based reputation system that is used to rank an user address</li>
+          <li>Protocol will auto copy followers from other social networks</li>
+          <li>The primary identification of a web3 profile is the ethereum address</li>
+          <li>Yup mobile Apps can be used only in authentified mode</li>
+          <li>Signup and login is done using an ethereum wallet</li>
+          <li>Following users will affect your feed as long as personalization is enabled</li>
+          </ol>
+        </ion-card-content>
+        <h3 class="text-center -mt-4 mb-4">Aditional Help</h3>
+        <ion-card-content class="ion-justify-content-center pb-10 log-page mb-10">
+          
+          <p class="text-center">If you need any help, please join discord.</p>
         </ion-card-content>
       </ion-content>
     </ion-modal>

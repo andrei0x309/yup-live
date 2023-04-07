@@ -19,7 +19,7 @@
         <ul class="m-auto">
           <li v-for="voter of voters" :key="voter.a._id" class="p-4">
             <div class="flex p-2">
-              <AvatarBtn imgClass="h5 w-5" class="h-5 w-5" :mobile="true" :pSource="voter.a.avatar" :pAccount="voter.a._id" :isSelf="false" />
+              <AvatarBtn imgClass="h-9 w-9" class="h-9 w-9" :mobile="true" :pSource="voter.a.avatar" :pAccount="voter.a._id" :isSelf="false" />
               <ion-button fill="outline" size="small" class="ml-auto opacity-70 text-[0.6rem]" :router-link="`/tabs/account/${voter.a.username}`" @click="modalOpen = false">View Profile</ion-button>
             </div>
             <p>

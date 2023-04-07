@@ -25,7 +25,9 @@
         <DangLoader :unset="true" />
       </template>
       <div v-else class="flex flex-wrap mx-auto mt-6 max-w-[40rem] w-full">
-        <div class="grid grid-cols-1 lg:grid-cols-1 gap-4 justify-center yup-score w-full">
+        <div
+          class="grid grid-cols-1 lg:grid-cols-1 gap-4 justify-center yup-score w-full"
+        >
           <template v-if="yupAccount">
             <div class="grid-missing flex flex-col p-4 glassCard">
               <h2>
@@ -185,6 +187,8 @@ import { useRoute } from "vue-router";
 import { isValidAddress, formatNumber, truncteEVMAddr } from "shared/src/utils/misc";
 import { parseIpfs } from "shared/src/utils/web3/ipfs";
 import { stackAlertWarning } from "@/store/alertStore";
+import { getYupData, isValidENS } from "shared/src/utils/requests/yup-score";
+import type { YUPScoreData } from "shared/src/types/web3/yup-score";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -194,72 +198,6 @@ export default defineComponent({
     DangLoader,
   },
   setup() {
-    interface YUPScoreData {
-      data: {
-        id: string;
-        yup_score: number;
-        blacklisted: boolean;
-        expiration: string;
-        score_data: {
-          partial: boolean;
-          poh: {
-            registered: boolean;
-          };
-          snapshot_votes: {
-            score: number;
-            count: number;
-          };
-          eth_erc20_tokens: {
-            score: number;
-          };
-          recent_eth_transfers: {
-            score: number;
-          };
-          recent_polygon_transfers: {
-            score: number;
-          };
-          poly_txn_count: {
-            score: number;
-            count: number;
-          };
-          eth_txn_count: {
-            score: number;
-            count: number;
-          };
-          eth_age: {
-            score: number;
-            age: number;
-          };
-          eth_activity: {
-            score: number;
-            activity: number;
-          };
-          polygon_balance: {
-            score: number;
-            balance: number;
-          };
-          polygon_nfts: {
-            score: number;
-          };
-          gnosis_nfts: {
-            score: number;
-          };
-          eth_nfts: {
-            score: number;
-          };
-          eth_balance: {
-            score: number;
-            balance: number;
-          };
-          ens: {
-            score: number;
-            count: number;
-            primary: string;
-          };
-        };
-      };
-    }
-
     const route = useRoute();
     const addr = ref((route.params.addr as string) ?? "");
     const search = ref(addr.value);
@@ -282,12 +220,12 @@ export default defineComponent({
       description: computed(() => siteData.description),
       meta: [
         {
-          name: 'og:image',
-          content: `/share/yup-live-ogs/og-yup-live-score.png`
+          name: "og:image",
+          content: `/share/yup-live-ogs/og-yup-live-score.png`,
         },
         {
-          name: 'description',
-          content: computed(() => siteData.description)
+          name: "description",
+          content: computed(() => siteData.description),
         },
         {
           name: "og:type",
@@ -328,32 +266,6 @@ export default defineComponent({
       // do nothing
     });
 
-    const isValidENS = (address: string) => {
-      return address.endsWith(".eth");
-    };
-
-    const getYupData = async (address: string) => {
-      try {
-        const req = await fetch(`${API_BASE}/score?address=${address}`);
-        if (req.ok) {
-          yupAccount.value = await req.json();
-          history.pushState(
-            {},
-            `YUP LIVE - SCORE ${yupAccount.value.data.id}`,
-            [window.location.origin, "score", yupAccount.value.data.id].join("/")
-          );
-        } else {
-          const error = await req.json();
-          if (error?.error) {
-            stackAlertWarning(`Api returned error: ${error.error}`);
-          }
-          return null;
-        }
-      } catch {
-        // ignore
-      }
-      return null;
-    };
 
     const searchUser = async () => {
       if (!isValidAddress(search.value) && !isValidENS(search.value)) {
@@ -361,14 +273,22 @@ export default defineComponent({
         return;
       }
       isDataLoading.value = true;
-      await getYupData(search.value);
+      yupAccount.value = await getYupData({
+          address: search.value,
+          apiBase: API_BASE,
+          stackAlertWarning
+        });
       isDataLoading.value = false;
     };
 
     onMounted(async () => {
       isDataLoading.value = true;
       if (addr.value) {
-        await getYupData(addr.value);
+        yupAccount.value = await getYupData({
+          address: addr.value,
+          apiBase: API_BASE,
+          stackAlertWarning
+        });
       }
       isDataLoading.value = false;
     });
@@ -424,6 +344,5 @@ export default defineComponent({
     font-weight: 500;
     margin: 0.5rem;
   }
-
 }
 </style>
