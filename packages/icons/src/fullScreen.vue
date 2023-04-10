@@ -1,0 +1,54 @@
+<template>
+  <svg style="enable-background: new 0 0 32 32" viewBox="0 0 32 32">
+    <g>
+      <path
+        fill="currentColor"
+        d="M5,12c-0.6,0-1-0.4-1-1V5c0-0.6,0.4-1,1-1h6c0.6,0,1,0.4,1,1s-0.4,1-1,1H6v5C6,11.6,5.6,12,5,12z"
+      />
+    </g>
+    <g>
+      <path
+        fill="currentColor"
+        d="M27,12c-0.6,0-1-0.4-1-1V6h-5c-0.6,0-1-0.4-1-1s0.4-1,1-1h6c0.6,0,1,0.4,1,1v6C28,11.6,27.6,12,27,12z"
+      />
+    </g>
+    <g>
+      <path
+        d="M27,28h-6c-0.6,0-1-0.4-1-1s0.4-1,1-1h5v-5c0-0.6,0.4-1,1-1s1,0.4,1,1v6C28,27.6,27.6,28,27,28z"
+      />
+    </g>
+    <g>
+      <path
+        fill="currentColor"
+        d="M11,28H5c-0.6,0-1-0.4-1-1v-6c0-0.6,0.4-1,1-1s1,0.4,1,1v5h5c0.6,0,1,0.4,1,1S11.6,28,11,28z"
+      />
+    </g>
+    <g>
+      <path
+        fill="currentColor"
+        d="M5,28c-0.3,0-0.5-0.1-0.7-0.3c-0.4-0.4-0.4-1,0-1.4l22-22c0.4-0.4,1-0.4,1.4,0s0.4,1,0,1.4l-22,22C5.5,27.9,5.3,28,5,28z"
+      />
+    </g>
+    <g>
+      <path
+        fill="currentColor"
+        d="M27,28c-0.3,0-0.5-0.1-0.7-0.3l-22-22c-0.4-0.4-0.4-1,0-1.4s1-0.4,1.4,0l22,22c0.4,0.4,0.4,1,0,1.4   C27.5,27.9,27.3,28,27,28z"
+      />
+    </g>
+  </svg>
+</template>
+
+<script lang="ts">
+import { onMounted, defineComponent } from "vue";
+
+export default defineComponent({
+  name: "FullScreenIcon",
+  setup() {
+    onMounted(() => {
+      // nothing
+    });
+  },
+});
+</script>
+
+<style lang="scss"></style>

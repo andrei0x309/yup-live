@@ -1,0 +1,37 @@
+name: Release Cleanup
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Get releases
+      id: get_releases
+      uses: actions/github-script@v3.3.4
+      with:
+        script: |
+          const { data: releases } = await github.repos.listReleases({
+            owner: context.repo.owner,
+            repo: context.repo.repo
+          })
+          return releases
+
+    - name: Delete old releases
+      uses: actions/github-script@v3.3.4
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          for (const release of ${{ steps.get_releases.outputs.result }}.slice(5)) {
+            console.log(`Deleting release ${release.id} (${release.name})...`)
+            await github.repos.deleteRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.id
+            })
+          }
