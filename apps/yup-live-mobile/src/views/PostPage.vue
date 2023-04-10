@@ -1,13 +1,13 @@
 <template>
     <ion-page>
     <HeaderBar text="POST DETAIL" :menu="true" />
-    <ion-content :fullscreen="false" class="ion-padding mt-4">
-  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
+    <ion-content :fullscreen="false" class="mt-4">
+  <div class="page w-full py-2 mx-auto">
     <div class="bg-color table-list w-full mb-4">
       <DangLoader v-if="isDataLoading" />
       <template v-else>
-      <h2 class="text-center text-[1.4rem]">Post</h2>
-      <h2 class="text-center text-[1.1rem] mt-2 mb-4">{{ postId }}</h2>
+      <h2 class="text-center text-[1.1rem]">Post</h2>
+      <h2 class="text-center text-[0.9rem] mt-2 mb-4">{{ postId }}</h2>
       <Post
         :id="postId"
         :full="true"

@@ -17,6 +17,10 @@ export interface IMainStore {
   fid?: string
   $subscribe: (fn: (store?: IMainStore) => void) => () => void
   deletePost?: string
+  settings?: {
+    personalizedFeeds: boolean
+    accountTracking: boolean
+  }
 }
 
 export interface ICollection {

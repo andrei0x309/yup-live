@@ -204,12 +204,20 @@ export default defineComponent({
     onBeforeMount(async () => {
       loading.value = true;
       if (!store.isLoggedIn) {
-        const authInfo = await storage.get("authInfo");
-        if (authInfo) {
-          store.userData = JSON.parse(authInfo);
-          store.isLoggedIn = true;
-          router.replace("/tabs/feeds");
-        }
+        const authInfo = storage.get("authInfo")
+        const settings = storage.get("settings")
+        authInfo.then((res) => {
+          if (res) {
+            store.userData = JSON.parse(res);
+            store.isLoggedIn = true;
+            router.replace("/tabs/feeds");
+          }
+        })
+        settings.then((res) => {
+          if (res) {
+            store.settings = JSON.parse(res);
+          }
+        })
       }
       loading.value = false;
     });

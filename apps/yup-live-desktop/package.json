@@ -1,0 +1,22 @@
+{
+  "name": "yup-live-desktop",
+  "description": "Yup Live bundle for desktop with Tauri",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "serve": "vite",
+    "serve:tauri": "VITE_NETWORK_PROCESSOR=tauri vite",
+    "serve:native": "tauri dev",
+    "build": "cd ../yup-live && vite build && cd ../yup-live-desktop && tauri build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "1.2.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "1.2.3"
+  },
+  "main": "index.js",
+  "license": "MIT"
+}

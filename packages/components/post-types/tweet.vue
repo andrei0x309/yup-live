@@ -27,7 +27,7 @@
         </template>
       </div>
     </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end">
+    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-2">
       <ClockIcon class="w-4 h-4" />
       <p class="text-xs">
         {{ post.createdAt }}
@@ -102,7 +102,7 @@
         </div>
       </div>
     </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end">
+    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-2">
       <ClockIcon class="w-4 h-4" />
       <p class="text-xs">
         {{ post.createdAt }}
@@ -169,7 +169,7 @@
         </div>
       </div>
     </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end">
+    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-2">
       <ClockIcon class="w-4 h-4" />
       <p class="text-xs">
         {{ post.createdAt }}

@@ -5,6 +5,10 @@ const useMainStore = defineStore('main', {
     state: () => {
         return {
             theme: 'light',
+            settings: {
+                personalizedFeeds: false,
+                accountTracking: false
+            },
             userData: {
                 account: '',
                 signature: '',
@@ -20,7 +24,7 @@ const useMainStore = defineStore('main', {
             fid: ''
         }
     }
-}) as unknown as () => IMainStore
+}) as () => IMainStore
 
 const useSettingsStore = defineStore('setiings', {
     state: () => {

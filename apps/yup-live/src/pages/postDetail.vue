@@ -1,7 +1,7 @@
 <template>
   <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
     <div class="bg-color table-list w-full mb-4 min-h-[75vh] flex justify-start">
-      <div class="flex">
+      <div class="flex flex-col lg:flex-row">
         <div>
           <h2 class="mb-4 text-[1.2rem]">
             Post UUIDv4: <span class="opacity-80 text-[1.1rem]">{{ postId }}</span>
@@ -24,7 +24,7 @@
             processedPost?.web3CreatorProfile &&
             processedPost?.web3CreatorProfil?.noData !== true
           "
-          class="hidden lg:block min-w-[21rem]"
+          class="min-w-[21rem]"
         >
           <h2 class="mb-4">Post Creator</h2>
           <Web3ProfileCard

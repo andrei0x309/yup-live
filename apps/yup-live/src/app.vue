@@ -70,6 +70,27 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+::-webkit-scrollbar{
+  height: 7px;
+  width: 7px;
+  background: #747474;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(34, 34, 34);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:horizontal{
+  background: rgb(34, 34, 34);
+  border-radius: 4px;
+}
+
+html{
+  scrollbar-width: thin;
+  scroll-behavior: smooth;
+}
+
 @font-face {
   font-family: "Lora";
   font-style: normal;
@@ -93,7 +114,6 @@ export default defineComponent({
 
 html {
   transition: all 0.2s ease;
-
   body {
     background-color: var(--bg-content);
   }

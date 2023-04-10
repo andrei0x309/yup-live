@@ -283,10 +283,6 @@ export default defineComponent({
       isEditLoading.value = false
     }
 
-    const changeSetting = async (setting: string) => {
-      console.log('implement change setting' + setting)
-    }
- 
     const close = () => {
         return modalController?.dismiss(null, 'cancel');
     }
@@ -321,6 +317,16 @@ export default defineComponent({
         isConnectedToTwitter.value = false;
       }
       isLoadingTwitter.value = false;
+    }
+
+    const changeSetting = async (setting: unknown) => {
+      loading.value = true;
+      if(store?.settings && setting) {
+      store.settings[setting as keyof typeof store.settings] = !store.settings[setting as keyof typeof store.settings]
+      store.settings 
+      await storage.set("settings", {...store.settings});
+      }
+      loading.value = false;
     }
  
     return {
