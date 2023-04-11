@@ -88,7 +88,7 @@
               <div :class="`notBLine inline-block p-1 mr-3`"></div>
             <div class="flex w-full">
               <div class="flex flex-col">
-              <router-link :to="`/web3-profiles/${notification.EVMRecipient?.address}`">
+              <router-link :to="`/web3-profile/${notification.EVMRecipient?.address}`">
               <AvatarBtn
                 :key="notification?.EVMRecipient?.avatar"
                 class="w-9 h-9 mx-auto mt-4"
@@ -103,7 +103,7 @@
               <div class="flex flex-col w-full">
                 <div class="flex">
                   <p class="ml-3 flex items-center pb-2 mt-4">
-                  <router-link :to="`/web3-profiles/${notification.EVMRecipient?.address}`">
+                  <router-link :to="`/web3-profile/${notification.EVMRecipient?.address}`">
                   <b class="mr-2 opacity-60">{{ notification?.EVMRecipient?.handle || `${notification.EVMRecipient?.address?.slice(0, 6)}...` }}</b>
                   </router-link>
                    {{ `${notification.action === 'follow' ? 'followed' : 'unfollowed'}` }} you</p>
@@ -212,7 +212,7 @@
             <div :class="`notBLine inline-block p-1 mr-3`"></div>
             <div class="flex w-full">
               <div class="flex flex-col">
-              <router-link :to="`/web3-profiles/${notification.EVMRecipient?.address}`">
+              <router-link :to="`/web3-profile/${notification.EVMRecipient?.address}`">
               <AvatarBtn
                 :key="notification?.EVMRecipient?.avatar"
                 class="w-9 h-9 mx-auto mt-4"
@@ -226,7 +226,7 @@
               <div class="flex flex-col w-full">
                 <div class="flex">
                   <p class="ml-3 flex items-center pb-2 mt-4">
-                  <router-link :to="`/web3-profiles/${notification.EVMRecipient?.address}`">
+                  <router-link :to="`/web3-profile/${notification.EVMRecipient?.address}`">
                   <b class="mr-2 opacity-60">{{ notification?.EVMRecipient?.handle || `${notification.EVMRecipient?.address?.slice(0, 6)}...` }}</b>
                   </router-link>
                    {{ `${notification.action === 'follow' ? 'followed' : 'unfollowed'}` }} you</p>

@@ -75,6 +75,7 @@ export default defineComponent({
     top: 0;
     transition: 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
     background: linear-gradient(269deg, #161616, #181818), linear-gradient(5deg, #222, #202020);
+    z-index: 10;
 .rotateIco{
     transform: rotate(180deg);
 

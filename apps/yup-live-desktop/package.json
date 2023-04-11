@@ -7,15 +7,16 @@
   "scripts": {
     "serve": "vite",
     "serve:tauri": "VITE_NETWORK_PROCESSOR=tauri vite",
-    "serve:native": "tauri dev",
+    "dev": "tauri dev",
     "build": "cd ../yup-live && vite build && cd ../yup-live-desktop && tauri build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tauri-apps/api": "1.2.0"
+    "@tauri-apps/api": "^1.2.0"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "1.2.3"
+    "@tauri-apps/cli": "^1.2.3",
+    "yarn-upgrade-all": "^0.7.2"
   },
   "main": "index.js",
   "license": "MIT"

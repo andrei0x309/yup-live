@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: 16
       - name: get version
-        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+        run: echo "PACKAGE_VERSION=$(node -p "require('./apps/yup-live-desktop/src-tauri/tauri.conf.json').package.version")" >> $GITHUB_ENV
       - name: create release
         id: create-release
         uses: actions/github-script@v6
@@ -81,6 +81,7 @@ jobs:
         run: cd apps/yup-live && yarn install && yarn build-no-ssg && cd ../..
 
       - name: Build the app
+        timeout-minutes: 30
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,4 +1,5 @@
 <template>
+  <component :is="headBar" v-if="headBar !== null" />
   <HeaderComp />
   <main class="content">
     <router-view :key="route.path" />
@@ -8,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount } from "vue";
+import { defineComponent, onBeforeMount, shallowRef, ShallowRef } from "vue";
 import HeaderComp from "@/components/theme/header.vue";
 import FooterCom from "@/components/theme/footer.vue";
 import { getThemeMode } from "./utils";
@@ -37,10 +38,27 @@ export default defineComponent({
     const mainStore = useMainStore();
     const collectionStore = useCollectionStore();
     const route = useRoute();
+    const headBar = shallowRef(null) as ShallowRef<null |  Awaited<typeof import('@/components/content/desktop/head-bar.vue')>['default']>
   
 
-    onBeforeMount(() => {
+    onBeforeMount(async () => {
       try {
+        if ((window as unknown as {__TAURI__: boolean}).__TAURI__) {
+          headBar.value = (await import('@/components/content/desktop/head-bar.vue')).default
+          console.log('tauri detected', headBar.value)
+          document.addEventListener('click', async function(event) {
+          const target = event.target as HTMLAnchorElement
+          if (target.tagName === 'A') {
+            event.preventDefault()
+          const local = ['https://tauri.localhost', 'http://tauri.localhost', 'http://localhost', 'https://yup.live', 'https://yup-live.pages.dev', 'https://yup.info.gf']
+          if(target.href.startsWith('http') && !local.some(l => target.href.startsWith(l))) {
+            const shell = await import('@tauri-apps/api/shell')
+            shell.open(target.href)
+          }
+          }
+        })
+        }
+
         if (localStorage.getItem("address")) {
           mainStore.userData.address = localStorage.getItem("address") as string;
           mainStore.userData.account = localStorage.getItem("account") || "";
@@ -64,6 +82,7 @@ export default defineComponent({
       route,
       setAlertStack,
       useAlertStack,
+      headBar
     };
   },
 });

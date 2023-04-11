@@ -1,5 +1,5 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "$schema": "../../../node_modules/@tauri-apps/cli/schema.json",
   "build": {
     "beforeBuildCommand": "",
     "beforeDevCommand": "",
@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "yup-live-tauri",
-    "version": "0.1.0"
+    "version": "1.1.5"
   },
   "tauri": {
     "allowlist": {
@@ -19,6 +19,44 @@
           "https://**",
           "http://**"
         ]
+      },
+      "shell": {
+        "all": false, 
+        "execute": false, 
+        "sidecar": false,
+        "open": true
+      },
+      "window": {
+        "all": false,
+        "center": false,
+        "close": true,
+        "create": false,
+        "hide": false,
+        "maximize": false,
+        "minimize": false,
+        "print": false,
+        "requestUserAttention": false,
+        "setAlwaysOnTop": false,
+        "setCursorGrab": false,
+        "setCursorIcon": false,
+        "setCursorPosition": false,
+        "setCursorVisible": false,
+        "setDecorations": false,
+        "setFocus": false,
+        "setFullscreen": true,
+        "setIcon": false,
+        "setIgnoreCursorEvents": false,
+        "setMaxSize": false,
+        "setMinSize": false,
+        "setPosition": false,
+        "setResizable": false,
+        "setSize": false,
+        "setSkipTaskbar": false,
+        "setTitle": false,
+        "show": false,
+        "startDragging": false,
+        "unmaximize": false,
+        "unminimize": false
       }
     },
     "bundle": {
@@ -60,7 +98,7 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://yup-live.pgaes.dev/desktop/latest-version.json"
+        "https://yup-live.pages.dev/desktop/latest-version.json"
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIyODlFMTU4RUFERkM3QQpSV1I2L0syT0ZaNG9BdmxPdWdrd09DNlRTdGgyY1UwMWNNclRWSWpHcFA2VW1XNVlPV3ZTbnpBdQo",

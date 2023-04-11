@@ -8,6 +8,7 @@
       <template v-else>
       <h2 class="text-center text-[1.1rem]">Post</h2>
       <h2 class="text-center text-[0.9rem] mt-2 mb-4">{{ postId }}</h2>
+      <div class="flex flex-col">
       <Post
         :id="postId"
         :full="true"
@@ -17,6 +18,28 @@
         :mobile="true"
         @updatepostinfo="openInfoModal"
       />
+      <div
+          v-if="
+            processedPost?.web3CreatorProfile &&
+            processedPost?.web3CreatorProfil?.noData !== true
+          "
+          class="min-w-[21rem]"
+        >
+          <h2 class="mb-4">Post Creator</h2>
+          <Web3ProfileCard
+            class="ml-8"
+            :web3Profile="(processedPost.web3CreatorProfile as IWeb3Profile) ?? null"
+            :overWriteEVM="
+              processedPost.tag === 'farcaster' && processedPost?.previewData?.creator
+                ? processedPost?.previewData?.creator
+                : undefined
+            "
+            :followersCount="followersCount"
+            :deps="web3Deps"
+            :addViewBtn="true"
+          />
+        </div>
+        </div>
   </template>
 </div>
   </div>
@@ -44,6 +67,9 @@ import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/a
 import { useMainStore } from "@/store/main";
 import Post from 'components/post/post.vue'
 import { IPost } from "shared/src/types/post";
+import { getFollowers } from "shared/src/utils/requests/web3Follows";
+import { IWeb3Profile } from 'shared/src/types/web3Profile'
+
 
 import { config } from "shared/src/utils/config";
 const { API_BASE } = config;
@@ -57,6 +83,15 @@ const postDeps: IPostDeps = {
   apiBase: API_BASE,
   PostMenu,
 }
+
+const web3Deps = {
+  openConnectModal: null,
+  useMainStore: useMainStore as unknown as () => IMainStore,
+  stackAlertWarning,
+  stackAlertSuccess,
+  apiBase: API_BASE,
+};
+
 
 export default defineComponent({
   name: "PostDetail",
@@ -75,12 +110,15 @@ export default defineComponent({
     },
   },
   setup(props) {
+    type  ExIPost  =  IPost  &  {  web3CreatorProfile:  IWeb3Profile  |  null  |  undefined  }
     const route = useRoute();
     const postId = ref(route.params.postId as string);
     // const store = useMainStore()
     const isDataLoading = ref(true);
-    const processedPost = ref(props.post);
+    const processedPost = ref(props.post as ExIPost);
     const infoModalOpen = ref(false);
+    const followersCount = ref(0);
+
 
     const openInfoModal = () => {
       infoModalOpen.value = true;
@@ -97,10 +135,20 @@ export default defineComponent({
 
     onIonViewDidEnter(async () => {
       if (!props?.post?._id?.postid) {
-        console.log('zzzz', postId.value, route.params)
         processedPost.value = await getPostbyId(postId.value);
-        console.log(processedPost.value);
         postId.value = processedPost.value._id.postid;
+
+        if (props?.post?.web3CreatorProfile?._id) {
+        const userAddr =
+          props?.post?.web3CreatorProfile?._id ?? props?.post.previewData?.creator;
+
+        getFollowers(API_BASE, userAddr).then((res: { totalCount: number }) => {
+          if (res) {
+            followersCount.value = res.totalCount;
+          }
+        });
+      }
+
         isDataLoading.value = false;
       } else {
         isDataLoading.value = false;
@@ -117,7 +165,9 @@ export default defineComponent({
       postId,
       postTypesPromises,
       openInfoModal,
-      postDeps
+      postDeps,
+      web3Deps,
+      followersCount
     };
   },
 });

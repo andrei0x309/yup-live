@@ -1,10 +1,20 @@
 export const recentChanges = [
     {
-        date: "09 April - 2023",
+        date: "10 April - 2023",
         title: "Changes",
         changes: [
             'improved display on small screens on yup live mobile',
             'add first version of tauri config for desktop app',
+            'add workflow to cross compile desktop app for windows, mac and linux',
+            'add workflow to build and publish desktop app to github releases',
+            'add workflow to limit releases to last 5',
+            'generated desktop app icons',
+            'prevent open external links in tauri and default on shell.open',
+            'move delete account from account section to ireversable actions section',
+            'enabled posibility to enable disable feed personalization and tracking in yup live mobile',
+            'updated rust dependencies',
+            'headbar component for desktop only with back, forward, full screen and close buttons',
+            'add pull refresh to feeds on yup live mobile',
         ],
     },
     {

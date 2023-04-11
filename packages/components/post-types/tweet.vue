@@ -176,8 +176,8 @@
       </p>
     </span>
   </div>
-</div>
   <div id="scriptPlacer" class="hidden"></div>
+</div>
 </template>
 
 <script lang="ts">

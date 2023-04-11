@@ -1,16 +1,24 @@
 <template>
   <ion-page>
     <HeaderBar text="FEEDS" :menu="true" />
-
-    <ion-content :fullscreen="true">
-      <ion-list style="position: sticky;top: 0;z-index: 2;">
+    <ion-list style="position: sticky;top: 0;z-index: 2;">
     <ion-item>
       <ion-select v-model="activeFeed" :value="feeds[0][0]" style="margin:auto;" interface="action-sheet" placeholder="Select Feed" @ionChange="feedChange">
         <ion-select-option v-for="feed of feeds" :key="feed[0]" :value="feed[0]">{{feed[1]}}</ion-select-option>
       </ion-select>
     </ion-item>
   </ion-list>
-  
+    <ion-content :fullscreen="true">
+  <ion-refresher
+              slot="fixed"
+              mode="ios"
+              :pull-factor="0.5"
+              :pull-min="100"
+              :pull-max="200"
+              @ionRefresh="handleRefresh($event)"
+            >
+  <ion-refresher-content pulling-text="Fetching..."></ion-refresher-content>
+</ion-refresher>
   <ion-loading
       :key="`${loading}-loading`"
       :is-open="loading"
@@ -41,8 +49,6 @@
           </div>
         </template>
       </InfScroll>
-
-
     </ion-content>
   </ion-page>
 </template>
@@ -54,6 +60,8 @@ import {
   IonList,
   IonSelect,
   IonSelectOption,
+  IonRefresher,
+  IonRefresherContent,
   IonItem,
   IonLoading,
 onIonViewWillEnter
@@ -70,6 +78,7 @@ import type { IMainStore } from 'shared/src/types/store'
 import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 import { useMainStore } from "@/store/main";
 import { IPost } from "shared/src/types/post";
+import { fetchWAuth } from "shared/src/utils/auth";
 
 import { config } from 'shared/src/utils/config'
 const { API_BASE } = config
@@ -98,6 +107,8 @@ export default defineComponent({
     HeaderBar,
     InfScroll,
     Post,
+    IonRefresher,
+  IonRefresherContent,
     IonLoading,
     LineLoader
 
@@ -122,15 +133,26 @@ export default defineComponent({
     const postInfo = ref(null) as Ref<unknown>
     const feedLoading = ref(false)
     const catComp = shallowRef(null) as Ref<unknown>
+    const store = useMainStore()
+    const personalized = store.settings?.personalizedFeeds
 
 
-    const getFeedPosts = async (start = 0) => {
+    const getFeedPosts = async (start = 0, refresh=false) => {
       try {
-      const res = await fetch(`${FEED_APIS}/${activeFeed.value}?start=${start}&limit=10`, {
+        let res
+      if(refresh) {
+        res = await fetchWAuth(store, `${FEED_APIS}/${activeFeed.value}?start=${start}&limit=10&refresh=true${personalized && store?.userData?.account ? '&account='+store.userData.account : ''}`, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+      } {
+       res = await fetch(`${FEED_APIS}/${activeFeed.value}?start=${start}&limit=10${personalized && store?.userData?.account ? '&account='+store.userData.account : ''}`, {
         headers: {
           'Content-Type': 'application/json'
         }
       })
+    }
       const data = await res.json()
       return data
      } catch {
@@ -166,6 +188,13 @@ export default defineComponent({
       loading.value = false
     }
 
+    const handleRefresh = async (event:any) => {
+      loading.value = true
+      postsIndex.value = 0
+      posts.value = await getFeedPosts(postsIndex.value, true)
+      loading.value = false
+      event.target.complete();
+    }
 
     onIonViewWillEnter(async () => {
      getFeedPosts(postsIndex.value).then(
@@ -193,7 +222,8 @@ export default defineComponent({
       activeFeed,
       feedLoading,
       catComp,
-      postDeps
+      postDeps,
+      handleRefresh
     }
 
   }
