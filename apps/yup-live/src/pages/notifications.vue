@@ -24,7 +24,7 @@
             class="shadow-md p-4 flex flex-row rounded-lg relative notComp"
           >
             <template v-if="notification.action === 'vote'">
-            <VoteNotification :notification="notification" />
+              <VoteNotification :notification="notification" />
             </template>
             <template v-else-if="notification.action === 'reward'">
               <RewardNotification :notification="notification" />
@@ -46,7 +46,7 @@
             :key="notification._id"
             class="shadow-md p-4 flex flex-row rounded-lg relative notComp"
           >
-          <VoteNotification :notification="notification" />
+            <VoteNotification :notification="notification" />
           </div>
         </o-tab-item>
         <o-tab-item value="2" label="Rewards">
@@ -60,11 +60,11 @@
             :key="notification._id"
             class="shadow-md p-4 flex flex-row rounded-lg relative notComp"
           >
-          <RewardNotification :notification="notification" />
+            <RewardNotification :notification="notification" />
           </div>
         </o-tab-item>
         <o-tab-item value="3" label="Followers">
-        <DangLoader v-if="loading" class="-mt-4" />
+          <DangLoader v-if="loading" class="-mt-4" />
           <div v-if="!loading && !notifications?.length">
             <p class="text-center text-[1.4rem] mt-10">No followers notifications exists</p>
           </div>
@@ -74,7 +74,7 @@
             :key="notification._id"
             class="shadow-md p-4 flex flex-row rounded-lg relative notComp"
           >
-          <FollowUnfollowNotification :notification="notification" />
+            <FollowUnfollowNotification :notification="notification" />
           </div>
         </o-tab-item>
       </o-tabs>
@@ -123,8 +123,6 @@ export default defineComponent({
     const loading = ref(false)
     // const search = ref("");
     // const store = useMainStore();
-
-
 
     const route = useRoute()
     const userId = route.params.userId as string
@@ -187,8 +185,6 @@ export default defineComponent({
       // do nothing
     })
 
-
-
     // const checkAccount = async () => {
     //   const reqAcc = await fetch(`${API_BASE}/accounts/${search.value}`, {
     //     method: "GET",
@@ -207,16 +203,15 @@ export default defineComponent({
     //   return acc._id;
     // };
 
-
     const getByActiveTab = async () => {
       if (activeTab.value === '0') {
-        notifications.value = (await getNotifications({userId, type: null})).reverse()
+        notifications.value = (await getNotifications({ userId, type: null })).reverse()
       } else if (activeTab.value === '1') {
-        notifications.value = (await getNotifications({userId, type: ['vote'] })).reverse()
+        notifications.value = (await getNotifications({ userId, type: ['vote'] })).reverse()
       } else if (activeTab.value === '2') {
-        notifications.value = (await getNotifications({userId, type: ['reward'] })).reverse()
+        notifications.value = (await getNotifications({ userId, type: ['reward'] })).reverse()
       } else if (activeTab.value === '3') {
-        notifications.value = (await getNotifications({userId, type: ['follow, unfollow'] })).reverse()
+        notifications.value = (await getNotifications({ userId, type: ['follow, unfollow'] })).reverse()
       }
     }
 
