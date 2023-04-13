@@ -18,7 +18,7 @@
             </router-link> at 
 
             <div class="inline text-[0.8rem]">
-              <DateIcon class="ml-2" :key="iconsColor" :color="'#ccc'" />
+              <DateIcon :key="iconsColor" class="ml-2" :color="'#ccc'" />
               {{ vote.timestamp }}
             </div>
           </ion-item>
@@ -59,8 +59,8 @@
           <div v-for="i in 5" :key="i" >
             <ion-button
               :class="`btn ${i === curPage ? 'active' : ''}`"
-              @click="setCurentPage(i)"
               :buttonType="'clear'"
+              @click="setCurentPage(i)"
               >{{ i }}</ion-button
             >
           </div>
@@ -103,8 +103,7 @@ import {
   Ref,
 } from "vue";
 
-import { config } from "shared/src/utils/config";
-const { API_BASE } = config;
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   name: "VoteList",

@@ -24,95 +24,13 @@
             class="shadow-md p-4 flex flex-row rounded-lg relative notComp"
           >
             <template v-if="notification.action === 'vote'">
-              <div :class="`notBLine inline-block p-1 mr-3`"></div>
-              <div class="flex w-full">
-                <div class="flex flex-col min-w-10">
-                  <p class="ml-4 mt-1 pb-4 flex items-center">
-                    <template v-if="notification.like">
-                      <ThumbsUp class="w-6 opacity-70" :isSolid="true" />
-                    </template>
-                    <template v-else>
-                      <ThumbsDown class="w-6 opacity-70" :isSolid="true" />
-                    </template>
-                  </p>
-                  <ImagePreview
-                    v-if="typeof notification.image === 'string'"
-                    :source="notification.image"
-                    :noPreviewParagraph="false"
-                    :imgClass="`max-h-16 max-w-16 rounded-[0.2rem]`"
-                    :previewClass="`max-h-16 max-w-16 rounded-[0.2rem]`"
-                    :noPreviewClass="`max-h-16 max-w-16 min-h-16 min-max-w-16 imgNotRadius`"
-                  />
-                  <component :is="notification.image" v-else />
-                </div>
-                <div class="flex flex-col w-full">
-                  <div class="flex">
-                    <p class="ml-3 flex items-center pb-2">
-                      <b class="mr-2 opacity-60">by</b>
-                      <router-link :to="`/tabs/account/${notification.voter}`">{{ notification.voter }}</router-link>
-                    </p>
-                  </div>
-                  <p class="ml-3 mt-3 flex items-center w-full">
-                    <b class="mr-2 opacity-60" style="transform: rotate(90deg);width: 2.5rem;">URL</b
-                    ><span style="font-size: 0.78rem"
-                      ><router-link :to="`/tabs/post/${notification?.post?.postid}`">{{ notification?.post?.url?.length > 30 ? notification?.post?.url?.slice(0, 28) + '...' : notification?.post?.url?.length }}</router-link></span
-                    >
-                  </p>
-                  <p class="ml-3 flex items-center mt-4 self-end"><ClockIcon class="h4 w-4 mr-1" />{{ timeAgo(notification.createdAt) }}</p>
-                </div>
-              </div>
+              <VoteNotification :notification="notification" />
             </template>
             <template v-else-if="notification.action === 'reward'">
-              <div :class="`notBLine inline-block p-1 mr-3`"></div>
-              <div class="flex w-full">
-                <div class="flex flex-col min-w-10">
-                  <p class="ml-3 mt-1 pb-4 flex items-center">You</p>
-                  <ImagePreview
-                    :source="notification.image"
-                    :noPreviewParagraph="false"
-                    :imgClass="`max-h-8 max-w-8 rounded-[0.2rem]`"
-                    :previewClass="`max-h-8 max-w-8 rounded-[0.2rem]`"
-                    :noPreviewClass="`max-h-8 max-w-8 min-h-8 min-max-w-8 imgNotRadius`"
-                  />
-                </div>
-                <div class="flex flex-col w-full">
-                  <div class="flex">
-                    <p class="ml-3 flex items-center pb-2 mt-1"><b class="mr-2 opacity-60">were alocated a future reward of:</b></p>
-                  </div>
-                  <p class="ml-3 mt-3 flex items-center">
-                    <b class="mr-2 opacity-60">{{ notification?.quantity ?? 'unknown' }}</b> YUP
-                  </p>
-                  <p class="ml-3 flex items-center mt-4 self-end"><ClockIcon class="h4 w-4 mr-1" />{{ timeAgo(notification.createdAt) }}</p>
-                </div>
-              </div>
+              <RewardNotification :notification="notification" />
             </template>
             <template v-else-if="['follow', 'unfollow'].includes(notification.action)">
-              <div :class="`notBLine inline-block p-1 mr-3`"></div>
-            <div class="flex w-full">
-              <div class="flex flex-col">
-              <router-link :to="`/tabs/web3-profile/${notification.EVMRecipient?.address}`">
-              <AvatarBtn
-                :key="notification?.EVMRecipient?.avatar"
-                class="w-9 h-9 mx-auto mt-4"
-                imgClass="w-9 h-9"
-                :pSource="notification?.EVMRecipient?.avatar"
-                :isSelf="false"
-                :isTwitter="false"
-                :pAccount="notification?.EVMRecipient?.handle"
-              />
-              </router-link>
-              </div>
-              <div class="flex flex-col w-full">
-                <div class="flex">
-                  <p class="ml-3 flex items-center pb-2 mt-4">
-                    <router-link :to="`/tabs/web3-profile/${notification.EVMRecipient?.address}`">
-                  <b class="mr-2 opacity-60">
-                  {{ notification?.EVMRecipient?.handle || `${notification.EVMRecipient?.address?.slice(0, 6)}...` }}
-                  </b></router-link> {{ `${notification.action === 'follow' ? 'followed' : 'unfollowed'}` }} you</p>
-                </div>
-                <p class="ml-3 flex items-center mt-4 self-end"><ClockIcon class="h4 w-4 mr-1" />{{ timeAgo(notification.createdAt) }}</p>
-              </div>
-            </div>
+              <FollowUnfollowNotification :notification="notification" />
             </template>
           </div>
         </template>
@@ -165,12 +83,12 @@ import { getNotifications } from "shared/src/utils/notifications"
 import { useMainStore } from "@/store/main";
 import type { NotifType } from 'shared/src/types/notification'
 import { timeAgo } from "shared/src/utils/time"
-import ThumbsDown from "icons/src/thumbsDown.vue"
-import ThumbsUp from "icons/src/thumbsUp.vue"
-import ClockIcon from "icons/src/clock.vue"
-import ImagePreview from "components/post/imagePreview.vue"
+
 import TwitterIcon from 'icons/src/twitter.vue'
 
+import VoteNotification from '@/components/notifications/vote.vue'
+import RewardNotification from '@/components/notifications/reward.vue'
+import FollowUnfollowNotification from '@/components/notifications/followUnfollow.vue'
 
 export default defineComponent({
   name: "NotificationsPage",
@@ -186,10 +104,9 @@ export default defineComponent({
   IonCardHeader,
   IonCardSubtitle,
   IonLoading,
-  ClockIcon,
-  ThumbsUp,
-  ThumbsDown,
-  ImagePreview
+  VoteNotification,
+  RewardNotification,
+  FollowUnfollowNotification
   },
   setup () {
     const store = useMainStore()
@@ -210,15 +127,15 @@ export default defineComponent({
     const segmentChange = async (value: any) => {
       currentSegment.value = value.detail.value;
       if(currentSegment.value === "all") {
-        notifications.value = (await getNotifications({ userId: store.userData.account, type: 'all'}))?.reverse().map(addTwitterIcon) ?? []
+        notifications.value = (await getNotifications({ userId: store.userData.account, type: null}))?.reverse().map(addTwitterIcon) ?? []
       } else {
-        notifications.value = (await getNotifications({ userId: store.userData.account, type: 'reward'}))?.reverse() ?? []
+        notifications.value = (await getNotifications({ userId: store.userData.account, type: ['reward']}))?.reverse() ?? []
       }
     };
 
     onIonViewDidEnter(async () => {
       loading.value = true
-      notifications.value = (await getNotifications({ userId: store.userData.account, type: 'all'}))?.reverse().map(addTwitterIcon) ?? []
+      notifications.value = (await getNotifications({ userId: store.userData.account, type: null}))?.reverse().map(addTwitterIcon) ?? []
       loading.value = false
       
     })

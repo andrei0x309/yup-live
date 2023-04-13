@@ -2,6 +2,8 @@ export interface NotifType {
     _id: string
     action: string
     voter: string
+    VoterHandle: string
+    count: number
     like: boolean
     quantity?: number
     post: {
@@ -15,4 +17,5 @@ export interface NotifType {
         avatar: string
         address: string
     }
+    notifications: NotifType[]
 }

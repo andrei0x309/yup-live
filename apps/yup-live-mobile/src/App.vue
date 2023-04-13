@@ -1,16 +1,16 @@
 <template>
   <ion-app>
-  <ion-page>
-    <ion-router-outlet />
+    <ion-page>
+      <ion-router-outlet />
 
-    <ion-toast
-      :key="toastMsg"
-      :is-open="toastState"
-      :message="toastMsg"
-      :duration="4550"
-      @didDismiss="toastState = false"
-    ></ion-toast>
-    <ion-loading
+      <ion-toast
+        :key="toastMsg"
+        :is-open="toastState"
+        :message="toastMsg"
+        :duration="4550"
+        @didDismiss="toastState = false"
+      ></ion-toast>
+      <ion-loading
         :key="`loading-${loading}`"
         :is-open="loading"
         message="Please wait..."
@@ -32,7 +32,7 @@ import {
   IonToast,
   IonPage,
   toastController,
-  IonLoading
+  IonLoading,
 } from "@ionic/vue";
 import { defineComponent, ref, onBeforeMount, onBeforeUnmount } from "vue";
 import { useMainStore } from "@/store/main";
@@ -40,12 +40,12 @@ import { storage } from "@/utils/storage";
 import { useRouter } from "vue-router";
 import { SendIntent } from "send-intent";
 import { arrowDownOutline, thumbsUpOutline, thumbsDownOutline } from "ionicons/icons";
-import { Capacitor } from '@capacitor/core';
+import { Capacitor } from "@capacitor/core";
 import { fetchWAuth } from "shared/src/utils/auth";
 import { wait } from "shared/src/utils/time";
 import { App } from "@capacitor/app";
 
-const { API_BASE } = config;
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   name: "App",
@@ -54,29 +54,32 @@ export default defineComponent({
     IonRouterOutlet,
     IonToast,
     IonLoading,
-    IonPage
+    IonPage,
   },
   setup() {
     const store = useMainStore();
     const router = useRouter();
     const toastState = ref(false);
     const toastMsg = ref("");
-    const loading = ref(false)
+    const loading = ref(false);
 
     const openToast = (msg: string) => {
       toastState.value = true;
       toastMsg.value = msg;
     };
 
-
-    App.addListener('backButton', (r) => {
-       if(!r.canGoBack) {
-        App.minimizeApp()
-       } else if (router.currentRoute.value.path === '/connect' && router.currentRoute.value.redirectedFrom?.path === '/tabs/feeds' && store.isLoggedIn){
-          router.replace('/tabs/feeds')
-          App.minimizeApp()
-       }
-    })
+    App.addListener("backButton", (r) => {
+      if (!r.canGoBack) {
+        App.minimizeApp();
+      } else if (
+        router.currentRoute.value.path === "/connect" &&
+        router.currentRoute.value.redirectedFrom?.path === "/tabs/feeds" &&
+        store.isLoggedIn
+      ) {
+        router.replace("/tabs/feeds");
+        App.minimizeApp();
+      }
+    });
 
     const executeVote = async (like: boolean, url: string) => {
       const body = {} as Record<string, unknown>;
@@ -84,23 +87,23 @@ export default defineComponent({
       body.url = url;
       body.rating = 1;
       body.voter = store.userData.account;
-      openToast("Vote is pending")
+      openToast("Vote is pending");
       const req = await fetchWAuth(store, `${API_BASE}/votes`, {
         method: "POST",
         body: JSON.stringify(body),
       });
       if (req.ok) {
-        await toastController.dismiss()
-        openToast("Vote sent, you'll be redirected back after 3 seconds")
+        await toastController.dismiss();
+        openToast("Vote sent, you'll be redirected back after 3 seconds");
         await wait(3000);
       } else {
         const err = await req.text();
         if (err.includes("limit")) {
-          await toastController.dismiss()
-          openToast("Voting limit reached, you'll be redirected back after 3 seconds")
+          await toastController.dismiss();
+          openToast("Voting limit reached, you'll be redirected back after 3 seconds");
           await wait(3000);
         } else {
-          await toastController.dismiss()
+          await toastController.dismiss();
           openToast(
             "Vote not submitted due to error try to re-login, you'll be redirected back after 3 seconds!"
           );
@@ -112,7 +115,7 @@ export default defineComponent({
 
     onBeforeUnmount(() => {
       loading.value = false;
-    })
+    });
 
     const presentActionSheet = async (url: string) => {
       const urlSub = url.length > 15 ? url.substring(0, 15) + '..."' : url;
@@ -165,59 +168,60 @@ export default defineComponent({
       SendIntent.finish();
     };
 
-    if(Capacitor.isPluginAvailable('SplashScreen')) {
-    SendIntent.checkSendIntentReceived()
-      .then(async (result: any) => {
-        if (result?.url) {
-          const authInfo = await storage.get("authInfo");
-          if (!authInfo) {
-            openToast(
-              "Error: You must be logged in, you'll be redirected back in 3 seconds"
-            );
-            setTimeout(
-              () =>
-                (toastMsg.value =
-                  "Error: You must be logged in, you'll be redirected back in 2 seconds"),
-              1000
-            );
-            setTimeout(
-              () =>
-                (toastMsg.value =
-                  "Error: You must be logged in, you'll be redirected back in 1 seconds"),
-              2000
-            );
-            setTimeout(() => SendIntent.finish(), 3500);
+    if (Capacitor.isPluginAvailable("SplashScreen")) {
+      SendIntent.checkSendIntentReceived()
+        .then(async (result: any) => {
+          if (result?.url) {
+            const authInfo = await storage.get("authInfo");
+            if (!authInfo) {
+              openToast(
+                "Error: You must be logged in, you'll be redirected back in 3 seconds"
+              );
+              setTimeout(
+                () =>
+                  (toastMsg.value =
+                    "Error: You must be logged in, you'll be redirected back in 2 seconds"),
+                1000
+              );
+              setTimeout(
+                () =>
+                  (toastMsg.value =
+                    "Error: You must be logged in, you'll be redirected back in 1 seconds"),
+                2000
+              );
+              setTimeout(() => SendIntent.finish(), 3500);
+            } else {
+              await presentActionSheet(result?.url);
+            }
           } else {
-            await presentActionSheet(result?.url);
+            openToast(
+              "Error: Unsuported Share Type , you'll be redirected back in 3 seconds"
+            );
+            SendIntent.finish();
           }
-        } else {
-          openToast(
-            "Error: Unsuported Share Type , you'll be redirected back in 3 seconds"
-          );
-          SendIntent.finish()
-        }
-      }).catch(() => {
-        // ignore
-      })
+        })
+        .catch(() => {
+          // ignore
+        });
     }
 
     onBeforeMount(async () => {
       loading.value = true;
       if (!store.isLoggedIn) {
-        const authInfo = storage.get("authInfo")
-        const settings = storage.get("settings")
+        const authInfo = storage.get("authInfo");
+        const settings = storage.get("settings");
         authInfo.then((res) => {
           if (res) {
             store.userData = JSON.parse(res);
             store.isLoggedIn = true;
             router.replace("/tabs/feeds");
           }
-        })
+        });
         settings.then((res) => {
           if (res) {
             store.settings = JSON.parse(res);
           }
-        })
+        });
       }
       loading.value = false;
     });
@@ -225,7 +229,7 @@ export default defineComponent({
     return {
       toastState,
       toastMsg,
-      loading
+      loading,
     };
   },
 });
@@ -332,24 +336,28 @@ body.dark {
 }
 
 .view-btn {
-      font-size: 0.7rem;
-      border: 1px solid #949d9d;
-      border-radius: 0.3rem;
-      padding: 0.1rem 0.2rem;
-    }
-    .view-btn:hover {
-      background-color: #383838;
-    }
+  font-size: 0.7rem;
+  border: 1px solid #949d9d;
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.2rem;
+}
+.view-btn:hover {
+  background-color: #383838;
+}
 
-  .glassCard {
-    margin-top: 1rem;
-    background-color: var(--glass-menu-bg);
-    padding: 2rem;
-    border-radius: 1rem;
-    filter: grayscale(0.1);
-    background: linear-gradient(234deg, rgba(80, 76, 76, 0.1411764706), rgba(24, 24, 24, 0.5490196078)), linear-gradient(39deg, rgba(98, 92, 92, 0.2117647059), rgba(32, 31, 31, 0.5607843137));
-    color: aliceblue;
-    box-shadow: 2px 2px #2b2d2e;
-  }
-
+.glassCard {
+  margin-top: 1rem;
+  background-color: var(--glass-menu-bg);
+  padding: 2rem;
+  border-radius: 1rem;
+  filter: grayscale(0.1);
+  background: linear-gradient(
+      234deg,
+      rgba(80, 76, 76, 0.1411764706),
+      rgba(24, 24, 24, 0.5490196078)
+    ),
+    linear-gradient(39deg, rgba(98, 92, 92, 0.2117647059), rgba(32, 31, 31, 0.5607843137));
+  color: aliceblue;
+  box-shadow: 2px 2px #2b2d2e;
+}
 </style>

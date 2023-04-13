@@ -194,7 +194,6 @@ import {
 //   IonSegmentButton,
 } from "@ionic/vue";
 import HeaderBar from "@/components/template/header-bar.vue";
-import { config } from "shared/src/utils/config";
 import {
   stackAlertWarning,
 } from "@/store/alertStore";
@@ -211,8 +210,7 @@ import { parseIpfs } from "shared/src/utils/web3/ipfs";
 import { getYupData, isValidENS } from "shared/src/utils/requests/yup-score";
 import type { YUPScoreData } from "shared/src/types/web3/yup-score";
 
-
-const { API_BASE } = config;
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   name: "TokenMetrics",

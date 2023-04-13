@@ -37,8 +37,7 @@ import { getCollections, useCollectionStore } from '@/store/collections'
 import { useMainStore } from '@/store/main'
 const refGoTo = GoToIcon
 
-import { config } from 'shared/src/utils/config'
-const { API_BASE } = config
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   name: 'CollectionsPage',

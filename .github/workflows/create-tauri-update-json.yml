@@ -1,0 +1,93 @@
+name: Get Release Assets
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Tag name of the release'
+        required: true
+        default: main
+
+jobs:
+  get-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get Release Assets
+        id: get_assets
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const { data: release } = await octokit.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: ${{ github.event.inputs.release_tag }}
+            });
+
+            const releaseTitle = release.title;
+
+            const version = releaseTitle.split('v')[1];
+
+
+            const updateJson = {
+              "version": `v${version}``,
+              "notes": "Check all changes at https://yup.live/change-log",
+              "platforms": {
+                "darwin-x86_64": {
+                  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSNi9LMk9GWjRvQXFnR0s2VTJHUGVOcStPSmFOTVRJSEp6cGtQZUpPSGdVaVFyRzhBSW5iZ2s2aHZJVlF5aWhLZmQvVTA1WUM0SGk5TmFKM0krTnhUc1o5ZGdlMWxCVHdNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgxMjIxMDA5CWZpbGU6eXVwLWxpdmUtdGF1cmkuYXBwLnRhci5negplaEp2N2RVQzhHcjU0M3VqRFRmYjV2OEJXcmE1dGErVHdCbGdCbVJ6cTlOb2Exb1NwcEFBMTh1Nk5KRDdid3lMN3VCMSsrKzNpeitVaUZEMFo0UHlDdz09Cg==",
+                  "url": "https://github.com/andrei0x309/yup-live/releases/download/main/yup-live-tauri.app.tar.gz"
+                },
+                "linux-x86_64": {
+                  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSNi9LMk9GWjRvQW9MZmpBY08rTWp4c0dQYmRPVU9mOWhma2EzUVU4SVljRk84YjZrS05vcjkxRmtvZ3U3blJLNHJ4SVgxa0dVQVNDUmo5eW9MWVJWS0dKKy9HMTlDVmdnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgxMjIwODI0CWZpbGU6eXVwLWxpdmUtdGF1cmlfMS4xLjVfYW1kNjQuQXBwSW1hZ2UudGFyLmd6CnFsblFiTjhxdFMxd29vTTUvc3NXa3BsandnZFlpcm0vTEhuaHhKZFBhZnM0eVJaTzNJR1BaU3pWMUlITHVmdlJHaG5rNEdsQVNkSU5oc01uVWpDT0JRPT0K",
+                  "url": "https://github.com/andrei0x309/yup-live/releases/download/main/yup-live-tauri_1.1.5_amd64.AppImage.tar.gz"
+                },
+                "windows-x86_64": {
+                  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSNi9LMk9GWjRvQXY4TkwvU250WWtIQTMrdDgrK0NtRVBJRkNOOGt0QlMwVWVxNHk2VXRnSDdrdzQzdlpoN2VBVStDRG5rYmQ5cUcwS3pRclg1bzlsaTlsNGVtMCtmSWdjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgxMjIwOTgyCWZpbGU6eXVwLWxpdmUtdGF1cmlfMS4xLjVfeDY0X2VuLVVTLm1zaS56aXAKMXhNai8yNllkZ2dhU01VK1lMUnM2V1ZGSTRST0JtS1JnRkZQM3RYekNMaWdwYW1vRFExdXBVbHdPNVZ1T2EyOFJreXRSZVdxM3VvOEdZYUpqSkJUQ1E9PQo=",
+                  "url": "https://github.com/andrei0x309/yup-live/releases/download/main/yup-live-tauri_1.1.5_x64_en-US.msi.zip"
+                }
+              }
+            }
+            
+            let tarApp = ''
+            let tarSig = ''
+            let appImage = ''
+            let appImageSig = ''
+            let msi = ''
+            let msiSig = ''
+
+            const assetContents = [];
+            for (const asset of release.assets) {
+              let sigContent = ''
+              if(asset.name.includes('sig')) {
+                onst { data: content } = await octokit.request('GET ' + asset.url);
+                sigContent = content
+              }
+              if (asset.name.includes('tar.gz')) {
+                tarApp = asset.browser_download_url
+              } else if (asset.name.includes('tar.gz.sig')) {
+                tarSig = sigContent
+              } else if (asset.name.includes('AppImage')) {
+                appImage = asset.browser_download_url
+              } else if (asset.name.includes('AppImage.sig')) {
+                appImageSig = sigContent
+              } else if (asset.name.includes('msi')) {
+                msi = asset.browser_download_url
+              } else if (asset.name.includes('msi.sig')) {
+                msiSig = sigContent
+              }
+            }
+
+            updateJson.platforms['darwin-x86_64'].signature = tarSig
+            updateJson.platforms['darwin-x86_64'].url = tarApp
+            updateJson.platforms['linux-x86_64'].signature = appImageSig
+            updateJson.platforms['linux-x86_64'].url = appImage
+            updateJson.platforms['windows-x86_64'].signature = msiSig
+            updateJson.platforms['windows-x86_64'].url = msi
+
+            const updateJsonString = JSON.stringify(updateJson, null, 2)
+            console.log(updateJsonString)
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

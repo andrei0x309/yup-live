@@ -234,8 +234,7 @@ import { useRouter } from "vue-router";
 import { linkTwitter, unlinkTwitter } from "shared/src/utils/requests/twitter";
 import TwitterIcon from "icons/src/twitter.vue";
 
-import { config } from "shared/src/utils/config";
-const { API_BASE } = config;
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   components: {

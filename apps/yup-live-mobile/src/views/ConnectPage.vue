@@ -413,7 +413,7 @@ export default defineComponent({
         cacheProvider: false, // optional
         providerOptions, // required
         theme: mainStore.theme,
-        disableInjectedProvider: true,
+        disableInjectedProvider: false,
       });
       loading.value = false;
     });

@@ -209,7 +209,6 @@ import { onUnmounted, defineComponent, ref, Ref } from "vue";
 import { postTypesPromises } from "components/post-types/post-types";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 import LineLoader from "components/functional/lineLoader.vue";
-import { config } from "shared/src/utils/config";
 import {
   search as yupSearch,
   searchProfiles,
@@ -227,8 +226,7 @@ import { useMainStore } from "@/store/main";
 import { IPost } from "shared/src/types/post";
 import AvatarBtn from 'components/functional/avatarBtn.vue'
 
-
-const { API_BASE } = config;
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 const postDeps: IPostDeps = {
   stackAlertError,

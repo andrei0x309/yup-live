@@ -1,5 +1,17 @@
 export const recentChanges = [
     {
+        date: "13 April - 2023",
+        title: "Changes",
+        changes: [
+            'fixed web3Profile display on post page on yup live mobile',
+            'migrated to vite env variables in yup live mobile',
+            'added support for aggregated vote notifications everywhere in the repo',
+            'refactored notification by splitting the notification type into a separate files',
+            'added support for new types of notifications on yup live browser extension',
+            'change to load optimized image for rewards notifications',
+        ],
+    },
+    {
         date: "10 April - 2023",
         title: "Changes",
         changes: [

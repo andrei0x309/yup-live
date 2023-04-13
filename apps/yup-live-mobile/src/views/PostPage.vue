@@ -25,9 +25,9 @@
           "
           class="min-w-[21rem]"
         >
-          <h2 class="mb-4">Post Creator</h2>
+          <h2 class="mx-auto text-center">Post Creator</h2>
           <Web3ProfileCard
-            class="ml-8"
+            class="mx-auto"
             :web3Profile="(processedPost.web3CreatorProfile as IWeb3Profile) ?? null"
             :overWriteEVM="
               processedPost.tag === 'farcaster' && processedPost?.previewData?.creator
@@ -69,10 +69,9 @@ import Post from 'components/post/post.vue'
 import { IPost } from "shared/src/types/post";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
 import { IWeb3Profile } from 'shared/src/types/web3Profile'
+import Web3ProfileCard from 'components/profile/web3ProfileCard.vue'
 
-
-import { config } from "shared/src/utils/config";
-const { API_BASE } = config;
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 const postDeps: IPostDeps = {
   stackAlertError,
@@ -85,7 +84,7 @@ const postDeps: IPostDeps = {
 }
 
 const web3Deps = {
-  openConnectModal: null,
+  openConnectModal: null as unknown as () => void,
   useMainStore: useMainStore as unknown as () => IMainStore,
   stackAlertWarning,
   stackAlertSuccess,
@@ -100,7 +99,8 @@ export default defineComponent({
     DangLoader,
     IonPage, 
     IonContent,
-    HeaderBar
+    HeaderBar,
+    Web3ProfileCard
   },
   props: {
     post: {

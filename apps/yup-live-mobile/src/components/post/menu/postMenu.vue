@@ -98,10 +98,9 @@ import { reasons, reportType } from 'shared/src/types/report'
 
 import { trashBinOutline, shareOutline, arrowDownOutline, refreshOutline, exitOutline, eye, flag, openOutline  } from "ionicons/icons";
 
-import { config } from 'shared/src/utils/config'
 import BtnSpinner from 'icons/src/btnSpinner.vue';
 
-const { API_BASE } = config
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 interface Voter {
   a: PartialAccountInfo

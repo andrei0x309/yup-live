@@ -80,8 +80,7 @@ import { useMainStore } from "@/store/main";
 import { IPost } from "shared/src/types/post";
 import { fetchWAuth } from "shared/src/utils/auth";
 
-import { config } from 'shared/src/utils/config'
-const { API_BASE } = config
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 const postDeps: IPostDeps = {
   stackAlertError,
