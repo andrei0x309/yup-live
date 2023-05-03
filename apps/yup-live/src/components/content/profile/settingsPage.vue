@@ -11,59 +11,93 @@
         >
           <h2 class="text-lg mb-1 font-medium title-font">Social Platform Connections</h2>
           <template v-if="!isConnectedToFarcaster">
-          <small class="mt-2">You need to sign with the custody address of farcaster address.</small>
-          <button
-            :disabled="isConnectToFarcaster"
-            class="bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-lg"
-            @click="doConnectToFarcaster"
-          > 
-            <ProfileFarcasterIcon class="w-6 inline mr-2" /> 
-            <BtnSpinner v-if="isConnectToFarcaster" class="inline mr-2" />Connect to
-            Farcaster
-          </button>
-          <o-checkbox v-model="sendFarcasterConnectMsg" class="p-2" :native-value="true">
-        <span class="ml-2">Send cast to my profile to confirm connection.</span>
-      </o-checkbox>
-        </template>
+            <button
+              :disabled="isConnectToFarcaster"
+              class="bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-lg"
+              @click="
+                () => {
+                  settingsModalContent = 'farcaster-connect';
+                  settingsModal = true;
+                }
+              "
+            >
+              <ProfileFarcasterIcon class="w-6 inline mr-2" />
+              <BtnSpinner v-if="isConnectToFarcaster" class="inline mr-2" />Connect to
+              Farcaster
+            </button>
+          </template>
           <button
             v-else
             :disabled="isDisconnectFromFarcaster"
             class="bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
             @click="doDisconnectFromFarcaster"
-            >            <BtnSpinner v-if="isDisconnectFromFarcaster" class="inline mr-2" /><ProfileFarcasterIcon class="w-6 inline mr-2" /> 
+          >
+            <BtnSpinner
+              v-if="isDisconnectFromFarcaster"
+              class="inline mr-2"
+            /><ProfileFarcasterIcon class="w-6 inline mr-2" />
 
-            Disconnect from Farcaster</button>
-      <template  v-if="!isConnectedToTwitter">
-        <button class="mt-4 bg-sky-500 border-0 py-2 px-6 focus:outline-none hover:bg-sky-700 rounded text-lg" @click="twitterLink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Connect to Twitter</button>
-        <o-checkbox v-model="twFollowersAsKeywords" class="p-2" :native-value="true">
-        <span class="ml-2">Insert my twitter followers into personal keywords.</span>
-        
-      </o-checkbox>
-    </template>
-    <template v-else>
-        <button
-        class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
-         @click="twitterUnlink"><TwitterIcon class="w-6 inline" /> <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Disconnect from Twitter</button>
-      </template>
-        <template  v-if="!isConnectedToLens">
-         <button
-         disabled
-        class="mt-4 bg-green-500 border-0 py-2 px-6 focus:outline-none hover:bg-green-600 rounded text-lg opacity-50"
-        @click="doConnectLens"
-        >
-        <ProfileLensIcon class="w-6 inline mr-2" /> <BtnSpinner v-if="isConnectToLens" class="inline mr-2" /> Connect to Lens
-        </button>
-        <span class="ml-2 mt-1 text-[0.75rem]">Connect to lens is disabled due to being in development.</span>
-        </template>
-        <template v-else>
-        <button
-        class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
-        @click="doDisconnectLens"
-        > <ProfileLensIcon class="w-6 inline mr-2" /> <BtnSpinner v-if="isConnectToLens" class="inline mr-2" /> Disconnect from Lens</button>
-        <button class="view-btn" @click="doTestLensPost">Do test lens POST</button>
-      </template>
-      
+            Disconnect from Farcaster
+          </button>
+          <template v-if="!isConnectedToTwitter">
+            <button
+              class="mt-4 bg-sky-500 border-0 py-2 px-6 focus:outline-none hover:bg-sky-700 rounded text-lg"
+              @click="twitterLink"
+            >
+              <TwitterIcon class="w-6 inline" />
+              <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Connect to
+              Twitter
+            </button>
+            <o-checkbox v-model="twFollowersAsKeywords" class="p-2" :native-value="true">
+              <span class="ml-2"
+                >Insert my twitter followers into personal keywords.</span
+              >
+            </o-checkbox>
+            <button
+            v-if="!isTwitterCancel && isLoadingTwitter"
+            class="view-btn" @click="() => {
+              isTwitterCancel = true;
 
+            }">Cancel Twitter Linking</button>
+          </template>
+          <template v-else>
+            <button
+              class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+              @click="twitterUnlink"
+            >
+              <TwitterIcon class="w-6 inline" />
+              <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Disconnect from
+              Twitter
+            </button>
+          </template>
+          <template v-if="!isConnectedToLens">
+            <button
+              class="mt-4 bg-green-500 border-0 py-2 px-6 focus:outline-none hover:bg-green-600 rounded text-lg"
+              @click="() => doConnectLens(false)"
+            >
+              <ProfileLensIcon class="w-6 inline mr-2" />
+              <BtnSpinner v-if="isConnectToLens" class="inline mr-2" /> Connect to Lens
+            </button>
+            <!-- <button
+              class="mt-4 bg-green-500 border-0 py-2 px-6 focus:outline-none hover:bg-green-600 rounded text-lg opacity-50"
+              @click="() => doConnectLens(true)"
+            >
+              <ProfileLensIcon class="w-6 inline mr-2" />
+              <BtnSpinner v-if="isConnectToLens" class="inline mr-2" /> Set Test Yup
+              Dispatcher
+            </button> -->
+          </template>
+          <template v-else>
+            <button
+              class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+              @click="doDisconnectLens"
+            >
+              <ProfileLensIcon class="w-6 inline mr-2" />
+              <BtnSpinner v-if="isConnectToLens" class="inline mr-2" /> Disconnect from
+              Lens
+            </button>
+            <!-- <button class="view-btn" @click="doTestLensPost">Do test lens POST</button> -->
+          </template>
         </div>
       </div>
     </section>
@@ -74,12 +108,12 @@
         >
           <h2 class="text-lg mb-1 font-medium title-font">Edit Account Details</h2>
           <h3>Edit avatar</h3>
-          <DangLoader v-if="isAvatarLoading" />
-          <VACropper v-else class="mb-4" :avatar="avatar" @cropped="uploadAvatar" />
+          <DangLoader v-if="isAvatarLoading" :unset="true" />
+          <VACropper v-else class="mb-4" :avatar="avatar" @cropped="doUploadAvatar" />
           <div class="relative mb-4">
             <label
               for="fullnameField"
-              class="leading-7 text-sm text-gray-600 dark:text-gray-300"
+              class="leading-7 text-sm text-gray-200 dark:text-gray-300"
               >Full Name</label
             >
             <input
@@ -92,7 +126,7 @@
           <div class="relative mb-4">
             <label
               for="bioField"
-              class="leading-7 text-sm text-gray-600 dark:text-gray-300"
+              class="leading-7 text-sm text-gray-200 dark:text-gray-300"
               >Bio</label
             >
             <textarea
@@ -119,15 +153,29 @@
         >
           <h2 class="text-lg mb-1 font-medium title-font">Feed</h2>
           <div>
-           Feeds personalization
-      <o-switch v-model="feedPersonalization" :rounded="true" position="right" size="small" variant="warning" @change="changeFeedPersonalization"
-        >&nbsp;&nbsp;{{ feedPersonalization ? 'Disable' : 'Enable' }}</o-switch
-      ></div>
-       
-        <div class="block my-3">
-                <span class="block my-2">Home Feed on yup profile</span>
-                <o-radio v-for="feed of Object.entries(mapFeeds)" :key="feed[0]" v-model="defaultAccountFeed" :native-value="feed[0]" @change="changeDefaultFeed">{{ feed[1] }}</o-radio>
-                </div>
+            Feeds personalization
+            <o-switch
+              v-model="feedPersonalization"
+              :rounded="true"
+              position="right"
+              size="small"
+              variant="warning"
+              @change="changeFeedPersonalization"
+              >&nbsp;&nbsp;{{ feedPersonalization ? "Disable" : "Enable" }}</o-switch
+            >
+          </div>
+
+          <div class="block my-3">
+            <span class="block my-2">Home Feed on yup profile</span>
+            <o-radio
+              v-for="feed of Object.entries(mapFeeds)"
+              :key="feed[0]"
+              v-model="defaultAccountFeed"
+              :native-value="feed[0]"
+              @change="changeDefaultFeed"
+              >{{ feed[1] }}</o-radio
+            >
+          </div>
         </div>
       </div>
     </section>
@@ -140,7 +188,7 @@
           <button
             :disabled="isDeleteLoading"
             class="bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
-            @click="confirmDeleteModal = true"
+            @click="settingsModal = true"
           >
             <BtnSpinner v-if="isDeleteLoading" class="inline mr-2" />Delete
           </button>
@@ -149,42 +197,182 @@
     </section>
   </div>
   <o-modal
-    v-model:active="confirmDeleteModal"
-    contentClass="modal-body grid grid-cols-1 gap-4 content-center"
-    @close="confirmDeleteModal = true"
+    v-model:active="settingsModal"
+    contentClass="modal-body grid grid-cols-1 gap-4 content-center settings-modal"
+    @close="
+      () => {
+        closeSettingsModal();
+      }
+    "
   >
-    <h2 class="mt-2 p-4 text-[1.3rem]">Delete Account</h2>
-    <h2 class="mt-2 p-4 text-[1.3rem]">Action is irreversible</h2>
-    <p class="p-4 mb-4 text-[1.3rem]">Are you sure?</p>
-    <div class="flex">
-      <CustomButton
-        class="mx-auto"
-        :icon="refGoTo"
-        iconClass="transform -rotate-180"
-        text="Nay"
-        @click="confirmDeleteModal = false"
-      />
-      <CustomButton
-        class="mx-auto"
-        :icon="refGoTo"
-        iconClass="transform rotate-90"
-        text="Yup"
-        @click="deleteAccount"
-      />
-    </div>
+    <template v-if="settingsModalContent === 'delete'">
+      <h2 class="mt-2 p-4 text-[1.3rem]">Delete Account</h2>
+      <h2 class="mt-2 p-4 text-[1.3rem]">Action is irreversible</h2>
+      <p class="p-4 mb-4 text-[1.3rem]">Are you sure?</p>
+      <div class="flex">
+        <CustomButton
+          class="mx-auto"
+          :icon="refGoTo"
+          iconClass="transform -rotate-180"
+          text="Nay"
+          @click="settingsModal = false"
+        />
+        <CustomButton
+          class="mx-auto"
+          :icon="refGoTo"
+          iconClass="transform rotate-90"
+          text="Yup"
+          @click="deleteAccount"
+        />
+      </div>
+    </template>
+    <template v-else-if="settingsModalContent === 'lens-dispatcher'">
+      <h2 class="mt-2 p-4 text-[1.3rem]">Setting Dispatcher</h2>
+      <p class="p-4 mb-4 text-[1.3rem]">
+        Dispatcher is not set to lens dispatcher in order to connect your profile needs to
+        have the dispatcher set to lens, do you want to continue?
+      </p>
+      <div class="flex">
+        <CustomButton
+          class="mx-auto"
+          :icon="refGoTo"
+          iconClass="transform rotate-180"
+          text="Nay"
+          @click="
+            () => {
+              settingsModal = false;
+              resolvePromiseSetDispatcher(false);
+            }
+          "
+        />
+        <CustomButton
+          class="mx-auto"
+          :icon="refGoTo"
+          iconClass="transform rotate-90"
+          text="Yup"
+          @click="
+            () => {
+              settingsModal = false;
+              resolvePromiseSetDispatcher(true);
+            }
+          "
+        />
+      </div>
+    </template>
+    <template v-else-if="settingsModalContent === 'farcaster-connect'">
+      <o-tabs
+        v-model="farcasterConnectTabs"
+        :disabled="isConnectToFarcaster"
+        :multiline="true"
+        :expanded="false"
+        type="default"
+        position="centred"
+        variant="warning"
+        navTypeClass="boxed"
+        class="mb-2"
+      >
+        <div class="mb-4">
+          <o-tab-item value="warpcast">
+            <template #header>
+              <ProfileFarcasterIcon class="w-5 mr-2" /><span> Use Warpcast </span>
+            </template>
+          </o-tab-item>
+          <o-tab-item value="wallet">
+            <template #header>
+              <WalletIcon class="w-5 mr-2" /><span> Use Wallet </span>
+            </template>
+          </o-tab-item>
+        </div>
+        <template v-if="farcasterConnectTabs === 'warpcast'">
+          <small class="my-4"
+            >By confirming in warpcast you'll enable yup backend to do casts on your
+            behalf.</small
+          >
+          <button
+            v-if="farcasterDeepLink.length === 0"
+            :disabled="isConnectToFarcaster"
+            class="bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-lg mt-4"
+            @click="() => doConnectToFarcaster('warpcast')"
+          >
+            <ProfileFarcasterIcon class="w-6 inline mr-2" />
+            <BtnSpinner v-if="isConnectToFarcaster" class="inline mr-2" />Connect to
+            Farcaster
+          </button>
+          <template v-else>
+            <p class="mb-3">Scan Qr code to approve in Warpcast App.</p>
+            <div class="flex justify-center">
+              <qrcode-vue :value="farcasterDeepLink" :size="300" />
+            </div>
+            <p class="my-4">
+              Time remaining to confirm
+              {{
+                farcasterTimeRemaing.minutes
+                  ? farcasterTimeRemaing.minutes > 1
+                    ? farcasterTimeRemaing.minutes + " minutes "
+                    : farcasterTimeRemaing.minutes + " minute "
+                  : ""
+              }}
+              {{
+                farcasterTimeRemaing.seconds
+                  ? farcasterTimeRemaing.seconds + " seconds "
+                  : ""
+              }}
+            </p>
+
+            <button
+              :disabled="isDeleteLoading"
+              class="bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg mb-4"
+              @click="
+                () => {
+                  closeSettingsModal();
+                  settingsModal = false;
+                }
+              "
+            >
+              <BtnSpinner v-if="isDeleteLoading" class="inline mr-2" />Cancel operation
+            </button>
+          </template>
+        </template>
+        <template v-if="farcasterConnectTabs === 'wallet'">
+          <small class="my-2"
+            >You need to sign with the custody address of farcaster account.</small
+          >
+          <small class="my-2"
+            >By sigining you'll enable yup backend to do casts on your behalf.</small
+          >
+          <small class="my-2"
+            >If you didn't import that address yet into your wallet, you need to do that
+            first.</small
+          >
+          <button
+            :disabled="isConnectToFarcaster"
+            class="bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-lg mt-4"
+            @click="() => doConnectToFarcaster('wallet')"
+          >
+            <ProfileFarcasterIcon class="w-6 inline mr-2" />
+            <BtnSpinner v-if="isConnectToFarcaster" class="inline mr-2" />Connect to
+            Farcaster
+          </button>
+        </template>
+      </o-tabs>
+    </template>
   </o-modal>
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, PropType } from "vue";
+import { onMounted, defineComponent, ref, PropType, Ref, computed } from "vue";
 import DangLoader from "components/vote-list/loader.vue";
 import CustomButton from "components/functional/customButton.vue";
-import { stackAlertError, stackAlertSuccess } from "@/store/alertStore";
+import {
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+} from "@/store/alertStore";
 import { formatNumber } from "shared/src/utils/misc";
 import { fetchWAuth } from "shared/src/utils/auth";
 import { useMainStore } from "@/store/main";
 import GoToIcon from "icons/src/goTo.vue";
-import { editProfile } from "shared/src/utils/requests/accounts";
+import { editProfile, setConnected } from "shared/src/utils/requests/accounts";
 const refGoTo = GoToIcon;
 import type { IUserData } from "shared/src/types/account";
 import BtnSpinner from "icons/src/btnSpinner.vue";
@@ -192,23 +380,51 @@ import { useRouter } from "vue-router";
 import TwitterIcon from "icons/src/twitter.vue";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import ProfileLensIcon from "icons/src/profileLens.vue";
-import { linkTwitter, unlinkTwitter } from "shared/src/utils/requests/twitter"
-import { web3Libs } from "shared/src/utils/evmTxs";
+import { linkTwitter, unlinkTwitter } from "shared/src/utils/requests/twitter";
+import { web3Libs } from "shared/src/utils/evmTxs"; // signArbitraryText
 import { uploadAvatar } from "shared/src/utils/requests/accounts";
-import { connectToFarcaster, disconnectFromFarcaster } from "shared/src/utils/requests/farcaster";
-import { VACropper } from 'vue-cup-avatar'
-import { ethersLib, getWeb3Modal, web3Modal, userProvider } from "shared/src/utils/evmTxs";
-import { getLensUserData, authLens, setDispatcher, setAuthLens, disconnectLens } from "shared/src/utils/requests/lens"
-//setDispatcherYup
-
-import 'vue-cup-avatar/dist/style.css'
+import {
+  connectToFarcaster,
+  disconnectFromFarcaster,
+  // makeAddSignerRequest
+} from "shared/src/utils/requests/farcaster";
+import { VACropper } from "vue-cup-avatar";
+import {
+  ethersLib,
+  getWeb3Modal,
+  web3Modal,
+  userProvider,
+} from "shared/src/utils/evmTxs";
+import {
+  getLensUserData,
+  authLens,
+  setDispatcher,
+  setAuthLens,
+  disconnectLens,
+  setDispatcherWithBackend,
+  removeLocalLensAuth,
+} from "shared/src/utils/requests/lens";
+import { getTimeRemaining } from "shared/src/utils/time";
+import "vue-cup-avatar/dist/style.css";
+import QrcodeVue from "qrcode.vue";
+import WalletIcon from "icons/src/walletIcon.vue";
+import { CancelablePromise } from "shared/src/utils/misc";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
-
 export default defineComponent({
   name: "SettingsPage",
-  components: { DangLoader, CustomButton, BtnSpinner, ProfileFarcasterIcon, VACropper, ProfileLensIcon, TwitterIcon },
+  components: {
+    DangLoader,
+    CustomButton,
+    BtnSpinner,
+    ProfileFarcasterIcon,
+    VACropper,
+    ProfileLensIcon,
+    TwitterIcon,
+    QrcodeVue,
+    WalletIcon,
+  },
   props: {
     userData: {
       type: Object as PropType<IUserData>,
@@ -217,37 +433,50 @@ export default defineComponent({
   },
   setup(props) {
     const isLoading = ref(true);
-    const confirmDeleteModal = ref(false);
+    const settingsModal = ref(false);
+    const settingsModalContent = ref("delete");
+    const resolvePromiseSetDispatcher = ref(() => 42) as Ref<
+      (a: unknown) => typeof a & void
+    >;
     const store = useMainStore();
     const bio = ref(props.userData.bio);
     const fullName = ref(props.userData.fullname);
-    const avatar = ref(props.userData.avatar)
+    const avatar = ref(props.userData.avatar);
     const isEditLoading = ref(false);
     const isDeleteLoading = ref(false);
     const isConnectToFarcaster = ref(false);
-    const isConnectedToFarcaster = ref(store.farcaster ? true : false);
-    const isConnectedToTwitter = ref(props.userData.twitterInfo?.userId ? true : false);
+    const isConnectedToFarcaster = ref(store.userData.connected?.farcaster ?? false);
+    const isConnectedToTwitter = ref(store.userData.connected?.twitter ?? false);
     const isLoadingTwitter = ref(false);
+    const isTwitterCancel = ref(false);
     const isDisconnectFromFarcaster = ref(false);
     const router = useRouter();
     const farcasterToken = ref("");
+    const farcasterDeepLink = ref("");
+    const farcasterTimeout = ref(600000);
+    const farcasterConnecWarpCancel = ref(false);
+    const farcasterTimeRemaing = computed(() =>
+      getTimeRemaining(new Date(Date.now() + farcasterTimeout.value))
+    );
+    let farcasterConnectPromise: CancelablePromise | null = null;
     const feedPersonalization = ref(false);
-    const sendFarcasterConnectMsg = ref(false)
-    const twFollowersAsKeywords = ref(false)
-    const isAvatarLoading = ref(false)
-    const isConnectedToLens = ref(localStorage.getItem('lensRefreshToken') ? true : false)
-    const isConnectToLens = ref(false)
+    const twFollowersAsKeywords = ref(false);
+    const isAvatarLoading = ref(false);
+    const isConnectedToLens = ref(store.userData.connected?.lens ?? false);
+    const isConnectToLens = ref(false);
+    const farcasterConnectTabs = ref("warpcast");
+
     const mapFeeds = {
-      'likes': 'Likes',
-      'content': 'Web3 created Content',
-    }
-    const defaultAccountFeed = ref(localStorage.getItem('defaultAccountFeed') || 'likes')
+      likes: "Likes",
+      content: "Web3 created Content",
+    };
+    const defaultAccountFeed = ref(localStorage.getItem("defaultAccountFeed") || "likes");
 
     const { ethers, providerOptionsProm, web3Mprom } = web3Libs();
 
     const deleteAccount = async () => {
       isDeleteLoading.value = true;
-      confirmDeleteModal.value = false;
+      settingsModal.value = false;
       try {
         const req = await fetchWAuth(store, `${API_BASE}/accounts/delete`, {
           method: "DELETE",
@@ -266,82 +495,181 @@ export default defineComponent({
       router.push("/");
     };
 
-    const doConnectLens = async () => {
-      if(isConnectToLens.value) {
-        return
+    const cleanDoConnectLens = (error: string) => {
+      if (error) stackAlertError(error);
+      isConnectToLens.value = false;
+      removeLocalLensAuth();
+      return null;
+    };
+
+    const doConnectLens = async (setTestDispatcher = false) => {
+      if (isConnectToLens.value) {
+        return;
       }
-      isConnectToLens.value = true
-      const user = await getLensUserData(store.userData.address)
-      if(!user) {
-        stackAlertError("No lens user found, please set your default account in lens")
-        isConnectToLens.value = false
-        return
+      isConnectToLens.value = true;
+      const user = await getLensUserData(store.userData.address);
+      if (!user) {
+        return cleanDoConnectLens(
+          "No lens user found, please set your default lens account for this address"
+        );
       }
-      const profileId = user.data.defaultProfile.id
+      const profileId = user.data.defaultProfile.id;
       const auth = await authLens({
-      depUserProvider: userProvider,
-      ethers,
-      ethersLib,
-      w3Modal: web3Modal,
-      web3Mprom
-      })
-      if(!auth) {
-        stackAlertError("Error while authenticating lens")
-        isConnectToLens.value = false
-        return
+        depUserProvider: userProvider,
+        ethers,
+        ethersLib,
+        w3Modal: web3Modal,
+        web3Mprom,
+        stackAlertWarning,
+      });
+      console.log("auth", auth);
+      if (!auth) {
+        return cleanDoConnectLens("Error while authenticating lens");
       }
-      const { accessToken:authToken, refreshToken } = auth
-      const sigDisp = await setDispatcher(
-      { 
-        profileId,
-        authToken,
-        userProvider
-      })
-      if(!sigDisp) {
-        stackAlertError("Error while signing dispatcher")
-        isConnectToLens.value = false
-        return
+      const { accessToken: authToken, refreshToken } = auth;
+      if (!setTestDispatcher) {
+        const needToSetDispatcher = !user?.data?.defaultProfile?.dispatcher?.canUseRelay;
+        if (needToSetDispatcher) {
+          settingsModalContent.value = "lens-dispatcher";
+          settingsModal.value = true;
+          const userConfirm = new Promise((resolve) => {
+            resolvePromiseSetDispatcher.value = resolve;
+          });
+          if (!(await userConfirm)) {
+            return cleanDoConnectLens("User refused to set dispatcher");
+          }
+          const sigDisp = await setDispatcher({
+            profileId,
+            authToken,
+            userProvider,
+            test: false,
+          });
+          if (!sigDisp) {
+            return cleanDoConnectLens("Error while signing dispatcher");
+          }
+          const sigDispBackend = await setDispatcherWithBackend({
+            dispatcher: sigDisp.dispatcher,
+            profileId,
+            apiBase: API_BASE,
+            store,
+            deadline: sigDisp.deadline,
+            signature: sigDisp.signature,
+          });
+          if (!sigDispBackend) {
+            return cleanDoConnectLens("Error while signing dispatcher");
+          }
+        }
+      } else {
+        const sigDisp = await setDispatcher({
+          profileId,
+          authToken,
+          userProvider,
+          test: true,
+        });
+        if (!sigDisp) {
+          return cleanDoConnectLens("Error while signing dispatcher");
+        }
+        const sigDispBackend = await setDispatcherWithBackend({
+          dispatcher: sigDisp.dispatcher,
+          profileId,
+          apiBase: API_BASE,
+          store,
+          deadline: sigDisp.deadline,
+          signature: sigDisp.signature,
+        });
+        if (!sigDispBackend) {
+          return cleanDoConnectLens("Error while signing dispatcher");
+        }
       }
-      // const yupSetDis = setDispatcherYup({
-      //   store,
-      //   apiBase: API_BASE,
-      //   ...sigDisp
-      // })
-      // if(!yupSetDis) {
-      //   stackAlertError("Error while sending TX for dispatcher")
-      //   isConnectToLens.value = false
-      //   return
-      // }
       await setAuthLens({
         store,
         apiBase: API_BASE,
         accessToken: authToken,
-        refreshToken
-      })
-      isConnectedToLens.value = true
-      isConnectToLens.value = false
-      stackAlertSuccess("Successfully connected to lens")
-    }
+        refreshToken,
+      });
+      isConnectedToLens.value = true;
+      isConnectToLens.value = false;
+      setConnected(store, "lens", true);
+      stackAlertSuccess("Successfully connected to lens");
+    };
 
-    const doConnectToFarcaster = async () => {
-      await connectToFarcaster({
-        ethers,
-        ethersLib,
-        isConnectedToFarcaster,
-        isConnectToFarcaster,
-        sendFarcasterConnectMsg,
-        stackAlertError,
-        stackAlertSuccess,
-        store,
-        userProvider,
-        w3Modal: web3Modal,
-        web3Mprom,
-        apiBase: API_BASE,
-      })
+    const doConnectToFarcaster = async (type: string) => {
+      let connectResult = null;
+      if (type === "wallet") {
+        farcasterConnectPromise = new CancelablePromise(
+          connectToFarcaster({
+            ethers,
+            ethersLib,
+            isConnectedToFarcaster,
+            isConnectToFarcaster,
+            stackAlertError,
+            stackAlertSuccess,
+            store,
+            userProvider,
+            w3Modal: web3Modal,
+            web3Mprom,
+            apiBase: API_BASE,
+            withWarpCast: false,
+            showQr: false,
+            deepLink: farcasterDeepLink,
+          })
+        );
+        connectResult = await farcasterConnectPromise.promise;
+      } else if (type === "warpcast") {
+        farcasterConnectPromise = new CancelablePromise(
+          connectToFarcaster({
+            ethers,
+            ethersLib,
+            isConnectedToFarcaster,
+            isConnectToFarcaster,
+            stackAlertError,
+            stackAlertSuccess,
+            store,
+            userProvider,
+            w3Modal: web3Modal,
+            web3Mprom,
+            apiBase: API_BASE,
+            withWarpCast: true,
+            showQr: true,
+            deepLink: farcasterDeepLink,
+            timeout: farcasterTimeout,
+            isCancel: farcasterConnecWarpCancel,
+          })
+        );
+        connectResult = await farcasterConnectPromise.promise;
+      }
+      if (connectResult) {
+        setConnected(store, "farcaster", true);
+      }
+      settingsModal.value = false;
+
+      // makeAddSignerRequest(store, API_BASE);
+      // const token = `Hpwxgfl9dTYM3w5ZMkLe3vtleBtyxLkeucKFzd9HnQ4`
+
+      // console.log(await signArbitraryText({
+      //   userProvider,
+      //   ethers,
+      //   ethersLib,
+      //   w3Modal: web3Modal,
+      //   web3Mprom,
+      //   text: token
+      // }))
+    };
+
+    const closeSettingsModal = () => {
+      if (settingsModalContent.value === "farcaster-connect") {
+        farcasterConnectPromise?.cancel();
+        isConnectToFarcaster.value = false;
+        isConnectedToFarcaster.value = false;
+        farcasterConnecWarpCancel.value = true;
+        farcasterDeepLink.value = "";
+        farcasterTimeout.value = 600000;
+      }
+      settingsModal.value = false;
     };
 
     const doDisconnectFromFarcaster = async () => {
-      await disconnectFromFarcaster({
+      const disResult = await disconnectFromFarcaster({
         farcasterToken,
         isConnectedToFarcaster,
         isDisconnectFromFarcaster,
@@ -349,9 +677,11 @@ export default defineComponent({
         stackAlertSuccess,
         store,
         apiBase: API_BASE,
-      })
+      });
+      if (disResult) {
+        setConnected(store, "farcaster", false);
+      }
     };
-
 
     const changeFeedPersonalization = async () => {
       const LSFP = localStorage.getItem("feedPersonalization");
@@ -362,8 +692,7 @@ export default defineComponent({
         feedPersonalization.value = !!"true";
         localStorage.setItem("feedPersonalization", "true");
       }
-    }
-     
+    };
 
     const onEditProfile = async () => {
       isEditLoading.value = true;
@@ -382,84 +711,98 @@ export default defineComponent({
     };
 
     const twitterLink = async () => {
-      if(isLoadingTwitter.value) {
+      if (isLoadingTwitter.value) {
         return;
       }
       isLoadingTwitter.value = true;
-      const connect = await linkTwitter(store, twFollowersAsKeywords.value)
-      if(connect.error) {
+      isTwitterCancel.value = false;
+      const connect = await linkTwitter(store, twFollowersAsKeywords.value, true, isTwitterCancel);
+      if (connect.error) {
         stackAlertError("Error while connecting to twitter");
-        
       } else {
         stackAlertSuccess("Connected to twitter successfully");
         isConnectedToTwitter.value = true;
+        setConnected(store, "twitter", true);
       }
       isLoadingTwitter.value = false;
-    }
+    };
 
     const twitterUnlink = async () => {
-      if(isLoadingTwitter.value) {
+      if (isLoadingTwitter.value) {
         return;
       }
       isLoadingTwitter.value = true;
-      const req = await unlinkTwitter(store)
-      if(req.error) {
+      const req = await unlinkTwitter(store);
+      if (req.error) {
         stackAlertError("Error while disconnecting from twitter");
-        
       } else {
         stackAlertSuccess("Disconnected from twitter successfully");
         isConnectedToTwitter.value = false;
+        setConnected(store, "twitter", false);
       }
       isLoadingTwitter.value = false;
-    }
+    };
 
     onMounted(async () => {
       getWeb3Modal({
         providerOptionsProm,
         web3Mprom,
-        theme: store.theme as 'dark' | 'light',
+        theme: store.theme as "dark" | "light",
         disableInjectedProvider: false,
-      }
-      ).then((w3m) => {
+      }).then((w3m) => {
         web3Modal.value = w3m;
       });
-      feedPersonalization.value = !!(localStorage.getItem("feedPersonalization") || "")
+      feedPersonalization.value = !!(localStorage.getItem("feedPersonalization") || "");
       isLoading.value = false;
     });
 
-   
     const changeDefaultFeed = () => {
-      localStorage.setItem("defaultAccountFeed", defaultAccountFeed.value)
-    }
+      localStorage.setItem("defaultAccountFeed", defaultAccountFeed.value);
+    };
 
     const doDisconnectLens = async () => {
       const req = await disconnectLens({
         store,
         apiBase: API_BASE,
-      })
-      if(!req) {
+      });
+      if (!req) {
         stackAlertError("Error while disconnecting from lens");
       } else {
         stackAlertSuccess("Disconnected from lens successfully");
+        setConnected(store, "lens", false);
         isConnectedToLens.value = false;
       }
+    };
+
+    const doUploadAvatar = async (blob: Blob) => {
+      if(isAvatarLoading.value) {
+        return
+      }
+      await uploadAvatar({
+        blob,
+        store,
+        avatar,
+        isAvatarLoading,
+        stackAlertError,
+        stackAlertSuccess
+      })
     }
 
-    const doTestLensPost = async () => {
-      const req = await fetchWAuth(store, `${API_BASE}/lens/create-test-post`, {
-        method: "POST",
-      });
-      if(!req) {
-        stackAlertError("Error while posting to lens");
-      } else {
-        stackAlertSuccess("Posted to lens successfully");
-      }
-    }
+    // const doTestLensPost = async () => {
+    //   const req = await fetchWAuth(store, `${API_BASE}/lens/create-test-post`, {
+    //     method: "POST",
+    //   });
+    //   if (!req) {
+    //     stackAlertError("Error while posting to lens");
+    //   } else {
+    //     stackAlertSuccess("Posted to lens successfully");
+    //   }
+    // };
 
     return {
       isLoading,
       formatNumber,
-      confirmDeleteModal,
+      settingsModal,
       deleteAccount,
       refGoTo,
       bio,
@@ -478,7 +821,6 @@ export default defineComponent({
       isLoadingTwitter,
       twitterLink,
       twitterUnlink,
-      sendFarcasterConnectMsg,
       twFollowersAsKeywords,
       avatar,
       isAvatarLoading,
@@ -492,16 +834,31 @@ export default defineComponent({
       isConnectToLens,
       isConnectedToLens,
       doDisconnectLens,
-      doTestLensPost
+      // doTestLensPost,
+      settingsModalContent,
+      resolvePromiseSetDispatcher,
+      farcasterConnectTabs,
+      farcasterDeepLink,
+      farcasterTimeout,
+      farcasterTimeRemaing,
+      closeSettingsModal,
+      doUploadAvatar,
+      isTwitterCancel
     };
   },
 });
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
+.settings-modal {
+  .o-tabs__nav {
+    justify-content: center !important;
+  }
+}
 .settings-section {
   width: 100%;
   max-width: 35rem;
+
   // .glassCard {
   //   background: var(--glass-menu-bg);
   //   color: var(--glassTxt);

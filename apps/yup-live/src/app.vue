@@ -19,10 +19,9 @@ import type { ICollection } from "shared/src/types/store";
 import { useRoute } from "vue-router";
 import AlertStack from "components/functional/alertStack.vue";
 import { setAlertStack, useAlertStack } from "@/store/alertStore";
-import { farcasterAuthCheck } from "shared/src/utils/requests/farcaster";
+import { getConnected } from "shared/src/utils/requests/accounts";
 
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-
+// const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   name: "App",
@@ -38,25 +37,38 @@ export default defineComponent({
     const mainStore = useMainStore();
     const collectionStore = useCollectionStore();
     const route = useRoute();
-    const headBar = shallowRef(null) as ShallowRef<null |  Awaited<typeof import('@/components/content/desktop/head-bar.vue')>['default']>
-  
+    const headBar = shallowRef(null) as ShallowRef<
+      | null
+      | Awaited<typeof import("@/components/content/desktop/head-bar.vue")>["default"]
+    >;
 
     onBeforeMount(async () => {
       try {
-        if ((window as unknown as {__TAURI__: boolean}).__TAURI__) {
-          headBar.value = (await import('@/components/content/desktop/head-bar.vue')).default
-          console.log('tauri detected', headBar.value)
-          document.addEventListener('click', async function(event) {
-          const target = event.target as HTMLAnchorElement
-          if (target.tagName === 'A') {
-            event.preventDefault()
-          const local = ['https://tauri.localhost', 'http://tauri.localhost', 'http://localhost', 'https://yup.live', 'https://yup-live.pages.dev', 'https://yup.info.gf']
-          if(target.href.startsWith('http') && !local.some(l => target.href.startsWith(l))) {
-            const shell = await import('@tauri-apps/api/shell')
-            shell.open(target.href)
-          }
-          }
-        })
+        if (((window as unknown) as { __TAURI__: boolean }).__TAURI__) {
+          headBar.value = (
+            await import("@/components/content/desktop/head-bar.vue")
+          ).default;
+          document.addEventListener("click", async function (event) {
+            const target = event.target as HTMLAnchorElement;
+            if (target.tagName === "A") {
+              event.preventDefault();
+              const local = [
+                "https://tauri.localhost",
+                "http://tauri.localhost",
+                "http://localhost",
+                "https://yup.live",
+                "https://yup-live.pages.dev",
+                "https://yup.info.gf",
+              ];
+              if (
+                target.href.startsWith("http") &&
+                !local.some((l) => target.href.startsWith(l))
+              ) {
+                const shell = await import("@tauri-apps/api/shell");
+                shell.open(target.href);
+              }
+            }
+          });
         }
 
         if (localStorage.getItem("address")) {
@@ -66,8 +78,8 @@ export default defineComponent({
           mainStore.userData.avatar = localStorage.getItem("avatar") || "";
           mainStore.userData.weight = Number(localStorage.getItem("weight")) || 1;
           mainStore.userData.authToken = localStorage.getItem("authToken") || "";
+          getConnected(mainStore, mainStore.userData.account)
           mainStore.isLoggedIn = true;
-          farcasterAuthCheck(mainStore, API_BASE);
           collectionStore.collectionsPromise = getCollections(
             collectionStore,
             mainStore.userData.account
@@ -82,14 +94,14 @@ export default defineComponent({
       route,
       setAlertStack,
       useAlertStack,
-      headBar
+      headBar,
     };
   },
 });
 </script>
 
 <style lang="scss">
-::-webkit-scrollbar{
+::-webkit-scrollbar {
   height: 7px;
   width: 7px;
   background: #747474;
@@ -100,12 +112,12 @@ export default defineComponent({
   border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:horizontal{
+::-webkit-scrollbar-thumb:horizontal {
   background: rgb(34, 34, 34);
   border-radius: 4px;
 }
 
-html{
+html {
   scrollbar-width: thin;
   scroll-behavior: smooth;
 }
@@ -138,8 +150,14 @@ html {
   }
 }
 
+html.light {
+  svg#svg51 {
+    filter: hue-rotate(232deg) invert(1);
+  }
+}
+
 html {
-  --bg-color: #dfded7d4;
+  --bg-color: #f0eef3;
   --bg-content: #222222ba;
   --logoBg: #ffffffcf;
   --post-card-bg: #f9f9f93b;
@@ -258,7 +276,7 @@ html[class="dark"] {
 
 #app .o-modal__content {
   background: var(--glass-menu-bg);
-  min-height: 50vh;
+  min-height: 35vh;
   min-width: 40rem;
   @media screen and (max-width: 768px) {
     min-height: 80vh;
@@ -279,24 +297,28 @@ html[class="dark"] {
 }
 
 .view-btn {
-      font-size: 0.7rem;
-      border: 1px solid #949d9d;
-      border-radius: 0.3rem;
-      padding: 0.1rem 0.2rem;
-    }
-    .view-btn:hover {
-      background-color: #383838;
-    }
+  font-size: 0.7rem;
+  border: 1px solid #949d9d;
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.2rem;
+}
+.view-btn:hover {
+  background-color: #383838;
+}
 
-  .glassCard {
-    margin-top: 1rem;
-    background-color: var(--glass-menu-bg);
-    padding: 2rem;
-    border-radius: 1rem;
-    filter: grayscale(0.1);
-    background: linear-gradient(234deg, rgba(80, 76, 76, 0.1411764706), rgba(24, 24, 24, 0.5490196078)), linear-gradient(39deg, rgba(98, 92, 92, 0.2117647059), rgba(32, 31, 31, 0.5607843137));
-    color: aliceblue;
-    box-shadow: 2px 2px #2b2d2e;
-  }
-
+.glassCard {
+  margin-top: 1rem;
+  background-color: var(--glass-menu-bg);
+  padding: 2rem;
+  border-radius: 1rem;
+  filter: grayscale(0.1);
+  background: linear-gradient(
+      234deg,
+      rgba(80, 76, 76, 0.1411764706),
+      rgba(24, 24, 24, 0.5490196078)
+    ),
+    linear-gradient(39deg, rgba(98, 92, 92, 0.2117647059), rgba(32, 31, 31, 0.5607843137));
+  color: aliceblue;
+  box-shadow: 2px 2px #2b2d2e;
+}
 </style>

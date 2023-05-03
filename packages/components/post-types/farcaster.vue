@@ -12,7 +12,7 @@
     <component :is="replyComp" v-if="replyComp" :showReplyButton="true" :replyTo="{fid: mainPost.userFid, hash:mainPost.hash}"  />
     <div v-if="comments.length > 0" class="p-2 flex-col">
       <h2 class="pl-4 text-left">Comments:</h2>
-      <FarcasterPostBody :replyComp="replyComp" v-for="comment in comments" :key="comment.thread" class="mb-4 comBorder" :mainPost="comment" :isCom="true" />
+      <FarcasterPostBody :replyComp="replyComp" v-for="(comment, index) in comments" :key="comment.thread" :class="`mb-4 comBorder ${index > 0 && post?.id === comments[0]?.postId  ? 'thread ml-2' : '' }`" :mainPost="comment" :isCom="true" />
     </div>
   </div>
 </div>
@@ -27,9 +27,10 @@ import type { Web3PostFarcaster, Web3FarcasterRaw, Web3FarcasterRawReply } from 
 import FarcasterPostBody from './inner/farcasterPostBody.vue'
 import { getFarcasterPostType } from 'shared/src/utils/requests/farcaster'
 import type { IPostDeps } from "shared/src/types/post";
+import type { IPost } from 'shared/src/types/post'
 
-import { config } from "shared/src/utils/config";
-const { API_BASE } = config;
+
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   name: 'PostFarcaster',
@@ -39,7 +40,7 @@ export default defineComponent({
   props: {
     post: {
       required: false,
-      type: Object,
+      type: Object as PropType<IPost>,
       default: () => ({})
     },
     full: {
@@ -177,16 +178,16 @@ export default defineComponent({
     }
 
     onMounted(() => {
+      console.log('zzzz', props.post)
       postType.value = getFarcasterPostType(props.post)
 
       switch (postType.value) {
         case 'single': {
-          mainPost.value = fillPost(props.post.web3Preview)
+          mainPost.value = fillPost(props.post.web3Preview as Web3FarcasterRaw)
           break
         }
         case 'reply': {
-          console.log('parent', props.post.web3Preview.meta.parents[0])
-          mainPost.value = fillReply(props.post.web3Preview.meta.parents[0])
+          mainPost.value = fillReply((props.post.web3Preview as any)?.meta?.parents?.[0])
           if (props.full) {
             postType.value = 'full'
               const lCom = []
@@ -195,7 +196,7 @@ export default defineComponent({
               }
               comments.value = lCom
           } else {
-            replyPost.value = fillPost(props.post.web3Preview)
+            replyPost.value = fillPost(props.post.web3Preview as Web3FarcasterRaw)
           }
           break
         }
@@ -219,4 +220,17 @@ export default defineComponent({
   border-radius: 0.3rem;
   padding: 0.7rem;
 }
+
+.thread {
+  &::before {
+    content: "";
+    position: absolute;
+    top: -0.5rem;
+    left: -0.6rem;
+    width: 0.02rem;
+    height: 108%;
+    background-color: #583bf6a8;
+  }
+}
+
 </style>

@@ -15,13 +15,16 @@ const useMainStore = defineStore('main', {
                 address: '',
                 avatar: '',
                 weight: 1,
-                authToken: ''
+                authToken: '',
+                connected: {
+                    farcaster: false,
+                    twitter: false,
+                    lens: false
+                }
             },
             deletePost: '',
             isLoggedIn: false,
             openConnectModal: false,
-            farcaster: '',
-            fid: ''
         }
     }
 }) as () => IMainStore

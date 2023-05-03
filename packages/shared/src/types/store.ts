@@ -5,6 +5,11 @@ export interface IStoreUserData {
   authToken: string
   avatar: string
   weight: number
+  connected?: {
+    farcaster: boolean
+    twitter: boolean
+    lens: boolean
+  }
 }
 
 export interface IMainStore {

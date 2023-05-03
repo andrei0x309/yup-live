@@ -1,6 +1,7 @@
-import { config } from './config'
+import { IMainStore } from '../types/store'
+import { fetchWAuth } from './auth';
 
-const { API_BASE } = config
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export const FCReq = async (fcToken: string, endpoint: string, options?: any) => {
     if (!options) options = {}
@@ -23,6 +24,27 @@ export const getFidByToken = async (fcToken: string, base?: string) => {
             if (req.ok) {
                 const data = await req.json()
                 resolve(data?.result?.user?.fid)
+            } else {
+                resolve(false)
+            }
+        } catch {
+            resolve(false)
+        }
+    })
+}
+
+export const getFidByAddress = (store: IMainStore, address: string, base?: string) => {
+    return new Promise(async (resolve) => {
+        try {
+            const req = await fetchWAuth(store, `${base ? base : API_BASE}/farcaster/hub/get-register-by-address/${address}`, {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            if (req.ok) {
+                const data = await req.json()
+                resolve(data?.message?.fid)
             } else {
                 resolve(false)
             }

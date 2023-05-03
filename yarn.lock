@@ -1016,9 +1016,9 @@
     "@hapi/hoek" "^9.0.0"
 
 "@headlessui/vue@^1.7.11":
-  version "1.7.12"
-  resolved "https://registry.yarnpkg.com/@headlessui/vue/-/vue-1.7.12.tgz#963b2eb2f548278c49f2d1e67f0a4a84f54078da"
-  integrity sha512-IV0k1I2I8Bj37HljFF231Y9cpldfiucf+inMCxA/VPoQT6UTxo0N/rb78CrogBxXNfsPxKmz3y/nlv+eRz6zvg==
+  version "1.7.13"
+  resolved "https://registry.yarnpkg.com/@headlessui/vue/-/vue-1.7.13.tgz#bf4c5e324c3a724f6f7911362e7f38989b754590"
+  integrity sha512-obG5TdPdBDfs+jiA1mY29LPFqyJl93Q90EL86ontfRe1B6XvbjPkx+x1aAC5DA18bXbb0Juni1ayDbXo0w1u0A==
 
 "@humanwhocodes/config-array@^0.11.8":
   version "0.11.8"
@@ -1431,6 +1431,11 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@metamask/safe-event-emitter/-/safe-event-emitter-2.0.0.tgz#af577b477c683fad17c619a78208cede06f9605c"
   integrity sha512-/kSXhY692qiV1MXu6EeOZvg5nECLclxNXcKCxJ3cXQgYuRymRHpdx/t7JXfsK+JLjwA1e1c1/SBrlQYpusC29Q==
+
+"@noble/hashes@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.3.0.tgz#085fd70f6d7d9d109671090ccae1d3bec62554a1"
+  integrity sha512-ilHEACi9DwqJB0pw7kv+Apvh50jiiSyR/cQ3y4W7lOR5mhvn/50FLUfsnfJz0BDZtl/RR16kXvptiv6q1msYZg==
 
 "@node-ipc/js-queue@2.0.3":
   version "2.0.3"
@@ -8693,6 +8698,11 @@ log-update@^4.0.0:
     slice-ansi "^4.0.0"
     wrap-ansi "^6.2.0"
 
+long@^5.2.3:
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/long/-/long-5.2.3.tgz#a3ba97f3877cf1d778eccbcb048525ebb77499e1"
+  integrity sha512-lcHwpNoggQTObv5apGNCTdJrO69eHOZMi4BNC+rTLER8iHAqGrUVeLh/irVIM7zTw2bOXA8T6uNPeujwOLg/2Q==
+
 loose-envify@^1.1.0, loose-envify@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.4.0.tgz#71ee51fa7be4caec1a63839f7e682d8132d30caf"
@@ -10222,6 +10232,11 @@ pure-rand@^6.0.0:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/pure-rand/-/pure-rand-6.0.1.tgz#31207dddd15d43f299fdcdb2f572df65030c19af"
   integrity sha512-t+x1zEHDjBwkDGY5v5ApnZ/utcd4XYDiJsaQQoptTXgUXX95sDg1elCdJghzicm7n2mbCBJ3uYWr6M22SO19rg==
+
+qrcode.vue@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/qrcode.vue/-/qrcode.vue-3.4.0.tgz#4513ff1a4734cb7184086c2fd439f0d462c6d281"
+  integrity sha512-4XeImbv10Fin16Fl2DArCMhGyAdvIg2jb7vDT+hZiIAMg/6H6mz9nUZr/dR8jBcun5VzNzkiwKhiqOGbloinwA==
 
 qrcode@1.4.4:
   version "1.4.4"
@@ -12136,10 +12151,10 @@ vue-advanced-cropper@^2.8.8:
     debounce "^1.2.0"
     easy-bem "^1.0.2"
 
-vue-cup-avatar@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/vue-cup-avatar/-/vue-cup-avatar-0.1.4.tgz#0d2d455d425c220257f2cdcc7a6e6c51d7f1f1fe"
-  integrity sha512-wUjjSmedTmDesgxtw4ATWDuxBnpI4rcGmkZ4jbjuO3Yr2pVIlrlg6mtBKYPOlh9tf/Ji1vt/xj77ihhi3OTszw==
+vue-cup-avatar@^0.1.9:
+  version "0.1.9"
+  resolved "https://registry.yarnpkg.com/vue-cup-avatar/-/vue-cup-avatar-0.1.9.tgz#9299948123e5c66f365284b3fe2ec311fa3a34eb"
+  integrity sha512-h1Z9FiJtbWV9tyfO9K947YcTP33iaEHXqU06ft7YQYfc95H6VzmKHrGzC9d9ES6Kmbj+YYPuGb2jkFKoXjI0wg==
   dependencies:
     "@headlessui/vue" "^1.7.11"
     "@vueuse/core" "^9.13.0"

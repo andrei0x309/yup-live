@@ -2,7 +2,6 @@
   <ion-page>
     <ion-content>
       <HeaderMenu />
-      <AlertStack :useAlertStack="useAlertStack" :setAlertStack="setAlertStack"  :mobile="true" />
       <ion-tabs
         style="border-top: 2px solid #1a1a1a"
       >
@@ -21,6 +20,7 @@
           <ion-tab-button tab="notifications" href="/tabs/notifications">
             <ion-icon style="font-size: 2.3rem" :icon="notificationsCircle"></ion-icon>
             <ion-label>Notifications</ion-label>
+            <ion-badge v-show="hasNewNot" color="danger">{{ notDisplay }}</ion-badge>
           </ion-tab-button>
         </ion-tab-bar>
       </ion-tabs>
@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onBeforeMount, Ref } from "vue";
+import { defineComponent, ref, onBeforeMount, Ref, onBeforeUnmount } from "vue";
 import {
   IonPage,
   IonContent,
@@ -38,7 +38,8 @@ import {
   IonTabBar,
   IonTabButton,
   IonLabel,
-  IonIcon
+  IonIcon,
+  IonBadge
 } from "@ionic/vue";
 import { notificationsCircle, filterCircle } from "ionicons/icons";
 import AvatarBtn from "components/functional/avatarBtn.vue";
@@ -46,8 +47,9 @@ import HeaderMenu from "./header-menu.vue";
 import { useMainStore } from "@/store/main";
 import { storage } from '@/utils/storage'
 import { useRouter} from 'vue-router'
-import { setAlertStack, useAlertStack } from '@/store/alertStore'
-import AlertStack from 'components/functional/alertStack.vue'
+import { getNotificationsCount } from 'shared/src/utils/notifications'
+import { CancelablePromise } from 'shared/src/utils/misc'
+import { wait } from 'shared/src/utils/time'
 
 export default defineComponent({
   name: "BottomNavigation",
@@ -62,7 +64,7 @@ export default defineComponent({
     IonIcon,
     HeaderMenu,
     AvatarBtn,
-    AlertStack
+    IonBadge
     },
   setup() {
     const store = useMainStore();
@@ -70,6 +72,19 @@ export default defineComponent({
     const account = ref('');
     const router = useRouter()
     const outlet = ref(null) as unknown as Ref<typeof IonRouterOutlet>
+    const hasNewNot = ref(false)
+    const notDisplay = ref('')
+    let timerPromise: CancelablePromise | null = null
+
+    const checkNot = () => {
+      getNotificationsCount(store.userData.account).then(async result => {
+          hasNewNot.value = result.hasNewNot
+          notDisplay.value = result.notDisplay
+          timerPromise = new CancelablePromise(wait(10000))
+          await timerPromise.promise
+          checkNot()
+        })
+    }
 
       onBeforeMount(async () => {
         if(!store.isLoggedIn) {
@@ -78,22 +93,29 @@ export default defineComponent({
             store.userData = JSON.parse(authInfo)
             avatar.value = store.userData.avatar
             account.value = store.userData.account
+            checkNot()
             store.isLoggedIn = true
           } else {
             router.replace('/')
           }
         }
       })
+
+      onBeforeUnmount(() => {
+      if (timerPromise) {
+        timerPromise.cancel()
+      }
+    })
     
     return {
       notificationsCircle,
       filterCircle,
       avatar,
       account,
-      setAlertStack,
-      useAlertStack,
       outlet,
-      useMainStore
+      useMainStore,
+      notDisplay,
+      hasNewNot
     };
   },
 });

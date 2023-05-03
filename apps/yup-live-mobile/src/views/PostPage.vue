@@ -15,6 +15,7 @@
         :post="processedPost"
         :postTypesPromises="postTypesPromises"
         :deps="postDeps"
+        :crossPost="() => import('@/views/CrossPostModal.vue')"
         :mobile="true"
         @updatepostinfo="openInfoModal"
       />

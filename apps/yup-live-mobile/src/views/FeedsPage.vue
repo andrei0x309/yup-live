@@ -3,7 +3,7 @@
     <HeaderBar text="FEEDS" :menu="true" />
     <ion-list style="position: sticky;top: 0;z-index: 2;">
     <ion-item>
-      <ion-select v-model="activeFeed" :value="feeds[0][0]" style="margin:auto;" interface="action-sheet" placeholder="Select Feed" @ionChange="feedChange">
+      <ion-select v-model="activeFeed" aria-label="feed" :value="feeds[0][0]" style="margin:auto;" interface="action-sheet" placeholder="Select Feed" @ionChange="feedChange">
         <ion-select-option v-for="feed of feeds" :key="feed[0]" :value="feed[0]">{{feed[1]}}</ion-select-option>
       </ion-select>
     </ion-item>
@@ -36,6 +36,7 @@
                 :id="(post as Record<string, any>)._id.postid"
                 :key="(post  as Record<string, any>)._id.postid"
                 :post="(post)"
+                :crossPost="() => import('@/views/CrossPostModal.vue')"
                 :postTypesPromises="postTypesPromises"
                 :deps="postDeps"
                 :mobile="true"
@@ -45,7 +46,7 @@
           </div>
           <div v-else>
             <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
-            <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
+            <component :is="(catComp as any)" v-if="catComp !== null" class="w-10 mx-auto" />
           </div>
         </template>
       </InfScroll>

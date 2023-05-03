@@ -95,7 +95,7 @@ $time: 1;
   flex-direction: column;
   align-items: center;
   position: v-bind("unset ? 'unset' : 'absolute'");
-  top: 40%;
+  top: 45%;
   left: 45%;
   opacity: 1;
   .row {

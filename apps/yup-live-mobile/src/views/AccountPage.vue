@@ -59,7 +59,17 @@
             </div>
           </div>
         </div>
-        <router-link v-if="!isLoadingUser" class="asocLink" :to="`/web3-profile/${userData.evmAddress}`">View Web3 profile</router-link>
+        <button
+          v-if="hasAtLeastOnePConnected"
+          class="asocLink mb-2"
+          @click="openPostModal = true"
+        >
+        Multi Post
+        </button>
+        <button v-else class="asocLink mb-2" @click="openSettings">
+          Connect to platforms to post
+        </button>
+        <router-link v-if="!isLoadingUser" class="asocLink mb-2" :to="`/web3-profile/${userData.evmAddress}`">View Web3 profile</router-link>
         <ion-list style="position: sticky; top: 0; z-index: 2">
           <ion-item>
             <ion-select
@@ -67,6 +77,7 @@
               style="margin: auto"
               interface="action-sheet"
               placeholder="Select Feed"
+              aria-label="Select Feed"
               @ionChange="accountPageChange"
             >
               <ion-select-option :value="accountPages[0]">Likes Feed</ion-select-option>
@@ -106,6 +117,7 @@
                     :id="(post as Record<string, any>)._id.postid"
                     :key="(post  as Record<string, any>)._id.postid"
                     :post="post"
+                    :crossPost="() => import('@/views/CrossPostModal.vue')"
                     :postTypesPromises="postTypesPromises"
                     :deps="postDeps"
                     :mobile="true"
@@ -174,6 +186,13 @@
       </InfScroll> -->
         </div>
       </div>
+      <CrossPost
+    :key="`${openPostModal}k`"
+    :openModal="openPostModal"
+    :platforms="['farcaster', 'lens', 'twitter']"
+    @update:open-modal="(v: boolean) => (openPostModal = v)"
+    @success="postSent"
+  />
     </ion-content>
   </ion-page>
 </template>
@@ -194,7 +213,7 @@ import {
 } from "@ionic/vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 
-import { defineComponent, onUnmounted, Ref, ref, shallowRef } from "vue";
+import { defineComponent, onUnmounted, Ref, ref, shallowRef, defineAsyncComponent } from "vue";
 import DangLoader from "components/vote-list/loader.vue";
 import ProfileCard from "@/components/profile/profileCard.vue";
 // import ProfileInfoCard from '@/components/content/profile/infoCard.vue'
@@ -228,8 +247,7 @@ import PostMenu from "@/components/post/menu/postMenu.vue";
 // import type { ICollection } from 'shared/src/types/store'
 // import FollowersPage from '@/components/content/profile/followersPage.vue'
 
-import { config } from "shared/src/utils/config";
-const { API_BASE } = config;
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 const postDeps: IPostDeps = {
   stackAlertError,
@@ -265,6 +283,9 @@ export default defineComponent({
     IonRefresher,
     IonRefresherContent,
     IonIcon,
+    CrossPost: defineAsyncComponent(
+      () => import("@/views/CrossPostModal.vue")
+    ),
   },
   setup() {
     const route = useRoute();
@@ -298,6 +319,11 @@ export default defineComponent({
     const isAuth = ref(store.isLoggedIn);
     // let LoadTimeout = 0
     const walletKeyRefresh = ref(0);
+    const isOwnAccount = ref(
+      store?.isLoggedIn && store?.userData.account === userId.value
+    );
+    const hasAtLeastOnePConnected = ref(false);
+    const openPostModal = ref(false);
 
     const userData = (ref({
       _id: "",
@@ -335,6 +361,7 @@ export default defineComponent({
           (p) => (p as { _id: { postid: string } })._id.postid !== store.deletePost
         );
       }
+      checkHasConnected()
     });
 
     // watch(currentMenuTab, (newValue) => {
@@ -415,6 +442,11 @@ export default defineComponent({
       });
     };
 
+    const postSent = () => {
+      openPostModal.value = false;
+      resetPosts();
+    };
+
     // const menuChange = (tabId: string) => {
     //   currentMenuTab.value = tabId
     //   if (currentMenuTab.value === MENU_BUTTONS.feed) {
@@ -479,8 +511,15 @@ export default defineComponent({
       });
     };
 
+    const checkHasConnected = () => {
+      isOwnAccount.value = store?.isLoggedIn && store?.userData.account === userId.value;
+      const hascConnected = Object.values(store?.userData?.connected || {}).filter(v => v===true).length > 0
+      hasAtLeastOnePConnected.value = !!(isOwnAccount.value && hascConnected)
+    }
+
     onIonViewDidEnter(async () => {
       userLoad();
+      checkHasConnected()
     });
 
     // onIonViewWillLeave( () => clearTimeout(LoadTimeout))
@@ -563,6 +602,9 @@ export default defineComponent({
       API_BASE,
       stackAlertError,
       postDeps,
+      hasAtLeastOnePConnected,
+      postSent,
+      openPostModal
     };
   },
 });
@@ -583,19 +625,41 @@ export default defineComponent({
 .asocLink {
   text-transform: uppercase;
     font-size: 0.85rem;
-    border: 1px solid rgb(50 50 50);
+    border: 1px solid rgb(50, 50, 50);
     padding: 0.2rem 0.5rem;
     border-radius: 0.4rem;
-    margin-bottom: 1rem;
     opacity: 0.8;
-    box-shadow: 1px 2px 20px 2px #49108670;
+    box-shadow: 2px -1px 0px 0px rgb(249 249 249 / 28%);
     transition: all 0.3s ease-in-out;
     justify-content: center;
     display: flex;
     width: 10rem;
     margin-left: auto;
     margin-right: auto;
-    color: #d1b899;
-    margin-top: -1rem;
+    color: #ffffffe0;
+}
+
+.glow-button {
+  --button-background: #383040bd;
+  --button-color: #fff;
+  --button-shadow: rgb(0 0 0 / 20%);
+    --button-shine-left: rgba(120, 0, 245, 0.5);
+    --button-shine-right: rgb(31 2 62 / 65%);
+  --button-glow-start: #B000E8;
+  --button-glow-end: #009FFD;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  outline: none;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 11px;
+  position: relative;
+  line-height: 24px;
+  cursor: pointer;
+  color: var(--button-color);
+  box-shadow: 0 8px 20px var(--button-shadow);
 }
 </style>

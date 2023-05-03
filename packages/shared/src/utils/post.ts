@@ -1,8 +1,7 @@
 import type { IPost, IProcessedPost, IRPostShareInfo } from 'shared/src/types/post'
 import { timeAgo } from 'shared/src/utils/time'
-import { config } from './config'
 
-const { API_BASE } = config
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const processPost = (post: IPost, processedPost: IProcessedPost,
     cloneWeights: { positiveWeight: number, negativeWeight: number },
@@ -33,7 +32,7 @@ export const processPost = (post: IPost, processedPost: IProcessedPost,
     cloneWeights.negativeWeight = post.rawNegativeWeight ?? post.negativeWeight ?? 0
 
     postShareInfo.title = processedPost.title
-    postShareInfo.url = API_BASE + '/post/' + processedPost.id
+    postShareInfo.url = BASE_URL + '/post/' + processedPost.id
     postShareInfo.text = processedPost.content
 }
 

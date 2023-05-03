@@ -11,10 +11,13 @@ const useMainStore = defineStore('main', {
         address: '',
         avatar: '',
         weight: 1,
-        authToken: ''
+        authToken: '',
+        connected: {
+          farcaster: false,
+          twitter: false,
+          lens: false
+        }
       },
-      farcaster: '',
-      fid: '',
       farcasterFeed: false,
       personalized: false,
       deletePost: '',

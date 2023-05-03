@@ -27,7 +27,7 @@
         </template>
       </div>
     </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-2">
+    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-3">
       <ClockIcon class="w-4 h-4" />
       <p class="text-xs">
         {{ post.createdAt }}
@@ -102,7 +102,7 @@
         </div>
       </div>
     </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-2">
+    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-3">
       <ClockIcon class="w-4 h-4" />
       <p class="text-xs">
         {{ post.createdAt }}
@@ -169,7 +169,7 @@
         </div>
       </div>
     </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-2">
+    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-3">
       <ClockIcon class="w-4 h-4" />
       <p class="text-xs">
         {{ post.createdAt }}
@@ -317,7 +317,7 @@ export default defineComponent({
       if ((filler?.extended_entities?.media?.length ?? 0) > 0) {
         const twMediaEntities = filler?.extended_entities?.media
         twMediaEntities?.forEach((e) => {
-          if (e?.type === 'video') {
+          if (e?.type === 'video' || e?.type === 'animated_gif') {
             for (const pVideo of e?.video_info?.variants ?? []) {
               if ('bitrate' in pVideo) {
                 mediaEntities.push({ type: 'video', url: pVideo.url ?? '' })

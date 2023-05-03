@@ -1,6 +1,7 @@
-import { config } from '../config'
 import type { ISearchBody, ISearchWeb3Profile } from '../../types/search'
-const { API_BASE } = config
+
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
 
 export const searchProfiles = async ({
     input = '', start = 0, limit = 10

@@ -61,6 +61,7 @@
               style="margin: auto"
               interface="action-sheet"
               placeholder="Select Feed"
+              
               @ionChange="pageChange"
             >
               <ion-select-option :value="accountPages[0]">Created Content</ion-select-option>
@@ -101,6 +102,7 @@
                     :post="(post as IPost)"
                     :postTypesPromises="postTypesPromises"
                     :deps="postDeps"
+                    :crossPost="() => import('@/views/CrossPostModal.vue')"
                     :mobile="true"
                   />
                   <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
@@ -218,9 +220,7 @@ import { fetchWeb3Profile } from "shared/src/utils/requests/web3Profiles";
 
 import Web3ProfileCard from "components/profile/web3ProfileCard.vue";
 
-
-import { config } from "shared/src/utils/config";
-const { API_BASE } = config;
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 const web3Deps = {
   openConnectModal: () => "",

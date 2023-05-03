@@ -2,18 +2,18 @@
   <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto mb-8">
     <div class="bg-color flex flex-col">
       <template v-if="!apiError">
-
-        <h2 v-if="userData?.evmAddress" class="text-2xl font-bold text-center mt-6 mb-2">Yup Profile for address: {{ truncteEVMAddr(userData.evmAddress) }}</h2>
-
+        <h2 v-if="userData?.evmAddress" class="text-2xl font-bold text-center mt-6 mb-2">
+          Yup Profile for address: {{ truncteEVMAddr(userData.evmAddress) }}
+        </h2>
 
         <div class="profile w-full mb-4 flex flex-row">
           <DangLoader v-if="isLoadingUser" class="mt-28 mb-20" :unset="true" />
           <template v-else>
-            <ProfileCard 
-            :key="`following-${isFollowing}`"
-            :userData="userData"
-            :isOwnAccount="isOwnAccount"
-             />
+            <ProfileCard
+              :key="`following-${isFollowing}`"
+              :userData="userData"
+              :isOwnAccount="isOwnAccount"
+            />
             <ProfileInfoCard class="mt-8" :bio="userData.bio" :fields="userFields" />
           </template>
         </div>
@@ -51,7 +51,22 @@
       </div>
     </div>
     <div v-if="!apiError" class="bg-color table-list profile w-full mb-4 flex flex-col">
-      <router-link class="asocLink" :to="`/web3-profile/${userData.evmAddress}`">View Associated web3 profile</router-link>
+      <button
+          v-if="hasAtLeastOnePConnected"
+          class="asocLink"
+          @click="openPostModal = true"
+        >
+          Multi Post
+        </button>
+        <router-link 
+          v-else
+          class="asocLink"
+          :to="`/profile/${(userData._id) as string}/settings`">
+          Connect platfroms to post
+          </router-link>
+      <router-link class="asocLink" :to="`/web3-profile/${userData.evmAddress}`"
+        >View Associated web3 profile</router-link
+      >
       <template v-if="currentMenuTab === MENU_BUTTONS.feed">
         <o-tabs
           v-model="feedTab"
@@ -61,52 +76,38 @@
           position="centred"
           variant="warning"
           navTypeClass="boxed"
-        > 
-
-         <template v-if="defaultAccountFeed === 'content'">
-          <o-tab-item value="content">
-            <template #header>
-              <ContentIcon class="w-5 mr-2 inline-block"/>
-              <span> Created Content </span>
-            </template>
-          </o-tab-item>
-          <o-tab-item value="likes">
-            <template #header>
-              <LikesIcon class="w-5 mr-2 inline-block"/>
-              <span> Likes </span>
-            </template>
-          </o-tab-item>
-        </template>
-        <template v-else>
-          <o-tab-item value="likes">
-            <template #header>
-              <LikesIcon class="w-5 mr-2 inline-block"/>
-              <span> Likes </span>
-            </template>
-          </o-tab-item>
-
-          <o-tab-item value="content">
-            <template #header>
-              <ContentIcon class="w-5 mr-2 inline-block"/>
-              <span> Created Content </span>
-            </template>
-          </o-tab-item>
-          </template>
-
-          <o-tab-item v-if="isOwnAccount && hasFarcaster" value="farcaster">
-            <template #header>
-              <ProfileFarcasterIcon class="w-5 mr-2 inline-block"/>
-              <span> Farcaster </span>
-            </template>
-          </o-tab-item>
-        </o-tabs>
-        <button
-          v-if="feedTab === 'farcaster'"
-          class="bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-lg mt-4"
-          @click="openCastModal = true"
         >
-          Create Cast
-        </button>
+          <template v-if="defaultAccountFeed === 'content'">
+            <o-tab-item value="content">
+              <template #header>
+                <ContentIcon class="w-5 mr-2 inline-block" />
+                <span> Created Content </span>
+              </template>
+            </o-tab-item>
+            <o-tab-item value="likes">
+              <template #header>
+                <LikesIcon class="w-5 mr-2 inline-block" />
+                <span> Likes </span>
+              </template>
+            </o-tab-item>
+          </template>
+          <template v-else>
+            <o-tab-item value="likes">
+              <template #header>
+                <LikesIcon class="w-5 mr-2 inline-block" />
+                <span> Likes </span>
+              </template>
+            </o-tab-item>
+
+            <o-tab-item value="content">
+              <template #header>
+                <ContentIcon class="w-5 mr-2 inline-block" />
+                <span> Created Content </span>
+              </template>
+            </o-tab-item>
+          </template>
+        </o-tabs>
+
         <InfScroll :key="`${postLoaded}-loaded`" :postLoaded="postLoaded" @hit="onHit">
           <template #content>
             <div v-if="posts.length > 0" class="flex flex-row mx-auto">
@@ -115,12 +116,11 @@
                   v-for="post of posts"
                   :id="(post as Record<string, any>)._id.postid"
                   :key="(post  as Record<string, any>)._id.postid"
-                  :noYUPPost="externalPosts"
-                  :post="(post)"
+                  :post="post"
                   :postTypesPromises="postTypesPromises"
                   :isHidenInfo="((post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid) || feedTab === 'farcaster'"
                   :deps="postDeps"
-                  :castModal="() => import('@/components/content/post/sendCastModal.vue')"
+                  :crossPost="() => import('@/components/content/post/crossPost.vue')"
                   @updatepostinfo="
                   (postid: string) => {
                     postInfo = posts.find((p: any): boolean => postid === p._id.postid)
@@ -141,7 +141,11 @@
             </template>
             <div v-else>
               <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
-              <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
+              <component
+                :is="(catComp as unknown)"
+                v-if="catComp !== null"
+                :class="catComp !== null ? 'w-10 mx-auto' : null"
+              />
             </div>
           </template>
         </InfScroll>
@@ -160,23 +164,27 @@
         :addr="userData.evmAddress"
       />
       <WalletPage
-        v-if="currentMenuTab === MENU_BUTTONS.wallet "
+        v-if="currentMenuTab === MENU_BUTTONS.wallet"
         :key="userData.evmAddress"
         :accountId="userId"
         :accountEVMAddr="userData.evmAddress"
-        :stackAlertError = "stackAlertError"
+        :stackAlertError="stackAlertError"
         :apiBase="API_BASE"
-
       />
       <SettingsPage
         v-if="currentMenuTab === MENU_BUTTONS.settings"
         :key="userData._id"
         :userData="userData"
       />
-
     </div>
   </div>
-  <SendCastModal :key="`${openCastModal}k`" :openModal="openCastModal" @update:open-modal="(v) => (openCastModal = v)" @success="castSent" />
+  <CrossPost
+    :key="`${openPostModal}k`"
+    :openModal="openPostModal"
+    :platforms="['farcaster', 'lens', 'twitter']"
+    @update:open-modal="(v) => (openPostModal = v)"
+    @success="postSent"
+  />
 </template>
 
 <script lang="ts">
@@ -190,7 +198,7 @@ import {
   ref,
   watch,
   defineAsyncComponent,
-  shallowRef
+  shallowRef,
 } from "vue";
 import { useHead, HeadObject } from "@vueuse/head";
 import DangLoader from "components/vote-list/loader.vue";
@@ -211,13 +219,10 @@ import CollectionsPage from "@/components/content/profile/collectionsPage.vue";
 import { postTypesPromises } from "components/post-types/post-types";
 import PostInfo from "@/components/content/post/postInfo.vue";
 import LineLoader from "components/functional/lineLoader.vue";
-import {
-  createActionUsage,
-  createUserData,
-} from "shared/src/utils/requests/accounts";
+import { createActionUsage, createUserData } from "shared/src/utils/requests/accounts";
 import type { NameValue } from "shared/src/types/account";
 import type { ICollection } from "shared/src/types/store";
-import Web3FollwersPage from "@/components/content/profile/web3FollwersPage.vue"
+import Web3FollwersPage from "@/components/content/profile/web3FollwersPage.vue";
 import Alert from "components/functional/alert.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import { utilsAFGetCreated } from "shared/src/utils/requests/accountFeeds";
@@ -225,29 +230,33 @@ import { truncteEVMAddr } from "shared/src/utils/misc";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
 import type { IPost } from "shared/src/types/post";
 import ContentIcon from "icons/src/content.vue";
-import LikesIcon from "icons/src/likes.vue"; 
+import LikesIcon from "icons/src/likes.vue";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import Post from "components/post/post.vue";
-import PostMenu from '@/components/content/post/menu/postMenu.vue'
-import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
-import type { IPostDeps } from 'shared/src/types/post'
-import type { IMainStore } from 'shared/src/types/store'
-import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
-import { OTooltip } from '@oruga-ui/oruga-next'
+import PostMenu from "@/components/content/post/menu/postMenu.vue";
+import CollectMenu from "@/components/content/post/menu/collectMenu.vue";
+import type { IPostDeps } from "shared/src/types/post";
+import type { IMainStore } from "shared/src/types/store";
+import {
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+} from "@/store/alertStore";
+import { OTooltip } from "@oruga-ui/oruga-next";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 const postDeps: IPostDeps = {
-    stackAlertError,
-    stackAlertSuccess,
-    stackAlertWarning,
-    openConnectModal,
-    useMainStore: useMainStore as unknown as () => IMainStore,
-    apiBase: API_BASE,
-    PostMenu: PostMenu,
-    CollectMenu: CollectMenu,
-    ToolTip: OTooltip
-  }
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+  openConnectModal,
+  useMainStore: (useMainStore as unknown) as () => IMainStore,
+  apiBase: API_BASE,
+  PostMenu: PostMenu,
+  CollectMenu: CollectMenu,
+  ToolTip: OTooltip,
+};
 
 export default defineComponent({
   name: "ProfilePage",
@@ -267,15 +276,13 @@ export default defineComponent({
     ContentIcon,
     LikesIcon,
     ProfileFarcasterIcon,
-    SendCastModal: defineAsyncComponent(
-      () => import("@/components/content/post/sendCastModal.vue")
+    CrossPost: defineAsyncComponent(
+      () => import("@/components/content/post/crossPost.vue")
     ),
     SettingsPage: defineAsyncComponent(
       () => import("@/components/content/profile/settingsPage.vue")
     ),
-    WalletPage: defineAsyncComponent(
-      () => import("components/profile/walletPage.vue")
-    ),
+    WalletPage: defineAsyncComponent(() => import("components/profile/walletPage.vue")),
   },
   setup() {
     const route = useRoute();
@@ -307,14 +314,14 @@ export default defineComponent({
     const isOwnAccount = ref(
       store?.isLoggedIn && store?.userData.account === userId.value
     );
+    const hasAtLeastOnePConnected = ref(
+      isOwnAccount.value && Object.keys(store?.userData.connected || {}).length > 0
+    );
     const hasFarcaster = ref(store?.isLoggedIn && store?.farcaster);
     const defaultAccountFeed = localStorage.getItem("defaultAccountFeed") || "content";
-    const feedTab = ref(defaultAccountFeed === 'content' ? 'content': 'likes');
-    let nextFaracasterCursor = "";
-    let lastFarcasterIndex = -1;
+    const feedTab = ref(defaultAccountFeed === "content" ? "content" : "likes");
     const isAuth = ref(store.isLoggedIn);
-    const externalPosts = ref(false)
-    const openCastModal = ref(false)
+    const openPostModal = ref(false);
     const isFollowing = ref(true);
 
     const userData = (ref({
@@ -350,8 +357,8 @@ export default defineComponent({
       description: computed(() => siteData.description),
       meta: [
         {
-          name: 'description',
-          content: computed(() => siteData.description)
+          name: "description",
+          content: computed(() => siteData.description),
         },
         {
           name: "og:type",
@@ -370,8 +377,8 @@ export default defineComponent({
           content: computed(() => route.fullPath),
         },
         {
-          name: 'og:image',
-          content: `$/share/yup-live-ogs/og-yup-live-web3-profile.png`
+          name: "og:image",
+          content: `$/share/yup-live-ogs/og-yup-live-web3-profile.png`,
         },
         {
           name: "twitter:card",
@@ -391,7 +398,7 @@ export default defineComponent({
         },
         {
           name: "twitter:image",
-          content: `/share/yup-live-ogs/og-yup-live-web3-profile.png`
+          content: `/share/yup-live-ogs/og-yup-live-web3-profile.png`,
         },
       ],
     } as unknown) as Ref<HeadObject>);
@@ -411,7 +418,6 @@ export default defineComponent({
           (p) => (p as { _id: { postid: string } })._id.postid !== store.deletePost
         );
       }
-
     });
 
     watch(currentMenuTab, (newValue) => {
@@ -439,84 +445,24 @@ export default defineComponent({
       });
     };
 
-
     const getHomeFeedPosts = async (start = 0) => {
       if (!userId.value) return [];
       const res = await fetch(
         `${API_BASE}/feed/account/${userId.value}?start=${start}&limit=10`
       );
-      const data = await res.json()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return data.posts.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      const data = await res.json();
+      return data.posts.sort(
+        (a: {createdAt: string}, b: {createdAt: string}) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
     };
 
     const getCreatedFeedPosts = async (start = 0) => {
       return (await utilsAFGetCreated(API_BASE, start, userData.value?.evmAddress)).posts;
     };
 
-    const getFarcasterFeed = async (start = 0) => {
-      const alreadyStarted = start > 0 && !nextFaracasterCursor;
-      if (start < lastFarcasterIndex || alreadyStarted) {
-        return [];
-      }
-
-      lastFarcasterIndex = start;
-      const req = await fetch(
-        `${API_BASE}/proxy/farcaster/v2/casts?fid=${store.fid}${
-          nextFaracasterCursor ? "&cursor=" + nextFaracasterCursor : ""
-        }`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${store.farcaster}`,
-          },
-        }
-      );
-      if (req.ok) {
-        const data = await req.json();
-        nextFaracasterCursor = data?.result?.cursor;
-        console.log(data?.result);
-        return (
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          data?.result?.casts?.map((c: any) => {
-            return {
-              _id: {
-                postid: c?.hash,
-              },
-              url: `farcaster://${c?.author?.fid}/${c?.hash}`,
-              tag: "farcaster",
-              createdAt: c?.timestamp,
-              previewData: {
-                title: c?.text,
-                description: c?.text,
-                image: c?.author?.pfp?.url,
-                url: `farcaster://${c?.author?.fid}/${c?.hash}`,
-              },
-              web3Preview: {
-                createdAt: c?.timestamp,
-                content: c?.text,
-                thread: c?.threadHash,
-                attatchments: c?.attachments,
-                postType: "single",
-                creator: {
-                  avatarUrl: c?.author?.pfp?.url,
-                  handle: c?.author?.username,
-                  fullname: c?.author?.displayName,
-                },
-                meta: {
-                  isVerifiedAvatar: c?.author?.pfp?.isVerified,
-                },
-              },
-            };
-          }) ?? []
-        );
-      } else {
-        return [];
-      }
-    };
-
-    let getFeedPosts = defaultAccountFeed === 'content' ? getCreatedFeedPosts : getHomeFeedPosts;
+    let getFeedPosts =
+      defaultAccountFeed === "content" ? getCreatedFeedPosts : getHomeFeedPosts;
 
     const scrollIntoView = (id: string) => {
       const el = document.getElementById(id);
@@ -572,8 +518,8 @@ export default defineComponent({
       });
     };
 
-    const castSent = () => {
-      openCastModal.value = false;
+    const postSent = () => {
+      openPostModal.value = false;
       resetPosts();
     };
 
@@ -619,11 +565,11 @@ export default defineComponent({
         }
 
         getFollowers(API_BASE, userData.value.evmAddress).then((res) => {
-        if(res) {
-          followers.value = res.followers.map((f: { _id: string}) => f._id) ?? [];
-          userData.value.followers = res.totalCount
-        }
-      });
+          if (res) {
+            followers.value = res.followers.map((f: { _id: string }) => f._id) ?? [];
+            userData.value.followers = res.totalCount;
+          }
+        });
 
         // getUserFollowers(userData.value._id as string).then((r) => {
         //   if (!r.error) {
@@ -634,7 +580,6 @@ export default defineComponent({
         //     console.error(r.msg);
         //   }
         // });
-        
 
         if (userId.value !== store.userData.account) {
           collectionsEx.collectionsPromise = getCollections(
@@ -650,22 +595,17 @@ export default defineComponent({
         }
         if (currentMenuTab.value === MENU_BUTTONS.feed) {
           resetPosts();
-        } 
-        
+        }
+
         isLoadingUser.value = false;
       });
     });
 
     const getByActiveTab = async () => {
       if (feedTab.value === "likes") {
-        externalPosts.value = false
         getFeedPosts = getHomeFeedPosts;
       } else if (feedTab.value === "content") {
         getFeedPosts = getCreatedFeedPosts;
-        externalPosts.value = false
-      } else if (feedTab.value === "farcaster") {
-        getFeedPosts = getFarcasterFeed;
-        externalPosts.value = true
       }
       resetPosts();
     };
@@ -680,8 +620,6 @@ export default defineComponent({
     onUnmounted(() => {
       // do nothing
     });
-
-
 
     return {
       search,
@@ -711,14 +649,14 @@ export default defineComponent({
       hasFarcaster,
       isFollowing,
       isAuth,
-      externalPosts,
       truncteEVMAddr,
-      openCastModal,
+      openPostModal,
       stackAlertError,
       API_BASE,
-      castSent,
+      postSent,
       defaultAccountFeed,
-      postDeps
+      postDeps,
+      hasAtLeastOnePConnected,
     };
   },
 });
@@ -771,21 +709,20 @@ export default defineComponent({
 }
 
 .asocLink {
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    border: 1px solid #4a4a4aa3;
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.4rem;
-    margin-bottom: 1rem;
-    opacity: 0.8;
-    box-shadow: -1px 2px 1px var(--profile-av-holder-sh2);
-    transition: all 0.3s ease-in-out;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  border: 1px solid #4a4a4aa3;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.4rem;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+  box-shadow: -1px 2px 1px var(--profile-av-holder-sh2);
+  transition: all 0.3s ease-in-out;
 }
 
 .asocLink:hover {
-    opacity: 1;
-    background-color: aquamarine;
-    background-color: #26262680;
+  opacity: 1;
+  background-color: aquamarine;
+  background-color: #26262680;
 }
-
 </style>

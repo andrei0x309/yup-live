@@ -42,7 +42,7 @@
       </div>
     </div>
     <span
-      class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-2"
+      class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-3"
     >
       <ClockIcon class="w-4 h-4" />
       <p class="text-xs">
@@ -51,8 +51,8 @@
     </span>
     <div class="flex">
     <router-link v-if="(numComments ?? 0) > 1" :to="`/post/${mainPost.postId}?nested=1`">
-    <ComentsIcon class="inline-block w-5 mr-2" />{{ numComments }}</router-link>
-    <component :is="replyComp" v-if="replyComp" :showReplyButton="true" :replyTo="{fid: mainPost.userFid, hash:mainPost.hash}"  />
+    <ComentsIcon class="inline-block w-5 mr-2" />{{ numComments - 1 }}</router-link>
+    <component v-if="replyComp" :platforms="['farcaster']" :is="replyComp" :showReplyButton="true" :replyTo="{fid: mainPost.userFid, hash:mainPost.hash}"  />
   </div>
   </div>
 </template>
@@ -72,8 +72,7 @@ import { ref } from "vue";
 import type { IPostDeps } from "shared/src/types/post";
 import { useRouter } from 'vue-router'
 
-import { config } from "shared/src/utils/config";
-const { API_BASE } = config;
+const API_BASE = import.meta.env.VITE_YUP_API_BASE as string;
 
 export default defineComponent({
   name: "PostFarcasterBody",
@@ -115,7 +114,7 @@ export default defineComponent({
   setup(props) {
     const numComments = ref(0)
     const router = useRouter()
-
+    
     const goToCreator = () => {
       if(props.mainPost.userAddress) {
       router.push(`/web3-profile/${props.mainPost.userAddress}`)

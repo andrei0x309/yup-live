@@ -19,11 +19,10 @@
       </ion-loading>
     </ion-page>
   </ion-app>
+  <AlertStack :useAlertStack="useAlertStack" :setAlertStack="setAlertStack"  :mobile="true" />
 </template>
 
 <script lang="ts">
-import { config } from "shared/src/utils/config";
-config.setConfig({ API_BASE: "https://api.yup.io", POLY_RPC: "https://polygon-rpc.com" });
 
 import {
   IonApp,
@@ -44,6 +43,10 @@ import { Capacitor } from "@capacitor/core";
 import { fetchWAuth } from "shared/src/utils/auth";
 import { wait } from "shared/src/utils/time";
 import { App } from "@capacitor/app";
+import { getConnected } from "shared/src/utils/requests/accounts";
+import AlertStack from 'components/functional/alertStack.vue'
+import { setAlertStack, useAlertStack } from '@/store/alertStore'
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -55,6 +58,7 @@ export default defineComponent({
     IonToast,
     IonLoading,
     IonPage,
+    AlertStack
   },
   setup() {
     const store = useMainStore();
@@ -213,6 +217,7 @@ export default defineComponent({
         authInfo.then((res) => {
           if (res) {
             store.userData = JSON.parse(res);
+            getConnected(store, store.userData.account);
             store.isLoggedIn = true;
             router.replace("/tabs/feeds");
           }
@@ -230,6 +235,8 @@ export default defineComponent({
       toastState,
       toastMsg,
       loading,
+      setAlertStack,
+      useAlertStack
     };
   },
 });

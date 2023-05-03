@@ -12,6 +12,11 @@ export interface IUserData {
   followers: number
   evmAddress: string
   fullname: string
+  connected: {
+    farcaster: boolean
+    twitter: boolean
+    lens: boolean
+  }
   actionBars: {
     vote: string
     deleteVote: string

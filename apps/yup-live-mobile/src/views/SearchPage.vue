@@ -54,6 +54,7 @@
             v-if="filterPlatforms !== 'all'"
             v-model="platforms"
             placeholder="Platforms"
+            aria-label="Platforms"
             :multiple="true"
             class="fadeIn mt-4"
           >
@@ -99,6 +100,7 @@
                     :postTypesPromises="postTypesPromises"
                     :top-detection="false"
                     :mobile="true"
+                    :crossPost="() => import('@/views/CrossPostModal.vue')"
                     :deps="postDeps"
                   />
                   <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />

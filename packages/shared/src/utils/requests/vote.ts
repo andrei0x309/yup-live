@@ -1,8 +1,6 @@
 import type { Vote } from '../../types/vote'
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
-import { config } from '../config'
-
-const { API_BASE } = config
 
 export const hasVote = (postId: string, account: string): Promise<Vote[]> => {
   return new Promise((resolve) => {

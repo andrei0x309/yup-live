@@ -2,8 +2,7 @@ import { fetchWAuth } from "../auth";
 import type { IReport } from "../../types/report";
 import type { IMainStore } from "../../types/store";
 
-import { config } from '../config'
-const { API_BASE } = config
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export const report = async (store: IMainStore, data: IReport) => {
     try {

@@ -2,17 +2,33 @@ import { config } from '../config'
 import { fetchWAuth } from '../auth'
 import type { IMainStore } from 'shared/src/types/store'
 import type { Ref } from 'vue'
+import { ref } from 'vue'
 import { signCanonChallenge } from '../evmTxs'
-import { getFidByToken } from 'shared/src/utils/farcaster';
+import { getFidByToken, getFidByAddress } from 'shared/src/utils/farcaster';
 import { FCSendCast } from "shared/src/utils/farcaster";
 import { digestSha256 } from "shared/src/utils/misc";
 import type { IuserProvider, Iethers, IethersLib, Iweb3Modal } from 'shared/src/types/evm'
+import { wait } from '../time'
 
 const buffer = import("buffer/");
-
 const EIP_191_PREFIX = "eip191:";
 
 const API_BASE = config.API_BASE || ''
+
+export const EIP_712_FARCASTER_DOMAIN = {
+    name: 'Farcaster Verify Ethereum Address',
+    version: '2.0.0',
+    // fixed salt to minimize collisions
+    salt: '0xf2d857f4a3edcb9b78b4d503bfe733db1e3f6cdc2b7971ee739626c97e86a558',
+};
+
+export const EIP_712_FARCASTER_MESSAGE_DATA = [
+    {
+        name: 'hash',
+        type: 'bytes',
+    },
+];
+
 
 export const getComments = async (apiBase: string = API_BASE, thread: string) => {
     try {
@@ -39,6 +55,26 @@ export const getFarcasterPostType = (post: any) => {
     if (post?.web3Preview?.meta?.parents?.length > 0) return 'reply'
     return 'single'
 }
+
+export const makeAddSignerRequest = async (store: IMainStore, apiBase: string = API_BASE) => {
+    try {
+        const req = await fetchWAuth(store, `${apiBase}/farcaster/signer-request`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+        })
+        if (req.ok) {
+            const result = await req.json()
+            return result
+        }
+        return null
+    }
+    catch (error) {
+        console.error('Failed to make signer request', error)
+        return null
+    }
+}
+
+
 
 export const farcasterAuthCheck = async (store: IMainStore, apiBase: string = API_BASE) => {
     const farcaster = localStorage.getItem("farcaster");
@@ -80,35 +116,48 @@ export const farcasterAuthCheck = async (store: IMainStore, apiBase: string = AP
     }
 }
 
-export const connectToFarcaster = async ({
-    isConnectToFarcaster,
+const poolTokenInfo = async ({
+    reqToken,
+    store,
+    apiBase = API_BASE
+}: {
+    reqToken: string
+    store: IMainStore
+    apiBase?: string
+}) => {
+    try {
+        const reqInfo = await fetchWAuth(store, `${apiBase}/proxy/farcaster/v2/signer-request?token=${reqToken}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+        })
+        if (reqInfo.ok) {
+            const result = await reqInfo.json()
+            return result
+        }
+        return null
+    } catch (error) {
+        console.error('Failed to make signer request', error)
+        return null
+    }
+}
+
+export const generateApiToken = async ({
     web3Mprom,
     w3Modal,
     ethers,
     ethersLib,
     userProvider,
-    stackAlertError,
-    stackAlertSuccess,
     store,
-    isConnectedToFarcaster,
-    sendFarcasterConnectMsg,
-    apiBase = API_BASE
 }: {
-    isConnectToFarcaster: Ref<boolean>;
-    web3Mprom: Promise<any>,
-    w3Modal: Iweb3Modal,
-    ethers: Iethers,
-    ethersLib: IethersLib,
-    userProvider: IuserProvider
-    stackAlertError: (msg: string) => void
-    stackAlertSuccess: (msg: string) => void
-    store: IMainStore
-    isConnectedToFarcaster: Ref<boolean>
-    sendFarcasterConnectMsg: Ref<boolean>
+        web3Mprom: Promise<any>
+        w3Modal: Iweb3Modal
+        ethers: Iethers
+        ethersLib: IethersLib
+        userProvider: IuserProvider
+        store: IMainStore
     apiBase?: string
 }) => {
     try {
-        isConnectToFarcaster.value = true;
         await web3Mprom;
         const inst = await w3Modal.value.connect();
         ethersLib.value = await ethers;
@@ -119,14 +168,11 @@ export const connectToFarcaster = async ({
             method: "generateToken",
             params: {
                 timestamp,
+                expiresAt: timestamp + 1000 * 60 * 10
             },
         };
         const sig = await signCanonChallenge(payload, signer);
         if (!sig) {
-            stackAlertError(
-                "Error while connecting to farcaster, user rejected signature request"
-            );
-            isConnectToFarcaster.value = false;
             return false;
         }
 
@@ -146,6 +192,7 @@ export const connectToFarcaster = async ({
         if (req.ok) {
             const data = await req.json();
             const token = data?.result?.token?.secret;
+            let fid: Promise<string | null> | null = null;
             if (token) {
                 const dataTosend = {
                     auth: {
@@ -154,43 +201,181 @@ export const connectToFarcaster = async ({
                         },
                     },
                 };
-                getFidByToken(token, API_BASE).then(fid => {
+                fid = getFidByToken(token, API_BASE) as Promise<string | null>;
+                fid.then(fid => {
                     if (fid) {
                         store.fid = fid as string;
                         localStorage.setItem("fid", fid as string);
                     }
                 })
-                const req = await fetchWAuth(store, `${apiBase}/web3-auth`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(dataTosend),
-                });
-                if (req.ok) {
-                    stackAlertSuccess("Connected to farcaster successfully");
-                    isConnectedToFarcaster.value = true;
-                    store.farcaster = token;
-                    if (sendFarcasterConnectMsg.value) {
-                        const text = 'I just connected my farcaster address to https://yup-live.pages.dev \nVerification hash: ' + digestSha256(token);
-                        await FCSendCast(token, text, API_BASE)
-                    }
-                    localStorage.setItem("farcaster", token);
-                } else {
-                    stackAlertError("Error while connecting to farcaster: " + (await req.text()));
-                }
-            } else {
-                stackAlertError("Error while connecting to farcaster: " + (await req.text()));
+                return dataTosend;
             }
-        } else {
-            stackAlertError("Error while connecting to farcaster: " + (await req.text()));
+            return null;
         }
-        isConnectToFarcaster.value = false;
-    } catch {
+        return null;
+    } catch (error) {
+        console.error('Failed to generate api token', error)
+        return null
+    }
+}
+
+
+export const connectToFarcaster = async ({
+    isConnectToFarcaster,
+    web3Mprom,
+    w3Modal,
+    ethers,
+    ethersLib,
+    userProvider,
+    stackAlertError,
+    stackAlertSuccess,
+    store,
+    isConnectedToFarcaster,
+    apiBase = API_BASE,
+    withWarpCast = true,
+    deepLink = ref(''),
+    showQr = false,
+    timeout = ref(600000),
+    isCancel = ref(false),
+}: {
+    isConnectToFarcaster: Ref<boolean>
+    web3Mprom: Promise<any>
+    w3Modal: Iweb3Modal
+    ethers: Iethers
+    ethersLib: IethersLib
+    userProvider: IuserProvider
+    stackAlertError: (msg: string) => void
+    stackAlertSuccess: (msg: string) => void
+    store: IMainStore
+    isConnectedToFarcaster: Ref<boolean>
+    apiBase?: string
+    withWarpCast?: boolean
+    deepLink: Ref<string>
+    showQr?: boolean
+    timeout?: Ref<number>
+    isCancel?: Ref<boolean>
+}) => {
+    try {
+        isConnectToFarcaster.value = true;
+        if (withWarpCast) {
+            isCancel.value = false;
+            const addSignerRequest = await makeAddSignerRequest(store, apiBase);
+            if (!addSignerRequest) {
+                stackAlertError("Failed to make signer request");
+                isConnectToFarcaster.value = false;
+                return false;
+            }
+            const reqToken = addSignerRequest._id
+            let signerInfo
+            let signerInfoRetries = 0
+            while (!signerInfo && signerInfoRetries < 20) {
+                signerInfo = await poolTokenInfo({ reqToken, store, apiBase })
+                if (!signerInfo?.result?.signerRequest) {
+                    await wait(500)
+                    signerInfoRetries++
+                }
+            }
+            if (!signerInfo) {
+                stackAlertError("Failed to pool add signer request info info");
+                isConnectToFarcaster.value = false;
+                return false;
+            }
+            deepLink.value = 'farcaster://signer-add?token=' + reqToken
+
+            if (!showQr) {
+                window.open(deepLink.value, '_blank')
+            }
+            signerInfo = undefined
+            signerInfoRetries = 0
+            let failed = true
+            while (failed && signerInfoRetries < 600) {
+                signerInfo = await poolTokenInfo({ reqToken, store, apiBase })
+                if (signerInfo?.result?.signerRequest?.base64SignedMessage) {
+                    failed = false
+                } else {
+                    await wait(500)
+                    signerInfoRetries++
+                    timeout.value -= 500
+                }
+                if (isCancel.value) {
+                    return false
+                }
+            }
+            if (failed) {
+                stackAlertError("User did not approve in WarpCast app in time");
+                isConnectToFarcaster.value = false;
+                return false;
+            }
+            stackAlertSuccess("Connected to farcaster successfully");
+            isConnectedToFarcaster.value = true;
+            isConnectToFarcaster.value = false;
+            return true;
+        } else {
+            await web3Mprom;
+            const inst = await w3Modal.value.connect();
+            ethersLib.value = await ethers;
+            userProvider.value = new ethersLib.value.providers.Web3Provider(inst);
+            const signer = userProvider.value.getSigner();
+            const address = await signer.getAddress();
+            const fidNo = await getFidByAddress(store, address, apiBase);
+            if (!fidNo) {
+                stackAlertError("This address does not have a Farcaster account use the farcaster address to sign");
+                isConnectToFarcaster.value = false;
+                return false;
+            }
+
+            const reqAddSignerData = await fetchWAuth(store, `${apiBase}/farcaster/hub/signer-add-msg-create/${fidNo}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+            })
+
+
+            const { hashToSign, dataBytes } = await reqAddSignerData.json()
+
+            const binaryString = atob(hashToSign);
+            const len = binaryString.length;
+            const hash = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                hash[i] = binaryString.charCodeAt(i);
+            }
+            const signature = await signer._signTypedData(EIP_712_FARCASTER_DOMAIN, { MessageData: EIP_712_FARCASTER_MESSAGE_DATA }, { hash })
+            if (!signature) {
+                stackAlertError("User rejected signature")
+                isConnectToFarcaster.value = false;
+                return false
+            }
+
+
+            const reqAddSignerSubmit = await fetchWAuth(store, `${apiBase}/farcaster/hub/signer-add-msg-broadcast`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    data: dataBytes,
+                    signature,
+                    hash: hashToSign,
+                    pubKey: address
+                })
+            })
+
+            if (!reqAddSignerSubmit.ok || (await reqAddSignerSubmit.json()).error) {
+                stackAlertError("Error broadcasting signer add message to farcaster hubs");
+                isConnectToFarcaster.value = false;
+                return false;
+            }
+            stackAlertSuccess("Connected to farcaster successfully");
+            isConnectedToFarcaster.value = true;
+            if (store.userData.connected) store.userData.connected.farcaster = true
+            isConnectToFarcaster.value = false;
+            return true;
+        }
+
+    } catch (err) {
+        console.error(err);
         isConnectToFarcaster.value = false;
         stackAlertError(
             "Error while connecting to farcaster: User rejected connect request"
         );
+        return false;
     }
 };
 
@@ -211,11 +396,11 @@ export const disconnectFromFarcaster = async ({
     store: IMainStore
     stackAlertSuccess: (msg: string) => void
     apiBase?: string
-}) => {
+    }): Promise<boolean> => {
     try {
         if (!isConnectedToFarcaster.value) {
             stackAlertError("You are not connected to farcaster");
-            return;
+            return false;
         }
         isDisconnectFromFarcaster.value = true;
         const payload = {
@@ -256,15 +441,19 @@ export const disconnectFromFarcaster = async ({
             store.fid = "";
             stackAlertSuccess("Disconnected from farcaster successfully");
             isConnectedToFarcaster.value = false;
+            if (store.userData.connected) store.userData.connected.farcaster = false
+            return true;
         } else {
             // stackAlertError("Error while disconnecting from farcaster: " + (await req.text()));
         }
         isDisconnectFromFarcaster.value = false;
+        return false;
     } catch (e) {
         stackAlertError(
             "Error while disconnecting from farcaster: User rejected connect request"
         );
         isDisconnectFromFarcaster.value = false;
+        return false;
     }
 };
 

@@ -15,7 +15,7 @@
             :postTypesPromises="postTypesPromises"
             class="w-full max-w-[60rem]"
             :deps="postDeps"
-            :castModal="() => import('@/components/content/post/sendCastModal.vue')"
+            :crossPost="() => import('@/components/content/post/crossPost.vue')"
             @updatepostinfo="openInfoModal"
           />
         </div>

@@ -24,44 +24,46 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref } from 'vue'
+import { onMounted, defineComponent, ref, onBeforeUnmount } from 'vue'
 import { useMainStore } from '@/store/main'
+import { wait } from 'shared/src/utils/time'
+import { getNotificationsCount } from 'shared/src/utils/notifications'
+import { CancelablePromise } from 'shared/src/utils/misc'
 
 export default defineComponent({
-  name: 'AvatarBtn',
+  name: 'NotifBtn',
   components: {},
   setup() {
-    interface notType {
-      seen: boolean
-    }
-
     const store = useMainStore()
     const user = ref(store.userData.account)
     const hasNewNot = ref(false)
-    const notNum = ref(0)
     const notDisplay = ref('')
+    let timerPromise: CancelablePromise | null = null
+
+    const checkNot = () => {
+      getNotificationsCount(store.userData.account).then(async result => {
+          hasNewNot.value = result.hasNewNot
+          notDisplay.value = result.notDisplay
+          timerPromise = new CancelablePromise(wait(10000))
+          await timerPromise.promise
+          checkNot()
+        })
+    }
 
     onMounted(() => {
       if (store.userData.account) {
-        fetch(`https://api.yup.io/notifications/${store.userData.account}`).then((res) => {
-          if (res.status === 200) {
-            res.json().then((data) => {
-              notNum.value = data.filter((not: notType) => not.seen === false).length
-              hasNewNot.value = notNum.value > 0
-              if (notNum.value > 9) {
-                notDisplay.value = '9+'
-              } else {
-                notDisplay.value = notNum.value.toString()
-              }
-            })
-          }
-        })
+        checkNot()
+      }
+    })
+
+    onBeforeUnmount(() => {
+      if (timerPromise) {
+        timerPromise.cancel()
       }
     })
 
     return {
       hasNewNot,
-      notNum,
       notDisplay,
       user
     }

@@ -5,9 +5,7 @@ import type { NameValue } from '../../types/account'
 import type { IMainStore } from '../../types/store'
 import type { Ref } from 'vue'
 
-import { config } from '../config'
-
-const { API_BASE } = config
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export const getUserFollowers = async (userId: string) => {
   try {
@@ -96,6 +94,7 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
     createdAt,
     ethInfo,
     web3Handles,
+    connected
   } = d.data
   const returnData = {
     userData: {
@@ -110,7 +109,12 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
       evmAddress: ethInfo?.address ?? '',
       fullname,
       web3Handles,
-      twitterInfo
+      twitterInfo,
+      connected: connected || {
+        farcaster: false,
+        twitter: false,
+        lens: false
+      }
     } as IUserData,
     userFields: [] as Array<NameValue>
   }
@@ -259,7 +263,7 @@ export const uploadAvatar = ({
         contentType: split[0].split(':')[1],
         key: 'avatar',
       }
-      const res = await fetch('https://api.yup.io/accounts/account/profileImage', {
+      const res = await fetch(`${API_BASE}/accounts/account/profileImage`, {
         method: 'POST',
         body: JSON.stringify(body),
         headers: { 'Content-Type': 'application/json' },
@@ -287,4 +291,47 @@ export const uploadAvatar = ({
     }
   }
   fr.readAsDataURL(blob)
+}
+
+export const getConnected = async (store: IMainStore, account: string) => {
+  // const connectedStore = localStorage.getItem('connected')
+  let connected: Record<string, boolean> | null = null
+  // try {
+  //   if (connectedStore) {
+  //     const parseConnected = JSON.parse(connectedStore)
+  //     connected = parseConnected
+  //     if (!('farcaster' in parseConnected) || !('twitter' in parseConnected) || !('lens' in parseConnected)) {
+  //       connected = null
+  //     }
+  //   }
+  // } catch (e) {
+  //   connected = null
+  // }
+  if (!connected) {
+    const uD = await createUserData(account, true)
+    if (!uD.error) {
+      connected = uD.data.userData.connected
+      localStorage.setItem('connected', JSON.stringify(connected))
+    } else {
+      connected = {
+        farcaster: false,
+        twitter: false,
+        lens: false
+      }
+    }
+  }
+  store.userData.connected = connected as any
+  return connected
+}
+
+export const setConnected = (store: IMainStore, platform: 'farcaster' | 'twitter' | 'lens', value: boolean) => {
+  if (!store.userData.connected) {
+    store.userData.connected = {
+      farcaster: false,
+      twitter: false,
+      lens: false
+    }
+  }
+  store.userData.connected[platform] = value
+  localStorage.setItem('connected', JSON.stringify(store.userData.connected))
 }

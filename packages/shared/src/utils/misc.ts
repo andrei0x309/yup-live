@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 
-const gini = function (data: number[], unordered = true) {
+export const gini = function (data: number[], unordered = true) {
   if (!Array.isArray(data)) {
     throw new Error('Data set is not an array.')
   }
@@ -49,7 +49,7 @@ const gini = function (data: number[], unordered = true) {
   return sum1 / (2 * Math.pow(data.length, 2) * (sum2 / data.length))
 }
 
-const convertToCSV = (arr: unknown[]) => {
+export const convertToCSV = (arr: unknown[]) => {
   const array = typeof arr != 'object' ? JSON.parse(arr) : arr
   let str = ''
   for (let i = 0; i < array.length; i++) {
@@ -63,7 +63,7 @@ const convertToCSV = (arr: unknown[]) => {
   return str
 }
 
-const exportFile = (fileName: string, content: string, type = 'csv') => {
+export const exportFile = (fileName: string, content: string, type = 'csv') => {
   const link = document.createElement('a')
   const blob = new Blob([content], { type: `text/${type};charset=utf-8;` })
   const url = URL.createObjectURL(blob)
@@ -75,16 +75,16 @@ const exportFile = (fileName: string, content: string, type = 'csv') => {
   document.body.removeChild(link)
 }
 
-const formatNumber = (num: number, digits = 0) => {
+export const formatNumber = (num: number, digits = 0) => {
   return Intl.NumberFormat('en-US', {
     notation: 'compact',
     maximumFractionDigits: digits
   }).format(num)
 }
 
-const truncteEVMAddr = (addr: string) => ((addr ?? '').length > 4 ? addr.substring(0, 5) + '...' + addr.substring(addr.length - 3) : '')
+export const truncteEVMAddr = (addr: string) => ((addr ?? '').length > 4 ? addr.substring(0, 5) + '...' + addr.substring(addr.length - 3) : '')
 
-const isValidAddress = (addr: string) => addr.match(/0x[0-9a-f]{40}/i) !== null
+export const isValidAddress = (addr: string) => addr.match(/0x[0-9a-f]{40}/i) !== null
 
 export const makeRandomPreview = (remote = false) => remote ? `https://yup-live.pages.dev/picsum/${Math.floor(Math.random() * 99)}.webp` : `/picsum/${Math.floor(Math.random() * 99)}.webp`;
 
@@ -103,5 +103,18 @@ export const digestSha256 = async (message: string) => {
 export const deRef = <T> (ref: Ref<T>): T => {
   return (ref as any)._rawValue
 }
+export class CancelablePromise {
+  promise: Promise<any>;
+  cancel = () => { };
 
-export { gini, exportFile, convertToCSV, formatNumber, truncteEVMAddr, isValidAddress }
+  constructor(promise: Promise<any>) {
+    this.promise = Promise.race([
+      promise,
+      new Promise((resolve) => {
+        this.cancel = () => {
+          resolve(false);
+        };
+      }),
+    ]);
+  }
+}

@@ -37,6 +37,7 @@
     "shared": "*",
     "turbo": "^1.8.8",
     "vue": "^3.2.47",
+    "vue-cup-avatar": "^0.1.9",
     "vue-router": "^4.1.6",
     "web3modal": "^1.9.12"
   },

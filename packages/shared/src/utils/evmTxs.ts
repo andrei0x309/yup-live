@@ -70,6 +70,7 @@ export const prepareForTransaction = async ({
     }
     const { chainId } = await deRef(depUserProvider).getNetwork()
     if (chainId !== 137) {
+        depUserProvider.value = null as any
         stackAlertWarning && stackAlertWarning(`You are on wrong network(${chainId}), please switch to polygon(137)`)
         return false
     }
@@ -83,6 +84,38 @@ export const signCanonChallenge = async (payload: Record<string, unknown>, signe
         signature = await (signer as {
             signMessage: (a: string) => typeof a;
         }).signMessage(canFn(payload) as string);
+    } catch (error) {
+        return;
+    }
+    return signature;
+};
+
+export const signArbitraryText = async ({
+    text,
+    web3Mprom,
+    w3Modal,
+    ethers,
+    ethersLib,
+    userProvider,
+}: {
+    text: string,
+    web3Mprom: Promise<any>,
+    w3Modal: Iweb3Modal,
+    ethers: Iethers,
+    ethersLib: IethersLib,
+    userProvider: IuserProvider
+}) => {
+    let signature;
+    try {
+        await web3Mprom;
+        const inst = await w3Modal.value.connect();
+        ethersLib.value = await ethers;
+        userProvider.value = new ethersLib.value.providers.Web3Provider(inst);
+        const signer = userProvider.value.getSigner();
+
+        signature = await (signer as unknown as {
+            signMessage: (a: string) => typeof a;
+        }).signMessage(text);
     } catch (error) {
         return;
     }

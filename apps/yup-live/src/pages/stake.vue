@@ -129,7 +129,7 @@ const refYupRewardsIcon = YUPCollectIcon
 const refWalletIcon = WalletIcon
 
 const POLY_RPC = import.meta.env.VITE_POLYGON_RPC
-const HISTORIC_REWARDS_ENDPOINT = 'https://yup-lp-historic-rewards.deno.dev'
+// const HISTORIC_REWARDS_ENDPOINT = 'https://yup-lp-historic-rewards.deno.dev'
 
 const providerOptionsProm = import('shared/src/utils/evm')
 const web3Mprom = import('web3modal')
@@ -328,64 +328,64 @@ export default defineComponent({
       }
     }
 
-    const getHistoricRewards = async (address: string) => {
-      try {
-        let historicRewards
-        try {
-          historicRewards = localStorage.getItem('historicRewards')
-          if (historicRewards) {
-            historicRewards = JSON.parse(historicRewards)
-            const expireDate = new Date(historicRewards.expire).getTime()
-            if (expireDate < Date.now()) {
-              localStorage.removeItem('historicRewards')
-              getHistoricRewards(address)
-              return
-            }
-          }
-        } catch {
-          localStorage.removeItem('historicRewards')
-        }
-        if (historicRewards) {
-          historicETHReward.value = historicRewards?.eth
-          historicPolyReward.value = historicRewards?.poly
-          return
-        }
+    // const getHistoricRewards = async (address: string) => {
+    //   try {
+    //     let historicRewards
+    //     try {
+    //       historicRewards = localStorage.getItem('historicRewards')
+    //       if (historicRewards) {
+    //         historicRewards = JSON.parse(historicRewards)
+    //         const expireDate = new Date(historicRewards.expire).getTime()
+    //         if (expireDate < Date.now()) {
+    //           localStorage.removeItem('historicRewards')
+    //           getHistoricRewards(address)
+    //           return
+    //         }
+    //       }
+    //     } catch {
+    //       localStorage.removeItem('historicRewards')
+    //     }
+    //     if (historicRewards) {
+    //       historicETHReward.value = historicRewards?.eth
+    //       historicPolyReward.value = historicRewards?.poly
+    //       return
+    //     }
 
-        const reqEth = fetch(HISTORIC_REWARDS_ENDPOINT, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ chain: 'eth', address })
-        })
+    //     const reqEth = fetch(HISTORIC_REWARDS_ENDPOINT, {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json'
+    //       },
+    //       body: JSON.stringify({ chain: 'eth', address })
+    //     })
 
-        const rePoly = fetch(HISTORIC_REWARDS_ENDPOINT, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ chain: 'poly', address })
-        })
+    //     const rePoly = fetch(HISTORIC_REWARDS_ENDPOINT, {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json'
+    //       },
+    //       body: JSON.stringify({ chain: 'poly', address })
+    //     })
 
-        const reqResults = await Promise.all([reqEth, rePoly])
-        const reqResultsJson = await Promise.all([reqResults[0].json(), reqResults[1].json()])
-        const ethReward = reqResultsJson[0].data.get_result_by_result_id[0].data.Reward
-        const polyReward = reqResultsJson[1].data.get_result_by_result_id[0].data.Reward
-        localStorage.setItem(
-          'historicRewards',
-          JSON.stringify({
-            eth: ethReward,
-            poly: polyReward,
-            expire: new Date().getTime() + 60 * 1000 * 120
-          })
-        )
-        historicETHReward.value = ethReward
-        historicPolyReward.value = polyReward
-      } catch (e) {
-        historicETHReward.value = 0
-        historicPolyReward.value = 0
-      }
-    }
+    //     const reqResults = await Promise.all([reqEth, rePoly])
+    //     const reqResultsJson = await Promise.all([reqResults[0].json(), reqResults[1].json()])
+    //     const ethReward = reqResultsJson[0].data.get_result_by_result_id[0].data.Reward
+    //     const polyReward = reqResultsJson[1].data.get_result_by_result_id[0].data.Reward
+    //     localStorage.setItem(
+    //       'historicRewards',
+    //       JSON.stringify({
+    //         eth: ethReward,
+    //         poly: polyReward,
+    //         expire: new Date().getTime() + 60 * 1000 * 120
+    //       })
+    //     )
+    //     historicETHReward.value = ethReward
+    //     historicPolyReward.value = polyReward
+    //   } catch (e) {
+    //     historicETHReward.value = 0
+    //     historicPolyReward.value = 0
+    //   }
+    // }
 
     const fetchContractsData = () => {
       ethers.then(async (lib) => {
@@ -399,9 +399,9 @@ export default defineComponent({
           userProvider = new ethersLib.providers.Web3Provider(await w3Modal.connect())
           address.value = await userProvider.getSigner().getAddress()
         }
-        if (address.value) {
-          getHistoricRewards(address.value)
-        }
+        // if (address.value) {
+        //   getHistoricRewards(address.value)
+        // }
 
         const arrProm = [
           UNIContractPoly.balanceOf(address.value),

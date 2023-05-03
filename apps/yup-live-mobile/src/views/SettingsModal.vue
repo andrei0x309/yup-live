@@ -20,9 +20,12 @@
                 <div
                   class="glassCard rounded-lg p-4 flex flex-col md:ml-auto w-full mt-2 md:mt-0 relative shadow-md"
                 >
-                  <h2 class="text-lg mb-1 font-medium title-font">
+                  <h2 class="text-[1.1rem] text-center mb-1 font-medium title-font">
                     Edit Account Details
                   </h2>
+                  <h3 class="text-[0.95rem] text-center">Edit avatar</h3>
+                  <DangLoader v-if="isAvatarLoading" :unset="true" />
+                  <VACropper v-else class="mb-4" :avatar="avatar" @cropped="doUploadAvatar" />
                   <div class="relative mb-4">
                     <label
                       for="fullnameField"
@@ -65,7 +68,36 @@
           <ion-item slot="header" color="light">
             <ion-label>Social Connect</ion-label>
           </ion-item>
-          <div slot="content" class="ion-padding">
+          <div slot="content" class="ion-padding flex flex-col">
+            <template v-if="!isConnectedToFarcaster">
+            <button
+              :disabled="isConnectToFarcaster"
+              class="bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-lg"
+              @click="
+                () => {
+                  settingsModalContent = 'farcaster-connect';
+                  settingsModal = true;
+                }
+              "
+            >
+              <ProfileFarcasterIcon class="w-6 inline mr-2" />
+              <BtnSpinner v-if="isConnectToFarcaster" class="inline mr-2" />Connect to
+              Farcaster
+            </button>
+          </template>
+          <button
+            v-else
+            :disabled="isDisconnectFromFarcaster"
+            class="bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+            @click="doDisconnectFromFarcaster"
+          >
+            <BtnSpinner
+              v-if="isDisconnectFromFarcaster"
+              class="inline mr-2"
+            /><ProfileFarcasterIcon class="w-6 inline mr-2" />
+
+            Disconnect from Farcaster
+          </button>
             <template v-if="!isConnectedToTwitter">
               <button
                 class="mt-4 bg-sky-500 border-0 py-2 px-6 focus:outline-none hover:bg-sky-700 rounded text-lg"
@@ -75,6 +107,12 @@
                 <BtnSpinner v-if="isLoadingTwitter" class="inline mr-2" /> Connect to
                 Twitter
               </button>
+              <button
+            v-if="!isTwitterCancel && isLoadingTwitter"
+            class="view-btn" @click="() => {
+              isTwitterCancel = true;
+
+            }">Cancel Twitter Linking</button>
               <!-- <o-checkbox v-model="twFollowersAsKeywords" class="p-2" :native-value="true">
         <span class="ml-2">Insert my twitter followers into personal keywords.</span>
       </o-checkbox>
@@ -90,6 +128,25 @@
                 Twitter
               </button>
             </template>
+          <template v-if="!isConnectedToLens">
+            <button
+              class="mt-4 bg-green-500 border-0 py-2 px-6 focus:outline-none hover:bg-green-600 rounded text-lg"
+              @click="() => doConnectLens(false)"
+            >
+              <ProfileLensIcon class="w-6 inline mr-2" />
+              <BtnSpinner v-if="isConnectToLens" class="inline mr-2" /> Connect to Lens
+            </button>
+          </template>
+          <template v-else>
+            <button
+              class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+              @click="doDisconnectLens"
+            >
+              <ProfileLensIcon class="w-6 inline mr-2" />
+              <BtnSpinner v-if="isConnectToLens" class="inline mr-2" /> Disconnect from
+              Lens
+            </button>
+          </template>
           </div>
         </ion-accordion>
         <ion-accordion value="3">
@@ -107,6 +164,7 @@
                 <ion-toggle
                   :key="updateKey"
                   slot="end"
+                  aria-label="Enable Feed Personalization"
                   :checked="store?.settings?.personalizedFeeds"
                   @ion-change="changeSetting('personalizedFeeds')"
                 ></ion-toggle>
@@ -119,6 +177,7 @@
                 <ion-toggle
                   :key="updateKey"
                   slot="end"
+                  aria-label="Enabling actions tracking"
                   :checked="store?.settings?.accountTracking"
                   @ion-change="changeSetting('accountTracking')"
                 ></ion-toggle>
@@ -187,12 +246,150 @@
         :buttons="['OK']"
         @didDismiss="alertOpen = false"
       ></ion-alert>
+
+      <ion-modal :is-open="settingsModal">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Modal</ion-title>
+          <ion-buttons slot="end">
+            <ion-button @click="() => { closeSettingsModal() }">Close</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+      <template v-if="settingsModalContent === 'lens-dispatcher'">
+      <h2 class="mt-2 p-4 text-[1.3rem]">Setting Dispatcher</h2>
+      <p class="p-4 mb-4 text-[1.3rem]">
+        Dispatcher is not set to lens dispatcher in order to connect your profile needs to
+        have the dispatcher set to lens, do you want to continue?
+      </p>
+      <div class="flex">
+        <CustomButton
+          class="mx-auto"
+          :icon="refGoTo"
+          iconClass="transform rotate-180"
+          text="Nay"
+          @click="
+            () => {
+              closeSettingsModal()
+              resolvePromiseSetDispatcher(false);
+            }
+          "
+        />
+        <CustomButton
+          class="mx-auto"
+          :icon="refGoTo"
+          iconClass="transform rotate-90"
+          text="Yup"
+          @click="
+            () => {
+              closeSettingsModal()
+              resolvePromiseSetDispatcher(true);
+            }
+          "
+        />
+      </div>
+    </template>
+    <template v-else-if="settingsModalContent === 'farcaster-connect'">
+
+      <ion-segment
+        style="width: auto"
+        class=""
+        :value="farcasterConnectTabs"
+        mode="ios"
+        @ion-change="segmentChangeFarcaster"
+      >
+        <ion-segment-button value="warpcast">
+          <ProfileFarcasterIcon class="w-5 mr-2" />
+          <ion-label>Use Warpcast</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="wallet">
+          <WalletIcon class="w-5 mr-2" />
+          <ion-label>Use Wallet</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+        <template v-if="farcasterConnectTabs === 'warpcast'">
+          <div class="flex justify-center text-center flex-col">
+          <small class="my-4"
+            >By confirming in warpcast you'll enable yup backend to do casts on your
+            behalf.</small
+          >
+          <button
+            v-if="farcasterDeepLink.length === 0"
+            :disabled="isConnectToFarcaster"
+            class="bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-lg mt-4"
+            @click="() => doConnectToFarcaster('warpcast')"
+          >
+            <ProfileFarcasterIcon class="w-6 inline mr-2" />
+            <BtnSpinner v-if="isConnectToFarcaster" class="inline mr-2" />Connect to
+            Farcaster
+          </button>
+          <template v-else>
+            <p class="mb-3">Scan Qr code to approve in Warpcast App.</p>
+            <p class="my-4">
+              Time remaining to confirm
+              {{
+                farcasterTimeRemaing.minutes
+                  ? farcasterTimeRemaing.minutes > 1
+                    ? farcasterTimeRemaing.minutes + " minutes "
+                    : farcasterTimeRemaing.minutes + " minute "
+                  : ""
+              }}
+              {{
+                farcasterTimeRemaing.seconds
+                  ? farcasterTimeRemaing.seconds + " seconds "
+                  : ""
+              }}
+            </p>
+
+            <button
+              :disabled="isDeleteLoading"
+              class="bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg mb-4"
+              @click="
+                () => {
+                  closeSettingsModal();
+                  settingsModal = false;
+                }
+              "
+            >
+              <BtnSpinner v-if="isDeleteLoading" class="inline mr-2" />Cancel operation
+            </button>
+          </template>
+        </div>
+        </template>
+        <template v-if="farcasterConnectTabs === 'wallet'">
+          <div class="flex justify-center text-center flex-col">
+          <small class="my-2"
+            >You need to sign with the custody address of farcaster account.</small
+          >
+          <small class="my-2"
+            >By sigining you'll enable yup backend to do casts on your behalf.</small
+          >
+          <small class="my-2"
+            >If you didn't import that address yet into your wallet, you need to do that
+            first.</small
+          >
+          <button
+            :disabled="isConnectToFarcaster"
+            class="bg-purple-500 border-0 py-2 px-6 focus:outline-none hover:bg-purple-600 rounded text-lg mt-4"
+            @click="() => doConnectToFarcaster('wallet')"
+          >
+            <ProfileFarcasterIcon class="w-6 inline mr-2" />
+            <BtnSpinner v-if="isConnectToFarcaster" class="inline mr-2" />Connect to
+            Farcaster
+          </button>
+        </div>
+        </template>
+    </template>
+      </ion-content>
+    </ion-modal>
+
     </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref, PropType } from "vue";
+import { defineComponent, ref, Ref, PropType, computed, onMounted } from "vue";
 import {
   IonContent,
   IonHeader,
@@ -205,7 +402,9 @@ import {
   IonLoading,
   IonList,
   IonToggle,
-  // IonModal,
+  IonModal,
+  IonSegment,
+  IonSegmentButton,
   // IonInput,
   IonAccordion,
   IonAccordionGroup,
@@ -222,17 +421,47 @@ import { storage } from "@/utils/storage";
 
 // import DangLoader from "components/vote-list/loader.vue";
 // import CustomButton from 'components/functional/customButton.vue'
-import { stackAlertError, stackAlertSuccess } from "@/store/alertStore";
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 // import { formatNumber } from "shared/src/utils/misc";
 import { fetchWAuth } from "shared/src/utils/auth";
 import { useMainStore } from "@/store/main";
-// import GoToIcon from 'icons/src/goTo.vue'
-import { editProfile } from "shared/src/utils/requests/accounts";
-// const refGoTo = GoToIcon
+import { editProfile, setConnected } from "shared/src/utils/requests/accounts";
+import GoToIcon from "icons/src/goTo.vue";
+const refGoTo = GoToIcon;
 import type { IUserData } from "shared/src/types/account";
 import { useRouter } from "vue-router";
 import { linkTwitter, unlinkTwitter } from "shared/src/utils/requests/twitter";
 import TwitterIcon from "icons/src/twitter.vue";
+import { VACropper } from "vue-cup-avatar";
+import { uploadAvatar } from "shared/src/utils/requests/accounts";
+import { getTimeRemaining } from "shared/src/utils/time";
+import {
+  ethersLib,
+  getWeb3Modal,
+  web3Modal,
+  userProvider,
+} from "shared/src/utils/evmTxs";
+import {
+  getLensUserData,
+  authLens,
+  setDispatcher,
+  setAuthLens,
+  disconnectLens,
+  setDispatcherWithBackend,
+  removeLocalLensAuth,
+} from "shared/src/utils/requests/lens";
+import { web3Libs } from "shared/src/utils/evmTxs"; // signArbitraryText
+import { CancelablePromise } from "shared/src/utils/misc";
+import {
+  connectToFarcaster,
+  disconnectFromFarcaster,
+} from "shared/src/utils/requests/farcaster";
+import WalletIcon from "icons/src/walletIcon.vue";
+import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
+import ProfileLensIcon from "icons/src/profileLens.vue";
+import "vue-cup-avatar/dist/style.css";
+import CustomButton from "components/functional/customButton.vue";
+import DangLoader from "components/vote-list/loader.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -249,7 +478,7 @@ export default defineComponent({
     IonLoading,
     IonList,
     IonToggle,
-    // IonModal,
+    IonModal,
     // IonInput,
     IonAccordion,
     IonAccordionGroup,
@@ -260,6 +489,14 @@ export default defineComponent({
     IonToast,
     BtnSpinner,
     TwitterIcon,
+    VACropper,
+    IonSegment,
+    IonSegmentButton,
+    WalletIcon,
+    ProfileFarcasterIcon,
+    ProfileLensIcon,
+    CustomButton,
+    DangLoader
   },
   props: {
     userData: {
@@ -292,9 +529,37 @@ export default defineComponent({
     const isEditLoading = ref(false);
     const isDeleteLoading = ref(false);
     const router = useRouter();
-    const isConnectedToTwitter = ref(props.userData.twitterInfo?.userId ? true : false);
+    const isConnectedToTwitter = ref(store.userData.connected?.twitter ?? false);
     const twFollowersAsKeywords = ref(false);
     const isLoadingTwitter = ref(false);
+    const isTwitterCancel = ref(false);
+
+
+    const isLoading = ref(true);
+    const settingsModal = ref(false);
+    const settingsModalContent = ref("farcaster-connect");
+    const resolvePromiseSetDispatcher = ref(() => 42) as Ref<
+      (a: unknown) => typeof a & void
+    >;
+    const avatar = ref(props.userData.avatar);
+    const isConnectToFarcaster = ref(false);
+    const isConnectedToFarcaster = ref(store.userData.connected?.farcaster ?? false);
+    const isDisconnectFromFarcaster = ref(false);
+    const farcasterToken = ref("");
+    const farcasterDeepLink = ref("");
+    const farcasterTimeout = ref(600000);
+    const farcasterConnecWarpCancel = ref(false);
+    const farcasterTimeRemaing = computed(() =>
+      getTimeRemaining(new Date(Date.now() + farcasterTimeout.value))
+    );
+    let farcasterConnectPromise: CancelablePromise | null = null;
+    const isAvatarLoading = ref(false);
+    const isConnectedToLens = ref(store.userData.connected?.lens ?? false);
+    const isConnectToLens = ref(false);
+    const farcasterConnectTabs = ref("warpcast");
+    
+    const { ethers, providerOptionsProm, web3Mprom } = web3Libs();
+
 
     const deleteAccount = async () => {
       isDeleteLoading.value = true;
@@ -349,7 +614,8 @@ export default defineComponent({
         return;
       }
       isLoadingTwitter.value = true;
-      const connect = await linkTwitter(store, twFollowersAsKeywords.value);
+      isTwitterCancel.value = false;
+      const connect = await linkTwitter(store, twFollowersAsKeywords.value, true, isTwitterCancel);
       if (connect.error) {
         stackAlertError("Error while connecting to twitter");
       } else {
@@ -384,6 +650,228 @@ export default defineComponent({
       }
     };
 
+    const cleanDoConnectLens = (error: string) => {
+      if (error) stackAlertError(error);
+      isConnectToLens.value = false;
+      removeLocalLensAuth();
+      return null;
+    };
+
+    const doConnectLens = async (setTestDispatcher = false) => {
+      if (isConnectToLens.value) {
+        return;
+      }
+      isConnectToLens.value = true;
+      const user = await getLensUserData(store.userData.address);
+      if (!user) {
+        return cleanDoConnectLens(
+          "No lens user found, please set your default lens account for this address"
+        );
+      }
+      const profileId = user.data.defaultProfile.id;
+      const auth = await authLens({
+        depUserProvider: userProvider,
+        ethers,
+        ethersLib,
+        w3Modal: web3Modal,
+        web3Mprom,
+        stackAlertWarning,
+      });
+      console.log("auth", auth);
+      if (!auth) {
+        return cleanDoConnectLens("Error while authenticating lens");
+      }
+      const { accessToken: authToken, refreshToken } = auth;
+      if (!setTestDispatcher) {
+        const needToSetDispatcher = !user?.data?.defaultProfile?.dispatcher?.canUseRelay;
+        if (needToSetDispatcher) {
+          settingsModalContent.value = "lens-dispatcher";
+          settingsModal.value = true;
+          const userConfirm = new Promise((resolve) => {
+            resolvePromiseSetDispatcher.value = resolve;
+          });
+          if (!(await userConfirm)) {
+            return cleanDoConnectLens("User refused to set dispatcher");
+          }
+          const sigDisp = await setDispatcher({
+            profileId,
+            authToken,
+            userProvider,
+            test: false,
+          });
+          if (!sigDisp) {
+            return cleanDoConnectLens("Error while signing dispatcher");
+          }
+          const sigDispBackend = await setDispatcherWithBackend({
+            dispatcher: sigDisp.dispatcher,
+            profileId,
+            apiBase: API_BASE,
+            store,
+            deadline: sigDisp.deadline,
+            signature: sigDisp.signature,
+          });
+          if (!sigDispBackend) {
+            return cleanDoConnectLens("Error while signing dispatcher");
+          }
+        }
+      } else {
+        const sigDisp = await setDispatcher({
+          profileId,
+          authToken,
+          userProvider,
+          test: true,
+        });
+        if (!sigDisp) {
+          return cleanDoConnectLens("Error while signing dispatcher");
+        }
+        const sigDispBackend = await setDispatcherWithBackend({
+          dispatcher: sigDisp.dispatcher,
+          profileId,
+          apiBase: API_BASE,
+          store,
+          deadline: sigDisp.deadline,
+          signature: sigDisp.signature,
+        });
+        if (!sigDispBackend) {
+          return cleanDoConnectLens("Error while signing dispatcher");
+        }
+      }
+      await setAuthLens({
+        store,
+        apiBase: API_BASE,
+        accessToken: authToken,
+        refreshToken,
+      });
+      isConnectedToLens.value = true;
+      isConnectToLens.value = false;
+      setConnected(store, "lens", true);
+      stackAlertSuccess("Successfully connected to lens");
+    };
+
+    const doConnectToFarcaster = async (type: string) => {
+      let connectResult = null;
+      if (type === "wallet") {
+        farcasterConnectPromise = new CancelablePromise(
+          connectToFarcaster({
+            ethers,
+            ethersLib,
+            isConnectedToFarcaster,
+            isConnectToFarcaster,
+            stackAlertError,
+            stackAlertSuccess,
+            store,
+            userProvider,
+            w3Modal: web3Modal,
+            web3Mprom,
+            apiBase: API_BASE,
+            withWarpCast: false,
+            showQr: false,
+            deepLink: farcasterDeepLink,
+          })
+        );
+        connectResult = await farcasterConnectPromise.promise;
+      } else if (type === "warpcast") {
+        farcasterConnectPromise = new CancelablePromise(
+          connectToFarcaster({
+            ethers,
+            ethersLib,
+            isConnectedToFarcaster,
+            isConnectToFarcaster,
+            stackAlertError,
+            stackAlertSuccess,
+            store,
+            userProvider,
+            w3Modal: web3Modal,
+            web3Mprom,
+            apiBase: API_BASE,
+            withWarpCast: true,
+            showQr: false,
+            deepLink: farcasterDeepLink,
+            timeout: farcasterTimeout,
+            isCancel: farcasterConnecWarpCancel,
+          })
+        );
+        connectResult = await farcasterConnectPromise.promise;
+      }
+      if (connectResult) {
+        setConnected(store, "farcaster", true);
+      }
+      settingsModal.value = false;
+    };
+
+    const closeSettingsModal = () => {
+      if (settingsModalContent.value === "farcaster-connect") {
+        farcasterConnectPromise?.cancel();
+        isConnectToFarcaster.value = false;
+        isConnectedToFarcaster.value = false;
+        farcasterConnecWarpCancel.value = true;
+        farcasterDeepLink.value = "";
+        farcasterTimeout.value = 600000;
+      }
+      settingsModal.value = false;
+    };
+
+    const doDisconnectFromFarcaster = async () => {
+      const disResult = await disconnectFromFarcaster({
+        farcasterToken,
+        isConnectedToFarcaster,
+        isDisconnectFromFarcaster,
+        stackAlertError,
+        stackAlertSuccess,
+        store,
+        apiBase: API_BASE,
+      });
+      if (disResult) {
+        setConnected(store, "farcaster", false);
+      }
+    };
+
+    const doDisconnectLens = async () => {
+      const req = await disconnectLens({
+        store,
+        apiBase: API_BASE,
+      });
+      if (!req) {
+        stackAlertError("Error while disconnecting from lens");
+      } else {
+        stackAlertSuccess("Disconnected from lens successfully");
+        setConnected(store, "lens", false);
+        isConnectedToLens.value = false;
+      }
+    };
+
+
+
+    const doUploadAvatar = async (blob: Blob) => {
+      if(isAvatarLoading.value) {
+        return
+      }
+      await uploadAvatar({
+        blob,
+        store,
+        avatar,
+        isAvatarLoading,
+        stackAlertError,
+        stackAlertSuccess
+      })
+    }
+
+    const segmentChangeFarcaster = async (value: any) => {
+      farcasterConnectTabs.value = value.detail.value;
+    };
+
+    onMounted(async () => {
+      getWeb3Modal({
+        providerOptionsProm,
+        web3Mprom,
+        theme: store.theme as "dark" | "light",
+        disableInjectedProvider: false,
+      }).then((w3m) => {
+        web3Modal.value = w3m;
+      });
+       isLoading.value = false;
+    });
+
     return {
       loading,
       mpModal,
@@ -411,7 +899,29 @@ export default defineComponent({
       twitterLink,
       isConnectedToTwitter,
       isLoadingTwitter,
-      store
+      store,
+      doUploadAvatar,
+      avatar,
+      isAvatarLoading,
+      isDisconnectFromFarcaster,
+      doDisconnectFromFarcaster,
+      isConnectedToFarcaster,
+      isConnectToFarcaster,
+      settingsModalContent,
+      refGoTo,
+      settingsModal,
+      isConnectedToLens,
+      doConnectLens,
+      isConnectToLens,
+      doDisconnectLens,
+      resolvePromiseSetDispatcher,
+      farcasterConnectTabs,
+      segmentChangeFarcaster,
+      doConnectToFarcaster,
+      farcasterDeepLink,
+      farcasterTimeRemaing,
+      closeSettingsModal,
+      isTwitterCancel
     };
   },
 });

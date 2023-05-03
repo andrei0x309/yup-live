@@ -79,7 +79,7 @@ import {
 } from "@ionic/vue";
 import { defineComponent, ref, Ref, markRaw } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
-import { getNotifications } from "shared/src/utils/notifications"
+import { getNotifications, clearNotifications } from "shared/src/utils/notifications"
 import { useMainStore } from "@/store/main";
 import type { NotifType } from 'shared/src/types/notification'
 import { timeAgo } from "shared/src/utils/time"
@@ -89,6 +89,7 @@ import TwitterIcon from 'icons/src/twitter.vue'
 import VoteNotification from '@/components/notifications/vote.vue'
 import RewardNotification from '@/components/notifications/reward.vue'
 import FollowUnfollowNotification from '@/components/notifications/followUnfollow.vue'
+
 
 export default defineComponent({
   name: "NotificationsPage",
@@ -136,8 +137,10 @@ export default defineComponent({
     onIonViewDidEnter(async () => {
       loading.value = true
       notifications.value = (await getNotifications({ userId: store.userData.account, type: null}))?.reverse().map(addTwitterIcon) ?? []
+      if(notifications.value.length && notifications.value.some((n:any) => n?.seen === false)) {
+        clearNotifications(store)
+       }
       loading.value = false
-      
     })
 
     return {

@@ -39,7 +39,7 @@
       </o-checkbox>
     </div>
   </template>
-      <div class="flex rounded bg-gray-200 max-w-[30rem] m-auto mt-2">
+      <div class="flex rounded bg-gray-200 max-w-[30rem] m-auto mt-2 border border-stone-400">
         <input
           v-model="searchInput"
           type="search"
@@ -110,7 +110,7 @@
         <span class="ml-2">{{ platfrom }}</span>
       </o-checkbox>
     </div>
-    <div class="flex rounded bg-gray-200 max-w-[30rem] m-auto mt-2">
+    <div class="flex rounded bg-gray-200 max-w-[30rem] m-auto mt-2 border border-stone-400">
 
         <input
           v-model="filterCreators"
@@ -119,7 +119,7 @@
           placeholder="web3Creators EVM addresses (comma seperated)"
         /> 
         </div>
-        <div class="flex rounded bg-gray-200 max-w-[30rem] m-auto mt-2">
+        <div class="flex rounded bg-gray-200 max-w-[30rem] m-auto mt-2 border border-stone-400">
         <input
           v-model="filterInput"
           type="search"
@@ -164,6 +164,7 @@
                 :post="(post)"
                 :postTypesPromises="postTypesPromises"
                 :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
+                :crossPost="() => import('@/components/content/post/crossPost.vue')"
                 :deps="postDeps"
                 @updatepostinfo="
                   (postid: string) => {
@@ -183,7 +184,7 @@
             <h2 class="text-[1.3rem] mt-2 uppercase">
             {{  searchStarted ? 'No results found' : 'Hit enter or Search to find results' }}
             </h2>
-            <component :is="catComp" v-if="catComp !== null" class="max-w-80 mx-auto" />
+            <component :is="(catComp as unknown)" v-if="catComp !== null" class="max-w-80 mx-auto" />
           </div>
         </template>
       </InfScroll>
@@ -207,7 +208,7 @@
             <h2 class="text-[1.3rem] mt-2 uppercase">
             {{  searchStarted ? 'No results found' : 'Hit enter or Search to find results' }}
             </h2>
-            <component :is="catComp" v-if="catComp !== null" class="max-w-80 mx-auto" />
+            <component :is="(catComp as unknown)" v-if="catComp !== null" class="max-w-80 mx-auto" />
           </div>
         </template>
       </InfScroll>

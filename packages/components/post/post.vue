@@ -1,7 +1,7 @@
 <template>
   <div :class="`flex justify-between m-1 md:m-6 flex-row pPost ${postTypeClass}`">
     <div
-      class="flex flex-col max-w-2xl mx-auto rounded-b-none postCard w-full min-w-[20rem]"
+      class="flex flex-col max-w-2xl mx-auto postCard w-full min-w-[20rem]"
       :style="full && post.tag === 'mirror' ? 'max-width: 56rem;' : ''"
     >
       <component
@@ -14,10 +14,10 @@
         :deps="deps"
       />
       <div class="flex flex-row items-end w-full px-4 mt-4">
-        <div class="flex border-t border-gray-700 w-full py-4">
+        <div class="flex border-t border-stone-400 dark:border-stone-600 w-full py-4">
           <div
             v-if="!noYUPPost"
-            class="flex items-center gap-x-2 border-r border-gray-700 w-full pl-2"
+            class="flex items-center gap-x-2 border-r border-stone-400 dark:border-stone-600 w-full pl-2"
           >
             <Voting
               :key="`${processedPost.title}${votingKey}`"
@@ -144,8 +144,8 @@ export default defineComponent({
       type: Object as PropType<IPostDeps>,
       required: true,
     },
-    castModal: {
-      type: Object as PropType<() => Promise<{ default: any }>>,
+    crossPost: {
+      type: Function as PropType<() => Promise<{ default: any }> | undefined>,
       required: false,
       default: undefined,
     },
@@ -169,7 +169,7 @@ export default defineComponent({
       negativeWeight: 0,
       tweetInfo: {},
       web3Preview: {},
-      web3CreatorProfile: null
+      web3CreatorProfile: null,
       //   isMirror: false,
       //   isWeb3: false,
       //   isTwitter: false,
@@ -229,7 +229,6 @@ export default defineComponent({
               postTypeCom.value = (
                 await props.postTypesPromises.preloadFarcaster
               ).default;
-              if (!props.noYUPPost) {
                 import("shared/src/utils/requests/farcaster").then((module) => {
                   const commId = !nested
                     ? props.post.web3Preview?.meta?.parentPostId
@@ -247,12 +246,11 @@ export default defineComponent({
                       }
                     });
                 });
-                if (!props.mobile && props.castModal) {
-                  props.castModal().then((module) => {
+                if (props.crossPost) {
+                  props.crossPost()?.then((module) => {
                     replyComp.value = module.default;
                   });
                 }
-              }
               break;
             case "lens":
               import("shared/src/utils/web3/lens").then((module) => {
@@ -355,7 +353,7 @@ export default defineComponent({
   background-color: var(--post-card-bg);
   border: 1px solid #00000047;
   border-radius: 0.5rem;
-  box-shadow: 2px 0 0 #0a0a0ab3;
+  box-shadow: inset -1px -1px 0px 0px rgba(10, 10, 10, 0.7019607843);
   height: min-content;
   position: relative;
 }
@@ -363,8 +361,8 @@ export default defineComponent({
 .mfavIco {
   background: radial-gradient(
     ellipse at bottom,
-    rgba(28, 28, 28, 0.31) 0%,
-    rgb(138 138 138 / 23%) 100%
+    rgb(243 226 158 / 42%) 0%,
+    rgb(199 158 243 / 45%) 100%
   );
   box-shadow: 0px 0px 0px 2px rgb(115 118 118 / 15%);
   border-radius: 50%;
@@ -377,6 +375,7 @@ export default defineComponent({
   img {
     filter: brightness(0) invert(1);
   }
+  opacity: 0.8;
 }
 
 .mtime {
@@ -393,7 +392,7 @@ export default defineComponent({
 }
 
 .colbutton {
-  border: 1px solid #c4c4c479;
+  border: 1px solid #8f8f8fa8;
   border-radius: 0.3rem;
 }
 

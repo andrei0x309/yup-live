@@ -1,14 +1,14 @@
 import { fetchWAuth } from './../auth';
-import { config } from '../config'
+import { ref, Ref } from 'vue'
 import type { IMainStore } from '../../types/store'
 import { wait } from 'shared/src/utils/time'
 import { IErrorObj } from 'shared/src/types/errorObj'
 
-const { API_BASE } = config
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 const PERMISSIONS = ['addFollowers', 'addOAuthCredentials']
 
-export const linkTwitter = async (store: IMainStore, addFollowers = false, linkAuth = true): Promise<IErrorObj> => {
+export const linkTwitter = async (store: IMainStore, addFollowers = false, linkAuth = true, cancel = ref(false)): Promise<IErrorObj> => {
     try {
         const permissions = []
         if (addFollowers) {
@@ -18,7 +18,7 @@ export const linkTwitter = async (store: IMainStore, addFollowers = false, linkA
             permissions.push(PERMISSIONS[1])
         }
 
-        const reqTwitterChallenge = await fetchWAuth(store, `${API_BASE}/oauth/twitter`, {
+        const reqTwitterChallenge = await fetchWAuth(store, `${API_BASE}/oauth//2/twitter`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
@@ -32,7 +32,7 @@ export const linkTwitter = async (store: IMainStore, addFollowers = false, linkA
         }
         const { oauthChallenge: { _id: oauthChallengeId }, redirectPath } = await reqTwitterChallenge.json();
         window.open(redirectPath, "_blank");
-        return await twitterAuthCheck(store, oauthChallengeId);
+        return await twitterAuthCheck(store, oauthChallengeId, cancel);
 
     } catch (err) {
         return { error: true, msg: "Network Error API DOWN, please try again later.", stage: "initial" }
@@ -42,6 +42,7 @@ export const linkTwitter = async (store: IMainStore, addFollowers = false, linkA
 const twitterAuthCheck = async (
     store: IMainStore,
     oauthChallengeId: string,
+    cancel: Ref<boolean>
 ): Promise<IErrorObj> => {
     try {
         const reqTwitterAuth = await fetch(
@@ -55,10 +56,14 @@ const twitterAuthCheck = async (
         );
         const data = await reqTwitterAuth.json();
         if (data?.confirmed) {
+            if (store.userData.connected) store.userData.connected.twitter = true
             return { error: false, msg: "Twitter account linked successfully.", stage: "success" }
         } else {
             await wait(350);
-            return await twitterAuthCheck(store, oauthChallengeId);
+            if (cancel.value) {
+                return { error: true, msg: "Twitter account linking cancelled.", stage: "initial" }
+            }
+            return await twitterAuthCheck(store, oauthChallengeId, cancel);
         }
     } catch {
         return { error: true, msg: "Network Error API DOWN, please try again later.", stage: "initial" }
@@ -74,6 +79,7 @@ export const unlinkTwitter = async (store: IMainStore): Promise<IErrorObj> => {
             },
         })
         if (result.ok) {
+            if (store.userData.connected) store.userData.connected.twitter = false
             return { error: false, msg: "Twitter account unlinked successfully.", stage: "success" }
         }
         return { error: true, msg: "Error on unlinking Twitter account, please try again later.", stage: "initial" }

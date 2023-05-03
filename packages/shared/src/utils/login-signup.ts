@@ -1,9 +1,8 @@
 import type { Ref } from 'vue'
 import type { providers } from 'ethers'
-import { config } from './config'
 import { editProfile } from './requests/accounts'
 
-const { API_BASE } = config
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export const web3ModalInstantiate = async (
     { web3M = null, loadState = null, setAlert = null }: { web3M: null | Ref<any>, loadState: null | Function, setAlert: null | Function }

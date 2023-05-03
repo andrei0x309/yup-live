@@ -7,7 +7,25 @@ import { IMainStore } from 'shared/src/types/store'
 
 
 const lensGraphQl = 'https://api.lens.dev'
-const YUP_DISPATCHER_ADDRESS = '0xB3e40374054bE93e8328f50FFad1464d0E1D990D'
+export const YUP_DISPATCHER_ADDRESS = '0xB3e40374054bE93e8328f50FFad1464d0E1D990D'
+export const LENS_DISPATCHER_ADDRESSES =
+  ['0xC9FA5F824530b0DB3Df97820ded190F849b9bc0d',
+    '0x3530c7CAc2E47F27bA82a5d0D3671181171292DB',
+    '0x999119915b0d11aE86087F03E312aCC1C2aC750E']
+
+export const getRandomDispatcherAddress = () => {
+  return LENS_DISPATCHER_ADDRESSES[Math.floor(Math.random() * LENS_DISPATCHER_ADDRESSES.length)]
+}
+
+export const setLocalLensAuth = async ({ accessToken, refreshToken }: { accessToken: string, refreshToken: string }) => {
+  localStorage.setItem('lensAuthToken', accessToken)
+  localStorage.setItem('lensRefreshToken', refreshToken)
+}
+
+export const removeLocalLensAuth = () => {
+  localStorage.removeItem('lensAuthToken')
+  localStorage.removeItem('lensRefreshToken')
+}
 
 export const authLens = async ({
   depUserProvider,
@@ -93,8 +111,7 @@ authenticate(request: {
             authenticate: { accessToken, refreshToken }
           }
         } = respData
-        localStorage.setItem('lensAuthToken', accessToken)
-        localStorage.setItem('lensRefreshToken', refreshToken)
+        setLocalLensAuth({ accessToken, refreshToken })
         stackAlertSuccess && stackAlertSuccess('Lens auth OK')
         return { accessToken, refreshToken }
       }
@@ -206,7 +223,8 @@ defaultProfile(request: { ethereumAddress: "${address}"}) {
   return null
 }
 
-export const setDispatcher = async ({ profileId, authToken, userProvider }: { profileId: string, authToken: string, userProvider: IuserProvider }) => {
+export const setDispatcher = async ({ profileId, authToken, userProvider, test = false }: { profileId: string, authToken: string, userProvider: IuserProvider, test: boolean }) => {
+  const dispatcher = !test ? getRandomDispatcherAddress() : YUP_DISPATCHER_ADDRESS
   const req = await fetch(`${lensGraphQl}`, {
     method: 'POST',
     headers: {
@@ -217,7 +235,7 @@ export const setDispatcher = async ({ profileId, authToken, userProvider }: { pr
       query: `mutation CreateSetDispatcherTypedData {
                 createSetDispatcherTypedData(request:{
                   profileId: "${profileId}",
-                  dispatcher: "${YUP_DISPATCHER_ADDRESS}"
+                  dispatcher: "${dispatcher}"
                 }) {
                   id
                   expiresAt
@@ -253,13 +271,14 @@ export const setDispatcher = async ({ profileId, authToken, userProvider }: { pr
       value: data.typedData.value,
       userProvider
     })
-    return { signature, deadline: data.expiresAt, profileId, dispatcher: YUP_DISPATCHER_ADDRESS }
+    const deadline = Math.floor(new Date(data.expiresAt).getTime() / 1000)
+    return { signature, deadline, profileId, dispatcher }
   }
   return null
 }
 
-export const setDispatcherYup = async ({ profileId, dispatcher, deadline, signature, apiBase = API_BASE, store }:
-  { profileId: string, dispatcher: string, deadline: string, signature: string, apiBase: string, store: IMainStore }) => {
+export const setDispatcherWithBackend = async ({ profileId, dispatcher, deadline, signature, apiBase = API_BASE, store }:
+  { profileId: string, dispatcher: string, deadline: number, signature: string, apiBase: string, store: IMainStore }) => {
   const data = {
     profileId,
     dispatcher,
@@ -289,23 +308,19 @@ export const setAuthLens = async ({ store, apiBase = API_BASE, accessToken, refr
     method: 'POST',
     body: JSON.stringify(data)
   })
-
+  if (store.userData.connected) store.userData.connected.lens = true
   return req.ok
 }
 
 export const disconnectLens = async ({ store, apiBase = API_BASE }: { store: IMainStore, apiBase: string }) => {
-  const req = await fetchWAuth(store, `${apiBase}/lens/disconnect`, {
-    method: 'DELETE'
+  const req = await fetchWAuth(store, `${apiBase}/web3-auth`, {
+    method: 'DELETE',
+    body: JSON.stringify({
+      platforms: ['lens']
+    })
   })
-  localStorage.removeItem('lensAuthToken')
-  localStorage.removeItem('lensRefreshToken')
+  removeLocalLensAuth()
+  if (store.userData.connected) store.userData.connected.lens = false
   return req.ok
 }
 
-export const isConnectedLens = async ({ store, apiBase = API_BASE }: { store: IMainStore, apiBase: string }) => {
-  const req = await fetchWAuth(store, `${apiBase}/web3-auth`, {
-    method: 'GET'
-  })
-  const data = await req.json()
-  return data?.lens?.refreshToken
-}

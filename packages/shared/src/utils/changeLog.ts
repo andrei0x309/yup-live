@@ -1,5 +1,20 @@
 export const recentChanges = [
     {
+        date: "2 May - 2023",
+        title: "Changes",
+        changes: [
+            'add clear indication of farcaster subthread on farcaster post type',
+            'added auto clear notifications on checking the notification',
+            'yup live web/desktop light theme improvments',
+            'disable historic rewards on staking page due to dune restrictions',
+            'added cross posting to all yup-live apps',
+            'added connect to social platforms on yup live mobile',
+            're-enabled reply to farcaster posts using web3 posting',
+            'added badge to notifications on yup live mobile',
+            'added avatar editing to yup live mobile',
+        ],
+    },
+    {
         date: "13 April - 2023",
         title: "Changes",
         changes: [
