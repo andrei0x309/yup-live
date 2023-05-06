@@ -1,5 +1,18 @@
 export const recentChanges = [
     {
+        date: "6 May - 2023",
+        title: "Changes",
+        changes: [
+            'Login wallet timeout increeased to 90s from 15s to allow cold wallet users to login',
+            'Change release tag of desktop to not conflict with main branch',
+            'Moved staking abis to shared package',
+            'Added staking page to yup live mobile',
+            'Removed unused followers page on yup-live mobile',
+            'Moved staking input component to shared package',
+            'fix don\'t show reply button for farcaster if user is not connected to farcaster',
+        ],
+    },
+    {
         date: "2 May - 2023",
         title: "Changes",
         changes: [

@@ -246,7 +246,7 @@ export default defineComponent({
                       }
                     });
                 });
-                if (props.crossPost) {
+                if (props.crossPost && store.userData.connected?.farcaster) {
                   props.crossPost()?.then((module) => {
                     replyComp.value = module.default;
                   });
@@ -342,8 +342,8 @@ export default defineComponent({
       comments,
       commentsNum,
       replyComp,
-      nested,
-    };
+      nested
+      };
   },
 });
 </script>

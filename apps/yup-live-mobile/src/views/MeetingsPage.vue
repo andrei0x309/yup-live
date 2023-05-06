@@ -57,7 +57,7 @@
                         @click="share(meeting)"
                       >
                         <ShareIcon class="m-1 w-4 inline" />
-                        <span class="font-medium font-bold">Share this</span>
+                        <span class="font-bold">Share this</span>
                       </button>
                     </div>
                   </div>

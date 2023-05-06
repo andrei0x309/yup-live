@@ -91,7 +91,7 @@ const signChallenge = async ({
     const res = await req.json()
     const challenge = res.data
     let signature: string
-    const timeout = new Promise((resolve) => setTimeout(() => resolve(0), 12000))
+    const timeout = new Promise((resolve) => setTimeout(() => resolve(0), 90000))
     try {
         signature = await Promise.race([signer.signMessage(challenge), timeout]) as string
         if (!signature) {
@@ -99,7 +99,7 @@ const signChallenge = async ({
                 loadState('end')
                 setAlert({
                     type: 'error',
-                    message: 'Wallet did not respond in 15s, please change IP and try again.'
+                    message: 'Wallet did not respond in 90s. Please try again later'
                 })
                 if (web3M) {
                     await web3M.value.clearCachedProvider();

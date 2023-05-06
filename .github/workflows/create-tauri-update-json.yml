@@ -6,7 +6,7 @@ on:
       release_tag:
         description: 'Tag name of the release'
         required: true
-        default: main
+        default: main-desktop
 
 jobs:
   get-assets:

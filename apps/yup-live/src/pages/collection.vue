@@ -48,7 +48,7 @@
           </div>
           <div v-else>
             <h2 class="text-[1.3rem] mt-4 uppercase">This collection is empty :(</h2>
-            <component :is="catComp" v-if="catComp !== null" class="max-w-120 w-10 mx-auto" />
+            <component :is="(catComp as unknown)" v-if="catComp !== null" class="max-w-120 w-10 mx-auto" />
           </div>
         </template>
       </InfScroll>

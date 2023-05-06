@@ -32,6 +32,9 @@
       <ion-item button @click="goTo(`/tabs/score/${store.userData?.address}`)">
         <ScoreIcon class="w-5 mr-4" /> Yup Score
       </ion-item>
+      <ion-item button @click="goTo('/tabs/stake')">
+        <StakeIcon class="w-5 mr-4" /> Stake
+      </ion-item>
       <ion-item button @click="goTo('/tabs/info')">
         <InfoIcon class="w-5 mr-4" /> About & Info
       </ion-item>
@@ -57,6 +60,7 @@ import LogOutIcon from 'icons/src/logout.vue'
 import ActivityIcon from '@/icons/activity.vue'
 import InfoIcon from 'icons/src/infoIcon.vue'
 import ScoreIcon from 'icons/src/score.vue'
+import StakeIcon from "icons/src/stake.vue";
 
 
 export default defineComponent({
@@ -65,7 +69,7 @@ export default defineComponent({
     IonHeader,
     IonToolbar,
     IonMenu, IonTitle, IonContent, IonMenuToggle, IonIcon,
-    IonItem, IonList, LogOutIcon, ActivityIcon, InfoIcon, ScoreIcon
+    IonItem, IonList, LogOutIcon, ActivityIcon, InfoIcon, ScoreIcon, StakeIcon
   },
   props: {
     text: {

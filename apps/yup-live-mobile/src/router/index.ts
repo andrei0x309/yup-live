@@ -108,6 +108,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'score/:addr',
         component: () => import('@/views/ScorePage.vue')
+      },
+      {
+        path: 'stake',
+        component: () => import('@/views/StakingPage.vue')
       }
     ],
   },

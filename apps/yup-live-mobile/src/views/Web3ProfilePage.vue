@@ -209,15 +209,6 @@ import {
 import PostMenu from "@/components/post/menu/postMenu.vue";
 import { IWeb3Profile } from "shared/src/types/web3Profile";
 import { fetchWeb3Profile } from "shared/src/utils/requests/web3Profiles";
-
-// import PostInfo from '@/components/content/post/postInfo.vue'
-// import { useCollectionStore, useCollectionStoreEx, getCollections } from '@/store/collections'
-// import CollectionsPage from '@/components/content/profile/collectionsPage.vue'
-// import ProfileMenu from '@/components/content/profile/menu.vue'
-// import type { NameValue } from 'shared/src/types/account'
-// import type { ICollection } from 'shared/src/types/store'
-// import FollowersPage from '@/components/content/profile/followersPage.vue'
-
 import Web3ProfileCard from "components/profile/web3ProfileCard.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
