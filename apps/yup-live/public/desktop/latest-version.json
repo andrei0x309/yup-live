@@ -1,18 +1,18 @@
 {
-  "version": "v1.1.7",
+  "version": "v1.1.8",
   "notes": "Check all changes at https://yup.live/change-log",
   "platforms": {
     "darwin-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSNi9LMk9GWjRvQXROS1dOMFd2MEY1T1E1bGxXVVNoYWpRYm1RTWpGTXVPVVF5ejBscklleEZMVEdLckdGTUdVdlQ5RGdGNS9KS1RaY3VNNUNGS0d0cXpTTU83dCsvZ1FFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgzMTIwMDM5CWZpbGU6eXVwLWxpdmUtdGF1cmkuYXBwLnRhci5negp4ZDBEYW9sQys2VWNpdUM3bW9URVExamRvZEVYSVVLdEZvTXFWcXNobW1yMGFaYVBuVEpzdEJNdk9hazJscDVuenUwWWRNcGl4STcycllZU1BUcXJBQT09Cg==",
-      "url": "https://github.com/andrei0x309/yup-live/releases/download/main/yup-live-tauri.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSNi9LMk9GWjRvQXRET1U2Rm1XWTE5UlNRSm1IQXA5Y0pacGswUXMrZ2pUQmtaakRJWDA4Z2tGYklCR2lyUnRDUDEzTWptR2locXFOL25oeFgxRUw1NThTUzB1LzF2M0FnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgzNDkwODE0CWZpbGU6eXVwLWxpdmUtdGF1cmkuYXBwLnRhci5negprNnB2ZkVBdWo0VlR4VGc5WG1EbkUzRmd0c1NWMTVVaGdOV2w4U01jWlRLNVlZUG1Ucis5QXdLdTdtQ0ExTnhGa2ZBRHZzNzVMT28zcXZFVXo3SXVCdz09Cg==",
+      "url": "https://github.com/andrei0x309/yup-live/releases/download/main-desktop/yup-live-tauri_x64.app.tar.gz"
     },
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSNi9LMk9GWjRvQXFpSU93cmJZNXFIN3VLcTBCbnpYcnpFSUJrN1YwV2VCQU0wZ2dycXQ0aXdCTmJjTU51aDNZbWdZN0dBdWFoTHhyZXdLUlRFT0t0ZUdZcy9DSjNueXdrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgzMTE5OTQwCWZpbGU6eXVwLWxpdmUtdGF1cmlfMS4xLjdfYW1kNjQuQXBwSW1hZ2UudGFyLmd6Cnl3K0hvTnJGdmd6UDIrMTc1d1dodVNIRFphNzZjcm0wYndscFR3SnAzV3M4b3pLOURWWnlBRnozRzhOUHIrM3FsRkE5TFVCbXcwVGh0NnBVSG5ycUFBPT0K",
-      "url": "https://github.com/andrei0x309/yup-live/releases/download/main/yup-live-tauri_1.1.7_amd64.AppImage.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSNi9LMk9GWjRvQXMwdi95RWUzdDZmZTNlSThCWXc5a3d1TUxGR3V5SEVMN2ZZeE9BSUtPcnIzRkNUQWxzYmFBeDVaSG9zVUVTcXErcnRzRTVJNGwvendGM2xmcDJTOUFBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgzNDkwNjAxCWZpbGU6eXVwLWxpdmUtdGF1cmlfMS4xLjhfYW1kNjQuQXBwSW1hZ2UudGFyLmd6CjRJSkErd3dnSWdGSWtqTk5MbSs2Y293UUgvU1VxbmRSTFNkV2JMVXZ2eTBYTkp4cnRvWFJpUVNMV0x6NUdVMzNMUXFmdjhTUVc0elJmWFE4Y3FNM0FRPT0K",
+      "url": "https://github.com/andrei0x309/yup-live/releases/download/main-desktop/yup-live-tauri_1.1.8_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSNi9LMk9GWjRvQXV3dTBMd2o2TDhkb3ViY29PNEI4NWVoak5lbHBiOXJ6TitRMkp4SjF4SzN4UkNiem5oZXZ0YTdydktxYkhLbVcxbCsyeVkvanI1NzZNMHFwdHBhS1FvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgzMTE5OTY3CWZpbGU6eXVwLWxpdmUtdGF1cmlfMS4xLjdfeDY0X2VuLVVTLm1zaS56aXAKbTJPc2xVZitSMkVRQlQ2alNDWStmdjlpNHhHY2hNV1pMKzVsREQ4UkhTTmZ6bU9wT1cvNzVpS24yaTFwVEYvR3RHWDN5UEkwbEMza0FTd1BaaUYwQXc9PQo=",
-      "url": "https://github.com/andrei0x309/yup-live/releases/download/main/yup-live-tauri_1.1.7_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSNi9LMk9GWjRvQWpzOS8zdENpNFFlbGc5NG9zQmU2OHYwNmwyMHAwNU5lb2pGQjZoK0dRcUI3VGtPTGpKMmhETmtFT080b2IvQ2RyUno0ZVRnK1hFQlBzOGRvQm9Dcnc0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgzNDkxMDg0CWZpbGU6eXVwLWxpdmUtdGF1cmlfMS4xLjhfeDY0X2VuLVVTLm1zaS56aXAKOWlQUWk5d0ovS3laZ3dQbFVRbzRUdlh1ekZTYmRuY3ZiU2dvTUVCMk1OUkdDMlNjSWpuSktFWnRnb096eGRoSWl6dDdwNmh1bGtwQ2tzdjZCdEtNQ3c9PQo=",
+      "url": "https://github.com/andrei0x309/yup-live/releases/download/main-desktop/yup-live-tauri_1.1.8_x64_en-US.msi.zip"
     }
   }
 }

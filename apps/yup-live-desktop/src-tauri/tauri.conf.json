@@ -101,7 +101,7 @@
         "https://yup-live.pages.dev/desktop/latest-version.json"
       ],
       "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIyODlFMTU4RUFERkM3QQpSV1I2L0syT0ZaNG9BdmxPdWdrd09DNlRTdGgyY1UwMWNNclRWSWpHcFA2VW1XNVlPV3ZTbnpBdQo",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIyODlFMTU4RUFERkM3QQpSV1I2L0syT0ZaNG9BdmxPdWdrd09DNlRTdGgyY1UwMWNNclRWSWpHcFA2VW1XNVlPV3ZTbnpBdQo=",
       "windows": {
         "installMode": "passive"
       }
