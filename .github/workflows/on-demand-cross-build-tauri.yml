@@ -14,8 +14,8 @@ jobs:
       contents: write
     runs-on: ubuntu-20.04
     outputs:
-      tag_name: ${{ steps.create-release.outputs.result.tag }}
-      release_id: ${{ steps.create-release.outputs.result.id }}
+      tag_name: ${{ steps.create-release.outputs.tag }}
+      release_id: ${{ steps.create-release.outputs.id }}
 
     steps:
       - uses: actions/checkout@v3
@@ -33,16 +33,14 @@ jobs:
             const { data } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: `app-v${process.env.PACKAGE_VERSION}`,
+              tag_name: `main-desktop`,
               name: `YUP Live Desktop App v${process.env.PACKAGE_VERSION}`,
               body: 'Take a look at the assets to download and install this app.',
               draft: true,
               prerelease: false
             })
-            return {
-                tag: `app-v${process.env.PACKAGE_VERSION}`,
-                id: data.id
-              }
+            core.setOutput('id', data.id)
+            core.setOutput('tag', data.tag_name)
 
   build-tauri:
     needs: create-release
@@ -98,6 +96,7 @@ jobs:
           includeRelease: true
           projectPath: ./apps/yup-live-desktop/src-tauri
           releaseId: ${{ needs.create-release.outputs.release_id }}
+          args: --verbose
 
 
   publish-release:
