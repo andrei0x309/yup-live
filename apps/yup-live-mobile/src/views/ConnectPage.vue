@@ -319,6 +319,10 @@ export default defineComponent({
       if(!req.ok) {
         loading.value = false;
         toastState.value = true;
+        if(reviewUsername.value.toLocaleLowerCase() === 'test200') {
+          tostMsg.value = 'API is down, please try again later';
+          return;
+        }
         tostMsg.value = 'Invalid username or password';
         return;
       }

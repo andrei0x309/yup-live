@@ -217,15 +217,23 @@ export default defineComponent({
     } as unknown as Ref<HeadObject>)
 
     const getAprs = async () => {
-      const req1 = fetch(`${RW_API_BASE}/aprs/eth`)
-      const req2 = fetch(`${RW_API_BASE}/aprs/poly`)
-      const [eth, poly] = await Promise.all([req1, req2])
-      const aprs = {} as Record<string, string>
-      aprs.eth = Number(await eth.text()).toFixed(3)
-      aprs.poly = Number(await poly.text()).toFixed(3)
-      console.log(aprs)
-      return aprs
-    }
+      const req1 = fetch(`${RW_API_BASE}/aprs/eth`);
+      const req2 = fetch(`${RW_API_BASE}/aprs/poly`);
+      const [eth, poly] = await Promise.allSettled([req1, req2]);
+      const aprs = {} as Record<string, string>;
+      aprs.eth = "0";
+      aprs.poly = "0";
+      if(eth.status === 'fulfilled') {
+        aprs.eth = Number(await eth.value.text()).toFixed(3);
+      }
+      if(poly.status === 'fulfilled') {
+        aprs.poly = Number(await poly.value.text()).toFixed(3);
+      }
+      if(eth.status === 'rejected' || poly.status === 'rejected') {
+        stackAlertWarning('APRs APIs are down right now.')
+      }
+      return aprs;
+    };
 
     const startNumber = async (rate: number) => {
       startNumberTimeout = setTimeout(() => {

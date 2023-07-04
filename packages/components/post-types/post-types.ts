@@ -7,5 +7,6 @@ export const postTypesPromises = {
   preloadPoap: import(`./poap.vue`),
   preloadMirror: import(`./mirror.vue`),
   preloadSnapshot: import(`./snapshot.vue`),
-  preloadErc721: import(`./erc721.vue`)
+  preloadErc721: import(`./erc721.vue`),
+  preloadBsky: import(`./bsky.vue`),
 }

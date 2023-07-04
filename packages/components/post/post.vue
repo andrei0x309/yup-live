@@ -268,6 +268,11 @@ export default defineComponent({
               processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
               postTypeCom.value = (await props.postTypesPromises.preloadLens).default;
               break;
+            case "bsky":
+              processedPost.web3Preview = props.post.web3Preview;
+              processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
+              postTypeCom.value = (await props.postTypesPromises.preloadBsky).default;
+              break;
             case "erc721":
               processedPost.web3Preview = props.post.web3Preview;
               processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
@@ -301,14 +306,11 @@ export default defineComponent({
       processPost(props.post, processedPost, cloneWeights, postShareInfo);
     });
 
+    const tags = ['mirror', 'poap', 'farcaster', 'lens', 'snapshot', 'erc721', 'bsky']
+
     const checkPostType = async (post: { url: string; tag: string }) => {
-      if (post.tag === "mirror") return "mirror";
-      if (post.tag === "poap") return "poap";
-      if (post.tag === "farcaster") return "farcaster";
-      if (post.tag === "lens") return "lens";
-      if (post.tag === "snapshot") return "snapshot";
       if (post.tag === "twitter") return "tweet";
-      if (post.tag === "erc721") return "erc721";
+      if(tags.includes(post.tag)) return post.tag
       if (post?.url.match(/https?:\/\/(mobile.|www.)?twitter\.com\/.*?status/i))
         return "tweet";
       if (post?.url.startsWith("farcaster://")) return "farcaster";

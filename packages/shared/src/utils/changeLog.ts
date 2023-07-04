@@ -1,5 +1,14 @@
 export const recentChanges = [
     {
+        date: "4 July - 2023",
+        title: "Changes",
+        changes: [
+            'added basic support for viewing blue sky post type',
+            'added review login additional check',
+            'added check in case APRs api are not available',
+        ],
+    },
+    {
         date: "6 May - 2023",
         title: "Changes",
         changes: [
