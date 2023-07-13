@@ -316,7 +316,8 @@ export const getConnected = async (store: IMainStore, account: string) => {
       connected = {
         farcaster: false,
         twitter: false,
-        lens: false
+        lens: false,
+        bsky: false
       }
     }
   }
@@ -324,12 +325,13 @@ export const getConnected = async (store: IMainStore, account: string) => {
   return connected
 }
 
-export const setConnected = (store: IMainStore, platform: 'farcaster' | 'twitter' | 'lens', value: boolean) => {
+export const setConnected = (store: IMainStore, platform: 'farcaster' | 'twitter' | 'lens' | 'bsky', value: boolean) => {
   if (!store.userData.connected) {
     store.userData.connected = {
       farcaster: false,
       twitter: false,
-      lens: false
+      lens: false,
+      bsky: false
     }
   }
   store.userData.connected[platform] = value

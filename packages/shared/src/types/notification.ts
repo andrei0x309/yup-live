@@ -1,21 +1,20 @@
 export interface NotifType {
     _id: string
-    action: string
-    voter: string
-    VoterHandle: string
+    eventType: string
     count: number
-    like: boolean
-    quantity?: number
-    post: {
-        postid: string
-        url: string
+    senderYupScore: number
+    platform: string
+    meta: {
+        like?: boolean
+        quantity?: number
+        postid?: string
+        url?: string
     }
     image: string
     createdAt: string
-    EVMRecipient: {
+    senders: {
+        _id: string
         handle: string
         avatar: string
-        address: string
-    }
-    notifications: NotifType[]
+    }[]
 }

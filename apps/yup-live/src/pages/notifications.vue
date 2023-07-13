@@ -15,7 +15,7 @@
         <o-tab-item value="0" label="ALL">
           <DangLoader v-if="loading" class="-mt-4" />
           <div v-if="!loading && !notifications?.length">
-            <p class="text-center text-[1.4rem] mt-10">No notifications exists</p>
+            <p class="text-center text-[1.4rem] mt-10">Sorry! there are no notifications :(, do some stuff and check later</p>
           </div>
           <div
             v-for="notification of notifications"
@@ -23,14 +23,14 @@
             :key="notification._id"
             class="shadow-md p-4 flex flex-row rounded-lg relative notComp"
           >
-            <template v-if="notification.action === 'vote'">
+            <template v-if="notification.eventType === 'vote'">
               <VoteNotification :notification="notification" />
             </template>
-            <template v-else-if="notification.action === 'reward'">
+            <template v-else-if="notification.eventType === 'reward'">
               <RewardNotification :notification="notification" />
             </template>
-            <template v-else-if="['follow', 'unfollow'].includes(notification.action)">
-              <FollowUnfollowNotification :notification="notification" />
+            <template v-else-if="notification.eventType === 'follow'">
+              <FollowNotification :notification="notification" />
             </template>
           </div>
         </o-tab-item>
@@ -38,7 +38,7 @@
         <o-tab-item value="1" label="Votes">
           <DangLoader v-if="loading" class="-mt-4" />
           <div v-if="!loading && !notifications?.length">
-            <p class="text-center text-[1.4rem] mt-10">No notifications exists</p>
+            <p class="text-center text-[1.4rem] mt-10">Sorry! there are no notifications :(, do some stuff and check later</p>
           </div>
           <div
             v-for="notification of notifications"
@@ -52,7 +52,7 @@
         <o-tab-item value="2" label="Rewards">
           <DangLoader v-if="loading" class="-mt-4" />
           <div v-if="!loading && !notifications?.length">
-            <p class="text-center text-[1.4rem] mt-10">No notifications exists</p>
+            <p class="text-center text-[1.4rem] mt-10">Sorry! there are no notifications :(, do some stuff and check later</p>
           </div>
           <div
             v-for="notification of notifications"
@@ -66,7 +66,9 @@
         <o-tab-item value="3" label="Followers">
           <DangLoader v-if="loading" class="-mt-4" />
           <div v-if="!loading && !notifications?.length">
-            <p class="text-center text-[1.4rem] mt-10">No followers notifications exists</p>
+            <p class="text-center text-[1.4rem] mt-10">
+              No followers notifications exists
+            </p>
           </div>
           <div
             v-for="notification of notifications"
@@ -74,7 +76,7 @@
             :key="notification._id"
             class="shadow-md p-4 flex flex-row rounded-lg relative notComp"
           >
-            <FollowUnfollowNotification :notification="notification" />
+            <FollowNotification :notification="notification" />
           </div>
         </o-tab-item>
       </o-tabs>
@@ -100,90 +102,99 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref, ref, watch } from 'vue'
-import { useHead, HeadObject } from '@vueuse/head'
-import DangLoader from 'components/vote-list/loader.vue'
-import { useRoute } from 'vue-router'
-import { getNotifications } from 'shared/src/utils/notifications'
-import type { NotifType } from 'shared/src/types/notification'
+import {
+  onMounted,
+  defineComponent,
+  reactive,
+  computed,
+  onUnmounted,
+  Ref,
+  ref,
+  watch,
+} from "vue";
+import { useHead, HeadObject } from "@vueuse/head";
+import DangLoader from "components/vote-list/loader.vue";
+import { useRoute } from "vue-router";
+import { getNotifications } from "shared/src/utils/notifications";
+import type { NotifType } from "shared/src/types/notification";
 
-import VoteNotification from '@/components/content/notifications/vote.vue'
-import RewardNotification from '@/components/content/notifications/reward.vue'
-import FollowUnfollowNotification from '@/components/content/notifications/followUnfollow.vue'
+import VoteNotification from "components/notifications/vote.vue";
+import RewardNotification from  "components/notifications/reward.vue";
+import FollowNotification from "components/notifications/follow.vue";
 
 export default defineComponent({
-  name: 'Notifications',
+  name: "Notifications",
   components: {
     DangLoader,
     VoteNotification,
     RewardNotification,
-    FollowUnfollowNotification
+    FollowNotification,
   },
   setup() {
-    const loading = ref(false)
+    const loading = ref(false);
     // const search = ref("");
     // const store = useMainStore();
 
-    const route = useRoute()
-    const userId = route.params.userId as string
-    const notifications = ref([]) as Ref<NotifType[]>
-    const activeTab = ref('0') as Ref<string>
+    const route = useRoute();
+    const address = route.params.address as string;
+    const notifications = ref([]) as Ref<NotifType[]>;
+    const activeTab = ref("0") as Ref<string>;
 
     const siteData = reactive({
       title: `YUP Live view your notifications`,
-      description: `YUP Live view notifications about votes & rewards`
-    })
+      description: `YUP Live view notifications about votes & rewards`,
+    });
 
-    useHead({
+    useHead(({
       title: computed(() => siteData.title),
       description: computed(() => siteData.description),
       meta: [
         {
-          name: 'og:image',
-          content: `/share/yup-live-ogs/og-yup-live-default.png`
+          name: "og:image",
+          content: `/share/yup-live-ogs/og-yup-live-default.png`,
         },
         {
-          name: 'description',
-          content: computed(() => siteData.description)
+          name: "description",
+          content: computed(() => siteData.description),
         },
         {
-          name: 'og:type',
-          content: 'website'
+          name: "og:type",
+          content: "website",
         },
         {
-          name: 'og:title',
-          content: computed(() => siteData.title)
+          name: "og:title",
+          content: computed(() => siteData.title),
         },
         {
-          name: 'og:description',
-          content: computed(() => siteData.description)
+          name: "og:description",
+          content: computed(() => siteData.description),
         },
         {
-          name: 'og:url',
-          content: computed(() => route.fullPath)
+          name: "og:url",
+          content: computed(() => route.fullPath),
         },
         {
-          name: 'twitter:card',
-          content: 'summary_large_image'
+          name: "twitter:card",
+          content: "summary_large_image",
         },
         {
-          name: 'twitter:url',
-          content: computed(() => route.fullPath)
+          name: "twitter:url",
+          content: computed(() => route.fullPath),
         },
         {
-          name: 'twitter:title',
-          content: computed(() => siteData.title)
+          name: "twitter:title",
+          content: computed(() => siteData.title),
         },
         {
-          name: 'twitter:description',
-          content: computed(() => siteData.description)
-        }
-      ]
-    } as unknown as Ref<HeadObject>)
+          name: "twitter:description",
+          content: computed(() => siteData.description),
+        },
+      ],
+    } as unknown) as Ref<HeadObject>);
 
     onUnmounted(() => {
       // do nothing
-    })
+    });
 
     // const checkAccount = async () => {
     //   const reqAcc = await fetch(`${API_BASE}/accounts/${search.value}`, {
@@ -204,41 +215,47 @@ export default defineComponent({
     // };
 
     const getByActiveTab = async () => {
-      if (activeTab.value === '0') {
-        notifications.value = (await getNotifications({ userId, type: null })).reverse()
-      } else if (activeTab.value === '1') {
-        notifications.value = (await getNotifications({ userId, type: ['vote'] })).reverse()
-      } else if (activeTab.value === '2') {
-        notifications.value = (await getNotifications({ userId, type: ['reward'] })).reverse()
-      } else if (activeTab.value === '3') {
-        notifications.value = (await getNotifications({ userId, type: ['follow, unfollow'] })).reverse()
+      if (activeTab.value === "0") {
+        notifications.value = (await getNotifications({ address, type: null }));
+      } else if (activeTab.value === "1") {
+        notifications.value = (
+          await getNotifications({ address, type: ["vote"] })
+        );
+      } else if (activeTab.value === "2") {
+        notifications.value = (
+          await getNotifications({ address, type: ["reward"] })
+        );
+      } else if (activeTab.value === "3") {
+        notifications.value = (
+          await getNotifications({ address, type: ["follow"] })
+        );
       }
-    }
+    };
 
     watch(
       () => activeTab.value,
       async () => {
-        loading.value = true
-        await getByActiveTab()
-        console.log(notifications.value)
-        loading.value = false
+        loading.value = true;
+        await getByActiveTab();
+        console.log(notifications.value);
+        loading.value = false;
       }
-    )
+    );
 
     onMounted(async () => {
-      loading.value = true
-      await getByActiveTab()
-      loading.value = false
-    })
+      loading.value = true;
+      await getByActiveTab();
+      loading.value = false;
+    });
 
     return {
       notifications,
-      userId,
+      address,
       loading,
-      activeTab
-    }
-  }
-})
+      activeTab,
+    };
+  },
+});
 </script>
 
 <style lang="scss">

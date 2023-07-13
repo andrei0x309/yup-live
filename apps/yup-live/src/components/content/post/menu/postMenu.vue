@@ -13,6 +13,7 @@
           <li v-if="refHasVote" class="pt-1 cursor-pointer" @click="deleteVote">
             <DeleteIcon :class="`w-5 inline -mt-1 mr-1 ${delLoading ? 'rotate' : ''}`" />Delete Vote
           </li>
+          <li v-if="isOwner"  class="pt-1 cursor-pointer"  @click="delPost" > <DeleteIcon :class="`w-5 inline -mt-1 mr-1 ${delLoadingPost ? 'rotate' : ''}`" />Delete Post</li>
           <li class="pt-1 cursor-pointer" @click="sharePost"><ShareIcon class="w-5 inline -mt-1 mr-1" />Share Post</li>
           <li class="pt-1 cursor-pointer" @click="goToPost"><GoToIcon class="w-5 inline -mt-1 mr-1" />Post Details</li>
           <li class="pt-1 cursor-pointer" @click="refreshPreview"><RetryIcon class="w-6 -ml-1 inline -mt-1 mr-1" />Refresh Data</li>
@@ -84,7 +85,7 @@ import type { Vote } from 'shared/src/types/vote'
 import { report } from 'shared/src/utils/requests/report'
 import { reasons, reportType } from 'shared/src/types/report'
 import { OTooltip } from '@oruga-ui/oruga-next'
-
+import { deletePost } from 'shared/src/utils/requests/web3-posting'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE
 
@@ -120,6 +121,11 @@ export default defineComponent({
     hasVote: {
       type: Promise as PropType<Promise<Vote[]>>,
       required: true
+    },
+    isOwner: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   emits: ['update:vote', 'deletedvote'],
@@ -135,6 +141,7 @@ export default defineComponent({
     const voters = ref([]) as Ref<Voter[]>
     const menuOpen = ref(false)
     const delLoading = ref(false)
+    const delLoadingPost = ref(false)
     const refHasVote = ref(false)
     const vote = ref({}) as unknown as Ref<Vote>
     const reportReason = ref(reasons[0])
@@ -220,6 +227,36 @@ export default defineComponent({
         } catch (error) {
           console.log('error', error)
           stackAlertError('The vote could not be deleted!')
+        }
+
+        menuOpen.value = false
+      } else {
+        openConnectModal(store)
+      }
+    }
+
+    const delPost = async () => {
+      if (isAuth.value) {
+        try {
+          delLoadingPost.value = true
+
+
+          const delReq = await deletePost({
+            postid: props.postId,
+            apiBase: API_BASE,
+            store
+          })
+          if (delReq) {
+            store.deletePost = props.postId
+            ctx.emit('update:vote', Promise.resolve([]))
+            ctx.emit('deletedvote')
+          } else {
+            stackAlertError('There was an error and it post was not removed, please try to re-login.')
+          }
+          delLoadingPost.value = false
+        } catch (error) {
+          console.log('error', error)
+          stackAlertError('The post could not be deleted!')
         }
 
         menuOpen.value = false
@@ -339,7 +376,9 @@ export default defineComponent({
       reportReason,
       reasons,
       reportText,
-      isReporting
+      isReporting,
+      delLoadingPost,
+      delPost
     }
   }
 })

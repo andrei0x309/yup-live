@@ -3,43 +3,41 @@
   <div class="flex w-full">
     <div class="flex flex-col">
       <p class="ml-4 mt-1 pb-4 flex items-center">
-        <template v-if="notification.like">
+        <template v-if="notification.meta.like">
           <ThumbsUp class="w-6 opacity-70" :isSolid="true" />
         </template>
         <template v-else>
           <ThumbsDown class="w-6 opacity-70" :isSolid="true" />
         </template>
       </p>
-      <ImagePreview
-        :source="notification.image"
-        :noPreviewParagraph="false"
-        :imgClass="`max-h-16 max-w-16 imgNotRadius`"
-        :previewClass="`max-h-16 max-w-16 imgNotRadius`"
-        :noPreviewClass="`max-h-16 max-w-16 min-h-16 min-max-w-16 imgNotRadius`"
-      />
+      <div>on: 
+      <component
+            :is="icons[notification.platform as typeof platforms[number]]"
+            class="inline-block w-8 ml-auto" />
+          </div>
     </div>
     <div class="flex flex-col w-full">
       <div class="flex">
         <p class="ml-3 flex items-center pb-2">
           <b class="mr-2 opacity-60">by</b>
-          <template v-if="notification?.notifications?.length > 1">
-            <template v-if="notification.notifications.length <= 3">
-              <template v-for="(not, index) of notification.notifications" :key="index">
-                <router-link :to="`/profile/${not.voter}`">{{
-                  not.VoterHandle
+          <template v-if="notification?.senders?.length > 1">
+            <template v-if="notification?.senders?.length <= 3">
+              <template v-for="(not, index) of notification.senders" :key="index">
+                <router-link :to="`/web3-profile/${not?._id}`">{{
+                  not.handle
                 }}</router-link>
-                <template v-if="index !== notification.notifications.length - 1">
+                <template v-if="index !== notification?.senders?.length - 1">
                   <span class="opacity-60">,&nbsp;</span>
                 </template>
               </template>
             </template>
             <template v-else>
               <template
-                v-for="(not, index) of notification.notifications.slice(0, 3)"
+                v-for="(not, index) of notification.senders.slice(0, 3)"
                 :key="index"
               >
-                <router-link :to="`/profile/${not.voter}`">{{
-                  not.VoterHandle
+                <router-link :to="`/web3-profile/${not?._id}`">{{
+                  not.handle
                 }}</router-link>
                 <template v-if="index !== 2">
                   <span class="opacity-60">,&nbsp;</span>
@@ -52,8 +50,8 @@
               </template>
             </template>
           </template>
-          <router-link v-else :to="`/profile/${notification.voter}`">{{
-            notification.VoterHandle
+          <router-link v-else :to="`/web3-profile/${notification.senders[0]?._id}`">{{
+            notification.senders[0]?.handle
           }}</router-link>
         </p>
       </div>
@@ -63,8 +61,8 @@
           style="writing-mode: vertical-rl; text-orientation: upright"
           >URL</b
         ><span style="font-size: 0.78rem"
-          ><router-link :to="`/post/${notification?.post?.postid}`">{{
-            notification?.post?.url
+          ><router-link :to="`/post/${notification?.meta?.postid}`">{{
+            notification?.meta?.url
           }}</router-link></span
         >
       </p>
@@ -83,6 +81,19 @@ import ThumbsUp from "icons/src/thumbsUp.vue";
 import ImagePreview from "components/post/imagePreview.vue";
 import ClockIcon from "icons/src/clock.vue";
 import type { NotifType } from "shared/src/types/notification";
+import ProfileLensIcon from "icons/src/profileLens.vue";
+import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
+import ProfileYupIcon from "icons/src/profileYup.vue";
+import ProfileBlueSkyIcon from "icons/src/bsky.vue";
+
+const platforms = [ 'lens', 'farcaster', 'yup', 'bsky'] as const
+
+const icons = {
+  lens: ProfileLensIcon,
+  farcaster: ProfileFarcasterIcon,
+  yup: ProfileYupIcon,
+  bsky: ProfileBlueSkyIcon,
+} as const
 
 export default defineComponent({
   name: "VoteNotification",
@@ -101,6 +112,8 @@ export default defineComponent({
   setup() {
     return {
       timeAgo,
+      platforms,
+      icons
     };
   },
 });

@@ -119,7 +119,7 @@ export default defineComponent({
       ['dailyhits', 'Daily Hits'],
       ['farcaster', 'Farcaster'],
       ['lens', 'Lens'],
-      ['crypto', 'Crypto'], 
+      ['bsky', 'BlueSky'], 
       ['nfts', 'NFTs' ],
       ['mirror', 'Mirror' ],
       ['twitter', 'Twitter' ],
@@ -154,7 +154,7 @@ export default defineComponent({
       })
     }
       const data = await res.json()
-      return data
+      return ((data ?? []) as Array<IPost>).filter(p => p?._id?.postid)
      } catch {
       return []
     }

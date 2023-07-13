@@ -9,6 +9,7 @@ export interface IStoreUserData {
     farcaster: boolean
     twitter: boolean
     lens: boolean
+    bsky: boolean
   }
 }
 

@@ -234,6 +234,8 @@ import { storage } from "@/utils/storage";
 import CustomButton from "@/components/misc/button-connect-page.vue";
 import { useRouter } from "vue-router";
 import HeaderBar from "@/components/template/header-bar.vue";
+import { getPlatforms } from '@ionic/vue';
+
 
 export default defineComponent({
   name: "ConnectPage",
@@ -412,13 +414,15 @@ export default defineComponent({
       loading.value = true;
       const providerOptions = (await import("shared/src/utils/evm")).providerOptions;
       const Web3Modal = (await import("web3modal")).default;
-      web3Modal.value = new Web3Modal({
+      const options = {
         network: "matic", // optional
         cacheProvider: false, // optional
         providerOptions, // required
         theme: mainStore.theme,
-        disableInjectedProvider: false,
-      });
+        disableInjectedProvider: (getPlatforms() ?? []).includes("mobile"),
+      }
+
+      web3Modal.value = new Web3Modal(options);
       loading.value = false;
     });
 

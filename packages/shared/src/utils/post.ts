@@ -24,7 +24,7 @@ export const processPost = (post: IPost, processedPost: IProcessedPost,
         const videoExt = ['.mp4', '.webm', '.ogg', '.avi']
         processedPost.isVideo = videoExt.some((ext) => processedPost.image.includes(ext))
     }
-    processedPost.createdAt = timeAgo(post.createdAt ?? `${new Date().getTime() - 3e6 * Math.random()}`)
+    processedPost.createdAt = timeAgo(post.createdAt ?? post?.web3Preview?.createdAt ?? `${new Date().getTime() - 3e6 * Math.random()}`)
     processedPost.url = post.url
     processedPost.positiveWeight = post.rawPositiveWeight ?? post.positiveWeight ?? 0
     processedPost.negativeWeight = post.rawNegativeWeight ?? post.negativeWeight ?? 0

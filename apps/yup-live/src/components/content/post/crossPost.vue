@@ -94,8 +94,9 @@ import ImageUploadIcon from "icons/src/imageUpload.vue";
 import { mediaUpload, submitPost } from 'shared/src/utils/requests/web3-posting'
 import DeleteIcon from "icons/src/delete.vue";
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+import { getMaxCharCount } from "shared/src/utils/requests/crossPost";
 
-const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens"];
+const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens", "bsky"];
 
 export default defineComponent({
   name: "CrossPost",
@@ -146,25 +147,21 @@ export default defineComponent({
     const postErrorKey = ref(0);
     const isSendPost = ref(false);
     const store = useMainStore();
-    const postPlatforms = ref(props.platforms);
+    const userPlatforms = PLATFORMS.filter((p) =>
+      store.userData?.connected?.[p]
+    );
+    const postPlatforms = ref(props.platforms.filter((p) => userPlatforms.includes(p)));
     const isFileUploading = ref(false);
     const fileInput = ref<HTMLInputElement | null>(null);
     const images = ref<{
       twiter: string,
       farcaster: string,
       lens: string,
+      bsky: string,
       img : string
       id: string
     }[]>([]);
-    const userPlatforms = PLATFORMS.filter((p) =>
-      store.userData?.connected?.[p]
-    );
 
-    const getMaxCharCount = (platforms: TPlatform[]) => {
-        if(platforms.includes('twitter')) return 280
-        if(platforms.includes('farcaster')) return 320
-        return 1000
-    }
 
     const maxCharCount = ref(getMaxCharCount(postPlatforms.value))
     // const mediaPics = ref<string[]>([]);
@@ -172,6 +169,7 @@ export default defineComponent({
     watch(
       () => postPlatforms.value,
       (newVal) => {
+        console.log(newVal,  getMaxCharCount(newVal))
         maxCharCount.value = getMaxCharCount(newVal)
       }
     );
@@ -221,7 +219,7 @@ const fileToBase64 = (file: File) => {
         showError("Post must have some content");
         return;
       } else if (postContent.value.length > maxCharCount.value) {
-        showError(`Cast cannot be longer than ${maxCharCount.value} characters`);
+        showError(`Post cannot be longer than ${maxCharCount.value} characters`);
         return;
       }
       isSendPost.value = true;
@@ -234,6 +232,7 @@ const fileToBase64 = (file: File) => {
           if(image.farcaster) ret['farcaster'] = image.farcaster
           if(image.twitter) ret['twitter'] = image.twitter
           if(image.lens) ret['lens'] = image.lens
+          if(image.bsky) ret['bsky'] = image.bsky
           return ret
         }),
       } as ISendPostData;

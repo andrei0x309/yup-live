@@ -1,4 +1,4 @@
-export type TPlatform = 'farcaster' | 'twitter' | 'lens'
+export type TPlatform = 'farcaster' | 'twitter' | 'lens' | 'bsky'
 
 export type TMedia = {
     faracster: string

@@ -35,13 +35,13 @@ export default defineComponent({
   components: {},
   setup() {
     const store = useMainStore()
-    const user = ref(store.userData.account)
+    const user = ref(store.userData.address)
     const hasNewNot = ref(false)
     const notDisplay = ref('')
     let timerPromise: CancelablePromise | null = null
 
     const checkNot = () => {
-      getNotificationsCount(store.userData.account).then(async result => {
+      getNotificationsCount(store.userData.address).then(async result => {
           hasNewNot.value = result.hasNewNot
           notDisplay.value = result.notDisplay
           timerPromise = new CancelablePromise(wait(10000))

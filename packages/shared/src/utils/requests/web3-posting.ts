@@ -42,3 +42,25 @@ export const submitPost = async ({
         return null
     }
 }
+
+export const deletePost = async ({
+    store,
+    apiBase,
+    postid
+}: {
+    store: IMainStore
+    apiBase: string
+    postid: string
+}) => {
+    try {
+        const req = await fetchWAuth(store, `${apiBase}/web3-post`, {
+            method: 'DELETE',
+            body: JSON.stringify({ postid })
+        })
+        if (!req.ok) throw new Error('Error deleting post' + req.statusText)
+        return await req.json()
+    } catch (e) {
+        console.error('Delete Post: ', e)
+        return null
+    }
+}

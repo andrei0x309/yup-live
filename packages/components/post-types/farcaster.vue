@@ -129,7 +129,11 @@ export default defineComponent({
           }
         }
       })
-      return retArr
+      const filtredArr = [] as mediaType[]
+      retArr.forEach((el) => {
+        filtredArr.findIndex((e) => e.url === el.url) === -1 ? filtredArr.push(el) : null
+      })
+      return filtredArr
     }
 
     const parseMediaOpenGraph = (mediaObject: { url: string; image: string }[]) => {

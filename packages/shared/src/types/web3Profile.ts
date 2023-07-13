@@ -21,6 +21,11 @@ export interface IWeb3Profile {
         avatar: string
         profileId: string
     }
+    bsky?: {
+        did: string
+        handle: string
+        avatar: string
+    }
     yupScore?: number
     avatar?: string
     handle?: string

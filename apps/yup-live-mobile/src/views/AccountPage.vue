@@ -189,7 +189,7 @@
       <CrossPost
     :key="`${openPostModal}k`"
     :openModal="openPostModal"
-    :platforms="['farcaster', 'lens', 'twitter']"
+    :platforms="['farcaster', 'lens', 'twitter', 'bsky']"
     @update:open-modal="(v: boolean) => (openPostModal = v)"
     @success="postSent"
   />

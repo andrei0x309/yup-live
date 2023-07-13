@@ -5,8 +5,8 @@ import type { Ref } from 'vue'
 import { ref } from 'vue'
 import { signCanonChallenge } from '../evmTxs'
 import { getFidByToken, getFidByAddress } from 'shared/src/utils/farcaster';
-import { FCSendCast } from "shared/src/utils/farcaster";
-import { digestSha256 } from "shared/src/utils/misc";
+// import { FCSendCast } from "shared/src/utils/farcaster";
+// import { digestSha256 } from "shared/src/utils/misc";
 import type { IuserProvider, Iethers, IethersLib, Iweb3Modal } from 'shared/src/types/evm'
 import { wait } from '../time'
 

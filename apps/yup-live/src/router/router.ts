@@ -138,7 +138,7 @@ const routes = [
     component: () => import('@/pages/web3Profile.vue')
   },
   {
-    path: '/notifications/:userId',
+    path: '/notifications/:address',
     name: 'Notifications',
     component: () => import('@/pages/notifications.vue')
   },

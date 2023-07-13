@@ -23,14 +23,14 @@
             :key="notification._id"
             class="shadow-md p-4 flex flex-row rounded-lg relative notComp"
           >
-            <template v-if="notification.action === 'vote'">
+            <template v-if="notification.eventType === 'vote'">
               <VoteNotification :notification="notification" />
             </template>
-            <template v-else-if="notification.action === 'reward'">
+            <template v-else-if="notification.eventType === 'reward'">
               <RewardNotification :notification="notification" />
             </template>
-            <template v-else-if="['follow', 'unfollow'].includes(notification.action)">
-              <FollowUnfollowNotification :notification="notification" />
+            <template v-else-if="notification.eventType === 'follow'">
+              <FollowNotification :notification="notification" />
             </template>
           </div>
         </template>
@@ -41,7 +41,7 @@
           </ion-card-header>
 
           <ion-card-content class="ion-justify-content-center">
-            <p class="ion-padding">No notifications were found.</p>
+            <p class="ion-padding">Sorry! there are no notifications :(, do some stuff and check later</p>
           </ion-card-content>
         </ion-card>
         </template>
@@ -77,18 +77,18 @@ import {
   IonLoading,
   onIonViewDidEnter
 } from "@ionic/vue";
-import { defineComponent, ref, Ref, markRaw } from "vue";
+import { defineComponent, ref, Ref } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 import { getNotifications, clearNotifications } from "shared/src/utils/notifications"
 import { useMainStore } from "@/store/main";
 import type { NotifType } from 'shared/src/types/notification'
 import { timeAgo } from "shared/src/utils/time"
 
-import TwitterIcon from 'icons/src/twitter.vue'
+// import TwitterIcon from 'icons/src/twitter.vue'
 
-import VoteNotification from '@/components/notifications/vote.vue'
-import RewardNotification from '@/components/notifications/reward.vue'
-import FollowUnfollowNotification from '@/components/notifications/followUnfollow.vue'
+import VoteNotification from "components/notifications/vote.vue";
+import RewardNotification from  "components/notifications/reward.vue";
+import FollowNotification from "components/notifications/follow.vue";
 
 
 export default defineComponent({
@@ -107,7 +107,7 @@ export default defineComponent({
   IonLoading,
   VoteNotification,
   RewardNotification,
-  FollowUnfollowNotification
+  FollowNotification
   },
   setup () {
     const store = useMainStore()
@@ -115,28 +115,28 @@ export default defineComponent({
     const notifications = ref([]) as Ref<NotifType[]>
     const currentSegment = ref("all");
 
-    const addTwitterIcon =  (n:any) => {
-            if(n?.post?.url?.match(/.*?twitter.com\/.*/)) {
-              n.image = markRaw(TwitterIcon)
-            }
-            if(!n?.image) {
-              n.image =''
-            }
-            return n
-          }
+    // const addTwitterIcon =  (n:any) => {
+    //         if(n?.post?.url?.match(/.*?twitter.com\/.*/)) {
+    //           n.image = markRaw(TwitterIcon)
+    //         }
+    //         if(!n?.image) {
+    //           n.image =''
+    //         }
+    //         return n
+    //       }
 
     const segmentChange = async (value: any) => {
       currentSegment.value = value.detail.value;
       if(currentSegment.value === "all") {
-        notifications.value = (await getNotifications({ userId: store.userData.account, type: null}))?.reverse().map(addTwitterIcon) ?? []
+        notifications.value = (await getNotifications({ address: store.userData.address, type: null})) ?? []
       } else {
-        notifications.value = (await getNotifications({ userId: store.userData.account, type: ['reward']}))?.reverse() ?? []
+        notifications.value = (await getNotifications({ address: store.userData.address, type: ['reward']}))?? []
       }
     };
 
     onIonViewDidEnter(async () => {
       loading.value = true
-      notifications.value = (await getNotifications({ userId: store.userData.account, type: null}))?.reverse().map(addTwitterIcon) ?? []
+      notifications.value = (await getNotifications({ address: store.userData.address, type: null})) ?? []
       if(notifications.value.length && notifications.value.some((n:any) => n?.seen === false)) {
         clearNotifications(store)
        }

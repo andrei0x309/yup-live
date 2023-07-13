@@ -112,8 +112,9 @@ import {
   IonButton,
   IonCheckbox
  } from "@ionic/vue";
+ import { getMaxCharCount } from "shared/src/utils/requests/crossPost";
 
-const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens"];
+const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens", 'bsky'];
 
 export default defineComponent({
   name: "CrossPost",
@@ -172,7 +173,10 @@ export default defineComponent({
     const postErrorKey = ref(0);
     const isSendPost = ref(false);
     const store = useMainStore();
-    const postPlatforms = ref(props.platforms);
+    const userPlatforms = PLATFORMS.filter((p) =>
+      store.userData?.connected?.[p]
+    );
+    const postPlatforms = ref(props.platforms.filter((p) => userPlatforms.includes(p)));
     const isFileUploading = ref(false);
     const fileInput = ref<HTMLInputElement | null>(null);
     const images = ref<{
@@ -182,15 +186,9 @@ export default defineComponent({
       img : string
       id: string
     }[]>([]);
-    const userPlatforms = PLATFORMS.filter((p) =>
-      store.userData?.connected?.[p]
-    );
 
-    const getMaxCharCount = (platforms: TPlatform[]) => {
-        if(platforms.includes('twitter')) return 280
-        if(platforms.includes('farcaster')) return 320
-        return 1000
-    }
+
+ 
 
     const maxCharCount = ref(getMaxCharCount(postPlatforms.value))
     // const mediaPics = ref<string[]>([]);

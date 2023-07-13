@@ -1,5 +1,23 @@
 export const recentChanges = [
     {
+        date: "14 July - 2023",
+        title: "Changes",
+        changes: [
+            'migrate notification system to web3-notifications',
+            'increase precision with 2 decimals to show correct token price',
+            'made notification components shared between yup-live and yup-live-mobile',
+            'replaced crypto feed with blue sky feed in mobile and web versions',
+            'released new web, desktop and mobile version',
+            'added support for connecting and disconnecting to blueSky on yup-live web',
+            'added additional createdAt check since some posts are missing old field',
+            'added bsky handle in web3Profile',
+            'added support for connecting and disconnecting to blue sky on yup live mobile',
+            'added support on yup live web to delete your own posts',
+            'fix: prevent double images for farcaster posts',
+            'added check in feed if posts are null since was deleted on backend'
+        ],
+    },
+    {
         date: "4 July - 2023",
         title: "Changes",
         changes: [

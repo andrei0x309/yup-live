@@ -33,7 +33,7 @@
           >
         </div>
         <div v-if="lWeb3Profile?.twitter?.handle">
-          <TwitterIcon class="mr-2 w-5 inline-block" /> {{ lWeb3Profile.twitter.handle }}
+          <TwitterIcon class="mr-2 w-4 inline-block" /> {{ lWeb3Profile.twitter.handle }}
         </div>
         <div v-if="lWeb3Profile?.farcaster?.handle">
           <ProfileFarcasterIcon class="mr-2 w-4 inline-block" />
@@ -41,6 +41,10 @@
         </div>
         <div v-if="lWeb3Profile?.lens?.handle">
           <ProfileLensIcon class="mr-2 w-4 inline-block" /> {{ lWeb3Profile.lens.handle }}
+        </div>
+        <div v-if="lWeb3Profile?.bsky?.handle">
+          <ProfileBskyIcon class="-ml-1 w-6 inline-block" />
+          {{ lWeb3Profile?.bsky?.handle }}
         </div>
 
         <FollowUnfollwBtn
@@ -67,12 +71,14 @@ import ProfileLensIcon from "icons/src/profileLens.vue";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import ProfileEthIcon from "icons/src/profileEth.vue";
 import ProfileYupIcon from "icons/src/profileYup.vue";
+import ProfileBskyIcon from "icons/src/bskyClouds.vue";
 import TwitterIcon from "icons/src/twitter.vue";
 import ScoreIcon from "icons/src/score.vue";
 import FollowersIcon from "icons/src/followers.vue";
 import FollowUnfollwBtn from "components/profile/followUnfollowBtn.vue";
 import type { IDepsWeb3Profile  } from 'shared/src/types/web3/web3Deps'
 import { fetchWeb3Profile } from 'shared/src/utils/requests/web3Profiles'
+
 
 export default defineComponent({
   name: "Web3ProfileCard",
@@ -86,6 +92,7 @@ export default defineComponent({
     ScoreIcon,
     FollowersIcon,
     FollowUnfollwBtn,
+    ProfileBskyIcon
   },
   props: {
     web3Profile: {

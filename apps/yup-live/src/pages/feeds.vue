@@ -7,7 +7,7 @@
             <router-link :class="activeFeed === feeds[0] ? 'navActive' : ''" :to="`/feeds/${feeds[0]}${userId ? '?userId='+userId : ''}`">Daily Hits</router-link>
           </li>
           <li>
-            <router-link :class="activeFeed === feeds[1] ? 'navActive' : ''" :to="`/feeds/${feeds[1]}${userId ? '?userId='+userId : ''}`">Crypto</router-link>
+            <router-link :class="activeFeed === feeds[1] ? 'navActive' : ''" :to="`/feeds/${feeds[1]}${userId ? '?userId='+userId : ''}`">BlueSky</router-link>
           </li>
           <li>
             <router-link :class="activeFeed === feeds[2] ? 'navActive' : ''" :to="`/feeds/${feeds[2]}${userId ? '?userId='+userId : ''}`">NFTs</router-link>
@@ -114,7 +114,7 @@ const deps: IPostDeps = {
 
 const FEED_APIS: Record<string, string> = {
   dailyhits: 'https://api.yup.io/feed/dailyhits',
-  crypto: 'https://api.yup.io/feed/crypto',
+  bsky: 'https://api.yup.io/feed/bsky',
   nfts: 'https://api.yup.io/feed/nfts',
   mirror: 'https://api.yup.io/feed/mirror',
   recent: 'https://api.yup.io/feed/recent',
@@ -136,7 +136,7 @@ export default defineComponent({
   setup() {
     const route = useRoute()
     const loading = ref(true)
-    const feeds = ['dailyhits', 'crypto', 'nfts', 'mirror', 'recent', 'farcaster', 'lens', 'twitter']
+    const feeds = ['dailyhits', 'bsky', 'nfts', 'mirror', 'recent', 'farcaster', 'lens', 'twitter']
     const defaultFeed = (route.params.feedId as string) ?? 'dailyhits'
     let userId = (route.query.userId as string) ?? ''
     const posts = ref([]) as Ref<Array<IPost>>
@@ -212,7 +212,7 @@ export default defineComponent({
         }
       })
       const data = await res.json()
-      return data
+      return ((data ?? []) as Array<IPost>).filter(p => p?._id?.postid)
      } catch {
       return []
     }

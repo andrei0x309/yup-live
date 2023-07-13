@@ -65,6 +65,7 @@
                 :postId="processedPost.id"
                 :postShareInfo="postShareInfo"
                 :hasVote="refHasVote"
+                :isOwner="isOwner"
                 @deletedvote="hasVoteDeleted"
               />
             </div>
@@ -85,6 +86,7 @@ import {
   shallowRef,
   watch,
   PropType,
+  computed
 } from "vue";
 import ImagePreview from "components/post/imagePreview.vue";
 import Voting from "components/post/voting.vue";
@@ -200,6 +202,8 @@ export default defineComponent({
     const comments = ref([]) as Ref<unknown[]>;
     const commentsNum = ref(0);
     const replyComp = shallowRef(null) as Ref<ReturnType<typeof defineComponent>>;
+    const isOwner = [props?.post?.previewData?.creator ?? "", props.post?.web3Preview?.creator?.address ?? ""].includes(store.userData.address.toLowerCase());
+    console.log( [props?.post?.previewData?.creator ?? "", props.post?.web3Preview?.creator?.address ?? ""], store.userData.address, isOwner)
 
     // store.$subscribe(() => {
     // })
@@ -344,7 +348,8 @@ export default defineComponent({
       comments,
       commentsNum,
       replyComp,
-      nested
+      nested,
+      isOwner
       };
   },
 });

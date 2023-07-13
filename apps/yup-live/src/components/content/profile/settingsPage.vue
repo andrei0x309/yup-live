@@ -98,6 +98,35 @@
             </button>
             <!-- <button class="view-btn" @click="doTestLensPost">Do test lens POST</button> -->
           </template>
+          <template v-if="!isConnectedToBsky">
+            <button
+              :disabled="isConnectToBsky"
+              class="mt-4 bg-blue-600 border-0 py-2 px-6 focus:outline-none hover:bg-blue-900 rounded text-lg"
+              @click="
+                () => {
+                  settingsModalContent = 'bsky-connect';
+                  settingsModal = true;
+                }
+              "
+            >
+              <BlueSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
+              <BtnSpinner v-if="isConnectToBsky" class="inline mr-2" />Connect to
+              BlueSky
+            </button>
+          </template>
+          <button
+            v-else
+            :disabled="isDisconnectFromBlueSky"
+            class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+            @click="doBskyDisconnect"
+          >
+            <BtnSpinner
+              v-if="isDisconnectFromBlueSky"
+              class="inline mr-2"
+            /><BlueSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
+
+            Disconnect from BlueSky
+          </button>
         </div>
       </div>
     </section>
@@ -356,6 +385,30 @@
         </template>
       </o-tabs>
     </template>
+    <template v-else-if="settingsModalContent === 'bsky-connect'">
+            <div class="mx-8 flex flex-col">
+            <p class="text-[1rem]">Conect to BlueSky</p>
+            <small class="my-4">
+            <ul>
+            <li>Credentials are required to connect to bsky</li>
+            <li>Identifier is your email or blueSky handle</li>
+            <li>Password is either an app password(recommended) or your blue sky account password.</li>
+            <li>Login session will be forwarded to YUP API</li>
+            </ul></small>
+      <input v-model="bskyIdent" type="text" name="ident" placeholder="Identifier" class="mb-4 rounded p-2 text-[#222]" />
+      <input v-model="bskyPass" type="password" name="pass" placeholder="Password" class="mb-4 rounded p-2 text-[#222]" />
+          <button
+            v-if="farcasterDeepLink.length === 0"
+            :disabled="isConnectToFarcaster"
+            class="bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded text-lg mt-4"
+            @click="() => doBskyConnect()"
+          >
+          <BlueSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
+            <BtnSpinner v-if="isConnectToFarcaster" class="inline mr-2" />Connect to
+            BlueSky
+          </button>
+        </div>
+    </template>
   </o-modal>
 </template>
 
@@ -380,6 +433,8 @@ import { useRouter } from "vue-router";
 import TwitterIcon from "icons/src/twitter.vue";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import ProfileLensIcon from "icons/src/profileLens.vue";
+import BlueSkyIcon from "icons/src/bsky.vue";
+
 import { linkTwitter, unlinkTwitter } from "shared/src/utils/requests/twitter";
 import { web3Libs } from "shared/src/utils/evmTxs"; // signArbitraryText
 import { uploadAvatar } from "shared/src/utils/requests/accounts";
@@ -388,6 +443,7 @@ import {
   disconnectFromFarcaster,
   // makeAddSignerRequest
 } from "shared/src/utils/requests/farcaster";
+import { connectBlueSky, disconnectBlueSky } from "shared/src/utils/requests/bsky";
 import { VACropper } from "vue-cup-avatar";
 import {
   ethersLib,
@@ -424,6 +480,7 @@ export default defineComponent({
     TwitterIcon,
     QrcodeVue,
     WalletIcon,
+    BlueSkyIcon
   },
   props: {
     userData: {
@@ -447,9 +504,11 @@ export default defineComponent({
     const isConnectToFarcaster = ref(false);
     const isConnectedToFarcaster = ref(store.userData.connected?.farcaster ?? false);
     const isConnectedToTwitter = ref(store.userData.connected?.twitter ?? false);
+    const isConnectedToBsky = ref(store.userData.connected?.bsky ?? false);
     const isLoadingTwitter = ref(false);
     const isTwitterCancel = ref(false);
     const isDisconnectFromFarcaster = ref(false);
+    const isDisconnectFromBlueSky = ref(false);
     const router = useRouter();
     const farcasterToken = ref("");
     const farcasterDeepLink = ref("");
@@ -464,7 +523,11 @@ export default defineComponent({
     const isAvatarLoading = ref(false);
     const isConnectedToLens = ref(store.userData.connected?.lens ?? false);
     const isConnectToLens = ref(false);
+    const isConnectToBsky = ref(false); 
     const farcasterConnectTabs = ref("warpcast");
+
+    const bskyIdent = ref("");
+    const bskyPass = ref("");
 
     const mapFeeds = {
       likes: "Likes",
@@ -641,6 +704,7 @@ export default defineComponent({
       if (connectResult) {
         setConnected(store, "farcaster", true);
       }
+      isConnectToFarcaster.value = false;
       settingsModal.value = false;
 
       // makeAddSignerRequest(store, API_BASE);
@@ -774,6 +838,30 @@ export default defineComponent({
       }
     };
 
+    const doBskyConnect = async () => {
+      connectBlueSky({
+          bskyAppPassword: bskyPass.value,
+          bskyUser: bskyIdent.value,
+          stackAlertError,
+          stackAlertSuccess,
+          store,
+          apiBase: API_BASE,
+          isConnectedToBsky,
+          isConnectToBsky
+      })
+    }
+
+    const doBskyDisconnect = async () => {
+      disconnectBlueSky({
+        stackAlertError,
+        stackAlertSuccess,
+        store,
+        apiBase: API_BASE,
+        isDisconnectFromBlueSky,
+        isConnectedToBsky
+      })
+    }
+
     const doUploadAvatar = async (blob: Blob) => {
       if(isAvatarLoading.value) {
         return
@@ -843,7 +931,14 @@ export default defineComponent({
       farcasterTimeRemaing,
       closeSettingsModal,
       doUploadAvatar,
-      isTwitterCancel
+      isTwitterCancel,
+      bskyIdent,
+      bskyPass,
+      doBskyConnect,
+      isConnectedToBsky,
+      isConnectToBsky,
+      isDisconnectFromBlueSky,
+      doBskyDisconnect
     };
   },
 });

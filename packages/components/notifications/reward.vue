@@ -18,7 +18,7 @@
         </p>
       </div>
       <p class="ml-3 mt-3 flex items-center">
-        <b class="mr-2 opacity-60">{{ notification?.quantity ?? "unknown" }}</b> YUP
+        <b class="mr-2 opacity-60">{{ notification?.meta.quantity ?? "unknown" }}</b> YUP
       </p>
       <p class="ml-3 flex items-center mt-4 self-end">
         <ClockIcon class="h4 w-4 mr-1" />{{ timeAgo(notification.createdAt) }}

@@ -147,6 +147,35 @@
               Lens
             </button>
           </template>
+          <template v-if="!isConnectedToBsky">
+            <button
+              :disabled="isConnectToBsky"
+              class="mt-4 bg-blue-600 border-0 py-2 px-6 focus:outline-none hover:bg-blue-900 rounded text-lg"
+              @click="
+                () => {
+                  settingsModalContent = 'bsky-connect';
+                  settingsModal = true;
+                }
+              "
+            >
+              <BlueSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
+              <BtnSpinner v-if="isConnectToBsky" class="inline mr-2" />Connect to
+              BlueSky
+            </button>
+          </template>
+          <button
+            v-else
+            :disabled="isDisconnectFromBlueSky"
+            class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+            @click="doBskyDisconnect"
+          >
+            <BtnSpinner
+              v-if="isDisconnectFromBlueSky"
+              class="inline mr-2"
+            /><BlueSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
+
+            Disconnect from BlueSky
+          </button>
           </div>
         </ion-accordion>
         <ion-accordion value="3">
@@ -462,6 +491,8 @@ import ProfileLensIcon from "icons/src/profileLens.vue";
 import "vue-cup-avatar/dist/style.css";
 import CustomButton from "components/functional/customButton.vue";
 import DangLoader from "components/vote-list/loader.vue";
+import { connectBlueSky, disconnectBlueSky } from "shared/src/utils/requests/bsky";
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -544,7 +575,9 @@ export default defineComponent({
     const avatar = ref(props.userData.avatar);
     const isConnectToFarcaster = ref(false);
     const isConnectedToFarcaster = ref(store.userData.connected?.farcaster ?? false);
+    const isConnectedToBsky = ref(store.userData.connected?.bsky ?? false);
     const isDisconnectFromFarcaster = ref(false);
+    const isDisconnectFromBlueSky = ref(false);
     const farcasterToken = ref("");
     const farcasterDeepLink = ref("");
     const farcasterTimeout = ref(600000);
@@ -556,10 +589,14 @@ export default defineComponent({
     const isAvatarLoading = ref(false);
     const isConnectedToLens = ref(store.userData.connected?.lens ?? false);
     const isConnectToLens = ref(false);
+    const isConnectToBsky = ref(false); 
     const farcasterConnectTabs = ref("warpcast");
     
     const { ethers, providerOptionsProm, web3Mprom } = web3Libs();
 
+
+    const bskyIdent = ref("");
+    const bskyPass = ref("");
 
     const deleteAccount = async () => {
       isDeleteLoading.value = true;
@@ -872,6 +909,30 @@ export default defineComponent({
        isLoading.value = false;
     });
 
+    const doBskyConnect = async () => {
+      connectBlueSky({
+          bskyAppPassword: bskyPass.value,
+          bskyUser: bskyIdent.value,
+          stackAlertError,
+          stackAlertSuccess,
+          store,
+          apiBase: API_BASE,
+          isConnectedToBsky,
+          isConnectToBsky
+      })
+    }
+
+    const doBskyDisconnect = async () => {
+      disconnectBlueSky({
+        stackAlertError,
+        stackAlertSuccess,
+        store,
+        apiBase: API_BASE,
+        isDisconnectFromBlueSky,
+        isConnectedToBsky
+      })
+    }
+
     return {
       loading,
       mpModal,
@@ -921,7 +982,14 @@ export default defineComponent({
       farcasterDeepLink,
       farcasterTimeRemaing,
       closeSettingsModal,
-      isTwitterCancel
+      isTwitterCancel,
+      isConnectedToBsky,
+      bskyIdent,
+      bskyPass,
+      doBskyConnect,
+      isConnectToBsky,
+      isDisconnectFromBlueSky,
+      doBskyDisconnect
     };
   },
 });
