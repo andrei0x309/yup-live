@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "marked": "^4.2.12",
-    "components": "*",
     "icons": "*"
   },
   "devDependencies": {

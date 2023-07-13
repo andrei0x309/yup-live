@@ -45,7 +45,7 @@
 import { defineComponent, PropType } from "vue";
 // import { useMainStore } from '@/store/main'
 import { timeAgo } from "shared/src/utils/time";
-import AvatarBtn from "components/functional/avatarBtn.vue";
+import AvatarBtn from "../functional/avatarBtn.vue";
 import ClockIcon from "icons/src/clock.vue";
 import type { NotifType } from "shared/src/types/notification";
 import ProfileLensIcon from "icons/src/profileLens.vue";

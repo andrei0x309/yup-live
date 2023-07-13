@@ -78,7 +78,7 @@ import { defineComponent, PropType } from "vue";
 import { timeAgo } from "shared/src/utils/time";
 import ThumbsDown from "icons/src/thumbsDown.vue";
 import ThumbsUp from "icons/src/thumbsUp.vue";
-import ImagePreview from "components/post/imagePreview.vue";
+import ImagePreview from "../post/imagePreview.vue";
 import ClockIcon from "icons/src/clock.vue";
 import type { NotifType } from "shared/src/types/notification";
 import ProfileLensIcon from "icons/src/profileLens.vue";
