@@ -225,7 +225,7 @@ export default defineComponent({
           postTypeClass.value = type;
           switch (type) {
             case "tweet":
-              processedPost.tweetInfo = props.post.tweetInfo;
+              processedPost.tweetInfo = props.post.tweetInfo?.tweet ? props.post.tweetInfo?.tweet : props.post.tweetInfo;
               postTypeCom.value = (await props.postTypesPromises.preLoadTweet).default;
               break;
             case "farcaster":

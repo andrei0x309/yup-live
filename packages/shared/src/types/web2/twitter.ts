@@ -18,6 +18,12 @@ export interface TweetRaw {
     profile_image_url_https?: string
     verified?: boolean
   }
+  author: {
+    name?: string
+    screen_name?: string
+    profile_image_url?: string
+    verified?: boolean
+  }
   extended_entities?: {
     media: Array<{
       video_info?: {

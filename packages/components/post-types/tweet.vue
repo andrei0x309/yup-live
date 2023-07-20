@@ -342,10 +342,10 @@ export default defineComponent({
 
     const fillTweet = (filler: TweetRaw, tweet: Ref<TweetData>) => {
       const tweetBuilder = {} as TweetData
-      tweetBuilder.userAvatar = filler?.user.profile_image_url_https ?? '' as string
-      tweetBuilder.userHandle = filler?.user?.screen_name ?? 'N/A' as string
-      tweetBuilder.userName = filler?.user?.name ?? 'N/A' as string
-      tweetBuilder.verified = filler?.user?.verified ?? false as boolean
+      tweetBuilder.userAvatar = filler?.author?.profile_image_url ?? filler?.user?.profile_image_url_https ?? '' as string
+      tweetBuilder.userHandle = filler?.author?.screen_name ?? filler?.user?.screen_name ?? '...' as string
+      tweetBuilder.userName = filler?.author?.name ??  filler?.user?.name ?? 'Anon' as string
+      tweetBuilder.verified = filler?.author?.verified ?? filler?.user?.verified ?? false as boolean
       tweetBuilder.body = parseBody(filler?.full_text ?? (filler?.text as string)) ?? ''
       tweetBuilder.mediaEntities = checkMedia(filler)
       tweet.value = tweetBuilder
