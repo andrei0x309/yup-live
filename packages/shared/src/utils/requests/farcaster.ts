@@ -3,12 +3,12 @@ import { fetchWAuth } from '../auth'
 import type { IMainStore } from 'shared/src/types/store'
 import type { Ref } from 'vue'
 import { ref } from 'vue'
-import { signCanonChallenge } from '../evmTxs'
+import { prepareForTransaction, signCanonChallenge, TWeb3Libs } from '../evmTxs'
 import { getFidByToken, getFidByAddress } from 'shared/src/utils/farcaster';
 // import { FCSendCast } from "shared/src/utils/farcaster";
 // import { digestSha256 } from "shared/src/utils/misc";
-import type { IuserProvider, Iethers, IethersLib, Iweb3Modal } from 'shared/src/types/evm'
 import { wait } from '../time'
+import { arrayify } from '@ethersproject/bytes'
 
 const buffer = import("buffer/");
 const EIP_191_PREFIX = "eip191:";
@@ -142,27 +142,21 @@ const poolTokenInfo = async ({
 }
 
 export const generateApiToken = async ({
-    web3Mprom,
-    w3Modal,
-    ethers,
-    ethersLib,
-    userProvider,
+    web3Libs,
     store,
 }: {
-        web3Mprom: Promise<any>
-        w3Modal: Iweb3Modal
-        ethers: Iethers
-        ethersLib: IethersLib
-        userProvider: IuserProvider
+        web3Libs: TWeb3Libs,
         store: IMainStore
     apiBase?: string
 }) => {
     try {
-        await web3Mprom;
-        const inst = await w3Modal.value.connect();
-        ethersLib.value = await ethers;
-        userProvider.value = new ethersLib.value.providers.Web3Provider(inst);
-        const signer = userProvider.value.getSigner();
+        const wgamiLib = (await prepareForTransaction({
+            localWeb3Libs: web3Libs,
+        }))
+        if (!(wgamiLib)) {
+            return null
+        }
+        const wgamiCore = wgamiLib.wgamiCore
         const timestamp = Date.now();
         const payload = {
             method: "generateToken",
@@ -171,14 +165,14 @@ export const generateApiToken = async ({
                 expiresAt: timestamp + 1000 * 60 * 10
             },
         };
-        const sig = await signCanonChallenge(payload, signer);
+        const sig = await signCanonChallenge(payload, wgamiCore.signMessage);
         if (!sig) {
             return false;
         }
 
         const bufferLib = (await buffer).Buffer;
         const signatureString = bufferLib
-            .from(ethersLib.value.utils.arrayify(sig)).toString('base64');
+            .from(arrayify(sig)).toString('base64');
         const cusAuth = EIP_191_PREFIX + signatureString;
 
         const req = await fetch(`${API_BASE}/proxy/farcaster/v2/auth`, {
@@ -222,11 +216,7 @@ export const generateApiToken = async ({
 
 export const connectToFarcaster = async ({
     isConnectToFarcaster,
-    web3Mprom,
-    w3Modal,
-    ethers,
-    ethersLib,
-    userProvider,
+    web3Libs,
     stackAlertError,
     stackAlertSuccess,
     store,
@@ -239,11 +229,7 @@ export const connectToFarcaster = async ({
     isCancel = ref(false),
 }: {
     isConnectToFarcaster: Ref<boolean>
-    web3Mprom: Promise<any>
-    w3Modal: Iweb3Modal
-    ethers: Iethers
-    ethersLib: IethersLib
-    userProvider: IuserProvider
+        web3Libs: TWeb3Libs,
     stackAlertError: (msg: string) => void
     stackAlertSuccess: (msg: string) => void
     store: IMainStore
@@ -311,12 +297,15 @@ export const connectToFarcaster = async ({
             isConnectToFarcaster.value = false;
             return true;
         } else {
-            await web3Mprom;
-            const inst = await w3Modal.value.connect();
-            ethersLib.value = await ethers;
-            userProvider.value = new ethersLib.value.providers.Web3Provider(inst);
-            const signer = userProvider.value.getSigner();
-            const address = await signer.getAddress();
+            const wgamiLib = (await prepareForTransaction({
+                localWeb3Libs: web3Libs,
+                stackAlertWarning: stackAlertError
+            }))
+            if (!(wgamiLib)) {
+                return null
+            }
+            const wgamiCore = wgamiLib.wgamiCore
+            const address = (await wgamiCore.getAccount()).address ?? ''
             const fidNo = await getFidByAddress(store, address, apiBase);
             if (!fidNo) {
                 stackAlertError("This address does not have a Farcaster account use the farcaster address to sign");
@@ -338,7 +327,12 @@ export const connectToFarcaster = async ({
             for (let i = 0; i < len; i++) {
                 hash[i] = binaryString.charCodeAt(i);
             }
-            const signature = await signer._signTypedData(EIP_712_FARCASTER_DOMAIN, { MessageData: EIP_712_FARCASTER_MESSAGE_DATA }, { hash })
+            const signature = await wgamiCore.signTypedData({
+                domain: EIP_712_FARCASTER_DOMAIN,
+                types: { MessageData: EIP_712_FARCASTER_MESSAGE_DATA },
+                message: { hash },
+            } as any)
+            // await signer._signTypedData(EIP_712_FARCASTER_DOMAIN, { MessageData: EIP_712_FARCASTER_MESSAGE_DATA }, { hash })
             if (!signature) {
                 stackAlertError("User rejected signature")
                 isConnectToFarcaster.value = false;

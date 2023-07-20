@@ -61,6 +61,7 @@ import ActivityIcon from '@/icons/activity.vue'
 import InfoIcon from 'icons/src/infoIcon.vue'
 import ScoreIcon from 'icons/src/score.vue'
 import StakeIcon from "icons/src/stake.vue";
+import { walletDisconnect } from "shared/src/utils/login-signup";
 
 
 export default defineComponent({
@@ -88,13 +89,7 @@ export default defineComponent({
     const doLogOut = async () => {
       store.isLoggedIn = false
       await storage.clear()
-      const Web3Modal = (await import("web3modal")).default;
-      const web3Modal = new Web3Modal({
-        network: "matic", // optional
-        cacheProvider: false, // optional
-        disableInjectedProvider: false,
-      });
-      await web3Modal.clearCachedProvider();
+      await walletDisconnect()
       window?.localStorage?.clear();
       router.replace('/')
       menuController.close('menu');

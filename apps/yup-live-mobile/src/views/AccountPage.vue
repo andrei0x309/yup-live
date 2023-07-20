@@ -64,10 +64,10 @@
           class="asocLink mb-2"
           @click="openPostModal = true"
         >
-        Multi Post
+        New Post
         </button>
         <button v-else class="asocLink mb-2" @click="openSettings">
-          Connect to platforms to post
+          Connect socials to post
         </button>
         <router-link v-if="!isLoadingUser" class="asocLink mb-2" :to="`/web3-profile/${userData.evmAddress}`">View Web3 profile</router-link>
         <ion-list style="position: sticky; top: 0; z-index: 2">

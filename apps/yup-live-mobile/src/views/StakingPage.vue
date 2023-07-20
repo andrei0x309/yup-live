@@ -67,11 +67,11 @@
 
           <template v-if="activeTabStake === '0'">
             <NoInput v-model:input="inputValue" :max="polyUnstaked - 0.001" class="max-w-[22rem] mx-auto" />
-            <CustomButton class="max-w-[12rem] mx-auto" :icon="refStakeIcon" text="Stake" @click="onStake()" />
+            <CustomButton class="max-w-[12rem] mx-auto" :icon="refStakeIcon" text="Stake" @click="doStake()" />
           </template>
           <template v-else>
             <NoInput v-model:input="inputValue" :max="polyStaked - 0.001" class="max-w-[22rem] mx-auto" />
-            <CustomButton class="max-w-[12rem] mx-auto" :icon="refUnStakeIcon" text="Unstake" @click="onUnstake()" />
+            <CustomButton class="max-w-[12rem] mx-auto" :icon="refUnStakeIcon" text="Unstake" @click="doUnstake()" />
           </template>
         </div>
         <div v-if="rewards > 0" class="p-4 thinSBox">
@@ -82,7 +82,7 @@
             text="Collect"
             size="large"
             class="m-auto my-4"
-            @click="onReward"
+            @click="doReward"
           />
         </div>
       </template>
@@ -101,28 +101,20 @@ import YUPPOLY from "icons/src/yup-poly.vue";
 import PolyIcon from "icons/src/poly.vue";
 import NoInput from 'components/staking/noInput.vue';
 import CustomButton from "components/functional/customButton.vue";
-import { getPolyContractAddresses } from "@yupio/contract-addresses";
-import { uniPoolPABI } from "shared/src/partial-abis/uni-pool";
-import { yupRewardsPABI } from "shared/src/partial-abis/yup-rewards";
 import { useMainStore } from "@/store/main";
 import YUPCollectIcon from "icons/src/yup-collect.vue";
 import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 import WalletIcon from "icons/src/walletIcon.vue";
 import HeaderBar from "@/components/template/header-bar.vue";
+import { connect, getAprs, onStake, onUnstake, fetchContractsData, onReward  } from 'shared/src/utils/stake'
+import {TWeb3Libs, web3Libs } from 'shared/src/utils/evmTxs'
 
 const refStakeIcon = StakeIcon;
 const refUnStakeIcon = NoStakeIcon;
 const refYupRewardsIcon = YUPCollectIcon;
 const refWalletIcon = WalletIcon;
 
-const POLY_RPC = import.meta.env.VITE_POLYGON_RPC;
-// const HISTORIC_REWARDS_ENDPOINT = 'https://yup-lp-historic-rewards.deno.dev'
-
-const providerOptionsProm = import("shared/src/utils/evm");
-const web3Mprom = import("web3modal");
-const ethers = import("ethers");
-
-const { POLY_LIQUIDITY_REWARDS, POLY_UNI_LP_TOKEN } = getPolyContractAddresses(137);
+ 
 
 // import { useMainStore } from '@/store/main'
 export default defineComponent({
@@ -143,32 +135,22 @@ export default defineComponent({
     IonLabel,
   },
   setup() {
-    const RW_API_BASE = "https://rewards-manager.yup.io";
     const loading = ref(true);
     const activeTabStake = ref("0") as Ref<string>;
-    const aprs = ref({
+      const aprs = ref({
       poly: 0,
-      eth: 0,
-    }) as Ref<Record<string, number>>;
-    const rewards = ref(0);
-    const polyStaked = ref(0);
-    const polyUnstaked = ref(0);
-    const store = useMainStore();
-    const inputValue = ref("0");
-    const poolShare = ref(0);
-    const address = ref(store.userData.address);
-    let rewardRatePoly = 0;
-    let totalStakePoly = 0;
-    let rewardsPoly = 0;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let ethersLib: any;
-    let ethersProvider;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let userProvider: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let w3Modal: any;
-    let startNumberTimeout = 0;
-    let rewardsRate = 0;
+      eth: 0
+    }) as Ref<Record<string, number>>
+    const rewards = ref(0)
+    const polyStaked = ref(0)
+    const polyUnstaked = ref(0)
+    const store = useMainStore()
+    const inputValue = ref('0')
+    const poolShare = ref(0)
+    const address = ref(localStorage.getItem('address'))
+
+
+    const Web3Libs = ref(null) as unknown as Ref<TWeb3Libs>;
 
     store.$subscribe(() => {
       address.value = store.userData.address;
@@ -181,229 +163,83 @@ export default defineComponent({
     onUnmounted(() => {
       // do nothing
     });
+    const doConnect = async() => {
+      await connect({
+        address: address as Ref<string>,
+        loading,
+        polyStaked,
+        polyUnstaked,
+        poolShare,
+        rewards,
+        Web3Libs,
+        stackAlertWarning,
+      })
+    }
 
-    const getAprs = async () => {
-      const req1 = fetch(`${RW_API_BASE}/aprs/eth`);
-      const req2 = fetch(`${RW_API_BASE}/aprs/poly`);
-      const [eth, poly] = await Promise.allSettled([req1, req2]);
-      const aprs = {} as Record<string, string>;
-      aprs.eth = "0";
-      aprs.poly = "0";
-      if(eth.status === 'fulfilled') {
-        aprs.eth = Number(await eth.value.text()).toFixed(3);
-      }
-      if(poly.status === 'fulfilled') {
-        aprs.poly = Number(await poly.value.text()).toFixed(3);
-      }
-      if(eth.status === 'rejected' || poly.status === 'rejected') {
-        stackAlertWarning('APRs APIs are down right now.')
-      }
-      return aprs;
-    };
+    const doStake = async() => {
+      await onStake({
+        address: address as Ref<string>,
+        inputValue,
+        polyStaked,
+        polyUnstaked,
+        poolShare,
+        rewards,
+        Web3Libs,
+        stackAlertWarning,
+        stackAlertSuccess
+      })
+    }
 
-    const startNumber = async (rate: number) => {
-      startNumberTimeout = (setTimeout(() => {
-        rewards.value += rate;
-        startNumber(rate);
-      }, 400) as unknown) as number;
-    };
+    const doUnstake = async() => {
+      await onUnstake({
+        address: address as Ref<string>,
+        inputValue,
+        polyStaked,
+        polyUnstaked,
+        poolShare,
+        rewards,
+        Web3Libs,
+        stackAlertWarning,
+        stackAlertSuccess
+      })
+    }
 
-    const clearStartNumber = () => {
-      if (startNumberTimeout && rewardsRate) {
-        clearTimeout(startNumberTimeout);
-      }
-    };
+    const doReward = async() => {
+      await onReward({
+        address: address as Ref<string>,
+        polyStaked,
+        polyUnstaked,
+        poolShare,
+        rewards,
+        Web3Libs,
+        stackAlertWarning,
+        stackAlertSuccess
+      })
+    }
 
-    const prepareForTransaction = async () => {
-      if (!userProvider) {
-        try {
-          const inst = await w3Modal.connect();
-          userProvider = new ethersLib.providers.Web3Provider(inst);
-        } catch {
-          stackAlertWarning("User rejected connection");
-          return false;
-        }
-      }
-      const { chainId } = await userProvider.getNetwork();
-      if (chainId !== 137) {
-        stackAlertWarning(
-          `You are on wrong network(${chainId}), please switch to polygon(137)`
-        );
-        return false;
-      }
-      return true;
-    };
-
-    const onStake = async () => {
-      if (!(await prepareForTransaction())) {
-        return;
-      }
-
-      try {
-        const signer = await userProvider.getSigner();
-        const approveAddress = POLY_LIQUIDITY_REWARDS;
-        const contractLP = new ethersLib.Contract(POLY_UNI_LP_TOKEN, uniPoolPABI, signer);
-        const contractRewards = new ethersLib.Contract(
-          POLY_LIQUIDITY_REWARDS,
-          yupRewardsPABI,
-          signer
-        );
-        const amount = ethersLib.utils.parseEther(inputValue.value.toString());
-        await contractLP.approve(approveAddress, amount);
-        await contractRewards.stake(amount);
-        stackAlertSuccess(`You staked ${inputValue.value} LPT successfuly`);
-        fetchContractsData();
-      } catch {
-        stackAlertWarning("User rejected or tx failed");
-      }
-    };
-
-    const onUnstake = async () => {
-      if (!(await prepareForTransaction())) {
-        return;
-      }
-
-      try {
-        const signer = await userProvider.getSigner();
-
-        const contractRewards = new ethersLib.Contract(
-          POLY_LIQUIDITY_REWARDS,
-          yupRewardsPABI,
-          signer
-        );
-        const willSusbstractPoly = Number(inputValue.value);
-        await contractRewards.unstake(
-          ethersLib.utils.parseEther(inputValue.value.toString())
-        );
-        if (willSusbstractPoly > 0) {
-          polyStaked.value -= willSusbstractPoly;
-        }
-        stackAlertSuccess(`You unstaked ${inputValue.value} LPT successfuly`);
-        fetchContractsData();
-      } catch {
-        stackAlertWarning("User rejected or tx failed");
-      }
-    };
-
-    const onReward = async () => {
-      if (!(await prepareForTransaction())) {
-        return;
-      }
-
-      try {
-        const signer = await userProvider.getSigner();
-        if (rewardsPoly > 0) {
-          const contractRewardsPoly = new ethersLib.Contract(
-            POLY_LIQUIDITY_REWARDS,
-            yupRewardsPABI,
-            signer
-          );
-          await contractRewardsPoly.getReward();
-        }
-        if (rewardsPoly > 0) {
-          stackAlertSuccess(`You collected a reward of ${rewardsPoly}`);
-          if (rewardsPoly > 0) {
-            clearStartNumber();
-            rewards.value = 0;
-            rewardsPoly = 0;
-            startNumber(rewardsRate);
-          }
-          fetchContractsData();
-        } else {
-          stackAlertWarning("You don't have anything to collect");
-        }
-      } catch {
-        stackAlertWarning("User rejected the transaction");
-      }
-    };
-
-    const fetchContractsData = () => {
-      ethers.then(async (lib) => {
-        ethersLib = lib.ethers;
-        ethersProvider = new ethersLib.providers.JsonRpcProvider(POLY_RPC);
-        const UNIContractPoly = new ethersLib.Contract(
-          POLY_UNI_LP_TOKEN,
-          uniPoolPABI,
-          ethersProvider
-        );
-        const YUPRewardsPoly = new ethersLib.Contract(
-          POLY_LIQUIDITY_REWARDS,
-          yupRewardsPABI,
-          ethersProvider
-        );
-        const utils = ethersLib.utils;
-
-        if (!address.value && w3Modal.cachedProvider) {
-          userProvider = new ethersLib.providers.Web3Provider(await w3Modal.connect());
-          address.value = await userProvider.getSigner().getAddress();
-        }
-        // if (address.value) {
-        //   getHistoricRewards(address.value)
-        // }
-
-        const arrProm = [
-          UNIContractPoly.balanceOf(address.value),
-          YUPRewardsPoly.balanceOf(address.value),
-          YUPRewardsPoly.earned(address.value),
-          YUPRewardsPoly.rewardRate(),
-          UNIContractPoly.balanceOf(POLY_LIQUIDITY_REWARDS),
-        ];
-
-        Promise.all(arrProm).then((res) => {
-          polyUnstaked.value = Number(utils.formatEther(res[0]));
-          polyStaked.value = Number(utils.formatEther(res[1]));
-          rewardsPoly = Number(utils.formatEther(res[2]));
-          rewards.value = rewardsPoly;
-          rewardRatePoly = Number(utils.formatEther(res[3]));
-          totalStakePoly = Number(utils.formatEther(res[4]));
-          rewardsRate = (rewardRatePoly * polyStaked.value) / totalStakePoly;
-          startNumber(rewardsRate);
-          if (polyStaked.value && totalStakePoly) {
-            poolShare.value = (100 * polyStaked.value) / totalStakePoly;
-          }
-        });
-      });
-    };
-
-    const connect = async () => {
-      if (!userProvider) {
-        try {
-          const inst = await w3Modal.connect();
-          userProvider = new ethersLib.providers.Web3Provider(inst);
-        } catch {
-          stackAlertWarning("User rejected connection");
-          return false;
-        }
-        address.value = await userProvider.getSigner().getAddress();
-        fetchContractsData();
-      } else {
-        address.value = await userProvider.getSigner().getAddress();
-        fetchContractsData();
-      }
-    };
 
     onMounted(async () => {
-      getAprs().then(async (res) => {
-        aprs.value.eth = Number(res.eth);
-        aprs.value.poly = Number(res.poly);
-        loading.value = false;
-      });
-      providerOptionsProm.then((pLib) => {
-        web3Mprom.then((lib) => {
-          const { default: libDefault } = lib;
-          w3Modal = new libDefault({
-            network: "matic", // optional
-            cacheProvider: false, // optional
-            providerOptions: pLib.providerOptions, // required
-            theme: store.theme,
-          });
-          fetchContractsData();
-        });
-      });
-    });
+      getAprs({
+        stackAlertWarning,
+      }).then(async (res) => {
+        aprs.value.eth = Number(res.eth)
+        aprs.value.poly = Number(res.poly)
+        loading.value = false
+      })
+      Web3Libs.value = web3Libs();
+      fetchContractsData({
+        address: address as Ref<string>,
+        polyStaked,
+        polyUnstaked,
+        poolShare,
+        rewards,
+        Web3Libs
+      })
+    })
 
     return {
       loading,
+      activeTabStakeChange,
       activeTabStake,
       aprs,
       rewards,
@@ -414,14 +250,13 @@ export default defineComponent({
       refYupRewardsIcon,
       refWalletIcon,
       inputValue,
-      onUnstake,
-      onStake,
-      onReward,
       address,
-      connect,
       poolShare,
-      activeTabStakeChange,
-    };
+      doConnect,
+      doStake,
+      doUnstake,
+      doReward
+    }
   },
 });
 </script>

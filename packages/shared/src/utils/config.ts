@@ -2,12 +2,15 @@ interface ConfigFields {
     API_BASE?: string,
     POLY_RPC?: string,
     BASE_URL?: string,
+    PROJECTID?: string,
+
 }
 
 class Config {
     API_BASE: string = 'https://api.yup.io'
     POLY_RPC: string = 'https://polygon-rpc.com'
     BASE_URL: string = 'https://yup-live.pages.dev'
+    PROJECT_ID: string = 'df2190da4cd58097b8477f72fab5a2c2'
 
     setConfig (config: ConfigFields): void {
         if (config.BASE_URL) this.BASE_URL = config.BASE_URL

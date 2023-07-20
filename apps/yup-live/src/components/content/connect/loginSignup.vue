@@ -94,12 +94,10 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref } from "vue";
-import { ethers } from "ethers";
-import Web3Modal from "web3modal";
+import { onMounted, defineComponent, ref } from "vue";
+
 import Alert from "components/functional/alert.vue";
 import { useMainStore } from "@/store/main";
-import { providerOptions } from "shared/src/utils/evm";
 import type { PartialAccountInfo } from "shared/src/types/account";
 import { onLogin, onSignup } from "shared/src/utils/login-signup";
 import { closeConnectModal } from "@/store/main";
@@ -129,8 +127,8 @@ export default defineComponent({
   },
   emits: ["loading"],
   setup(props) {
-    const provider = (ref(null) as unknown) as Ref<ethers.providers.Web3Provider>;
-    const web3Modal = (ref(null) as unknown) as Ref<Web3Modal>;
+    // const provider = (ref(null) as unknown) as Ref<ethers.providers.Web3Provider>;
+    // const web3Modal = (ref(null) as unknown) as Ref<Web3Modal>;
     const isLogin = ref(props.loginState);
     const formTitle = ref(isLogin.value ? "Log in" : "Sign up");
     const mainStore = useMainStore();
@@ -217,14 +215,9 @@ export default defineComponent({
       const signupResult = await onSignup({
         loadState: props.loadState,
         setAlert: props.setAlert,
-        ethers,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        provider: provider as any,
         username: username.value,
         bio: bio.value,
         fullname: fullname.value,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        web3M: web3Modal as any,
       });
       doAllLogin(signupResult);
       if (signupResult?._id) {
@@ -236,11 +229,6 @@ export default defineComponent({
       const loginResult = await onLogin({
         loadState: props.loadState,
         setAlert: props.setAlert,
-        ethers,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        provider: provider as any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        web3M: web3Modal as any,
       });
       doAllLogin(loginResult);
       if (loginResult?._id) {
@@ -249,12 +237,12 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      web3Modal.value = new Web3Modal({
-        network: "matic", // optional
-        cacheProvider: false, // optional
-        providerOptions, // required
-        theme: mainStore.theme,
-      });
+      // web3Modal.value = new Web3Modal({
+      //   network: "matic", // optional
+      //   cacheProvider: false, // optional
+      //   providerOptions, // required
+      //   theme: mainStore.theme,
+      // });
       console.log("tt2");
     });
 

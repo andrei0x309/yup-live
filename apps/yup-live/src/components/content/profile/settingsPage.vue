@@ -436,7 +436,6 @@ import ProfileLensIcon from "icons/src/profileLens.vue";
 import BlueSkyIcon from "icons/src/bsky.vue";
 
 import { linkTwitter, unlinkTwitter } from "shared/src/utils/requests/twitter";
-import { web3Libs } from "shared/src/utils/evmTxs"; // signArbitraryText
 import { uploadAvatar } from "shared/src/utils/requests/accounts";
 import {
   connectToFarcaster,
@@ -446,10 +445,8 @@ import {
 import { connectBlueSky, disconnectBlueSky } from "shared/src/utils/requests/bsky";
 import { VACropper } from "vue-cup-avatar";
 import {
-  ethersLib,
-  getWeb3Modal,
-  web3Modal,
-  userProvider,
+ TWeb3Libs,
+ web3Libs
 } from "shared/src/utils/evmTxs";
 import {
   getLensUserData,
@@ -535,7 +532,7 @@ export default defineComponent({
     };
     const defaultAccountFeed = ref(localStorage.getItem("defaultAccountFeed") || "likes");
 
-    const { ethers, providerOptionsProm, web3Mprom } = web3Libs();
+    const Web3Libs = ref(null) as unknown as Ref<TWeb3Libs>;
 
     const deleteAccount = async () => {
       isDeleteLoading.value = true;
@@ -578,11 +575,7 @@ export default defineComponent({
       }
       const profileId = user.data.defaultProfile.id;
       const auth = await authLens({
-        depUserProvider: userProvider,
-        ethers,
-        ethersLib,
-        w3Modal: web3Modal,
-        web3Mprom,
+        web3Libs: Web3Libs.value,
         stackAlertWarning,
       });
       console.log("auth", auth);
@@ -604,7 +597,7 @@ export default defineComponent({
           const sigDisp = await setDispatcher({
             profileId,
             authToken,
-            userProvider,
+            web3Libs: Web3Libs.value,
             test: false,
           });
           if (!sigDisp) {
@@ -626,7 +619,7 @@ export default defineComponent({
         const sigDisp = await setDispatcher({
           profileId,
           authToken,
-          userProvider,
+          web3Libs: Web3Libs.value,
           test: true,
         });
         if (!sigDisp) {
@@ -661,16 +654,12 @@ export default defineComponent({
       if (type === "wallet") {
         farcasterConnectPromise = new CancelablePromise(
           connectToFarcaster({
-            ethers,
-            ethersLib,
             isConnectedToFarcaster,
             isConnectToFarcaster,
             stackAlertError,
             stackAlertSuccess,
             store,
-            userProvider,
-            w3Modal: web3Modal,
-            web3Mprom,
+            web3Libs: Web3Libs.value,
             apiBase: API_BASE,
             withWarpCast: false,
             showQr: false,
@@ -681,16 +670,12 @@ export default defineComponent({
       } else if (type === "warpcast") {
         farcasterConnectPromise = new CancelablePromise(
           connectToFarcaster({
-            ethers,
-            ethersLib,
             isConnectedToFarcaster,
             isConnectToFarcaster,
             stackAlertError,
             stackAlertSuccess,
             store,
-            userProvider,
-            w3Modal: web3Modal,
-            web3Mprom,
+            web3Libs: Web3Libs.value,
             apiBase: API_BASE,
             withWarpCast: true,
             showQr: true,
@@ -706,18 +691,6 @@ export default defineComponent({
       }
       isConnectToFarcaster.value = false;
       settingsModal.value = false;
-
-      // makeAddSignerRequest(store, API_BASE);
-      // const token = `Hpwxgfl9dTYM3w5ZMkLe3vtleBtyxLkeucKFzd9HnQ4`
-
-      // console.log(await signArbitraryText({
-      //   userProvider,
-      //   ethers,
-      //   ethersLib,
-      //   w3Modal: web3Modal,
-      //   web3Mprom,
-      //   text: token
-      // }))
     };
 
     const closeSettingsModal = () => {
@@ -808,14 +781,7 @@ export default defineComponent({
     };
 
     onMounted(async () => {
-      getWeb3Modal({
-        providerOptionsProm,
-        web3Mprom,
-        theme: store.theme as "dark" | "light",
-        disableInjectedProvider: false,
-      }).then((w3m) => {
-        web3Modal.value = w3m;
-      });
+      Web3Libs.value = web3Libs();
       feedPersonalization.value = !!(localStorage.getItem("feedPersonalization") || "");
       isLoading.value = false;
     });

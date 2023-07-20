@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'url'
 import eslintPlugin from 'vite-plugin-eslint'
 import WindiCSS from 'vite-plugin-windicss'
-import nodePolyfills from 'vite-plugin-node-stdlib-browser'
+// import nodePolyfills from 'vite-plugin-node-stdlib-browser'
 import { ViteSSGOptions } from 'vite-ssg'
 import generateSitemap from 'vite-ssg-sitemap'
 const production = process.env.NODE_ENV === 'production'
@@ -61,14 +61,14 @@ export default defineConfig({
     }
   },
   plugins: [
-    nodePolyfills(),
+    // nodePolyfills(),
     vue(),
     eslintPlugin(),
     WindiCSS()
   ],
   build: {
     rollupOptions: {
-      plugins: [nodePolyfills()]
+      // plugins: [nodePolyfills()]
     },
     commonjsOptions: {
       transformMixedEsModules: true

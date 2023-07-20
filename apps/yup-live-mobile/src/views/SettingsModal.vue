@@ -465,10 +465,8 @@ import { VACropper } from "vue-cup-avatar";
 import { uploadAvatar } from "shared/src/utils/requests/accounts";
 import { getTimeRemaining } from "shared/src/utils/time";
 import {
-  ethersLib,
-  getWeb3Modal,
-  web3Modal,
-  userProvider,
+  web3Libs,
+  TWeb3Libs
 } from "shared/src/utils/evmTxs";
 import {
   getLensUserData,
@@ -479,7 +477,6 @@ import {
   setDispatcherWithBackend,
   removeLocalLensAuth,
 } from "shared/src/utils/requests/lens";
-import { web3Libs } from "shared/src/utils/evmTxs"; // signArbitraryText
 import { CancelablePromise } from "shared/src/utils/misc";
 import {
   connectToFarcaster,
@@ -592,8 +589,7 @@ export default defineComponent({
     const isConnectToBsky = ref(false); 
     const farcasterConnectTabs = ref("warpcast");
     
-    const { ethers, providerOptionsProm, web3Mprom } = web3Libs();
-
+    const Web3Libs = ref(null) as unknown as Ref<TWeb3Libs>;
 
     const bskyIdent = ref("");
     const bskyPass = ref("");
@@ -607,13 +603,8 @@ export default defineComponent({
         });
         if (req.ok) {
           await storage.clear();
-          const Web3Modal = (await import("web3modal")).default;
-          const web3Modal = new Web3Modal({
-            network: "matic", // optional
-            cacheProvider: false, // optional
-            disableInjectedProvider: false,
-          });
-          await web3Modal.clearCachedProvider();
+          const logSig = await import('shared/src/utils/login-signup')
+          await logSig.walletDisconnect()
           window?.localStorage?.clear();
           router.replace("/");
           stackAlertSuccess("Account deleted successfully");
@@ -707,12 +698,9 @@ export default defineComponent({
       }
       const profileId = user.data.defaultProfile.id;
       const auth = await authLens({
-        depUserProvider: userProvider,
-        ethers,
-        ethersLib,
-        w3Modal: web3Modal,
-        web3Mprom,
+        web3Libs: Web3Libs.value,
         stackAlertWarning,
+        stackAlertSuccess
       });
       console.log("auth", auth);
       if (!auth) {
@@ -733,7 +721,7 @@ export default defineComponent({
           const sigDisp = await setDispatcher({
             profileId,
             authToken,
-            userProvider,
+            web3Libs: Web3Libs.value,
             test: false,
           });
           if (!sigDisp) {
@@ -755,7 +743,7 @@ export default defineComponent({
         const sigDisp = await setDispatcher({
           profileId,
           authToken,
-          userProvider,
+          web3Libs: Web3Libs.value,
           test: true,
         });
         if (!sigDisp) {
@@ -790,16 +778,12 @@ export default defineComponent({
       if (type === "wallet") {
         farcasterConnectPromise = new CancelablePromise(
           connectToFarcaster({
-            ethers,
-            ethersLib,
+            web3Libs: Web3Libs.value,
             isConnectedToFarcaster,
             isConnectToFarcaster,
             stackAlertError,
             stackAlertSuccess,
             store,
-            userProvider,
-            w3Modal: web3Modal,
-            web3Mprom,
             apiBase: API_BASE,
             withWarpCast: false,
             showQr: false,
@@ -810,16 +794,12 @@ export default defineComponent({
       } else if (type === "warpcast") {
         farcasterConnectPromise = new CancelablePromise(
           connectToFarcaster({
-            ethers,
-            ethersLib,
+            web3Libs: Web3Libs.value,
             isConnectedToFarcaster,
             isConnectToFarcaster,
             stackAlertError,
             stackAlertSuccess,
             store,
-            userProvider,
-            w3Modal: web3Modal,
-            web3Mprom,
             apiBase: API_BASE,
             withWarpCast: true,
             showQr: false,
@@ -898,14 +878,7 @@ export default defineComponent({
     };
 
     onMounted(async () => {
-      getWeb3Modal({
-        providerOptionsProm,
-        web3Mprom,
-        theme: store.theme as "dark" | "light",
-        disableInjectedProvider: false,
-      }).then((w3m) => {
-        web3Modal.value = w3m;
-      });
+       Web3Libs.value = web3Libs();
        isLoading.value = false;
     });
 

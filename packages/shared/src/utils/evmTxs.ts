@@ -1,121 +1,164 @@
 
-import { ref } from 'vue'
-import type { Iweb3Mprom, IethersLib, IproviderOptionsProm, IuserProvider, Iweb3Modal, Iethers } from 'shared/src/types/evm'
-import { deRef } from './misc'
 import omitDeep from 'omit-deep'
 import { TypedDataDomain } from '@ethersproject/abstract-signer'
-
+import { config } from './config'
+import type { signTypedData as TsignTypedData } from '@wagmi/core'
 
 const canonicalize = import("canonicalize");
+// const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
+// import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
+// import { Web3Modal } from '@web3modal/html'
+// import { configureChains, createConfig, getAccount, signMessage, disconnect } from '@wagmi/core'
+// import { polygon, mainnet } from '@wagmi/core/chains'
+// import { config } from './config'
+
+
 
 export const web3Libs = () => {
     return {
-        providerOptionsProm: import('shared/src/utils/evm'),
-        web3Mprom: import("web3modal"),
-        ethers: import("ethers")
+        web3ModalEthereum: import('@web3modal/ethereum'),
+        web3ModalHtml: import("@web3modal/html"),
+        wgamiCore: import("@wagmi/core"),
+        wgamiChains: import("@wagmi/core/chains"),
     }
 }
 
-export const getWeb3Modal = async ({
-    providerOptionsProm,
-    web3Mprom,
-    theme = 'dark',
-    disableInjectedProvider = false
+export type TWeb3Libs = ReturnType<typeof web3Libs>
+
+// export const getWeb3Modal = async ({
+//     providerOptionsProm,
+//     web3Mprom,
+//     theme = 'dark',
+//     disableInjectedProvider = false
+// }: {
+//     providerOptionsProm: IproviderOptionsProm,
+//     web3Mprom: Iweb3Mprom,
+//     theme?: 'dark' | 'light',
+//     disableInjectedProvider?: boolean
+// }) => {
+//     const { default: libDefault } = await web3Mprom
+//     const { providerOptions } = await providerOptionsProm
+//     return new libDefault({
+//         network: 'matic', // optional
+//         cacheProvider: false, // optional
+//         providerOptions, // required
+//         theme,
+//         disableInjectedProvider
+//     })
+// }
+
+// export const ethersLib = ref() as IethersLib
+// export const userProvider = ref() as IuserProvider
+// export const web3Modal = ref() as Iweb3Modal
+
+export const tryToGetAddressWithoutPrompt = async ({
+    localWeb3Libs
 }: {
-    providerOptionsProm: IproviderOptionsProm,
-    web3Mprom: Iweb3Mprom,
-    theme?: 'dark' | 'light',
-    disableInjectedProvider?: boolean
+        localWeb3Libs: ReturnType<typeof web3Libs>
 }) => {
-    const { default: libDefault } = await web3Mprom
-    const { providerOptions } = await providerOptionsProm
-    return new libDefault({
-        network: 'matic', // optional
-        cacheProvider: false, // optional
-        providerOptions, // required
-        theme,
-        disableInjectedProvider
+    const { EthereumClient, w3mConnectors, w3mProvider } = await localWeb3Libs.web3ModalEthereum
+    const { Web3Modal } = await localWeb3Libs.web3ModalHtml
+    const { configureChains, createConfig, getAccount } = await localWeb3Libs.wgamiCore
+    const { polygon, mainnet } = await localWeb3Libs.wgamiChains
+
+    const chains = [polygon, mainnet]
+
+    const { publicClient } = configureChains(chains, [w3mProvider({ projectId: config.PROJECT_ID })])
+    const wagmiConfig = createConfig({
+        autoConnect: true,
+        connectors: w3mConnectors({ projectId: config.PROJECT_ID, chains }),
+        publicClient
     })
+    const ethereumClient = new EthereumClient(wagmiConfig, chains)
+
+    new Web3Modal({ projectId: config.PROJECT_ID }, ethereumClient)
+
+    return (await getAccount()).address || null
 }
 
-export const ethersLib = ref() as IethersLib
-export const userProvider = ref() as IuserProvider
-export const web3Modal = ref() as Iweb3Modal
 
 export const prepareForTransaction = async ({
-    depUserProvider,
-    w3Modal,
-    ethersLib,
     stackAlertWarning,
-    web3Mprom,
-    ethers
+    localWeb3Libs
 }: {
-    depUserProvider: IuserProvider,
-    w3Modal: Iweb3Modal,
-    ethersLib: IethersLib,
     stackAlertWarning?: (msg: string) => void,
-    web3Mprom: Iweb3Mprom,
-    ethers: Iethers
+        localWeb3Libs: ReturnType<typeof web3Libs>
 }) => {
-    if (!depUserProvider.value) {
-        try {
-            await web3Mprom
-            const inst = await w3Modal.value.connect()
-            ethersLib.value = await ethers
-            depUserProvider.value = new ethersLib.value.providers.Web3Provider(inst)
-        } catch {
-            stackAlertWarning && stackAlertWarning('User rejected connection')
-            return false
+
+    const web3ModalEthereum = await localWeb3Libs.web3ModalEthereum
+    const web3ModalHtml = await localWeb3Libs.web3ModalHtml
+    const wgamiCore = await localWeb3Libs.wgamiCore
+    const chainsLib = await localWeb3Libs.wgamiChains
+
+    const { EthereumClient, w3mConnectors, w3mProvider } = web3ModalEthereum
+    const { Web3Modal } = web3ModalHtml
+    const { configureChains, createConfig, getAccount } = wgamiCore
+    const { polygon, mainnet } = chainsLib
+
+
+    const chains = [polygon, mainnet]
+
+    const { publicClient } = configureChains(chains, [w3mProvider({ projectId: config.PROJECT_ID })])
+    const wagmiConfig = createConfig({
+        autoConnect: true,
+        connectors: w3mConnectors({ projectId: config.PROJECT_ID, chains }),
+        publicClient
+    })
+    const ethereumClient = new EthereumClient(wagmiConfig, chains)
+
+    const web3Modal = new Web3Modal({ projectId: config.PROJECT_ID }, ethereumClient)
+    if (web3Modal) {
+        let conn = await getAccount()
+        if (!conn?.isConnected) {
+            await web3Modal.openModal()
+            const modalStateProm = new Promise((resolve) => {
+                const unsub = web3Modal.subscribeModal(async (state) => {
+                    unsub()
+                    resolve(state)
+                })
+            })
+            await modalStateProm
+            conn = await getAccount()
+            if (!conn.isConnected) {
+                stackAlertWarning && stackAlertWarning('User closed connect modal.')
+                return false
+            }
+            return {
+                wgamiCore
+            }
         }
-    }
-    const { chainId } = await deRef(depUserProvider).getNetwork()
-    if (chainId !== 137) {
-        depUserProvider.value = null as any
-        stackAlertWarning && stackAlertWarning(`You are on wrong network(${chainId}), please switch to polygon(137)`)
+    } else {
+        stackAlertWarning && stackAlertWarning('Web3 Instance is null.')
         return false
     }
-    return true
+
+
+    // if (!depUserProvider.value) {
+    //     try {
+    //         await web3Mprom
+    //         const inst = await w3Modal.value.connect()
+    //         ethersLib.value = await ethers
+    //         depUserProvider.value = new ethersLib.value.providers.Web3Provider(inst)
+    //     } catch {
+    //         stackAlertWarning && stackAlertWarning('User rejected connection')
+    //         return false
+    //     }
+    // }
+    // const { chainId } = await deRef(depUserProvider).getNetwork()
+    // if (chainId !== 137) {
+    //     depUserProvider.value = null as any
+    //     stackAlertWarning && stackAlertWarning(`You are on wrong network(${chainId}), please switch to polygon(137)`)
+    //     return false
+    // }
+    // return true
 }
 
-export const signCanonChallenge = async (payload: Record<string, unknown>, signer: unknown) => {
+export const signCanonChallenge = async (payload: Record<string, unknown>, signMessage: (arg: { message: string }) => Promise<string>) => {
     const canFn = (await canonicalize).default;
     let signature;
     try {
-        signature = await (signer as {
-            signMessage: (a: string) => typeof a;
-        }).signMessage(canFn(payload) as string);
-    } catch (error) {
-        return;
-    }
-    return signature;
-};
-
-export const signArbitraryText = async ({
-    text,
-    web3Mprom,
-    w3Modal,
-    ethers,
-    ethersLib,
-    userProvider,
-}: {
-    text: string,
-    web3Mprom: Promise<any>,
-    w3Modal: Iweb3Modal,
-    ethers: Iethers,
-    ethersLib: IethersLib,
-    userProvider: IuserProvider
-}) => {
-    let signature;
-    try {
-        await web3Mprom;
-        const inst = await w3Modal.value.connect();
-        ethersLib.value = await ethers;
-        userProvider.value = new ethersLib.value.providers.Web3Provider(inst);
-        const signer = userProvider.value.getSigner();
-
-        signature = await (signer as unknown as {
-            signMessage: (a: string) => typeof a;
-        }).signMessage(text);
+        signature = await signMessage({ message: canFn(payload) as string });
     } catch (error) {
         return;
     }
@@ -130,18 +173,18 @@ export const signedTypeData = async ({
     domain,
     types,
     value,
-    userProvider
+    signTypedData
 }: {
     domain: TypedDataDomain,
     types: Record<string, any>,
     value: Record<string, any>,
-    userProvider: IuserProvider
+        signTypedData: typeof TsignTypedData
 }
 ) => {
-    const signer = userProvider.value.getSigner();
-    return await signer._signTypedData(
-        omit(domain, '__typename'),
-        omit(types, '__typename') as any,
-        omit(value, '__typename')
+    return await signTypedData({
+        domain: omit(domain, '__typename'),
+        types: omit(types, '__typename') as any,
+        message: omit(value, '__typename') as any
+    } as any
     )
 }

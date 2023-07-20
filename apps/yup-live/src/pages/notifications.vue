@@ -78,6 +78,9 @@
           >
             <FollowNotification :notification="notification" />
           </div>
+
+          <button v-if="hasMore" class="view-btn mt-4 text-[0.92rem] p-3" @click="loadMore"><AddIcon class="inline-block w-4 mr-2" />Load Older <BtnSpinner v-if="loadingMore" class="inline-block w-4 ml-2" /></button>
+
         </o-tab-item>
       </o-tabs>
 
@@ -121,7 +124,7 @@ import type { NotifType } from "shared/src/types/notification";
 import VoteNotification from "components/notifications/vote.vue";
 import RewardNotification from  "components/notifications/reward.vue";
 import FollowNotification from "components/notifications/follow.vue";
-
+ 
 export default defineComponent({
   name: "Notifications",
   components: {
@@ -139,7 +142,15 @@ export default defineComponent({
     const address = route.params.address as string;
     const notifications = ref([]) as Ref<NotifType[]>;
     const activeTab = ref("0") as Ref<string>;
+    const hasMore = ref(true);
+    const loadingMore = ref(false);
 
+    const types = {
+      "1": "vote",
+      "2": "reward",
+      "3": "follow",
+    }
+    
     const siteData = reactive({
       title: `YUP Live view your notifications`,
       description: `YUP Live view notifications about votes & rewards`,
@@ -196,39 +207,24 @@ export default defineComponent({
       // do nothing
     });
 
-    // const checkAccount = async () => {
-    //   const reqAcc = await fetch(`${API_BASE}/accounts/${search.value}`, {
-    //     method: "GET",
-    //     headers: {
-    //       "Content-Type": "application/json;charset=utf-8",
-    //     },
-    //   });
-    //   if (!reqAcc.ok) {
-    //     apiErrorMsg.value = "Account not found, please check your spelling.";
-    //     apiError.value = true;
-    //     isDataLoading.value = false;
-    //     return false;
-    //   }
-    //   const acc = await reqAcc.json();
-    //   userId.value = acc._id;
-    //   return acc._id;
-    // };
-
     const getByActiveTab = async () => {
       if (activeTab.value === "0") {
         notifications.value = (await getNotifications({ address, type: null }));
       } else if (activeTab.value === "1") {
         notifications.value = (
-          await getNotifications({ address, type: ["vote"] })
+          await getNotifications({ address, type: ['vote'] })
         );
       } else if (activeTab.value === "2") {
         notifications.value = (
-          await getNotifications({ address, type: ["reward"] })
+          await getNotifications({ address, type: ['reward'] })
         );
       } else if (activeTab.value === "3") {
         notifications.value = (
-          await getNotifications({ address, type: ["follow"] })
+          await getNotifications({ address, type: ['follow'] })
         );
+      }
+      if (notifications.value.length < 10) {
+        hasMore.value = false;
       }
     };
 
@@ -242,6 +238,23 @@ export default defineComponent({
       }
     );
 
+    const loadMore = async () => {
+      loadingMore.value = true;
+      const notifs = await getNotifications({
+          address,
+          type: activeTab.value === "0" ? null : [types[activeTab.value as "1" | "2" | "3"] as string] ,
+          skip: String(notifications.value.length),
+        })
+      if (notifs.length < 10) {
+        hasMore.value = false;
+      }
+
+       notifications.value = notifications.value.concat(
+        notifs
+      );
+      loadingMore.value = false;
+    };
+
     onMounted(async () => {
       loading.value = true;
       await getByActiveTab();
@@ -253,6 +266,9 @@ export default defineComponent({
       address,
       loading,
       activeTab,
+      hasMore,
+      loadMore,
+      loadingMore
     };
   },
 });

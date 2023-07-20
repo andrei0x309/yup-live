@@ -56,13 +56,13 @@
           class="asocLink"
           @click="openPostModal = true"
         >
-          Multi Post
+          New Post
         </button>
         <router-link 
           v-else
           class="asocLink"
           :to="`/profile/${(userData._id) as string}/settings`">
-          Connect platfroms to post
+          Connect socials to post
           </router-link>
       <router-link class="asocLink" :to="`/web3-profile/${userData.evmAddress}`"
         >View Associated web3 profile</router-link

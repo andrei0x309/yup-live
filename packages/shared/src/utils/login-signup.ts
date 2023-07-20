@@ -1,16 +1,64 @@
-import type { Ref } from 'vue'
-import type { providers } from 'ethers'
 import { editProfile } from './requests/accounts'
+import { config } from './config'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
+const w3libsP = Promise.all([
+    import('@web3modal/ethereum'),
+    import('@wagmi/core'),
+    import('@web3modal/html'),
+    import('@wagmi/core/chains'),
+])
+
 export const web3ModalInstantiate = async (
-    { web3M = null, loadState = null, setAlert = null }: { web3M: null | Ref<any>, loadState: null | Function, setAlert: null | Function }
+    { loadState = null, setAlert = null }: { loadState: null | Function, setAlert: null | Function }
 ) => {
     try {
-        if (web3M) {
-            await web3M.value.clearCachedProvider();
-            return await web3M.value.connect()
+        const [lib1, lib2, lib3, lib4] = await w3libsP
+        const { EthereumClient, w3mConnectors, w3mProvider } = lib1
+        const { configureChains, createConfig, getAccount } = lib2
+        const { Web3Modal } = lib3
+        const { polygon, mainnet } = lib4
+
+        const chains = [polygon, mainnet]
+
+        const { publicClient } = configureChains(chains, [w3mProvider({ projectId: config.PROJECT_ID })])
+        const wagmiConfig = createConfig({
+            autoConnect: true,
+            connectors: w3mConnectors({ projectId: config.PROJECT_ID, chains }),
+            publicClient
+        })
+        const ethereumClient = new EthereumClient(wagmiConfig, chains)
+
+
+
+        const web3Modal = new Web3Modal({ projectId: config.PROJECT_ID }, ethereumClient)
+
+        if (web3Modal) {
+            let conn = await getAccount()
+            if (!conn?.isConnected) {
+                await web3Modal.openModal()
+                const modalStateProm = new Promise((resolve) => {
+                    const unsub = web3Modal.subscribeModal(async (state) => {
+                        unsub()
+                        resolve(state)
+                    })
+                })
+                await modalStateProm
+                conn = await getAccount()
+                if (!conn.isConnected) {
+                    if (loadState && setAlert) {
+                        loadState('end')
+                        setAlert({
+                            type: 'error',
+                            message: 'User closed connect modal.'
+                        })
+                    }
+                    return
+                }
+                return conn
+            }
+            return conn
         } else {
             if (loadState && setAlert) {
                 loadState('end')
@@ -31,7 +79,13 @@ export const web3ModalInstantiate = async (
     }
 }
 
-const getAccount = async ({
+export const walletDisconnect = async () => {
+    const [, lib2] = await w3libsP
+    const { disconnect } = lib2
+    await disconnect()
+}
+
+const getYupAccount = async ({
     address,
     type = 'login',
     loadState = null,
@@ -76,12 +130,11 @@ const getAccount = async ({
 }
 
 const signChallenge = async ({
-    address, signer, loadState = null, setAlert = null, web3M = null
+    address, loadState = null, setAlert = null
 }: {
-    address: string, signer: providers.JsonRpcSigner,
+        address: string,
     loadState: null | Function
-    setAlert: null | Function
-        web3M: null | Ref<any>
+        setAlert: null | Function
 }) => {
     const req = await fetch(`${API_BASE}/v1/eth/challenge?address=${address}`, {
         headers: {
@@ -92,8 +145,12 @@ const signChallenge = async ({
     const challenge = res.data
     let signature: string
     const timeout = new Promise((resolve) => setTimeout(() => resolve(0), 90000))
+    const [, lib2] = await w3libsP
+    const { signMessage, disconnect } = lib2
     try {
-        signature = await Promise.race([signer.signMessage(challenge), timeout]) as string
+        signature = await Promise.race([signMessage({
+            message: challenge,
+        }), timeout]) as string
         if (!signature) {
             if (loadState && setAlert) {
                 loadState('end')
@@ -101,13 +158,12 @@ const signChallenge = async ({
                     type: 'error',
                     message: 'Wallet did not respond in 90s. Please try again later'
                 })
-                if (web3M) {
-                    await web3M.value.clearCachedProvider();
-                }
+                disconnect()
             }
             return
         }
     } catch (error) {
+        console.error(error)
         if (loadState && setAlert) {
             loadState('end')
             setAlert({
@@ -187,18 +243,12 @@ const createAccount = async ({ username, address, signature, loadState = null, s
 
 export const onSignup = async (
     {
-        web3M,
-        provider,
-        ethers,
         username,
         loadState = null,
         setAlert = null,
         bio = null,
         fullname = null
     }: {
-        web3M: Ref<any>,
-        provider: Ref<any>,
-        ethers: any,
         username: string
         loadState: null | Function,
         setAlert: null | Function,
@@ -208,14 +258,12 @@ export const onSignup = async (
     if (loadState) {
         loadState('start')
     }
-    const inst = await web3ModalInstantiate({ web3M, loadState, setAlert })
+    const inst = await web3ModalInstantiate({ loadState, setAlert })
     if (inst) {
-        provider.value = new ethers.providers.Web3Provider(inst)
-        const signer = provider.value.getSigner()
-        const address = await signer.getAddress()
-        const account = await getAccount({ address, type: 'signup', loadState, setAlert })
+        const address = inst.address ?? ""
+        const account = await getYupAccount({ address, type: 'login', loadState, setAlert })
         if (!account) return
-        const signature = await signChallenge({ address, signer, loadState, setAlert, web3M })
+        const signature = await signChallenge({ address, loadState, setAlert })
         if (!signature) return
         const accountSignUp = await createAccount({ address, signature, username: username, loadState, setAlert })
         if (!accountSignUp) return
@@ -254,30 +302,21 @@ export const onSignup = async (
 }
 
 export const onLogin = async ({
-    web3M,
-    provider,
-    ethers,
     loadState = null,
     setAlert = null
 }: {
-    web3M: Ref<any>,
-    provider: Ref<any>,
-    ethers: any,
     loadState: null | Function,
     setAlert: null | Function,
 }) => {
     if (loadState) {
         loadState('start')
     }
-
-    const inst = await web3ModalInstantiate({ web3M, loadState, setAlert })
+    const inst = await web3ModalInstantiate({ loadState, setAlert })
     if (inst) {
-        provider.value = new ethers.providers.Web3Provider(inst)
-        const signer = provider.value.getSigner()
-        const address = await signer.getAddress()
-        const account = await getAccount({ address, type: 'login', loadState, setAlert })
+        const address = inst.address ?? ""
+        const account = await getYupAccount({ address, type: 'login', loadState, setAlert })
         if (!account) return
-        const signature = await signChallenge({ address, signer, loadState, setAlert, web3M })
+        const signature = await signChallenge({ address, loadState, setAlert })
         if (!signature) return
         const accountLogIn = await logIn({ address, signature, loadState, setAlert })
         if (!accountLogIn) return

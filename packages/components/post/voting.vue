@@ -1,7 +1,7 @@
 <template>
-  <div v-if="!mobile" class="flex gap-4">
+  <!-- <div v-if="!mobile" class="flex gap-4">
     <component
-      :is="toolTipComponent"
+      :is="(toolTipComponent as unknown)"
       v-model:active="showUp"
       :triggers="['hover']"
       :autoClose="true"
@@ -20,7 +20,7 @@
       ></span>
     </component>
     <component
-      :is="toolTipComponent"
+      :is="(toolTipComponent as unknown)"
       v-model:active="showDown"
       :triggers="['hover']"
       :autoClose="true"
@@ -38,39 +38,30 @@
         v-html="formatNumber(negativeWeightRef, 2)"
       ></span>
     </component>
-  </div>
-  <div v-else class="flex gap-4">
+  </div> -->
+  <div class="flex gap-4">
     <div>
-      <ThumbsUp
-        :key="`${hasVote}-${lastVote}`"
-        :class="`opacity-80 w-5 cursor-pointer inline-block mr-1 thumb ${
-          doingVote ? 'blink' : ''
+      <LikesIcon
+        :key="`${hasVote}`"
+        :class="`opacity-80 w-5 cursor-pointer inline-block mr-1 like-vote ${
+          doingLike ? 'blinkAndPump' : ''
         }`"
-        :isSolid="refHasVote && lastVote"
-        @click="doVote(true)"
+        :isSolid="refHasVote"
+        @click="() => {
+          if (refHasVote) {
+            deleteVote()
+          } else {
+            onLike()
+          }
+        }"
       />
       <span
-        v-if="positiveWeightRef"
-        class="opacity-80 mr-1 text-[0.85rem]"
-        v-html="formatNumber(positiveWeightRef, 2)"
+        v-if="refNumLikes"
+        class="opacity-80 ml-2 mr-2 text-[0.95rem]"
+        v-html="formatNumber(refNumLikes, 2)"
       ></span>
     </div>
-    <div>
-      <ThumbsDown
-        :key="`${hasVote}-${lastVote}`"
-        :class="`opacity-80 w-5 cursor-pointer inline-block mr-1 thumb ${
-          doingVote ? 'blink' : ''
-        }`"
-        :isSolid="refHasVote && !lastVote"
-        @click="doVote(false)"
-      />
-      <span
-        v-if="negativeWeightRef"
-        class="opacity-80 mr-1 text-[0.85rem]"
-        v-html="formatNumber(negativeWeightRef, 2)"
-      ></span>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
@@ -83,12 +74,14 @@ import { fetchWAuth } from "shared/src/utils/auth";
 import type { Vote } from "shared/src/types/vote";
 // import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
 import type { IVotingDeps } from "shared/src/types/vote";
+import LikesIcon from "icons/src/likes.vue";
 
 export default defineComponent({
   name: "Voting",
   components: {
     ThumbsUp,
     ThumbsDown,
+    LikesIcon,
   },
   props: {
     postId: {
@@ -101,6 +94,11 @@ export default defineComponent({
       default: 0,
     },
     negativeWeight: {
+      required: false,
+      type: Number,
+      default: 0,
+    },
+    numLikes: {
       required: false,
       type: Number,
       default: 0,
@@ -133,11 +131,13 @@ export default defineComponent({
     const rating = ref(0);
     let timer: undefined | number | string = undefined;
     const doingVote = ref(false) as Ref<boolean>;
+    const doingLike = ref(false) as Ref<boolean>;
     const vote = (ref({}) as unknown) as Ref<Vote>;
     const refHasVote = ref(false) as Ref<boolean>;
     const lastVote = ref(false) as Ref<boolean>;
     const showUp = ref(false) as Ref<boolean>;
     const showDown = ref(false) as Ref<boolean>;
+    const refNumLikes = ref(props.numLikes);
 
     store.$subscribe(() => {
       isAuth.value = store.isLoggedIn;
@@ -197,6 +197,81 @@ export default defineComponent({
         showDown.value = true;
       }
     };
+
+    const onLike = async () => {
+      if (!isAuth.value) {
+        props.deps.openConnectModal && props.deps.openConnectModal(store);
+        return;
+      }
+      if (doingLike.value || refHasVote.value) {
+        return;
+      }
+      doingLike.value = true;
+      const body = {
+        postid: props.postId,
+        voter: store.userData.account,
+        rating: 1,
+        like: true
+      }
+      const req = await fetchWAuth(
+        store,
+        `${props.deps.apiBase}/votes`,
+        {
+          method: "POST",
+          body: JSON.stringify(body),
+        }
+      );
+      if (req.ok) {
+        refNumLikes.value += 1;
+        refHasVote.value = true;
+        doingLike.value = false;
+        return await req.json();
+      } else {
+        const err = await req.text();
+        if (err.includes("limit")) {
+          props.deps.stackAlertError("Rating limit reached!!!");
+        } else if (err.includes("requests")) {
+          props.deps.stackAlertError(
+            "You have made too many request try again after 24h!"
+          );
+        } else if (err.toLocaleLowerCase().includes("unauthorized")) {
+          props.deps.stackAlertError("Seems your auth token has expired re-login!!");
+        } else {
+          props.deps.stackAlertError(
+            "Rating not submitted due to error try to re-login!"
+          );
+        }
+        doingLike.value = false;
+        return null;
+      }
+      
+    };
+
+    const deleteVote = async () => {
+      if (!isAuth.value) {
+        props.deps.openConnectModal && props.deps.openConnectModal(store);
+        return;
+      }
+        try {
+          doingLike.value = true
+          const reqVote = await fetch(`${props.deps.apiBase}/votes/post/${props.postId}/voter/${store.userData.account}`)
+          const voteId = (await reqVote.json())[0]._id.voteid
+          const p1 = fetchWAuth(store, `${props.deps.apiBase}/votes/${voteId}`, {
+            method: 'DELETE'
+          })
+          const [req] = await Promise.all([p1])
+          if (!req.ok) {
+            props.deps.stackAlertError('There was an error with authorization, please try to re-login.')
+          } else {
+            refNumLikes.value -= 1
+            refHasVote.value = false
+          }
+          doingLike.value = false
+        } catch (error) {
+          console.log('error', error)
+          props.deps.stackAlertError('The vote could not be deleted!')
+        }
+    }
 
     const doVote = (voteType: boolean) => {
       if (!isAuth.value) {
@@ -306,14 +381,53 @@ export default defineComponent({
       rating,
       formatNumber,
       doingVote,
+      deleteVote,
+      onLike,
+      refNumLikes,
+      doingLike
     };
   },
 });
 </script>
 
 <style scoped lang="scss">
-.thumb:active {
-  transform: rotate3d(1, 1, 1, 55deg);
-  transition: all 0.1s;
+.like-vote:hover {
+  transform:  scale(1.4);
+  transition: all 0.2s;
 }
+.like-vote:active {
+  transform:  scale(1.4);
+  transition: all 0.2s;
+}
+
+.blinkAndPump {
+    animation: blink 0.9s infinite, pump 0.9s infinite;
+}
+@keyframes blink {
+    0% {
+            opacity: 0;
+        }
+    
+        50% {
+            opacity: .5;
+        }
+    
+        100% {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes pump {
+        0% {
+            transform: scale(1);
+        }
+                50% {
+            transform: scale(1.4);
+            }
+            
+            100% {
+                transform: scale(1);
+            }
+            }
+
 </style>

@@ -3,14 +3,9 @@
   <div class="flex w-full">
     <div class="flex flex-col">
       <p class="ml-4 mt-1 pb-4 flex items-center">
-        <template v-if="notification.meta.like">
-          <ThumbsUp class="w-6 opacity-70" :isSolid="true" />
-        </template>
-        <template v-else>
-          <ThumbsDown class="w-6 opacity-70" :isSolid="true" />
-        </template>
+      <LikesIcon  class="w-6 opacity-70" :isSolid="true"/>
       </p>
-      <div>on: 
+      <div class="text-center">on: 
       <component
             :is="icons[notification.platform as typeof platforms[number]]"
             class="inline-block w-8 ml-auto" />
@@ -76,8 +71,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { timeAgo } from "shared/src/utils/time";
-import ThumbsDown from "icons/src/thumbsDown.vue";
-import ThumbsUp from "icons/src/thumbsUp.vue";
 import ImagePreview from "../post/imagePreview.vue";
 import ClockIcon from "icons/src/clock.vue";
 import type { NotifType } from "shared/src/types/notification";
@@ -85,6 +78,7 @@ import ProfileLensIcon from "icons/src/profileLens.vue";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import ProfileYupIcon from "icons/src/profileYup.vue";
 import ProfileBlueSkyIcon from "icons/src/bsky.vue";
+import LikesIcon from "icons/src/likes.vue"
 
 const platforms = [ 'lens', 'farcaster', 'yup', 'bsky'] as const
 
@@ -98,10 +92,9 @@ const icons = {
 export default defineComponent({
   name: "VoteNotification",
   components: {
-    ThumbsDown,
-    ThumbsUp,
     ImagePreview,
     ClockIcon,
+    LikesIcon
   },
   props: {
     notification: {

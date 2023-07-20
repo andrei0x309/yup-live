@@ -1,5 +1,20 @@
 export const recentChanges = [
     {
+        date: "20 July - 2023",
+        title: "Changes",
+        changes: [
+            'optimized & changed splash screen from yup live mobile',
+            'added support for loading older notifs on yup live web',
+            'migrated to lastest capacitor 5 on yup live mobile',
+            'changed voting component to a more simple like component that shows num of likes instead of weight and also will delete vote if clicked again + will show if action is pending and if acction succeded',
+            'migrating wallet functionality to work with WalletConnect V2 for login, signup',
+            'changed main wallet lib to wgami core changed all tx from stake, connect, etc to use wgami core',
+            'moved all common stake logic to shared util',
+            'new yup live extension version with the following changes: *migrated from windicss to tailwindcss, *migrated to web3-notifications and adapted them *changed like component, *changed injected overlay to support new like component and delete vote',
+            'released new web, desktop and mobile version'
+        ],
+    },
+    {
         date: "14 July - 2023",
         title: "Changes",
         changes: [

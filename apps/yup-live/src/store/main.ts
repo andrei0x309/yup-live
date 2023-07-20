@@ -15,7 +15,8 @@ const useMainStore = defineStore('main', {
         connected: {
           farcaster: false,
           twitter: false,
-          lens: false
+          lens: false,
+          bsky: false,
         }
       },
       farcasterFeed: false,

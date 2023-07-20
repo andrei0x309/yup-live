@@ -26,6 +26,7 @@
               :positiveWeight="processedPost.positiveWeight"
               :negativeWeight="processedPost.negativeWeight"
               :hasVote="refHasVote"
+              :numLikes="post.rating?.overall?.ratingCount ?? 0"
               :deps="deps"
               :mobile="mobile"
               :toolTipComponent="deps.ToolTip"

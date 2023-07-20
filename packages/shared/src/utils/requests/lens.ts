@@ -1,5 +1,4 @@
-import type { IethersLib, IuserProvider, Iweb3Modal, Iweb3Mprom, Iethers } from 'shared/src/types/evm'
-import { prepareForTransaction, signedTypeData } from '../evmTxs'
+import { prepareForTransaction, signedTypeData, TWeb3Libs } from '../evmTxs'
 import { config } from '../config'
 const API_BASE = config.API_BASE || ''
 import { fetchWAuth } from '../auth'
@@ -28,43 +27,34 @@ export const removeLocalLensAuth = () => {
 }
 
 export const authLens = async ({
-  depUserProvider,
-  w3Modal,
-  ethersLib,
+  web3Libs,
   stackAlertWarning,
-  web3Mprom,
-  ethers,
   stackAlertSuccess
 }: {
-  depUserProvider: IuserProvider,
-  w3Modal: Iweb3Modal,
-  ethersLib: IethersLib,
-  stackAlertWarning?: (msg: string) => void,
-  web3Mprom: Iweb3Mprom,
-  ethers: Iethers,
+    web3Libs: TWeb3Libs,
+    stackAlertWarning?: (msg: string) => void,
   stackAlertSuccess?: (msg: string) => void
 }
 
 ) => {
-  if (!(await prepareForTransaction({
-    depUserProvider,
-    w3Modal,
-    ethersLib,
+
+  const wgamiLib = (await prepareForTransaction({
+    localWeb3Libs: web3Libs,
     stackAlertWarning,
-    web3Mprom,
-    ethers
-  }))) {
+
+  }))
+  if (!(wgamiLib)) {
     return null
   }
-  const signer = await depUserProvider.value.getSigner()
-  console.log(signer)
+  const wgamiCore = wgamiLib.wgamiCore
   let signature
+  const address = (await wgamiCore.getAccount()).address ?? ''
   const req = await fetch(`${lensGraphQl}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       query: `query Challenge {
-challenge(request: { address: "${await signer.getAddress()}" }) {
+challenge(request: { address: "${address}" }) {
   text
 }
 }`
@@ -78,7 +68,7 @@ challenge(request: { address: "${await signer.getAddress()}" }) {
     } = await req.json()
     console.log(text)
     try {
-      signature = await signer.signMessage(text)
+      signature = await wgamiCore.signMessage({ message: text })
     } catch (error) {
       stackAlertWarning && stackAlertWarning('User rejected signature')
       return null
@@ -90,7 +80,7 @@ challenge(request: { address: "${await signer.getAddress()}" }) {
         body: JSON.stringify({
           query: `mutation Authenticate {
 authenticate(request: {
-  address: "${await signer.getAddress()}",
+  address: "${address}",
   signature: "${signature}"
 }) {
   accessToken
@@ -223,8 +213,17 @@ defaultProfile(request: { ethereumAddress: "${address}"}) {
   return null
 }
 
-export const setDispatcher = async ({ profileId, authToken, userProvider, test = false }: { profileId: string, authToken: string, userProvider: IuserProvider, test: boolean }) => {
+export const setDispatcher = async ({ profileId, authToken, test = false, web3Libs }: { profileId: string, authToken: string, web3Libs: TWeb3Libs, test: boolean }) => {
   const dispatcher = !test ? getRandomDispatcherAddress() : YUP_DISPATCHER_ADDRESS
+
+  const wgamiLib = (await prepareForTransaction({
+    localWeb3Libs: web3Libs,
+  }))
+  if (!(wgamiLib)) {
+    return null
+  }
+  const wgamiCore = wgamiLib.wgamiCore
+
   const req = await fetch(`${lensGraphQl}`, {
     method: 'POST',
     headers: {
@@ -269,7 +268,7 @@ export const setDispatcher = async ({ profileId, authToken, userProvider, test =
       domain: data.typedData.domain,
       types: data.typedData.types,
       value: data.typedData.value,
-      userProvider
+      signTypedData: wgamiCore.signTypedData
     })
     const deadline = Math.floor(new Date(data.expiresAt).getTime() / 1000)
     return { signature, deadline, profileId, dispatcher }

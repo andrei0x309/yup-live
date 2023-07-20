@@ -6,8 +6,17 @@
     animation: blink 0.9s infinite;
 }
 
+
 @keyframes blink {
-    50% {
-        opacity: 0;
-    }
-}
+    0% {
+            opacity: 0;
+        }
+                50% {
+            opacity: .5;
+            }
+            
+            100% {
+                opacity: 1;
+            }
+            }
+    

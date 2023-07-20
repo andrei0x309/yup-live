@@ -10,6 +10,7 @@ import { onMounted, defineComponent, ref } from 'vue'
 import { useMainStore } from '@/store/main'
 import BtnSpinner from 'icons/src/btnSpinner.vue'
 import LogOutIcon from 'icons/src/logout.vue'
+import { walletDisconnect } from 'shared/src/utils/login-signup'
 
 export default defineComponent({
   name: 'LogOutBtn',
@@ -39,6 +40,7 @@ export default defineComponent({
         authToken: ''
       }
       store.isLoggedIn = false
+      walletDisconnect()
       loading.value = false
     }
 
