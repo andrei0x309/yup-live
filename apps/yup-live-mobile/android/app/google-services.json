@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "693052195232",
+    "project_id": "yup-live-test",
+    "storage_bucket": "yup-live-test.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:693052195232:android:d9c68d612efd00e074a4c5",
+        "android_client_info": {
+          "package_name": "gf.info.yup"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "693052195232-d022pk9mroogbjpfisut4v6b7ohkg9o9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoKon_N-Rip6736fFAcELngrhG_ouKluo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "693052195232-d022pk9mroogbjpfisut4v6b7ohkg9o9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -33,7 +33,7 @@ const useSettingsStore = defineStore('setiings', {
     state: () => {
         return {
             personalizedFeeds: false,
-            accountTracking: false
+            accountTracking: false,
         } as {
             personalizedFeeds: boolean
             accountTracking: boolean

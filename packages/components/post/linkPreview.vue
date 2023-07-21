@@ -23,6 +23,10 @@ export default defineComponent({
     linkPreview: {
       type: Object as PropType<OpenGraphPreview>,
       required: true
+    },
+    noImage: {
+      type: Boolean,
+      default: false
     }
   },
   setup() {

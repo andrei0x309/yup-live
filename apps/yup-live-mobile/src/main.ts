@@ -45,4 +45,3 @@ router.isReady().then(() => {
     }, 1300)
 });
 
-

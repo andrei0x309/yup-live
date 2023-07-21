@@ -59,16 +59,6 @@
             </div>
           </div>
         </div>
-        <button
-          v-if="hasAtLeastOnePConnected"
-          class="asocLink mb-2"
-          @click="openPostModal = true"
-        >
-        New Post
-        </button>
-        <button v-else class="asocLink mb-2" @click="openSettings">
-          Connect socials to post
-        </button>
         <router-link v-if="!isLoadingUser" class="asocLink mb-2" :to="`/web3-profile/${userData.evmAddress}`">View Web3 profile</router-link>
         <ion-list style="position: sticky; top: 0; z-index: 2">
           <ion-item>
@@ -186,13 +176,6 @@
       </InfScroll> -->
         </div>
       </div>
-      <CrossPost
-    :key="`${openPostModal}k`"
-    :openModal="openPostModal"
-    :platforms="['farcaster', 'lens', 'twitter', 'bsky']"
-    @update:open-modal="(v: boolean) => (openPostModal = v)"
-    @success="postSent"
-  />
     </ion-content>
   </ion-page>
 </template>
@@ -275,9 +258,6 @@ export default defineComponent({
     IonRefresher,
     IonRefresherContent,
     IonIcon,
-    CrossPost: defineAsyncComponent(
-      () => import("@/views/CrossPostModal.vue")
-    ),
   },
   setup() {
     const route = useRoute();
@@ -314,8 +294,6 @@ export default defineComponent({
     const isOwnAccount = ref(
       store?.isLoggedIn && store?.userData.account === userId.value
     );
-    const hasAtLeastOnePConnected = ref(false);
-    const openPostModal = ref(false);
 
     const userData = (ref({
       _id: "",
@@ -353,7 +331,6 @@ export default defineComponent({
           (p) => (p as { _id: { postid: string } })._id.postid !== store.deletePost
         );
       }
-      checkHasConnected()
     });
 
     // watch(currentMenuTab, (newValue) => {
@@ -434,10 +411,6 @@ export default defineComponent({
       });
     };
 
-    const postSent = () => {
-      openPostModal.value = false;
-      resetPosts();
-    };
 
     // const menuChange = (tabId: string) => {
     //   currentMenuTab.value = tabId
@@ -503,15 +476,8 @@ export default defineComponent({
       });
     };
 
-    const checkHasConnected = () => {
-      isOwnAccount.value = store?.isLoggedIn && store?.userData.account === userId.value;
-      const hascConnected = Object.values(store?.userData?.connected || {}).filter(v => v===true).length > 0
-      hasAtLeastOnePConnected.value = !!(isOwnAccount.value && hascConnected)
-    }
-
     onIonViewDidEnter(async () => {
       userLoad();
-      checkHasConnected()
     });
 
     // onIonViewWillLeave( () => clearTimeout(LoadTimeout))
@@ -593,10 +559,7 @@ export default defineComponent({
       openSettings,
       API_BASE,
       stackAlertError,
-      postDeps,
-      hasAtLeastOnePConnected,
-      postSent,
-      openPostModal
+      postDeps
     };
   },
 });

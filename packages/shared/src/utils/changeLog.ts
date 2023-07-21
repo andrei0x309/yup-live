@@ -1,5 +1,18 @@
 export const recentChanges = [
     {
+        date: "21 July - 2023",
+        title: "Changes",
+        changes: [
+            'fix twitter post type due to change to twitter post format',
+            'added new post button/link socials in header if user is logged in on web app',
+            'change a bit the design of cross post modal on web app and mobile',
+            'added cross post/link socials button to navigation on yup live mobile and removed the ones on profile',
+            'WIP reversed expo notification system to be able to get later push notifications on mobile',
+            'changed profile to show connected platforms on yup live mobile',
+            'changed target compilation for android to 33 and minSDK to 22'
+        ],
+    },
+    {
         date: "20 July - 2023",
         title: "Changes",
         changes: [

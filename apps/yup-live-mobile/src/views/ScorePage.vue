@@ -13,7 +13,7 @@
           </form>
           <ion-button class="search-btn" fill="clear" @click="() => searchUser()"
             >Check Score</ion-button
-          >
+          >          
         </div>
         <template v-if="isDataLoading">
           <p>Loading YUP Score Details...</p>
@@ -275,8 +275,8 @@ export default defineComponent({
       searchUser,
       formatNumber,
       truncteEVMAddr,
-      parseIpfs,
-    };
+      parseIpfs   
+     };
   },
 });
 </script>

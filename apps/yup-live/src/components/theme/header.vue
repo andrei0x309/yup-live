@@ -106,22 +106,49 @@
 
         <!-- nav - start -->
         <nav class="hidden lg:flex gap-6 text-[0.8rem]">
+          <template v-if="isLoggedIn">
+            <button
+              v-if="canDoPost"
+              :key="`l${isLoggedIn}`"
+              class="post-btn"
+              @click="openPostModal = true"
+            >
+              <CrossPostIcon class="inline w-6 mr-2" />New Post
+            </button>
+            <router-link
+              v-else
+              class="post-btn"
+              style="display: flex; line-height: 2rem"
+              :to="{
+                path: `/profile/${store.userData.account}/settings?show-connect=true`,
+                query: { showConnect: 'true' },
+              }"
+            >
+              <ConnectPlatformIcon class="inline w-6 mr-1 mt-1" />Link Social
+            </router-link>
+          </template>
           <router-link
             class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 font-semibold transition duration-100 flex items-center"
             to="/feeds"
             ><FeedsIcon class="inline w-4 mr-2" />Feeds
           </router-link>
           <router-link
+            style="line-height: 1.7rem"
             class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 font-semibold transition duration-100"
             to="/staking"
             ><StakeIcon class="inline w-6 mr-2" />Staking
           </router-link>
           <router-link
+            style="line-height: 1.7rem"
             class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 font-semibold transition duration-100"
             to="/search"
             ><SearchIcon class="inline w-6 mr-2" />Search
           </router-link>
-          <o-dropdown v-model="menuDropDownLinks" aria-role="list">
+          <o-dropdown
+            v-model="menuDropDownLinks"
+            aria-role="list"
+            style="line-height: 1.7rem"
+          >
             <template #trigger>
               <o-button style="background-color: transparent">
                 <span class="dr-menu inline-flex items-center font-semibold gap-1"
@@ -195,6 +222,13 @@
       </header>
       <!-- menu - end -->
     </div>
+    <CrossPost
+      :key="`${openPostModal}k`"
+      :openModal="openPostModal"
+      :platforms="['farcaster', 'lens', 'twitter', 'bsky']"
+      @update:open-modal="(v: boolean) => (openPostModal = v)"
+      @success="postSent"
+    />
   </div>
 </template>
 
@@ -204,6 +238,12 @@ import ConnectButton from "@/components/content/connect/connectBtn.vue";
 import StakeIcon from "icons/src/stake.vue";
 import FeedsIcon from "icons/src/feeds.vue";
 import SearchIcon from "icons/src/search.vue";
+import { useRouter } from "vue-router";
+import { useMainStore } from "@/store/main";
+import { canPost } from "shared/src/utils/requests/crossPost";
+import CrossPost from "@/components/content/post/crossPost.vue";
+import CrossPostIcon from "icons/src/crossPost.vue";
+import ConnectPlatformIcon from "icons/src/connect.vue";
 
 export default defineComponent({
   name: "HeaderTemplate",
@@ -212,9 +252,22 @@ export default defineComponent({
     FeedsIcon,
     ConnectButton,
     SearchIcon,
+    CrossPost,
+    CrossPostIcon,
+    ConnectPlatformIcon,
   },
   setup(props) {
     const sidebarOpen = ref(false);
+    const openPostModal = ref(false);
+    const store = useMainStore();
+    const canDoPost = ref(canPost(store));
+    const router = useRouter();
+    const isLoggedIn = ref(store.isLoggedIn);
+
+    store.$subscribe(() => {
+      canDoPost.value = canPost(store);
+      isLoggedIn.value = store.isLoggedIn;
+    });
 
     const linksFs = [
       {
@@ -260,11 +313,21 @@ export default defineComponent({
       // do nothing.
     });
 
+    const postSent = () => {
+      openPostModal.value = false;
+      router.push(`/profile/${store.userData.account}/feed`);
+    };
+
     return {
       menuDropDownLinks,
       sidebarOpen,
       toggleSidebar,
       props,
+      postSent,
+      openPostModal,
+      canDoPost,
+      store,
+      isLoggedIn,
     };
   },
 });
@@ -468,5 +531,17 @@ h1 {
   box-shadow: inset -1px -1px 3rem 2px var(--logoBg);
   padding: 0rem 0.4rem;
   border-radius: 0.3rem;
+}
+
+.post-btn {
+  background-color: #8383832a;
+  height: 2rem;
+  width: 6.4rem;
+  border-radius: 0.5rem;
+  transition: 0.3s;
+}
+
+.post-btn:hover {
+  background-color: #8383834a;
 }
 </style>

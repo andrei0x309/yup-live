@@ -11,6 +11,14 @@ export const getNotifications = async (
 ) => {
     let req
     let queryType = ''
+    if (!address) {
+        return false
+    }
+
+    if (!type) {
+        type = [notificationTypes[1], notificationTypes[2], notificationTypes[3]]
+    }
+
     if (type) {
         queryType = `&eventTypes=${type.join(',')}`
     }

@@ -89,7 +89,11 @@ export default defineComponent({
     const doLogOut = async () => {
       store.isLoggedIn = false
       await storage.clear()
-      await walletDisconnect()
+      try {
+        await walletDisconnect()
+      } catch (e) {
+        console.error(e)
+      }
       window?.localStorage?.clear();
       router.replace('/')
       menuController.close('menu');

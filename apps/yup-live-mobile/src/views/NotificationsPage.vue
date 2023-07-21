@@ -17,49 +17,47 @@
         </ion-segment-button>
       </ion-segment>
 
-        <template v-if="notifications.length">
-           <div
-            v-for="notification of notifications"
-            :key="notification._id"
-            class="shadow-md p-4 flex flex-row rounded-lg relative notComp"
-          >
-            <template v-if="notification.eventType === 'vote'">
-              <VoteNotification :notification="notification" />
-            </template>
-            <template v-else-if="notification.eventType === 'reward'">
-              <RewardNotification :notification="notification" />
-            </template>
-            <template v-else-if="notification.eventType === 'follow'">
-              <FollowNotification :notification="notification" />
-            </template>
-          </div>
-        </template>
-        <template v-else-if="!loading">
-          <ion-card>
+      <template v-if="notifications.length">
+        <div
+          v-for="notification of notifications"
+          :key="notification._id"
+          class="shadow-md p-4 flex flex-row rounded-lg relative notComp"
+        >
+          <template v-if="notification.eventType === 'vote'">
+            <VoteNotification :notification="notification" />
+          </template>
+          <template v-else-if="notification.eventType === 'reward'">
+            <RewardNotification :notification="notification" />
+          </template>
+          <template v-else-if="notification.eventType === 'follow'">
+            <FollowNotification :notification="notification" />
+          </template>
+        </div>
+      </template>
+      <template v-else-if="!loading">
+        <ion-card>
           <ion-card-header>
             <ion-card-subtitle>Notifications -> [0]</ion-card-subtitle>
           </ion-card-header>
 
           <ion-card-content class="ion-justify-content-center">
-            <p class="ion-padding">Sorry! there are no notifications :(, do some stuff and check later</p>
+            <p class="ion-padding">
+              Sorry! there are no notifications :(, do some stuff and check later
+            </p>
           </ion-card-content>
         </ion-card>
-        </template>
+      </template>
 
- 
       <ion-loading
-      :key="`k${loading}`"
-      :is-open="loading"
-      message="Please wait..."
-      :duration="3000"
-      @didDismiss="loading = false"
-    >
-    </ion-loading>
-     </ion-content>
+        :key="`k${loading}`"
+        :is-open="loading"
+        message="Please wait..."
+        :duration="3000"
+        @didDismiss="loading = false"
+      >
+      </ion-loading>
+    </ion-content>
   </ion-page>
-
-
-  
 </template>
 
 <script lang="ts">
@@ -75,21 +73,20 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonLoading,
-  onIonViewDidEnter
+  onIonViewDidEnter,
 } from "@ionic/vue";
 import { defineComponent, ref, Ref } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
-import { getNotifications, clearNotifications } from "shared/src/utils/notifications"
+import { getNotifications, clearNotifications } from "shared/src/utils/notifications";
 import { useMainStore } from "@/store/main";
-import type { NotifType } from 'shared/src/types/notification'
-import { timeAgo } from "shared/src/utils/time"
+import type { NotifType } from "shared/src/types/notification";
+import { timeAgo } from "shared/src/utils/time";
 
 // import TwitterIcon from 'icons/src/twitter.vue'
 
 import VoteNotification from "components/notifications/vote.vue";
-import RewardNotification from  "components/notifications/reward.vue";
+import RewardNotification from "components/notifications/reward.vue";
 import FollowNotification from "components/notifications/follow.vue";
-
 
 export default defineComponent({
   name: "NotificationsPage",
@@ -98,21 +95,21 @@ export default defineComponent({
     IonPage,
     HeaderBar,
     IonSegment,
-  IonSegmentButton,
-  IonLabel,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonLoading,
-  VoteNotification,
-  RewardNotification,
-  FollowNotification
+    IonSegmentButton,
+    IonLabel,
+    IonCard,
+    IonCardContent,
+    IonCardHeader,
+    IonCardSubtitle,
+    IonLoading,
+    VoteNotification,
+    RewardNotification,
+    FollowNotification,
   },
-  setup () {
-    const store = useMainStore()
-    const loading = ref(false)
-    const notifications = ref([]) as Ref<NotifType[]>
+  setup() {
+    const store = useMainStore();
+    const loading = ref(false);
+    const notifications = ref([]) as Ref<NotifType[]>;
     const currentSegment = ref("all");
 
     // const addTwitterIcon =  (n:any) => {
@@ -127,30 +124,39 @@ export default defineComponent({
 
     const segmentChange = async (value: any) => {
       currentSegment.value = value.detail.value;
-      if(currentSegment.value === "all") {
-        notifications.value = (await getNotifications({ address: store.userData.address, type: null})) ?? []
+      if (currentSegment.value === "all") {
+        notifications.value =
+          (await getNotifications({ address: store.userData.address, type: null })) ?? [];
       } else {
-        notifications.value = (await getNotifications({ address: store.userData.address, type: ['reward']}))?? []
+        notifications.value =
+          (await getNotifications({
+            address: store.userData.address,
+            type: ["reward"],
+          })) ?? [];
       }
     };
 
     onIonViewDidEnter(async () => {
-      loading.value = true
-      notifications.value = (await getNotifications({ address: store.userData.address, type: null})) ?? []
-      if(notifications.value.length && notifications.value.some((n:any) => n?.seen === false)) {
-        clearNotifications(store)
-       }
-      loading.value = false
-    })
+      loading.value = true;
+      notifications.value =
+        (await getNotifications({ address: store.userData.address, type: null })) ?? [];
+      if (
+        notifications.value.length &&
+        notifications.value.some((n: any) => n?.seen === false)
+      ) {
+        clearNotifications(store);
+      }
+      loading.value = false;
+    });
 
     return {
       loading,
       segmentChange,
       currentSegment,
       notifications,
-      timeAgo
-    }
-  }
+      timeAgo,
+    };
+  },
 });
 </script>
 

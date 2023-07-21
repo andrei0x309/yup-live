@@ -234,6 +234,7 @@ import { storage } from "@/utils/storage";
 import CustomButton from "@/components/misc/button-connect-page.vue";
 import { useRouter } from "vue-router";
 import HeaderBar from "@/components/template/header-bar.vue";
+import { getConnected } from "shared/src/utils/requests/accounts";
 
 export default defineComponent({
   name: "ConnectPage",
@@ -264,8 +265,6 @@ export default defineComponent({
   IonButton
   },
   setup() {
-    const provider = (ref(null) as unknown) as Ref<ethers.providers.Web3Provider>;
-    const web3Modal = (ref(null) as unknown) as Ref<any>;
     const currentSegment = ref("login");
     const username = ref("");
     const bio = ref("");
@@ -338,7 +337,6 @@ export default defineComponent({
             authToken: res.jwt,
             username: res.username
         }
-
       await doLogin(loginRes)
       loading.value = false;
     } catch {
@@ -361,6 +359,9 @@ export default defineComponent({
           storage.set("authInfo", JSON.stringify(userAuth));
           mainStore.userData = userAuth;
           mainStore.isLoggedIn = true;
+          getConnected(mainStore, params?._id ?? "").catch((err) => {
+          console.error("Failed to get connected", err);
+        });
           router.push("/tabs/feeds");
         } catch (error) {
           console.error("Failed to set auth data", error);

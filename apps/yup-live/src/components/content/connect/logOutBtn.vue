@@ -40,7 +40,11 @@ export default defineComponent({
         authToken: ''
       }
       store.isLoggedIn = false
-      walletDisconnect()
+      try {
+        walletDisconnect()
+      } catch (e) {
+        console.error(e)
+      }
       loading.value = false
     }
 

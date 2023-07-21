@@ -101,6 +101,7 @@ import { useMainStore } from "@/store/main";
 import type { PartialAccountInfo } from "shared/src/types/account";
 import { onLogin, onSignup } from "shared/src/utils/login-signup";
 import { closeConnectModal } from "@/store/main";
+import { getConnected } from "shared/src/utils/requests/accounts";
 
 export default defineComponent({
   name: "LoginSignup",
@@ -172,6 +173,7 @@ export default defineComponent({
           weight: account.weight as number,
           authToken,
         };
+        getConnected(mainStore, mainStore.userData.account)
         mainStore.isLoggedIn = true;
       } catch (error) {
         console.error("Failed to set auth data", error);

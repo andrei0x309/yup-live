@@ -170,6 +170,7 @@ const signChallenge = async ({
                 type: 'error',
                 message: 'User cancelled the signature'
             })
+            disconnect()
         }
         return
     }

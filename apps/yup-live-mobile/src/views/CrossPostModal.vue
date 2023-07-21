@@ -44,7 +44,7 @@
             <textarea
               id="castField"
               v-model="postContent"
-              class="w-full bg-stone-200 text-gray-800 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
+              class="txt-box w-full bg-stone-200 text-gray-800 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
             >
             </textarea>
             <small>Character limit: {{ postContentCharCount }} / {{ maxCharCount }}</small>
@@ -325,5 +325,11 @@ const fileToBase64 = (file: File) => {
   --checkbox-background-checked: #405c252b;
 }
 
+.txt-box {
+    background-color: #a1a5a952;
+    border: 4px solid #3333339e;
+    border-radius: 0.7rem;
+    color: aliceblue;
+}
 
 </style>

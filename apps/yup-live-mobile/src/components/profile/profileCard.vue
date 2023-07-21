@@ -40,11 +40,14 @@
       <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-14" ><div><p>Delete</p><b>{{userData.actionBars.deleteVote}}</b></div></ion-chip>
       <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-14" ><div><p>Follow</p><b>{{userData.actionBars.follow}}</b></div></ion-chip>
       </div>
-      <div v-if="userData?.web3Handles?.farcaster ?? userData?.web3Handles?.lens">
-        <h6 class="pt-2">External Handles</h6>
+      <div v-if="canDoPost">
+        <h6 class="pt-2">Connected Socials</h6>
         <div class="flex mx-auto justify-center my-2">
-      <ion-chip v-if="userData?.web3Handles?.farcaster" style="display: flex;" class="opacity-70 h-12" ><div><p>Farcaster</p><b>{{userData?.web3Handles?.farcaster}}</b></div></ion-chip>
-      <ion-chip v-if="userData?.web3Handles?.lens" style="display: flex;" class="opacity-70 h-12" ><div><p>Lens</p><b>{{userData?.web3Handles?.lens}}</b></div></ion-chip>
+          <TwitterIcon class="w-8 mx-2" v-if="store?.userData?.connected?.twitter" />
+          <ProfileFarcasterIcon class="w-6 mx-2" v-if="store?.userData?.connected?.farcaster" />
+          <ProfileLensIcon class="w-6 mx-2" v-if="store?.userData?.connected?.lens" />
+          <ProfileBskyIcon class="w-10 mx-1" v-if="store?.userData?.connected?.bsky" />
+
       </div>
       </div>
     </div>
@@ -67,6 +70,13 @@ import {
 people as PeopleIcon,
 personAdd
 } from "ionicons/icons";
+import ProfileLensIcon from "icons/src/profileLens.vue";
+import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
+import ProfileBskyIcon from "icons/src/bskyClouds.vue";
+import TwitterIcon from "icons/src/twitter.vue";
+import { canPost } from 'shared/src/utils/requests/crossPost';
+import { useMainStore } from '@/store/main';
+
 
 export default defineComponent({
   name: 'PostInfo',
@@ -74,7 +84,11 @@ export default defineComponent({
     // ProfileUseBar,
     // AddFollow,
     IonIcon,
-    IonChip
+    IonChip,
+    ProfileLensIcon,
+    ProfileBskyIcon,
+    TwitterIcon,
+    ProfileFarcasterIcon
   },
   props: {
     postInfo: {
@@ -112,6 +126,9 @@ export default defineComponent({
       source.value = makeRandAvatar(props.userData.username)
     }
 
+    const store = useMainStore()
+    const canDoPost = canPost(store)
+
     // const onLoad = () => {
     //   isLoading.value = false
     // }
@@ -125,6 +142,8 @@ export default defineComponent({
       source,
       PeopleIcon,
       personAdd,
+      canDoPost,
+      store
 
       // onLoad,
       // isLoading,
