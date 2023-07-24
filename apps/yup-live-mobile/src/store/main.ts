@@ -4,10 +4,14 @@ import { IMainStore } from 'shared/src/types/store'
 const useMainStore = defineStore('main', {
     state: () => {
         return {
-            theme: 'light',
+            theme: 'dark',
             settings: {
                 personalizedFeeds: false,
-                accountTracking: false
+                accountTracking: false,
+                lastCheckForUpdate: Date.now(),
+                forcedVersion: 0,
+                updateMessage: 'The current version of the app is no longer supported. You must update to the latest version to continue using the app. Do you want to update now?',
+                updateUrl: 'https://play.google.com/store/apps/details?id=gf.info.yup'
             },
             userData: {
                 account: '',
@@ -29,17 +33,4 @@ const useMainStore = defineStore('main', {
     }
 }) as () => IMainStore
 
-const useSettingsStore = defineStore('setiings', {
-    state: () => {
-        return {
-            personalizedFeeds: false,
-            accountTracking: false,
-        } as {
-            personalizedFeeds: boolean
-            accountTracking: boolean
-        }
-    }
-})
-
-
-export { useMainStore, useSettingsStore }
+export { useMainStore }

@@ -1,4 +1,15 @@
 export const recentChanges = [
+    // {
+    //     date: "",
+    //     title: "Changes",
+    //     changes: [
+    //         'enabled push notifications on yup live mobile',
+    //         'addedd settings for push notifications on yup live mobile',
+    //         'added update system on yup live mobile to direct users to update or force them if needed',
+    //         'added script to publish new version of yup live mobile json on yup live web',
+    //         'on link socials click user is directed directly on linking socials section with the motivation to link socials',
+    //     ],
+    // },
     {
         date: "21 July - 2023",
         title: "Changes",

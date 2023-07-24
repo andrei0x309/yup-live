@@ -2,6 +2,7 @@ import { IMainStore } from 'shared/src/types/store';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { storage } from './storage';
 import { fetchWAuth } from 'shared/src/utils/auth';
+import { useRouter } from 'vue-router';
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -86,9 +87,7 @@ export const getPushSettings = async ({ store }: { store: IMainStore }) => {
     return data
 }
 
-
-
-export const getExpoPushToken = async () => {
+export const getExpoPushTokenAndRegister = async ({ store }: { store: IMainStore }) => {
     const deviceId = await getInstallationId()
     console.log(deviceId, 'deviceId')
     const devicePushTokenP = new Promise((resolve, reject) => {
@@ -112,6 +111,12 @@ export const getExpoPushToken = async () => {
     await PushNotifications.addListener('pushNotificationReceived', notification => {
         console.log('Push notification received: ', notification);
     });
+
+    await PushNotifications.addListener('pushNotificationActionPerformed', notification => {
+        console.log('Push notification action performed: ' + notification);
+        useRouter().push('/tabs/notifications')
+    }
+    );
 
     let permStatus = await PushNotifications.checkPermissions();
 
@@ -164,6 +169,7 @@ export const getExpoPushToken = async () => {
     }
 
     const data = await response.json();
-    console.log(data)
+    const { expoPushToken } = data.data;
+    sendPushToken({ store, pushToken: expoPushToken, deviceId })
     return data
 }

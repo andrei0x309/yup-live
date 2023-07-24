@@ -19,11 +19,14 @@
       </ion-loading>
     </ion-page>
   </ion-app>
-  <AlertStack :useAlertStack="useAlertStack" :setAlertStack="setAlertStack"  :mobile="true" />
+  <AlertStack
+    :useAlertStack="useAlertStack"
+    :setAlertStack="setAlertStack"
+    :mobile="true"
+  />
 </template>
 
 <script lang="ts">
-
 import {
   IonApp,
   IonRouterOutlet,
@@ -32,6 +35,7 @@ import {
   IonPage,
   toastController,
   IonLoading,
+  modalController,
 } from "@ionic/vue";
 import { defineComponent, ref, onBeforeMount, onBeforeUnmount } from "vue";
 import { useMainStore } from "@/store/main";
@@ -44,9 +48,11 @@ import { fetchWAuth } from "shared/src/utils/auth";
 import { wait } from "shared/src/utils/time";
 import { App } from "@capacitor/app";
 import { getConnected } from "shared/src/utils/requests/accounts";
-import AlertStack from 'components/functional/alertStack.vue'
-import { setAlertStack, useAlertStack } from '@/store/alertStore'
-
+import AlertStack from "components/functional/alertStack.vue";
+import { setAlertStack, useAlertStack } from "@/store/alertStore";
+import { getExpoPushTokenAndRegister } from "@/utils/expo-push-not-re";
+import { checkForUpdateAndNotify } from "@/utils/update-version";
+import UpdateModal from "@/views/UpdateModal.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -58,7 +64,7 @@ export default defineComponent({
     IonToast,
     IonLoading,
     IonPage,
-    AlertStack
+    AlertStack,
   },
   setup() {
     const store = useMainStore();
@@ -71,19 +77,6 @@ export default defineComponent({
       toastState.value = true;
       toastMsg.value = msg;
     };
-
-    App.addListener("backButton", (r) => {
-      if (!r.canGoBack) {
-        App.minimizeApp();
-      } else if (
-        router.currentRoute.value.path === "/connect" &&
-        router.currentRoute.value.redirectedFrom?.path === "/tabs/feeds" &&
-        store.isLoggedIn
-      ) {
-        router.replace("/tabs/feeds");
-        App.minimizeApp();
-      }
-    });
 
     const executeVote = async (like: boolean, url: string) => {
       const body = {} as Record<string, unknown>;
@@ -209,24 +202,77 @@ export default defineComponent({
         });
     }
 
+    const openUpdateModal = async ({
+      foreced,
+      message,
+      url,
+    }: {
+      foreced: boolean;
+      message: string;
+      url: string;
+    }) => {
+      const modal = await modalController.create({
+        component: UpdateModal,
+        componentProps: {
+          forced: foreced,
+          message: message,
+          url: url,
+        },
+      });
+      modal.present();
+      const { role } = await modal.onWillDismiss();
+      if (role === "confirm") return true;
+      return false;
+    };
+
     onBeforeMount(async () => {
       loading.value = true;
       if (!store.isLoggedIn) {
         const authInfo = storage.get("authInfo");
         const settings = storage.get("settings");
-        authInfo.then((res) => {
-          if (res) {
-            store.userData = JSON.parse(res);
-            getConnected(store, store.userData.account);
-            store.isLoggedIn = true;
-            router.replace("/tabs/feeds");
-          }
-        });
-        settings.then((res) => {
-          if (res) {
-            store.settings = JSON.parse(res);
-          }
-        });
+
+        const authInfoVal = await authInfo;
+
+        if (authInfoVal) {
+          checkForUpdateAndNotify(store).then((res) => {
+            if (res) {
+              openUpdateModal({
+                foreced: res.forced,
+                message: res.updateMessage,
+                url: res.url,
+              });
+            }
+            if (res?.forced) {
+              App.addListener("backButton", (r) => {
+                App.minimizeApp();
+              });
+            } else {
+              App.addListener("backButton", (r) => {
+                if (!r.canGoBack) {
+                  App.minimizeApp();
+                } else if (
+                  router.currentRoute.value.path === "/connect" &&
+                  router.currentRoute.value.redirectedFrom?.path === "/tabs/feeds" &&
+                  store.isLoggedIn
+                ) {
+                  router.replace("/tabs/feeds");
+                  App.minimizeApp();
+                }
+              });
+            }
+          });
+
+          settings.then((res) => {
+            if (res) {
+              store.settings = JSON.parse(res);
+            }
+          });
+          getExpoPushTokenAndRegister({ store });
+          store.userData = JSON.parse(authInfoVal);
+          getConnected(store, store.userData.account);
+          store.isLoggedIn = true;
+          await router.replace("/tabs/feeds");
+        }
       }
       loading.value = false;
     });
@@ -236,7 +282,7 @@ export default defineComponent({
       toastMsg,
       loading,
       setAlertStack,
-      useAlertStack
+      useAlertStack,
     };
   },
 });

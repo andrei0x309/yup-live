@@ -10,7 +10,7 @@
     </ion-header>
     <ion-content class="ion-padding">
       <ion-accordion-group v-if="!loading" :value="defaultAccordionOpen">
-        <ion-accordion value="1">
+        <ion-accordion value="account">
           <ion-item slot="header" color="light">
             <ion-label>Account</ion-label>
           </ion-item>
@@ -69,7 +69,7 @@
             </section>
           </div>
         </ion-accordion>
-        <ion-accordion value="2">
+        <ion-accordion value="socials">
           <ion-item slot="header" color="light">
             <ion-label>Social Connect</ion-label>
           </ion-item>
@@ -188,7 +188,7 @@
             </button>
           </div>
         </ion-accordion>
-        <ion-accordion value="3">
+        <ion-accordion value="settings">
           <ion-item slot="header" color="light">
             <ion-label>Feed Settings</ion-label>
           </ion-item>
@@ -224,7 +224,43 @@
             </ion-list>
           </div>
         </ion-accordion>
-        <ion-accordion value="4">
+        <ion-accordion value="push">
+          <ion-item slot="header" color="light">
+            <ion-label>Push Notifications</ion-label>
+          </ion-item>
+          <div slot="content" class="ion-padding">
+            <ion-list>
+              <ion-item>
+                Enabling feed personalization will make feeds to be tailored to your
+                account.
+              </ion-item>
+              <ion-item>
+                <ion-label>Enable Feed Personalization</ion-label>
+                <ion-toggle
+                  :key="updateKey"
+                  slot="end"
+                  aria-label="Enable Feed Personalization"
+                  :checked="store?.settings?.personalizedFeeds"
+                  @ion-change="changeSetting('personalizedFeeds')"
+                ></ion-toggle>
+              </ion-item>
+              <ion-item>
+                Enabling actions tracking will make feeds to be tailored to your account.
+              </ion-item>
+              <ion-item>
+                <ion-label>Enabling actions tracking</ion-label>
+                <ion-toggle
+                  :key="updateKey"
+                  slot="end"
+                  aria-label="Enabling actions tracking"
+                  :checked="store?.settings?.accountTracking"
+                  @ion-change="changeSetting('accountTracking')"
+                ></ion-toggle>
+              </ion-item>
+            </ion-list>
+          </div>
+        </ion-accordion>
+        <ion-accordion value="delete">
           <ion-item slot="header" color="light">
             <ion-label>Irreversible Actions</ion-label>
           </ion-item>
@@ -511,6 +547,7 @@ import { connectBlueSky, disconnectBlueSky } from "shared/src/utils/requests/bsk
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
+  name: "SettingsModal",
   components: {
     IonContent,
     IonHeader,
@@ -558,14 +595,8 @@ export default defineComponent({
     const toastState = ref(false);
     const toastMsg = ref("");
     const alertHeader = ref("Error");
-    const importFile = (ref(null) as unknown) as Ref<HTMLInputElement>;
-    type ModalPromisePassword = null | {
-      resolve: (p?: unknown) => void;
-      reject: (p?: unknown) => void;
-    };
-    const modalGetPassword = ref(null) as Ref<ModalPromisePassword>;
     const noAccounts = ref(true);
-    const defaultAccordionOpen = ref("1");
+    const defaultAccordionOpen = ref("account");
     const radioTheme = ref("system") as Ref<"system" | "light" | "dark">;
     const wasDelConfirmed = ref(false);
     const store = useMainStore();
@@ -696,7 +727,9 @@ export default defineComponent({
 
     const changeSetting = async (setting: unknown) => {
       if (store?.settings && setting) {
-        store.settings[setting as keyof typeof store.settings] = !store.settings[
+        ((store.settings[
+          setting as keyof typeof store.settings
+        ] as unknown) as boolean) = !store.settings[
           setting as keyof typeof store.settings
         ];
         store.settings;
@@ -938,8 +971,6 @@ export default defineComponent({
       alertMsg,
       toastState,
       toastMsg,
-      importFile,
-      modalGetPassword,
       noAccounts,
       alertHeader,
       defaultAccordionOpen,

@@ -229,7 +229,6 @@ import { defineComponent } from "vue";
 import { ref, Ref, onMounted, } from "vue";
 import { onLogin, onSignup } from "shared/src/utils/login-signup";
 import { useMainStore } from "@/store/main";
-import { ethers } from "ethers";
 import { storage } from "@/utils/storage";
 import CustomButton from "@/components/misc/button-connect-page.vue";
 import { useRouter } from "vue-router";
@@ -399,7 +398,7 @@ export default defineComponent({
       loading.value = true;
       const authInfo = await storage.get("authInfo");
       if (authInfo) {
-        router.replace("/tabs/feeds");
+        await router.replace("/tabs/feeds");
       }
       loading.value = false;
     });

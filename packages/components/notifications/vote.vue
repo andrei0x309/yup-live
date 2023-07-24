@@ -56,7 +56,7 @@
           style="writing-mode: vertical-rl; text-orientation: upright"
           >URL</b
         ><span style="font-size: 0.78rem"
-          ><router-link :to="`/post/${notification?.meta?.postid}`">{{
+          ><router-link :to="`/post/${notification?.meta?.postId}`">{{
             notification?.meta?.url
           }}</router-link></span
         >

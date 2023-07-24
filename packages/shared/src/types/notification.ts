@@ -7,7 +7,7 @@ export interface NotifType {
     meta: {
         like?: boolean
         quantity?: number
-        postid?: string
+        postId?: string
         url?: string
     }
     image: string

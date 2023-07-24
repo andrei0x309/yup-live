@@ -11,6 +11,8 @@
     "android-build": "yarn build && ionic capacitor sync android --prod --no-build",
     "android-open": "ionic capacitor open android",
     "android-res": "cordova-res android --skip-config --copy",
+    "android-ver": "ts-node --esm ./scripts/update-version.ts",
+    "android-pub" : "ts-node --esm ./scripts/publish-preview.ts",
     "android-res-new": "npx capacitor-assets generate --android",
     "upgrade": "yarn-upgrade-all"
   },
@@ -57,6 +59,7 @@
     "eslint-plugin-vue": "^9.10.0",
     "jest": "^29.5.0",
     "sass": "^1.60.0",
+    "ts-node": "^10.9.1",
     "typescript": "^5.0.2",
     "vite": "^4.2.1",
     "vue-tsc": "^1.2.0"
