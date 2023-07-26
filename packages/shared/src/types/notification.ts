@@ -9,6 +9,7 @@ export interface NotifType {
         quantity?: number
         postId?: string
         url?: string
+        content?: string
     }
     image: string
     createdAt: string

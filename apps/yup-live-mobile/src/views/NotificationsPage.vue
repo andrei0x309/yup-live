@@ -29,8 +29,11 @@
           <template v-else-if="notification.eventType === 'reward'">
             <RewardNotification :notification="notification" />
           </template>
-          <template v-else-if="notification.eventType === 'follow'">
-            <FollowNotification :notification="notification" />
+          <template v-else-if="['follow', 'mention', 'repost'].includes(notification.eventType)">
+            <MultiNotifications :notification="notification" :type="notification.eventType" />
+          </template>
+          <template v-else-if="notification.eventType === 'comment'">
+            <CommentNotification :notification="notification" />
           </template>
         </div>
       </template>
@@ -77,7 +80,7 @@ import {
 } from "@ionic/vue";
 import { defineComponent, ref, Ref } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
-import { getNotifications, clearNotifications } from "shared/src/utils/notifications";
+import { getNotifications } from "shared/src/utils/notifications";
 import { useMainStore } from "@/store/main";
 import type { NotifType } from "shared/src/types/notification";
 import { timeAgo } from "shared/src/utils/time";
@@ -86,7 +89,8 @@ import { timeAgo } from "shared/src/utils/time";
 
 import VoteNotification from "components/notifications/vote.vue";
 import RewardNotification from "components/notifications/reward.vue";
-import FollowNotification from "components/notifications/follow.vue";
+import MultiNotifications from "components/notifications/follow-mention-repost.vue";
+import CommentNotification from "components/notifications/comment.vue";
 
 export default defineComponent({
   name: "NotificationsPage",
@@ -104,7 +108,8 @@ export default defineComponent({
     IonLoading,
     VoteNotification,
     RewardNotification,
-    FollowNotification,
+    MultiNotifications,
+    CommentNotification
   },
   setup() {
     const store = useMainStore();
@@ -140,12 +145,6 @@ export default defineComponent({
       loading.value = true;
       notifications.value =
         (await getNotifications({ address: store.userData.address, type: null })) ?? [];
-      if (
-        notifications.value.length &&
-        notifications.value.some((n: any) => n?.seen === false)
-      ) {
-        clearNotifications(store);
-      }
       loading.value = false;
     });
 

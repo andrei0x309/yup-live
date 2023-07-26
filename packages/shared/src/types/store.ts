@@ -31,6 +31,7 @@ export interface IMainStore {
     updateMessage?: string
     updateUrl?: string
   }
+  pushNotifications?: string[]
 }
 
 export interface ICollection {

@@ -62,7 +62,7 @@ import {
 
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import GoToIcon from "icons/src/goTo.vue";
-import { App } from "@capacitor/app";
+import { getApp } from "@/utils/capacitor";
 
 export default defineComponent({
   name: "UpdateModal",
@@ -102,7 +102,7 @@ export default defineComponent({
     };
 
     const quit = () => {
-        App.exitApp();
+        getApp()?.exitApp();
     };
 
     onMounted(async () => {});

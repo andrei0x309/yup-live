@@ -1,4 +1,4 @@
-import { App } from "@capacitor/app";
+import { getApp } from "@/utils/capacitor";
 import { IMainStore } from "shared/src/types/store";
 import { storage } from './storage'
 
@@ -12,8 +12,8 @@ const parseVersionNumber = (version: string) => {
 
 const getVersionNumber = async () => {
     try {
-        const info = await App.getInfo();
-        return parseVersionNumber(info.version);
+        const info = await getApp()?.getInfo();
+        return parseVersionNumber(info?.version ?? '');
     } catch (error) {
         return null
     }

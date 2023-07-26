@@ -21,7 +21,7 @@ import { isImage } from "shared/src/utils/misc";
 import { parseIpfs } from "shared/src/utils/web3/ipfs";
 import BskyPostBody from "./inner/bskyPostBody.vue";
 // import MD from 'markdown-it'
-import { getLensComments, lensIdToRaw, rawToLensId } from "shared/src/utils/web3/lens";
+// import { getLensComments, lensIdToRaw, rawToLensId } from "shared/src/utils/web3/lens";
 import type { OpenGraphPreview, mediaType } from "shared/src/types/post";
 import type { Web3LensRaw, Web3PostLens } from "shared/src/types/web3/lens";
 import type { Web3Media } from "shared/src/types/web3/media";
@@ -138,7 +138,7 @@ export default defineComponent({
       postBuilder.body = parseBody(filler.content ?? "", true);
       postBuilder.mediaEntities = parseMedia(filler?.attachments ?? []);
       postBuilder.verified = filler?.meta?.isVerifiedAvatar;
-      postBuilder.lensId = rawToLensId(filler?.id as string);
+      // postBuilder.lensId = rawToLensId(filler?.id as string);
       // if (parseLinkPreview.includes(filler.meta?.metadata?.appId ?? '')) {
       //   linkPreview.value = filler?.linkPreview?.[0] ?? ([] as unknown as OpenGraphPreview)
       // }
@@ -149,9 +149,9 @@ export default defineComponent({
     onMounted(() => {
       mainPost.value = fillPost(props.post?.web3Preview);
       if (props.full) {
-        getLensComments(lensIdToRaw(props.post?.web3Preview?.id)).then((comments) => {
-          lensComments.value = comments.map((c) => fillPost(c));
-        });
+        // getLensComments(lensIdToRaw(props.post?.web3Preview?.id)).then((comments) => {
+        //   lensComments.value = comments.map((c) => fillPost(c));
+        // });
       }
     });
 

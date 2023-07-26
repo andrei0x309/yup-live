@@ -30,9 +30,8 @@
           <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
           <ImagePreview v-if="media.type === 'image'" :source="media.url" class="py-4 rounded-lg" />
         </template>
-        <!-- <template v-if="linkPreview.img">
-          <LinkPreview :linkPreview="linkPreview" />
-        </template> -->
+ 
+          <LinkPreview v-for="(preview, index) in mainPost.linkPreviews" :linkPreview="preview" :key="preview.url" :noImage="index > 0 || mainPost.mediaEntities?.length > 0" />
       </div>
     </div>
     <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-3">
@@ -52,6 +51,7 @@ import LensIcon from 'icons/src/lens.vue'
 import VideoPlayer from 'components/post/videoPlayer.vue'
 import ClockIcon from 'icons/src/clock.vue'
 import ImagePreview from 'components/post/imagePreview.vue'
+import LinkPreview from 'components/post/linkPreview.vue'
 import VerifiedIcon from 'icons/src/verified.vue'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
 
@@ -63,7 +63,8 @@ export default defineComponent({
     ClockIcon,
     ImagePreview,
     VerifiedIcon,
-    LensIcon
+    LensIcon,
+    LinkPreview
   },
   props: {
     mainPost: {

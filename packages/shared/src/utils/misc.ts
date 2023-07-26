@@ -84,6 +84,19 @@ export const formatNumber = (num: number, digits = 0) => {
 
 export const truncteEVMAddr = (addr: string) => ((addr ?? '').length > 4 ? addr.substring(0, 5) + '...' + addr.substring(addr.length - 3) : '')
 
+export const truncateText = (text: string, maxLength: number): string => {
+  if ((text ?? "").length <= maxLength) {
+    return text;
+  }
+
+  const truncatedText = text.slice(0, maxLength - 3);
+  return truncatedText + '...';
+}
+
+export const openLink = (url: string) => {
+  const win = window?.open(url, '_blank')
+  win?.focus()
+}
 export const isValidAddress = (addr: string) => addr.match(/0x[0-9a-f]{40}/i) !== null
 
 export const makeRandomPreview = (remote = false) => remote ? `https://yup-live.pages.dev/picsum/${Math.floor(Math.random() * 99)}.webp` : `/picsum/${Math.floor(Math.random() * 99)}.webp`;

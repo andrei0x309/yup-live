@@ -5,7 +5,7 @@
       <ion-tabs style="border-top: 2px solid #1a1a1a">
         <ion-router-outlet id="content-page" ref="outlet" />
 
-        <ion-tab-bar slot="bottom">
+        <ion-tab-bar slot="bottom" class="text-[0.85rem]">
           <ion-tab-button v-if="canDoPost" @click="openPostModal = true">
             <CrossPostIcon class="inline w-6 h-6 mt-1" />
             <ion-label>Cross Post</ion-label>
@@ -32,7 +32,7 @@
             <ion-icon style="font-size: 2.3rem" :icon="filterCircle"></ion-icon>
             <ion-label>Feeds</ion-label>
           </ion-tab-button>
-          <ion-tab-button tab="notifications" href="/tabs/notifications">
+          <ion-tab-button tab="notifications" href="/tabs/notifications" @click="clearNot">
             <ion-icon style="font-size: 2.3rem" :icon="notificationsCircle"></ion-icon>
             <ion-label>Notifications</ion-label>
             <ion-badge v-show="hasNewNot" color="danger">{{ notDisplay }}</ion-badge>
@@ -107,6 +107,7 @@ import ConnectPlatformIcon from "icons/src/connect.vue";
 import { canPost } from "shared/src/utils/requests/crossPost";
 import SettingsModal from "@/views/SettingsModal.vue";
 import { createUserData } from "shared/src/utils/requests/accounts";
+import { clearNotifications } from "shared/src/utils/notifications";
 
 export default defineComponent({
   name: "BottomNavigation",
@@ -206,8 +207,10 @@ export default defineComponent({
         component: SettingsModal,
         componentProps: {
           userData: userData.value,
+          defaultAccordionOpen: "socials"
         },
       });
+
       modal.present();
       const { role } = await modal.onWillDismiss();
       if (role === "confirm") return true;
@@ -217,6 +220,15 @@ export default defineComponent({
     const postSent = () => {
       openPostModal.value = false;
       router.push(`/profile/${store.userData.account}/feed`);
+    };
+
+    const clearNot = () => {
+      if(hasNewNot.value) {
+        hasNewNot.value = false;
+        notDisplay.value = "";
+        clearNotifications(store)
+      }
+
     };
 
     return {
@@ -232,6 +244,7 @@ export default defineComponent({
       postSent,
       canDoPost,
       openSettings,
+      clearNot
     };
   },
 });

@@ -4,6 +4,7 @@
       <ion-toolbar>
         <ion-title>Menu
         <ion-menu-toggle :auto-hide="false" style="position: absolute; right: 2rem">
+        <span v-show="version" class="mx-1 text-[0.95rem]"><span class="text-[0.75rem]">v</span>{{ version  }}</span>
         <ion-icon :icon="closeCircleOutline" />
       </ion-menu-toggle>
         </ion-title>
@@ -17,6 +18,9 @@
       </ion-list>
 
       <ion-list class="mt-2">
+      <ion-item button @click="openSettings">
+        <ion-icon :icon="settingsOutline" class="w-5 mr-4" /> Settings
+      </ion-item>
         <ion-item button @click="goTo('/tabs/search')">
       <ion-icon :icon="searchOutline" class="w-5 mr-4" /> Search
       </ion-item>
@@ -45,13 +49,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { IonHeader, IonToolbar, IonMenu, IonTitle, IonContent, IonMenuToggle, IonIcon, IonItem, IonList, menuController } from "@ionic/vue";
+import { defineComponent, onBeforeMount, ref } from "vue";
+import { IonHeader, IonToolbar, IonMenu, IonTitle, IonContent, IonMenuToggle, IonIcon, IonItem, IonList, menuController, modalController } from "@ionic/vue";
 import {
 closeCircleOutline,
 podiumOutline,
 searchOutline,
-listOutline
+listOutline,
+settingsOutline
 } from "ionicons/icons";
 import { storage } from "@/utils/storage";
 import { useMainStore } from "@/store/main";
@@ -62,7 +67,8 @@ import InfoIcon from 'icons/src/infoIcon.vue'
 import ScoreIcon from 'icons/src/score.vue'
 import StakeIcon from "icons/src/stake.vue";
 import { walletDisconnect } from "shared/src/utils/login-signup";
-
+import { App } from "@capacitor/app";
+import SettingsModal from "@/views/SettingsModal.vue";
 
 export default defineComponent({
   name: "HeaderMenu",
@@ -85,6 +91,7 @@ export default defineComponent({
   setup() {
     const store = useMainStore()
     const router = useRouter()
+    const version = ref('')
 
     const doLogOut = async () => {
       store.isLoggedIn = false
@@ -104,6 +111,29 @@ export default defineComponent({
       menuController.close('menu');
     }
 
+    const openSettings = async () => {
+      const modal = await modalController.create({
+        component: SettingsModal,
+        componentProps: {
+          userData: store.userData,
+        },
+      });
+      modal.present();
+      const { role } = await modal.onWillDismiss();
+      if (role === "confirm") return true;
+      return false;
+    };
+
+    onBeforeMount( () => {
+      try {
+        App.getInfo().then((info) => {
+          version.value = info.version
+        })
+      } catch (e) {
+        console.error(e)
+      }
+    })
+
     return {
         closeCircleOutline,
         doLogOut,
@@ -111,7 +141,10 @@ export default defineComponent({
         podiumOutline,
         searchOutline,
         listOutline,
-        store
+        settingsOutline,
+        store,
+        version,
+        openSettings
     };
   },
 });

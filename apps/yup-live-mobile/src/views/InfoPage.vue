@@ -207,7 +207,7 @@ import {
 import { defineComponent } from "vue";
 import { ref, onMounted } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
-import { App } from "@capacitor/app";
+import { getApp } from  "@/utils/capacitor";
 import { recentChanges } from "shared/src/utils/changeLog"
 
 export default defineComponent({
@@ -259,11 +259,11 @@ export default defineComponent({
     onMounted(async () => {
       loading.value = true;
       try {
-      const info = await App.getInfo();
-      appVersion.value = info.version;
+      const info = await getApp()?.getInfo();
+      appVersion.value = info ? info.version : "";
        } catch (error) {
          // not implemented on web
-        }
+      }
       loading.value = false;
     });
 

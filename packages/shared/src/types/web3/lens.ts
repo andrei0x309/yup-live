@@ -1,6 +1,9 @@
 import type { OpenGraphPreview, mediaType } from '../post'
 import type { Web3Media } from './media'
 
+export type linkPreviewTypeEx = OpenGraphPreview & {
+  originalUrl: string
+}
 export interface Web3PostLens {
   userName: string
   userHandle: string
@@ -11,13 +14,14 @@ export interface Web3PostLens {
   verified?: boolean
   lensId: string
   mediaEntities: mediaType[]
+  linkPreviews: linkPreviewTypeEx[]
 }
 
 export interface Web3LensRaw {
   content?: string
   full_text?: string
   attachments: Web3Media
-  linkPreview: OpenGraphPreview[]
+  linkPreview: linkPreviewTypeEx[]
   id?: string
   createdAt?: string
   creator?: {

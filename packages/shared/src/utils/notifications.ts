@@ -5,6 +5,7 @@ import type { IMainStore } from '../types/store'
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export const notificationTypes = ['reward', 'vote', 'follow', 'repost', 'comment', 'mention']
+export const notificationPlatforms = ["lens", "farcaster", "yup", "bsky"] as const;
 
 export const getNotifications = async (
     { type, limit, skip, address } = { type: null, limit: '10', skip: '0' } as { address: string, type: null | string[]; limit?: string; skip?: string }
@@ -16,7 +17,7 @@ export const getNotifications = async (
     }
 
     if (!type) {
-        type = [notificationTypes[1], notificationTypes[2], notificationTypes[3]]
+        type = notificationTypes
     }
 
     if (type) {

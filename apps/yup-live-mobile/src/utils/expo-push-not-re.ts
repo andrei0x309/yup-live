@@ -1,8 +1,8 @@
 import { IMainStore } from 'shared/src/types/store';
-import { PushNotifications } from '@capacitor/push-notifications';
 import { storage } from './storage';
 import { fetchWAuth } from 'shared/src/utils/auth';
 import { useRouter } from 'vue-router';
+import { isAndroid } from './capacitor';
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -61,9 +61,6 @@ const sendPushToken = async ({ store,
     }
     const req = await fetchWAuth(store, endPoint, {
         method: 'POST',
-        headers: {
-            'content-type': 'application/json',
-        },
         body: JSON.stringify(body),
     })
 
@@ -74,9 +71,24 @@ export const getPushSettings = async ({ store }: { store: IMainStore }) => {
     const endPoint = `${API_BASE}/push-notification/settings`
     const req = await fetchWAuth(store, endPoint, {
         method: 'GET',
-        headers: {
-            'content-type': 'application/json',
-        },
+    })
+
+    if (!req.ok) {
+        return false
+    }
+
+    const data = await req.json()
+    return data
+}
+
+export const setPushSettings = async ({ store, notificationTypes }: { store: IMainStore, notificationTypes: string[] }) => {
+    const endPoint = `${API_BASE}/push-notification/settings`
+    const body = {
+        notificationTypes
+    }
+    const req = await fetchWAuth(store, endPoint, {
+        method: 'POST',
+        body: JSON.stringify(body),
     })
 
     if (!req.ok) {
@@ -88,8 +100,14 @@ export const getPushSettings = async ({ store }: { store: IMainStore }) => {
 }
 
 export const getExpoPushTokenAndRegister = async ({ store }: { store: IMainStore }) => {
+    if (!isAndroid()) {
+        return
+    }
+    const { PushNotifications } = await import('@capacitor/push-notifications');
+
     const deviceId = await getInstallationId()
     console.log(deviceId, 'deviceId')
+    try {
     const devicePushTokenP = new Promise((resolve, reject) => {
         PushNotifications.addListener('registration', (token) => {
             console.log('Push registration success, token: ' + token.value);
@@ -172,4 +190,7 @@ export const getExpoPushTokenAndRegister = async ({ store }: { store: IMainStore
     const { expoPushToken } = data.data;
     sendPushToken({ store, pushToken: expoPushToken, deviceId })
     return data
+    } catch {
+        console.info('Push notifications not available on Web Platform')
+    }
 }

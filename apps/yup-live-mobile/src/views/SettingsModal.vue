@@ -229,33 +229,21 @@
             <ion-label>Push Notifications</ion-label>
           </ion-item>
           <div slot="content" class="ion-padding">
-            <ion-list>
+            <ion-list v-for="type of PUSH_NOTIFICATION_TYPES">
               <ion-item>
-                Enabling feed personalization will make feeds to be tailored to your
-                account.
-              </ion-item>
-              <ion-item>
-                <ion-label>Enable Feed Personalization</ion-label>
+                <ion-label style="text-transform: capitalize;">{{ type }}</ion-label>
                 <ion-toggle
-                  :key="updateKey"
+                  :key="type"
                   slot="end"
-                  aria-label="Enable Feed Personalization"
-                  :checked="store?.settings?.personalizedFeeds"
-                  @ion-change="changeSetting('personalizedFeeds')"
+                  :aria-label="`Enable push for ${type}`"
+                  :disabled="!store.pushNotifications || isPushLoading || disabledPush.includes(type)"
+                  :class="`${isPushLoading ? 'opacity-50 blink' : ''}`"
+                  :checked="store.pushNotifications?.includes(type)"
+                  @ion-change="changePush(type)"
                 ></ion-toggle>
               </ion-item>
-              <ion-item>
-                Enabling actions tracking will make feeds to be tailored to your account.
-              </ion-item>
-              <ion-item>
-                <ion-label>Enabling actions tracking</ion-label>
-                <ion-toggle
-                  :key="updateKey"
-                  slot="end"
-                  aria-label="Enabling actions tracking"
-                  :checked="store?.settings?.accountTracking"
-                  @ion-change="changeSetting('accountTracking')"
-                ></ion-toggle>
+              <ion-item v-if="disabledPush?.length > 0">
+                <small>Not implemented yet on backend: <span v-for="disabled of disabledPush" v-html="disabled" :key="disabled" />.</small>
               </ion-item>
             </ion-list>
           </div>
@@ -543,6 +531,9 @@ import "vue-cup-avatar/dist/style.css";
 import CustomButton from "components/functional/customButton.vue";
 import DangLoader from "components/vote-list/loader.vue";
 import { connectBlueSky, disconnectBlueSky } from "shared/src/utils/requests/bsky";
+import { PUSH_NOTIFICATION_TYPES, setPushSettings  } from "@/utils/expo-push-not-re"
+import BlueSkyIcon from "icons/src/bsky.vue";
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -577,6 +568,7 @@ export default defineComponent({
     WalletIcon,
     ProfileFarcasterIcon,
     ProfileLensIcon,
+    BlueSkyIcon,
     CustomButton,
     DangLoader,
   },
@@ -584,6 +576,10 @@ export default defineComponent({
     userData: {
       type: Object as PropType<IUserData>,
       default: {} as IUserData,
+    },
+    defaultAccordionOpen: {
+      type: String,
+      default: "account",
     },
   },
   setup(props) {
@@ -596,7 +592,7 @@ export default defineComponent({
     const toastMsg = ref("");
     const alertHeader = ref("Error");
     const noAccounts = ref(true);
-    const defaultAccordionOpen = ref("account");
+    const defaultAccordionOpen = ref(props.defaultAccordionOpen);
     const radioTheme = ref("system") as Ref<"system" | "light" | "dark">;
     const wasDelConfirmed = ref(false);
     const store = useMainStore();
@@ -635,11 +631,14 @@ export default defineComponent({
     const isConnectToLens = ref(false);
     const isConnectToBsky = ref(false);
     const farcasterConnectTabs = ref("warpcast");
+    const isPushLoading = ref(false);
 
     const Web3Libs = (ref(null) as unknown) as Ref<TWeb3Libs>;
 
     const bskyIdent = ref("");
     const bskyPass = ref("");
+
+    const disabledPush = ['reward', 'repost']
 
     const deleteAccount = async () => {
       isDeleteLoading.value = true;
@@ -934,11 +933,6 @@ export default defineComponent({
       farcasterConnectTabs.value = value.detail.value;
     };
 
-    onMounted(async () => {
-      Web3Libs.value = web3Libs();
-      isLoading.value = false;
-    });
-
     const doBskyConnect = async () => {
       connectBlueSky({
         bskyAppPassword: bskyPass.value,
@@ -962,6 +956,46 @@ export default defineComponent({
         isConnectedToBsky,
       });
     };
+
+    const openAlert = (msg: string) => {
+      alertMsg.value = msg;
+      alertOpen.value = true;
+    };
+
+    const changePush = async (type: string) => {
+      if (isPushLoading.value) {
+        return;
+      }
+      isPushLoading.value = true;
+      const pushNotifications = store.pushNotifications || [];
+      if (pushNotifications.includes(type)) {
+        pushNotifications.splice(pushNotifications.indexOf(type), 1);
+      } else {
+        pushNotifications.push(type);
+      }
+
+      const result = await setPushSettings({
+        notificationTypes: [type],
+        store
+      });
+      if (!result) {
+        stackAlertError("Error while changing push settings");
+        isPushLoading.value = false;
+        return;
+      }
+
+      store.pushNotifications = pushNotifications;
+      stackAlertSuccess("Push settings changed successfully");
+      isPushLoading.value = false;
+    };
+
+    onMounted(async () => {
+      Web3Libs.value = web3Libs();
+      if(props.defaultAccordionOpen === "socials") {
+        openAlert("Connect your socials in order to create posts on those platforms.");
+      }
+      isLoading.value = false;
+    });
 
     return {
       loading,
@@ -1018,6 +1052,10 @@ export default defineComponent({
       isConnectToBsky,
       isDisconnectFromBlueSky,
       doBskyDisconnect,
+      PUSH_NOTIFICATION_TYPES,
+      changePush,
+      isPushLoading,
+      disabledPush
     };
   },
 });

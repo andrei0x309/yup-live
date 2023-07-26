@@ -17,6 +17,13 @@
         :duration="5000"
       >
       </ion-loading>
+      <CrossPost
+        :key="`${openPostModal}k`"
+        :openModal="openPostModal"
+        :platforms="['farcaster', 'lens', 'twitter', 'bsky']"
+        @update:open-modal="(v: boolean) => (openPostModal = v)"
+        @success="postSent"
+      />
     </ion-page>
   </ion-app>
   <AlertStack
@@ -37,22 +44,22 @@ import {
   IonLoading,
   modalController,
 } from "@ionic/vue";
-import { defineComponent, ref, onBeforeMount, onBeforeUnmount } from "vue";
+import { defineComponent, ref, onBeforeMount, onBeforeUnmount, defineAsyncComponent, watch } from "vue";
 import { useMainStore } from "@/store/main";
 import { storage } from "@/utils/storage";
 import { useRouter } from "vue-router";
 import { SendIntent } from "send-intent";
-import { arrowDownOutline, thumbsUpOutline, thumbsDownOutline } from "ionicons/icons";
-import { Capacitor } from "@capacitor/core";
+import { arrowDownOutline, heartCircleOutline, addCircleOutline } from "ionicons/icons";
+import { isAndroid } from "@/utils/capacitor";
 import { fetchWAuth } from "shared/src/utils/auth";
 import { wait } from "shared/src/utils/time";
-import { App } from "@capacitor/app";
 import { getConnected } from "shared/src/utils/requests/accounts";
 import AlertStack from "components/functional/alertStack.vue";
 import { setAlertStack, useAlertStack } from "@/store/alertStore";
 import { getExpoPushTokenAndRegister } from "@/utils/expo-push-not-re";
 import { checkForUpdateAndNotify } from "@/utils/update-version";
 import UpdateModal from "@/views/UpdateModal.vue";
+import { getPushSettings } from "@/utils/expo-push-not-re";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -65,6 +72,7 @@ export default defineComponent({
     IonLoading,
     IonPage,
     AlertStack,
+    CrossPost: defineAsyncComponent(() => import("@/views/CrossPostModal.vue")),
   },
   setup() {
     const store = useMainStore();
@@ -72,6 +80,8 @@ export default defineComponent({
     const toastState = ref(false);
     const toastMsg = ref("");
     const loading = ref(false);
+    const openPostModal = ref(false);
+    const promisePostResolved = ref((a: unknown) => {});
 
     const openToast = (msg: string) => {
       toastState.value = true;
@@ -121,19 +131,19 @@ export default defineComponent({
         subHeader: "You'll be redirect back after action",
         buttons: [
           {
-            text: "Like Post",
-            role: "like",
-            icon: thumbsUpOutline,
+            text: "New Post",
+            role: "newPost",
+            icon: addCircleOutline,
             data: {
-              action: "like",
+              action: "newPost",
             },
           },
           {
-            text: "Dislike Post",
-            role: "dislike",
-            icon: thumbsDownOutline,
+            text: "Like Post",
+            role: "like",
+            icon: heartCircleOutline,
             data: {
-              action: "dislike",
+              action: "like",
             },
           },
           {
@@ -156,8 +166,11 @@ export default defineComponent({
             await executeVote(true, url);
             break;
           }
-          case "dislike": {
-            await executeVote(false, url);
+          case "newPost": {
+            openPostModal.value = true;
+            await new Promise((resolve) => {
+              promisePostResolved.value = resolve;
+            });
             break;
           }
         }
@@ -165,7 +178,7 @@ export default defineComponent({
       SendIntent.finish();
     };
 
-    if (Capacitor.isPluginAvailable("SplashScreen")) {
+    if (isAndroid()) {
       SendIntent.checkSendIntentReceived()
         .then(async (result: any) => {
           if (result?.url) {
@@ -235,46 +248,67 @@ export default defineComponent({
 
         if (authInfoVal) {
           checkForUpdateAndNotify(store).then((res) => {
-            if (res) {
+            if (res?.update) {
               openUpdateModal({
                 foreced: res.forced,
                 message: res.updateMessage,
                 url: res.url,
               });
             }
-            if (res?.forced) {
-              App.addListener("backButton", (r) => {
-                App.minimizeApp();
-              });
-            } else {
-              App.addListener("backButton", (r) => {
-                if (!r.canGoBack) {
-                  App.minimizeApp();
-                } else if (
-                  router.currentRoute.value.path === "/connect" &&
-                  router.currentRoute.value.redirectedFrom?.path === "/tabs/feeds" &&
-                  store.isLoggedIn
-                ) {
-                  router.replace("/tabs/feeds");
-                  App.minimizeApp();
-                }
-              });
-            }
-          });
-
-          settings.then((res) => {
-            if (res) {
-              store.settings = JSON.parse(res);
-            }
+            import("@capacitor/app").then((lib) => {
+              if (res?.update && res?.forced) {
+                lib.App.addListener("backButton", (r) => {
+                  lib.App.minimizeApp();
+                });
+              } else {
+                lib.App.addListener("backButton", (r) => {
+                  if (!r.canGoBack) {
+                    lib.App.minimizeApp();
+                  } else if (
+                    router.currentRoute.value.path === "/connect" &&
+                    router.currentRoute.value.redirectedFrom?.path === "/tabs/feeds" &&
+                    store.isLoggedIn
+                  ) {
+                    router.replace("/tabs/feeds");
+                    lib.App.minimizeApp();
+                  }
+                });
+              }
+            });
           });
           getExpoPushTokenAndRegister({ store });
           store.userData = JSON.parse(authInfoVal);
           getConnected(store, store.userData.account);
           store.isLoggedIn = true;
+          getPushSettings({ store }).then((res) => {
+            if (res) {
+              const pushNotifications = res.notificationSettings.enabledNotificationTypes;
+              store.pushNotifications = pushNotifications;
+            }
+          });
+          settings.then((res) => {
+            if (res) {
+              store.settings = JSON.parse(res);
+            }
+          });
           await router.replace("/tabs/feeds");
         }
       }
       loading.value = false;
+    });
+
+    const postSent = async () => {
+      openPostModal.value = false;
+      openToast("Post sent, you'll be redirected back after 3 seconds");
+      await wait(3000);
+    };
+
+    watch( openPostModal, (v) => {
+      if (v) {
+        promisePostResolved.value = () => {};
+      } else {
+        promisePostResolved.value(1);
+      }
     });
 
     return {
@@ -283,6 +317,8 @@ export default defineComponent({
       loading,
       setAlertStack,
       useAlertStack,
+      openPostModal,
+      postSent
     };
   },
 });

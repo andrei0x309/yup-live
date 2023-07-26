@@ -4,7 +4,7 @@
     <ion-content :fullscreen="false" class="ion-padding mt-4">
       <div class="bg-color max-w-screen-lg px-4 md:px-8 mx-auto rounded">
         <div v-if="initialLoading" class="min-h-[60vh]">
-          <p class="p-4 pt-20">Loading feed data</p>
+          <p class="p-4 pt-20">Loading data</p>
           <DangLoader :unset="true" />
         </div>
         <div v-else class="col-span-12 mx-auto pt-8">
@@ -119,7 +119,8 @@ export default defineComponent({
       const res = await fetch(`${endpointBase}/get-meetings`, {
         method: "POST",
         body: JSON.stringify({
-          start: 15 * page,
+          start: 4 * page,
+          limit: 4
         }),
       });
       if (res.ok) {

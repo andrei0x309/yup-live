@@ -9,9 +9,10 @@
         :key="`post-loaded-${postTypeLoading}|${comments.length}`"
         :full="full"
         :post="processedPost"
-        :comments="post.tag === 'farcaster' ? comments : undefined"
+        :comments="comments.length ? comments : undefined"
         :replyComp="replyComp ? replyComp : undefined"
         :deps="deps"
+        :postTypesPromises="postTypesPromises"
       />
       <div class="flex flex-row items-end w-full px-4 mt-4">
         <div class="flex border-t border-stone-400 dark:border-stone-600 w-full py-4">
@@ -87,7 +88,7 @@ import {
   shallowRef,
   watch,
   PropType,
-  computed
+  computed,
 } from "vue";
 import ImagePreview from "components/post/imagePreview.vue";
 import Voting from "components/post/voting.vue";
@@ -203,8 +204,18 @@ export default defineComponent({
     const comments = ref([]) as Ref<unknown[]>;
     const commentsNum = ref(0);
     const replyComp = shallowRef(null) as Ref<ReturnType<typeof defineComponent>>;
-    const isOwner = [props?.post?.previewData?.creator ?? "", props.post?.web3Preview?.creator?.address ?? ""].includes(store.userData.address.toLowerCase());
-    console.log( [props?.post?.previewData?.creator ?? "", props.post?.web3Preview?.creator?.address ?? ""], store.userData.address, isOwner)
+    const isOwner = [
+      props?.post?.previewData?.creator ?? "",
+      props.post?.web3Preview?.creator?.address ?? "",
+    ].includes(store.userData.address.toLowerCase());
+    console.log(
+      [
+        props?.post?.previewData?.creator ?? "",
+        props.post?.web3Preview?.creator?.address ?? "",
+      ],
+      store.userData.address,
+      isOwner
+    );
 
     // store.$subscribe(() => {
     // })
@@ -225,7 +236,9 @@ export default defineComponent({
           postTypeClass.value = type;
           switch (type) {
             case "tweet":
-              processedPost.tweetInfo = props.post.tweetInfo?.tweet ? props.post.tweetInfo?.tweet : props.post.tweetInfo;
+              processedPost.tweetInfo = props.post.tweetInfo?.tweet
+                ? props.post.tweetInfo?.tweet
+                : props.post.tweetInfo;
               postTypeCom.value = (await props.postTypesPromises.preLoadTweet).default;
               break;
             case "farcaster":
@@ -234,37 +247,40 @@ export default defineComponent({
               postTypeCom.value = (
                 await props.postTypesPromises.preloadFarcaster
               ).default;
-                import("shared/src/utils/requests/farcaster").then((module) => {
-                  const commId = !nested
-                    ? props.post.web3Preview?.meta?.parentPostId
-                    : props.post._id.postid;
+              import("shared/src/utils/requests/farcaster").then((module) => {
+                const commId = !nested
+                  ? props.post.web3Preview?.meta?.parentPostId
+                  : props.post._id.postid;
 
-                  module
-                    .getFarcasterYupThread({
-                      apiBase: props.deps.apiBase,
-                      postId: commId,
-                    })
-                    .then((res) => {
-                      if (res) {
-                        comments.value = res.comments;
-                        commentsNum.value = res.numComments - 1;
-                      }
-                    });
-                });
-                if (props.crossPost && store.userData.connected?.farcaster) {
-                  props.crossPost()?.then((module) => {
-                    replyComp.value = module.default;
-                  });
-                }
-              break;
-            case "lens":
-              import("shared/src/utils/web3/lens").then((module) => {
                 module
-                  .getLensComments(module.lensIdToRaw(props.post?.web3Preview?.id ?? ""))
+                  .getFarcasterYupThread({
+                    apiBase: props.deps.apiBase,
+                    postId: commId,
+                  })
                   .then((res) => {
                     if (res) {
-                      comments.value = res as Web3LensRaw[];
-                      commentsNum.value = res.length;
+                      comments.value = res.comments;
+                      commentsNum.value = res.numComments - 1;
+                    }
+                  });
+              });
+              if (props.crossPost && store.userData.connected?.farcaster) {
+                props.crossPost()?.then((module) => {
+                  replyComp.value = module.default;
+                });
+              }
+              break;
+            case "lens":
+              import("shared/src/utils/requests/lens").then((module) => {
+                module
+                  .getLensComments({
+                    apiBase: props.deps.apiBase,
+                    postId: props.post._id.postid,
+                  })
+                  .then((res) => {
+                    if (res) {
+                      comments.value = res.comments;
+                      commentsNum.value = res.numComments;
                     }
                   });
               });
@@ -311,11 +327,11 @@ export default defineComponent({
       processPost(props.post, processedPost, cloneWeights, postShareInfo);
     });
 
-    const tags = ['mirror', 'poap', 'farcaster', 'lens', 'snapshot', 'erc721', 'bsky']
+    const tags = ["mirror", "poap", "farcaster", "lens", "snapshot", "erc721", "bsky"];
 
     const checkPostType = async (post: { url: string; tag: string }) => {
       if (post.tag === "twitter") return "tweet";
-      if(tags.includes(post.tag)) return post.tag
+      if (tags.includes(post.tag)) return post.tag;
       if (post?.url.match(/https?:\/\/(mobile.|www.)?twitter\.com\/.*?status/i))
         return "tweet";
       if (post?.url.startsWith("farcaster://")) return "farcaster";
@@ -350,8 +366,8 @@ export default defineComponent({
       commentsNum,
       replyComp,
       nested,
-      isOwner
-      };
+      isOwner,
+    };
   },
 });
 </script>

@@ -25,9 +25,18 @@
               `${sender?._id?.slice(0, 6)}...`
             }}</b>
           </router-link>
-          followed you <span v-if="platforms.includes(notification?.platform as typeof platforms[number] )">&nbsp;&nbsp;on
+          <template v-if="type === 'follow'">
+            started following you
+          </template>
+          <template v-else-if="type === 'mention'">
+            mentioned you in a post
+          </template>
+          <template v-else-if="type === 'repost'">
+            reposted your post
+          </template>
+          <span v-if="notificationPlatforms.includes(notification?.platform as typeof notificationPlatforms[number] )">&nbsp;&nbsp;on
           <component
-            :is="icons[notification.platform as typeof platforms[number]]"
+            :is="icons[notification.platform as typeof notificationPlatforms[number]]"
             class="inline-block w-4 ml-2" /> 
           </span>
         </p>
@@ -48,19 +57,8 @@ import { timeAgo } from "shared/src/utils/time";
 import AvatarBtn from "../functional/avatarBtn.vue";
 import ClockIcon from "icons/src/clock.vue";
 import type { NotifType } from "shared/src/types/notification";
-import ProfileLensIcon from "icons/src/profileLens.vue";
-import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
-import ProfileYupIcon from "icons/src/profileYup.vue";
-import ProfileBlueSkyIcon from "icons/src/bsky.vue";
-
-const platforms = [ 'lens', 'farcaster', 'yup', 'bsky'] as const
-
-const icons = {
-  lens: ProfileLensIcon,
-  farcaster: ProfileFarcasterIcon,
-  yup: ProfileYupIcon,
-  bsky: ProfileBlueSkyIcon,
-} as const
+import { notificationPlatforms } from "shared/src/utils/notifications";
+import { icons } from './notif-icons'
 
 export default defineComponent({
   name: "FollowNotification",
@@ -73,12 +71,17 @@ export default defineComponent({
       type: Object as PropType<NotifType>,
       required: true,
     },
+    type: {
+      type: String,
+      required: false,
+      default: "follow",
+    },
   },
   setup() {
     return {
       timeAgo,
       icons,
-      platforms
+      notificationPlatforms
     };
   },
 });

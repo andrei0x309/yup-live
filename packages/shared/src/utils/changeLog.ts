@@ -8,6 +8,15 @@ export const recentChanges = [
     //         'added update system on yup live mobile to direct users to update or force them if needed',
     //         'added script to publish new version of yup live mobile json on yup live web',
     //         'on link socials click user is directed directly on linking socials section with the motivation to link socials',
+    //         'improved clear notifications on yup live mobile',
+    //         'added additional checks on bsky',
+    //         'added additional version number display on yup live mobile',
+    //         'added additional settings button in side many for easy access',
+    //         'added suport for displaying mention, repost, comment notifications on yup live mobile',
+    //         'added get lens comments from YUP DB instead of lens API'
+    //         'revamped link preview on yup live mobile',
+    //         'disabled push for types reward and repost as they are not implemented yet on backend',
+    //         'added support for image preview to support gallery',
     //     ],
     // },
     {

@@ -29,9 +29,12 @@
             <template v-else-if="notification.eventType === 'reward'">
               <RewardNotification :notification="notification" />
             </template>
-            <template v-else-if="notification.eventType === 'follow'">
-              <FollowNotification :notification="notification" />
-            </template>
+            <template v-else-if="['follow', 'mention', 'repost'].includes(notification.eventType)">
+            <MultiNotifications :notification="notification" :type="notification.eventType" />
+          </template>
+          <template v-else-if="notification.eventType === 'comment'">
+            <CommentNotification :notification="notification" />
+          </template>
           </div>
         </o-tab-item>
 
@@ -123,7 +126,8 @@ import type { NotifType } from "shared/src/types/notification";
 
 import VoteNotification from "components/notifications/vote.vue";
 import RewardNotification from  "components/notifications/reward.vue";
-import FollowNotification from "components/notifications/follow.vue";
+import MultiNotifications from "components/notifications/follow-mention-repost.vue";
+import CommentNotification from "components/notifications/comment.vue";
  
 export default defineComponent({
   name: "Notifications",
@@ -131,7 +135,8 @@ export default defineComponent({
     DangLoader,
     VoteNotification,
     RewardNotification,
-    FollowNotification,
+    MultiNotifications,
+    CommentNotification
   },
   setup() {
     const loading = ref(false);

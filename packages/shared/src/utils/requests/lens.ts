@@ -323,3 +323,25 @@ export const disconnectLens = async ({ store, apiBase = API_BASE }: { store: IMa
   return req.ok
 }
 
+
+export const lensIdToRaw = (lensId: string) => lensId.replace('lens://', '')
+export const rawToLensId = (lensId: string) => `lens://${lensId}`
+
+export const getLensComments = async ({ postId, apiBase = API_BASE }: { postId: string, apiBase: string }) => {
+  const empty = {
+    comments: [],
+    numComments: 0,
+  }
+  if (!postId) return empty;
+  const req = await fetch(`${apiBase}/lens/comments/${postId}`);
+  if (req.ok) {
+    const data = await req.json();
+    if (data) {
+      return {
+        comments: data?.posts ?? [],
+        numComments: data?.count ?? 0,
+      }
+    }
+  }
+  return empty;
+}
