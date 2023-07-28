@@ -1,22 +1,7 @@
 import type { Web3Media } from './media'
 import type { mediaType } from '../post'
 
-export interface Web3PostFarcaster {
-  userName: string
-  userHandle: string
-  userAvatar: string
-  userAddress: string
-  userFid: string
-  body: string
-  publishedAt?: string
-  verified?: boolean
-  mediaEntities: mediaType[]
-  createdAt: string
-  thread: string
-  hash: string
-  numComments?: number
-  postId?: string
-}
+
 
 export interface Web3FarcasterRawReply {
   attachments: {

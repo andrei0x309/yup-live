@@ -131,3 +131,9 @@ export class CancelablePromise {
     ]);
   }
 }
+
+export const getPostType = (post: any) => {
+  if (post?.web3Preview?.meta?.parents?.length > 0) return 'reply'
+  if (post?.web3Preview?.meta?.postType === 'comment') return 'reply'
+  return 'single'
+}

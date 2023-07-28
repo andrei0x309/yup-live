@@ -6,6 +6,9 @@ import WindiCSS from 'vite-plugin-windicss'
 // import nodePolyfills from 'vite-plugin-node-stdlib-browser'
 import { ViteSSGOptions } from 'vite-ssg'
 import generateSitemap from 'vite-ssg-sitemap'
+import basicSsl from '@vitejs/plugin-basic-ssl'
+
+
 const production = process.env.NODE_ENV === 'production'
 
 const ssgOptions: ViteSSGOptions = {
@@ -64,7 +67,8 @@ export default defineConfig({
     // nodePolyfills(),
     vue(),
     eslintPlugin(),
-    WindiCSS()
+    WindiCSS(),
+    basicSsl()
   ],
   build: {
     rollupOptions: {
@@ -77,6 +81,7 @@ export default defineConfig({
   ssgOptions,
   server: {
     port: 4566,
-    host: true
+    host: true,
+    https: true
   }
 })

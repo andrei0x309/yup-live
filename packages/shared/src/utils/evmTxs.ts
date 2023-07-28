@@ -13,6 +13,14 @@ const canonicalize = import("canonicalize");
 // import { polygon, mainnet } from '@wagmi/core/chains'
 // import { config } from './config'
 
+let EthereumClient: Awaited<ReturnType<typeof web3Libs>['web3ModalEthereum']>['EthereumClient']
+let w3mConnectors: Awaited<ReturnType<typeof web3Libs>['web3ModalEthereum']>['w3mConnectors']
+let w3mProvider: Awaited<ReturnType<typeof web3Libs>['web3ModalEthereum']>['w3mProvider']
+let Web3Modal: Awaited<ReturnType<typeof web3Libs>['web3ModalHtml']>['Web3Modal']
+let configureChains: Awaited<ReturnType<typeof web3Libs>['wgamiCore']>['configureChains']
+let createConfig: Awaited<ReturnType<typeof web3Libs>['wgamiCore']>['createConfig']
+let wagmiConfig: ReturnType<typeof createConfig>
+let wgamiChains: Awaited<ReturnType<typeof web3Libs>['wgamiChains']>
 
 
 export const web3Libs = () => {
@@ -77,7 +85,6 @@ export const tryToGetAddressWithoutPrompt = async ({
     return (await getAccount()).address || null
 }
 
-
 export const prepareForTransaction = async ({
     stackAlertWarning,
     localWeb3Libs
@@ -86,21 +93,25 @@ export const prepareForTransaction = async ({
         localWeb3Libs: ReturnType<typeof web3Libs>
 }) => {
 
-    const web3ModalEthereum = await localWeb3Libs.web3ModalEthereum
-    const web3ModalHtml = await localWeb3Libs.web3ModalHtml
-    const wgamiCore = await localWeb3Libs.wgamiCore
-    const chainsLib = await localWeb3Libs.wgamiChains
+    const [web3ModalEthereum, web3ModalHtml, wgamiCore, chainsLib] = await Promise.all([
+        localWeb3Libs.web3ModalEthereum,
+        localWeb3Libs.web3ModalHtml,
+        localWeb3Libs.wgamiCore,
+        localWeb3Libs.wgamiChains
+    ])
 
-    const { EthereumClient, w3mConnectors, w3mProvider } = web3ModalEthereum
-    const { Web3Modal } = web3ModalHtml
-    const { configureChains, createConfig, getAccount } = wgamiCore
-    const { polygon, mainnet } = chainsLib
-
+    EthereumClient = EthereumClient || web3ModalEthereum.EthereumClient
+    w3mConnectors = w3mConnectors || web3ModalEthereum.w3mConnectors
+    w3mProvider = w3mProvider || web3ModalEthereum.w3mProvider
+    Web3Modal = Web3Modal || web3ModalHtml.Web3Modal
+    configureChains = configureChains || wgamiCore.configureChains
+    createConfig = createConfig || wgamiCore.createConfig
+    const { polygon, mainnet } = wgamiChains || chainsLib
 
     const chains = [polygon, mainnet]
 
     const { publicClient } = configureChains(chains, [w3mProvider({ projectId: config.PROJECT_ID })])
-    const wagmiConfig = createConfig({
+    wagmiConfig = wagmiConfig || createConfig({
         autoConnect: true,
         connectors: w3mConnectors({ projectId: config.PROJECT_ID, chains }),
         publicClient
@@ -108,8 +119,9 @@ export const prepareForTransaction = async ({
     const ethereumClient = new EthereumClient(wagmiConfig, chains)
 
     const web3Modal = new Web3Modal({ projectId: config.PROJECT_ID }, ethereumClient)
+
     if (web3Modal) {
-        let conn = await getAccount()
+        let conn = await wgamiCore.getAccount()
         if (!conn?.isConnected) {
             await web3Modal.openModal()
             const modalStateProm = new Promise((resolve) => {
@@ -119,14 +131,16 @@ export const prepareForTransaction = async ({
                 })
             })
             await modalStateProm
-            conn = await getAccount()
+            conn = await wgamiCore.getAccount()
             if (!conn.isConnected) {
                 stackAlertWarning && stackAlertWarning('User closed connect modal.')
                 return false
             }
-            return {
-                wgamiCore
-            }
+        } else {
+            await wagmiConfig.autoConnect()
+        }
+        return {
+            wgamiCore
         }
     } else {
         stackAlertWarning && stackAlertWarning('Web3 Instance is null.')

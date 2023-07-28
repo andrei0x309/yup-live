@@ -8,7 +8,7 @@ export const notificationTypes = ['reward', 'vote', 'follow', 'repost', 'comment
 export const notificationPlatforms = ["lens", "farcaster", "yup", "bsky"] as const;
 
 export const getNotifications = async (
-    { type, limit, skip, address } = { type: null, limit: '10', skip: '0' } as { address: string, type: null | string[]; limit?: string; skip?: string }
+    { type, limit, start, address } = { type: null, limit: '10', start: '0' } as { address: string, type: null | string[]; limit?: string; start?: string }
 ) => {
     let req
     let queryType = ''
@@ -27,11 +27,11 @@ export const getNotifications = async (
         limit = '10'
     }
 
-    if (!skip) {
-        skip = '0'
+    if (!start) {
+        start = '0'
     }
 
-    req = await fetch(`${API_BASE}/web3-notifications/${address}?skip=${skip}&limit=${limit}${queryType}`, {
+    req = await fetch(`${API_BASE}/web3-notifications/${address}?start=${start}&limit=${limit}${queryType}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'

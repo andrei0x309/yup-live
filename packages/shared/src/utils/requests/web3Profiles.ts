@@ -1,8 +1,8 @@
-import { config } from '../config'
-const API_BASE = config.API_BASE || ''
 import type { IWeb3Profile } from '../../types/web3Profile'
 import { fetchWAuth } from '../auth'
 import type { IMainStore } from 'shared/src/types/store'
+
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 
 export const fetchWeb3Profile = async (apiBase: string = API_BASE, address: string): Promise<IWeb3Profile | null> => {

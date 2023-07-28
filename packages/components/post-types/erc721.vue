@@ -17,7 +17,7 @@
   </div>
   </div>
   <VideoPlayer v-if="post.isVideo" :key="`${post.image}-video`" :videoSource="post.web3Preview?.meta?.imageUrl" />
-  <ImagePreview v-else :key="post.image" :source="post.web3Preview?.meta?.imageUrl" imgClass="min-w-60" />
+  <ImagePreview v-else :key="post.image" :source="[post.web3Preview?.meta?.imageUrl]" imgClass="min-w-60" />
   <div class="py-2 px-4" style="margin: 0.9rem 1rem 1rem 1rem; font-size: 1.1rem">
     <h1 class="text-xl font-medium leading-6 tracking-wide dark:text-gray-300 text-gray-900 cursor-pointer">
       {{ post.web3Preview?.meta?.name ?? post.title }}
@@ -31,7 +31,7 @@
   </div>
 </div>
 </template>
-['', '']
+
 <script lang="ts">
 import { onMounted, defineComponent } from 'vue'
 import ImagePreview from 'components/post/imagePreview.vue'

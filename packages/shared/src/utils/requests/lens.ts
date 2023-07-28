@@ -1,11 +1,13 @@
 import { prepareForTransaction, signedTypeData, TWeb3Libs } from '../evmTxs'
-import { config } from '../config'
-const API_BASE = config.API_BASE || ''
 import { fetchWAuth } from '../auth'
 import { IMainStore } from 'shared/src/types/store'
 
 
 const lensGraphQl = 'https://api.lens.dev'
+
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
+
 export const YUP_DISPATCHER_ADDRESS = '0xB3e40374054bE93e8328f50FFad1464d0E1D990D'
 export const LENS_DISPATCHER_ADDRESSES =
   ['0xC9FA5F824530b0DB3Df97820ded190F849b9bc0d',

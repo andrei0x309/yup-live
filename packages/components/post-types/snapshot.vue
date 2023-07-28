@@ -34,9 +34,10 @@
       <ImagePreview
         :key="mainPost.eventImage"
         :noPreviewParagraph="false"
-        :source="mainPost.eventImage"
+        :source="[mainPost.eventImage]"
         imgClass="rounded-full min-h-35 min-w-35 max-h-45 max-w-45"
         noPreviewClass="rounded-full min-h-35 min-w-35 max-h-45 max-w-45"
+        :noLightbox="true"
       />
       <div>
         <p class="ml-2">{{ mainPost.eventName }}</p>

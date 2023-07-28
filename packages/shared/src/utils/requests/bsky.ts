@@ -3,80 +3,9 @@ import { config } from '../config'
 import type { Ref } from 'vue'
 import { fetchWAuth } from '../auth'
 
-const API_BASE = config.API_BASE || ''
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
 export const BLUESKY_SERVICE_URL = 'https://bsky.social';
-
-
-// import { BLUESKY_SERVICE_URL } from '../config';
-
-// type ApiMethod = 'GET' | 'POST' | 'DELETE' | 'PUT';
-
-// interface ApiConfig {
-//   url: string;
-//   method?: ApiMethod;
-//   params?: Record<string, any>;
-//   data?: object | FormData;
-// }
-
-// export default async function callBluskyApi({ url, method = 'GET', params, data }: ApiConfig) {
-//   const isFormData = data instanceof FormData;
-//   const headers = {
-//     Accept: 'application/json',
-//     'Content-Type': isFormData ? 'multipart/form-data' : 'application/json'
-//   };
-
-//   // Configure api url, include query parameters if any
-//   let apiUrl = `${BLUESKY_SERVICE_URL}${url}`;
-
-//   if (method === 'GET' && params) {
-//     apiUrl += '?' + new URLSearchParams(params).toString();
-//   }
-
-//   const requestOptions: RequestInit = {
-//     method: method!,
-//     headers
-//   };
-
-//   if ((method === 'POST' || method === 'PUT' || method === 'DELETE') && data) {
-//     if (isFormData) {
-//       requestOptions.body = data;
-//     } else {
-//       requestOptions.body = JSON.stringify(data);
-//     }
-//   }
-
-//   const response = await fetch(apiUrl, requestOptions);
-
-//   if (response.ok) {
-//     return response.json();
-//   } else {
-//     let errorContent;
-//     const contentType = response.headers.get('Content-Type');
-
-//     try {
-//       if (contentType?.includes('text/html')) {
-//         errorContent = await response.text();
-//       } else {
-//         errorContent = await response.json();
-//       }
-//     } catch {}
-
-//     console.log('Bluesky API error: ', { url, method, params, data, errorContent });
-
-//     throw errorContent;
-//   }
-// }
-
-// import callBlueskyApi from './base_api';
-// import { BlueskySession } from './models';
-
-// export async function apiBlueskyLogin(identifier: string, password: string): Promise<BlueskySession> {
-//   return callBlueskyApi({
-//     method: 'POST',
-//     url: `/xrpc/com.atproto.server.createSession`,
-//     data: { identifier, password }
-//   });
-// }
 
 export const disconnectBlueSky = async ({
     store,

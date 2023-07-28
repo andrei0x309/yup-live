@@ -71,7 +71,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { timeAgo } from "shared/src/utils/time";
-import ImagePreview from "../post/imagePreview.vue";
 import ClockIcon from "icons/src/clock.vue";
 import type { NotifType } from "shared/src/types/notification";
 import ProfileLensIcon from "icons/src/profileLens.vue";
@@ -92,7 +91,6 @@ const icons = {
 export default defineComponent({
   name: "VoteNotification",
   components: {
-    ImagePreview,
     ClockIcon,
     LikesIcon
   },

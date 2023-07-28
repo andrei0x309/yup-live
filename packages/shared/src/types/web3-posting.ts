@@ -9,6 +9,7 @@ export type TMedia = {
 export interface IReplyTo {
     twitter?: string
     lens?: string
+    bsky?: string
     farcaster?: {
         fid: string
         hash: string

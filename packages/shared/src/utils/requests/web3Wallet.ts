@@ -1,5 +1,6 @@
-import { config } from '../config'
-const API_BASE = config.API_BASE || ''
+
+
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export const resources = ['nfts', 'poaps', 'tokens']
 export const chains = ['ethereum', 'polygon']

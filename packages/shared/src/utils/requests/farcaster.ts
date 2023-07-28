@@ -13,7 +13,7 @@ import { arrayify } from '@ethersproject/bytes'
 const buffer = import("buffer/");
 const EIP_191_PREFIX = "eip191:";
 
-const API_BASE = config.API_BASE || ''
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export const EIP_712_FARCASTER_DOMAIN = {
     name: 'Farcaster Verify Ethereum Address',
@@ -49,11 +49,6 @@ export const getComments = async (apiBase: string = API_BASE, thread: string) =>
         console.error('Failed to fetch comments', error)
         return null
     }
-}
-
-export const getFarcasterPostType = (post: any) => {
-    if (post?.web3Preview?.meta?.parents?.length > 0) return 'reply'
-    return 'single'
 }
 
 export const makeAddSignerRequest = async (store: IMainStore, apiBase: string = API_BASE) => {

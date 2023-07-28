@@ -1,18 +1,16 @@
 <template>
-  <div :class="`flex justify-between m-1 md:m-6 flex-row pPost ${postTypeClass}`">
+  <div :class="`flex justify-between m-1 md:m-6 flex-row pPost ${postTypeClass}`" :id="`p-${processedPost.id}`">
     <div
       class="flex flex-col max-w-2xl mx-auto postCard w-full min-w-[20rem]"
       :style="full && post.tag === 'mirror' ? 'max-width: 56rem;' : ''"
     >
       <component
         :is="!postTypeLoading ? postTypeCom : undefined"
-        :key="`post-loaded-${postTypeLoading}|${comments.length}`"
+        :key="`post-loaded-${postTypeLoading}`"
         :full="full"
         :post="processedPost"
-        :comments="comments.length ? comments : undefined"
         :replyComp="replyComp ? replyComp : undefined"
-        :deps="deps"
-        :postTypesPromises="postTypesPromises"
+        :isComment="isComment"
       />
       <div class="flex flex-row items-end w-full px-4 mt-4">
         <div class="flex border-t border-stone-400 dark:border-stone-600 w-full py-4">
@@ -34,7 +32,7 @@
             />
             <div class="flex ml-auto">
               <router-link
-                v-if="commentsNum > 2"
+                v-if="commentsNum > 0"
                 class="mr-2"
                 :to="`/post/${processedPost.id}`"
                 ><ComentsIcon class="inline-block w-5 mr-2" />{{
@@ -74,6 +72,15 @@
           </div>
         </div>
       </div>
+      <component
+        v-if="full && commentsEnabled && comments?.length"
+        :is="commentsComp"
+        :key="`${processedPost.id}-comments-${comments.length}`"
+        :comments="comments"
+        :deps="deps"
+        :postTypesPromises="postTypesPromises"
+        :crossPost="crossPost"
+      />
     </div>
   </div>
 </template>
@@ -90,7 +97,6 @@ import {
   PropType,
   computed,
 } from "vue";
-import ImagePreview from "components/post/imagePreview.vue";
 import Voting from "components/post/voting.vue";
 import FavIco from "components/post/favIco.vue";
 import ClockIcon from "icons/src/clock.vue";
@@ -102,13 +108,11 @@ import RadarIcon from "icons/src/radar.vue";
 import { processPost } from "shared/src/utils/post";
 import type { IPost, IProcessedPost } from "shared/src/types/post";
 import { useRoute } from "vue-router";
-import type { Web3LensRaw } from "shared/src/types/web3";
 import type { IPostDeps } from "shared/src/types/post";
 
 export default defineComponent({
   name: "Post",
   components: {
-    ImagePreview,
     ClockIcon,
     Voting,
     FavIco,
@@ -153,12 +157,18 @@ export default defineComponent({
       required: false,
       default: undefined,
     },
+    isComment: {
+      type: Boolean,
+      required: false,
+      default: false,
+    }
   },
   emits: ["updatepostinfo"],
   setup(props, ctx) {
     const postTypeCom: Ref<ReturnType<typeof defineComponent>> = shallowRef(undefined);
     const route = useRoute();
     const nested = (route.query.nested as string) ?? "";
+    const commentsEnabled = ref(false);
 
     const processedPost = (reactive({
       id: "",
@@ -216,6 +226,7 @@ export default defineComponent({
       store.userData.address,
       isOwner
     );
+    const commentsComp = shallowRef(null) as Ref<ReturnType<typeof defineComponent>>;
 
     // store.$subscribe(() => {
     // })
@@ -247,44 +258,8 @@ export default defineComponent({
               postTypeCom.value = (
                 await props.postTypesPromises.preloadFarcaster
               ).default;
-              import("shared/src/utils/requests/farcaster").then((module) => {
-                const commId = !nested
-                  ? props.post.web3Preview?.meta?.parentPostId
-                  : props.post._id.postid;
-
-                module
-                  .getFarcasterYupThread({
-                    apiBase: props.deps.apiBase,
-                    postId: commId,
-                  })
-                  .then((res) => {
-                    if (res) {
-                      comments.value = res.comments;
-                      commentsNum.value = res.numComments - 1;
-                    }
-                  });
-              });
-              if (props.crossPost && store.userData.connected?.farcaster) {
-                props.crossPost()?.then((module) => {
-                  replyComp.value = module.default;
-                });
-              }
               break;
             case "lens":
-              import("shared/src/utils/requests/lens").then((module) => {
-                module
-                  .getLensComments({
-                    apiBase: props.deps.apiBase,
-                    postId: props.post._id.postid,
-                  })
-                  .then((res) => {
-                    if (res) {
-                      comments.value = res.comments;
-                      commentsNum.value = res.numComments;
-                    }
-                  });
-              });
-
               processedPost.web3Preview = props.post.web3Preview;
               processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
               postTypeCom.value = (await props.postTypesPromises.preloadLens).default;
@@ -320,6 +295,37 @@ export default defineComponent({
             default:
               postTypeCom.value = (await props.postTypesPromises.preloadGeneral).default;
               break;
+          }
+          if(['bsky', 'lens', 'farcaster'].includes(type)) {
+            commentsEnabled.value = true;
+              import("shared/src/utils/requests/comments").then((module) => {
+                module
+                  .getComments({
+                    apiBase: props.deps.apiBase,
+                    postId: props.post._id.postid,
+                  })
+                  .then((res) => {
+                    if (res) {
+                      comments.value = res.comments;
+                      commentsNum.value = res.numComments;
+                    }
+                  });
+              });
+             
+          }
+
+          if (
+            commentsEnabled.value &&
+            props.crossPost &&
+            ['bsky', 'lens', 'farcaster'].includes(type) &&
+            store.userData.connected?.[type as 'bsky' | 'lens' | 'farcaster']
+          ) {
+            commentsComp.value = (
+              await import("components/post-types/inner/comments.vue")
+            ).default;
+            props.crossPost()?.then((module) => {
+              replyComp.value = module.default;
+            });
           }
           postTypeLoading.value = false;
         }
@@ -367,6 +373,8 @@ export default defineComponent({
       replyComp,
       nested,
       isOwner,
+      commentsEnabled,
+      commentsComp,
     };
   },
 });
@@ -440,11 +448,10 @@ div.w3TweetTypeBody {
   }
 
   a {
-    filter: brightness(1.2) sepia(2);
     border-bottom: 1px solid rgba(184, 184, 184, 0.096);
   }
   a:hover {
-    transform: skewX(20deg);
+    filter: brightness(1.1);
   }
 
   .indent {

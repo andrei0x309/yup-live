@@ -3,9 +3,10 @@
     <ImagePreview
       :alt="'collection ' + collectionInfo?.name"
       class="w-36 h-36 min-w-36 min-h-36 rounded-md border-1"
-      :source="collectionInfo?.imgSrcUrl"
+      :source="[collectionInfo?.imgSrcUrl]"
       :noPreviewParagraph="false"
       imgClass="w-36 h-36 object-cover"
+      :noLightbox="true"
     />
     <div id="body" class="flex flex-col ml-5 w-full">
       <h4 id="name" class="text-xl font-semibold mb-2">{{ collectionInfo?.name }}</h4>

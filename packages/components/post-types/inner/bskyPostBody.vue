@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4">
+  <div :class="`relative ${isReply ? 'mb-6' : ''}`">
     <div class="flex p-2 overflow-hidden">
       <router-link v-if="mainPost.userAddress" :to="`/web3-profile/${mainPost.userAddress}`">
         <AvatarBtn
@@ -22,7 +22,7 @@
           :isTwitter="true"
           :pAccount="mainPost.userHandle"
         />
-      <router-link v-if="mainPost.userAddress" :to="`/web3-profile/${mainPost.userAddress}`">
+        <router-link v-if="mainPost.userAddress" :to="`/web3-profile/${mainPost.userAddress}`">
         <div class="flex flex-col text-justify pl-3">
           <span>{{ mainPost.userName }}</span>
           <span class="mainPost-70"
@@ -45,72 +45,77 @@
       </span>
     </div>
     <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
-      <div class="indent"></div>
+      <div :class="`indent ${isReply ? 'reply-line' : ''}`"></div>
       <div class="pl-4">
         <p v-html="mainPost.body"></p>
-        <template v-for="media of mainPost.mediaEntities" :key="media.url">
-          <VideoPlayer
-            v-if="media.type === 'video'"
-            :videoSource="media.url"
-            class="py-4 rounded-lg"
-          />
-          <ImagePreview
-            v-if="media.type === 'image'"
-            :source="media.url"
-            class="py-4 rounded-lg"
-          />
+        <template v-for="media of mainPost.mediaEntities?.filter(e => e.type === 'video')" :key="media.url">
+          <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
         </template>
-        <!-- <template v-if="linkPreview.img">
-            <LinkPreview :linkPreview="linkPreview" />
-          </template> -->
+        <ImagePreview v-if="mainPost.mediaEntities?.filter(media => media.type === 'image')?.length" :source="mainPost.mediaEntities?.filter(media => media.type === 'image')?.map(e => e.url) ?? []" class="py-4 rounded-lg" :postId="mainPost.postId" />
+
+ 
+          <LinkPreview v-for="(preview, index) in mainPost.linkPreviews" :linkPreview="preview" :key="preview.url" :noImage="index > 0 || mainPost.mediaEntities?.length > 0" />
       </div>
     </div>
-    <span
-      class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-3"
-    >
+    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-3">
       <ClockIcon class="w-4 h-4" />
       <p class="text-xs">
         {{ mainPost.createdAt }}
       </p>
     </span>
+    <div class="flex">
+    <!-- <router-link v-if="(numComments ?? 0) > 1" :to="`/post/${mainPost.postId}?nested=1`">
+    <ComentsIcon class="inline-block w-5 mr-2" />{{ numComments - 1 }}</router-link> -->
+    <component v-if="replyComp" :platforms="['bsky']" :is="replyComp" :showReplyButton="true" :replyTo="{bsky: mainPost?.bsky?.uri}"  />
+  </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
-import type { Web3PostLens } from "shared/src/types/web3/lens";
-import AvatarBtn from "components/functional/avatarBtn.vue";
+import { defineComponent, PropType } from 'vue'
+import AvatarBtn from 'components/functional/avatarBtn.vue'
 import BskyIcon from "icons/src/bsky.vue";
-import VideoPlayer from "components/post/videoPlayer.vue";
-import ClockIcon from "icons/src/clock.vue";
-import ImagePreview from "components/post/imagePreview.vue";
-// import VerifiedIcon from "icons/src/verified.vue";
-import { parseIpfs } from "shared/src/utils/web3/ipfs";
+import VideoPlayer from 'components/post/videoPlayer.vue'
+import ClockIcon from 'icons/src/clock.vue'
+import ImagePreview from 'components/post/imagePreview.vue'
+import LinkPreview from 'components/post/linkPreview.vue'
+import VerifiedIcon from 'icons/src/verified.vue'
+import { parseIpfs } from 'shared/src/utils/web3/ipfs'
+import type { PostBodyProcessed } from 'shared/src/types/post'
 
 export default defineComponent({
-  name: "PostLensBody",
+  name: 'PostLensBody',
   components: {
     AvatarBtn,
     VideoPlayer,
     ClockIcon,
     ImagePreview,
-    // VerifiedIcon,
+    VerifiedIcon,
     BskyIcon,
+    LinkPreview
   },
   props: {
     mainPost: {
-      type: Object as PropType<Web3PostLens>,
-      required: true,
+      type: Object as PropType<PostBodyProcessed>,
+      required: true
     },
     postId: {
       type: String,
-      default: "",
+      default: ''
+    },
+    replyComp: {
+      type: Object as PropType<ReturnType<typeof defineComponent>>,
+      default: null,
+    },
+    isReply: {
+      type: Boolean,
+      default: false,
     },
   },
   setup() {
     return {
-      parseIpfs,
-    };
-  },
-});
+      parseIpfs
+    }
+  }
+})
 </script>

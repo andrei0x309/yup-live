@@ -44,7 +44,6 @@
         </div>
         </router-link>
       </div>
-      <!-- <ImagePreview v-if="featureImage" :showPlaceholder="false" :key="featureImage" :source="featureImage" imgClass="min-w-40" /> -->
     </div>
     <div class="px-4 space-y-2" style="font-size: 0.9rem">
       <div class="font-normal leading-6 indent-4 mirror-content" v-html="mirrorPost.content"></div>
@@ -69,7 +68,6 @@ import { marked } from 'marked'
 import clip from 'shared/src/utils/3p/clipper'
 import BtnSpinner from 'icons/src/btnSpinner.vue'
 // import { parseIpfs } from 'shared/src/utils/web3/ipfs'
-import ImagePreview from 'components/post/imagePreview.vue'
 import CustomButton from 'components/functional/customButton.vue'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
 
@@ -79,7 +77,6 @@ export default defineComponent({
     ClockIcon,
     MirrorIcon,
     BtnSpinner,
-    ImagePreview,
     CustomButton,
     AvatarBtn
   },

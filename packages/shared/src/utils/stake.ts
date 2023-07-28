@@ -150,7 +150,6 @@ export const onStake = async ({
     if (!(wgamiLib)) {
         return null
     }
-
     try {
         const amount = ethersLib.utils.parseEther(inputValue.value.toString())
 
@@ -177,7 +176,8 @@ export const onStake = async ({
             poolShare,
             Web3Libs
         })
-    } catch {
+    } catch (e) {
+        console.log(e)
         stackAlertWarning && stackAlertWarning('User rejected or tx failed')
     }
 }

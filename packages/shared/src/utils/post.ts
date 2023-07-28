@@ -1,4 +1,9 @@
-import type { IPost, IProcessedPost, IRPostShareInfo } from 'shared/src/types/post'
+import type { IPost, IProcessedPost, IRPostShareInfo, PostBodyProcessed, linkPreviewTypeEx, mediaType } from 'shared/src/types/post'
+import type { Web3Media } from 'shared/src/types/web3/media'
+import { isImage } from 'shared/src/utils/misc'
+import { parseIpfs } from 'shared/src/utils/web3/ipfs'
+// import MD from 'markdown-it'
+
 import { timeAgo } from 'shared/src/utils/time'
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -36,3 +41,83 @@ export const processPost = (post: IPost, processedPost: IProcessedPost,
     postShareInfo.text = processedPost.content
 }
 
+const parseBody = (text: string, linkPreviews: linkPreviewTypeEx[]) => {
+    const links = [] as string[]
+    text.replace(/(https?:\/\/[^\s]+)/g, (url) => {
+        links.push(url)
+        return url
+    })
+    linkPreviews = linkPreviews.filter((e) => links.includes(e.url ?? e.originalUrl))
+    linkPreviews.forEach((e) => {
+        text = text.replace(e.url, '')
+    })
+    return text
+}
+
+const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[]) => {
+    const retArr = [] as mediaType[]
+    mediaObject.forEach((e) => {
+        if (e.images) {
+            e.images.forEach((el) => {
+                if (el) {
+                    retArr.push({ type: 'image', url: parseIpfs(el) })
+                }
+            })
+        }
+        if (e.videos) {
+            e.videos.forEach((el) => {
+                if (el) {
+                    retArr.push({ type: 'video', url: parseIpfs(el) })
+                    console.log(parseIpfs(el))
+                }
+            })
+        }
+        if (e.url) {
+            if (isImage(e.url)) {
+                retArr.push({ type: 'image', url: parseIpfs(e.url) })
+            }
+        }
+    })
+    if (linkPreviews?.length === 0) return retArr
+    return retArr.filter((e) => !(e.type === 'image' && linkPreviews.some((el) => el.img === e.url)))
+}
+
+export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
+    const postBuilder = {} as PostBodyProcessed
+    postBuilder.userAvatar = fullPost?.web3CreatorProfile?.avatar ?? fullPost?.web3Preview?.creator?.avatarUrl ?? ''
+    postBuilder.userHandle = fullPost?.web3CreatorProfile?.handle ?? fullPost?.web3Preview?.creator?.handle ?? 'Anon'
+    postBuilder.userName = fullPost?.web3CreatorProfile?.fullname ?? fullPost?.web3Preview?.creator?.fullname ?? 'Anon'
+    postBuilder.userAddress = fullPost?.web3CreatorProfile?._id ?? fullPost?.web3Preview?.creator?.address ?? fullPost?.previewData?.creator ?? ''
+    postBuilder.verified = fullPost?.web3Preview?.meta?.isVerifiedAvatar ?? false
+    postBuilder.postId = fullPost?._id?.postid ?? fullPost?.id
+    postBuilder.linkPreviews = fullPost?.web3Preview?.linkPreview?.map(
+        (e) =>
+            (({
+                title: e.title ?? '',
+                img: e.img ?? '',
+                url: e.url ?? e.originalUrl ?? '',
+                description: e?.description ?? ''
+            })
+            ) ?? []) as linkPreviewTypeEx[]
+    postBuilder.mediaEntities = parseMedia(fullPost?.web3Preview?.attachments ?? [], postBuilder.linkPreviews ?? [])
+    postBuilder.body = parseBody(fullPost?.web3Preview?.content ?? fullPost?.previewData?.description ?? 'N/A', postBuilder.linkPreviews ?? [])
+    postBuilder.createdAt = timeAgo(fullPost?.web3Preview?.createdAt ?? fullPost?.createdAt ?? new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString())
+    postBuilder.lens = {
+        pubId: ''
+    }
+    postBuilder.lens.pubId = fullPost?.lensId ?? fullPost?.web3Preview?.id?.replace('lens://', '') ?? ''
+    postBuilder.farcaster = {
+        hash: '',
+        fid: 0,
+        parentHash: ''
+    }
+    postBuilder.farcaster.hash = fullPost?.web3Preview?.meta?.hash ?? ''
+    postBuilder.farcaster.fid = fullPost?.web3Preview?.meta?.fid ?? fullPost.web3CreatorProfile?.farcaster?.fid ?? 0
+    postBuilder.farcaster.parentHash = fullPost?.web3Preview?.meta?.parentHash ?? ''
+    postBuilder.bsky = {
+        uri: ''
+    }
+    postBuilder.bsky.uri = fullPost?.web3Preview?.meta?.uri ?? fullPost?.web3Preview?.id ?? ''
+
+    return postBuilder
+}

@@ -4,11 +4,12 @@
     <div class="flex flex-col min-w-10">
       <p class="ml-3 mt-1 pb-4 flex items-center">You</p>
       <ImagePreview
-        source="/res/reward_optimized.png"
+        :source="['/res/reward_optimized.png']"
         :noPreviewParagraph="false"
         :imgClass="`max-h-8 max-w-8 imgNotRadius`"
         :previewClass="`max-h-8 max-w-8 imgNotRadius`"
         :noPreviewClass="`max-h-8 max-w-8 min-h-8 min-max-w-8 imgNotRadius`"
+        :noLightbox="true"
       />
     </div>
     <div class="flex flex-col w-full">

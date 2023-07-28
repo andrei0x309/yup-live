@@ -42,6 +42,7 @@
               >Content</label
             >
             <textarea
+              ref="txtEl"
               id="castField"
               v-model="postContent"
               class="txt-box w-full bg-stone-200 text-gray-800 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
@@ -159,15 +160,16 @@ export default defineComponent({
       required: false,
       default: false,
     },
+    shareLink: {
+      type: String,
+      required: false,
+      default: "",
+    }
   },
   emits: ["success", "update:openModal"],
   setup(props, ctx) {
-    onMounted(() => {
-      // console.log('mounted')
-    });
-
     const openCastModal = ref(props.openModal);
-    const postContent = ref("");
+    const postContent = ref(props.shareLink ? ` ${props.shareLink}` : "");
     const postContentCharCount = computed(() => postContent.value.length);
     const postError = ref("");
     const postErrorKey = ref(0);
@@ -186,6 +188,7 @@ export default defineComponent({
       img : string
       id: string
     }[]>([]);
+    const refTxtEl = ref<HTMLTextAreaElement | null>(null);
 
 
  
@@ -293,6 +296,13 @@ const fileToBase64 = (file: File) => {
       }
       console.log(postPlatforms.value)
     };
+
+    onMounted(() => {
+      if(props.shareLink) {
+        refTxtEl.value?.setSelectionRange(0, 0);
+        refTxtEl.value?.focus();
+      }
+    });
     
     return {
       openCastModal,

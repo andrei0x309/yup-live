@@ -79,13 +79,11 @@
             :key="notification._id"
             class="shadow-md p-4 flex flex-row rounded-lg relative notComp"
           >
-            <FollowNotification :notification="notification" />
+            <MultiNotifications :notification="notification" type="follow" />
           </div>
-
-          <button v-if="hasMore" class="view-btn mt-4 text-[0.92rem] p-3" @click="loadMore"><AddIcon class="inline-block w-4 mr-2" />Load Older <BtnSpinner v-if="loadingMore" class="inline-block w-4 ml-2" /></button>
-
         </o-tab-item>
       </o-tabs>
+      <button v-if="hasMore" class="view-btn mt-4 text-[0.92rem] p-3" @click="loadMore"><AddIcon class="inline-block w-4 mr-2" />Load Older <BtnSpinner v-if="loadingMore" class="inline-block w-4 ml-2" /></button>
 
       <!-- <input
           v-model="search"
@@ -123,6 +121,8 @@ import DangLoader from "components/vote-list/loader.vue";
 import { useRoute } from "vue-router";
 import { getNotifications } from "shared/src/utils/notifications";
 import type { NotifType } from "shared/src/types/notification";
+import AddIcon from "icons/src/add.vue";
+import BtnSpinner from "icons/src/btnSpinner.vue";
 
 import VoteNotification from "components/notifications/vote.vue";
 import RewardNotification from  "components/notifications/reward.vue";
@@ -136,7 +136,9 @@ export default defineComponent({
     VoteNotification,
     RewardNotification,
     MultiNotifications,
-    CommentNotification
+    CommentNotification,
+    AddIcon,
+    BtnSpinner
   },
   setup() {
     const loading = ref(false);
@@ -228,6 +230,7 @@ export default defineComponent({
           await getNotifications({ address, type: ['follow'] })
         );
       }
+      hasMore.value = true;
       if (notifications.value.length < 10) {
         hasMore.value = false;
       }
@@ -248,7 +251,7 @@ export default defineComponent({
       const notifs = await getNotifications({
           address,
           type: activeTab.value === "0" ? null : [types[activeTab.value as "1" | "2" | "3"] as string] ,
-          skip: String(notifications.value.length),
+          start: String(notifications.value.length),
         })
       if (notifs.length < 10) {
         hasMore.value = false;

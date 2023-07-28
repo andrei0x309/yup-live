@@ -17,6 +17,11 @@ export const recentChanges = [
     //         'revamped link preview on yup live mobile',
     //         'disabled push for types reward and repost as they are not implemented yet on backend',
     //         'added support for image preview to support gallery',
+    //         'updated wallet lib, add additional autoConnect to prevent wagmi bug `connectorNotFoundError`, improved performance on preparing wallet interaction',
+    //         'changed dev server to https to test websockets'
+    //         'added basic lightbox to images displayed as gallery/single'
+    //         'refactored post types farcaster, lens, bsky to use same logic for filling and fetching post body and comments',
+    //         'fixed emissions data storage location'
     //     ],
     // },
     {

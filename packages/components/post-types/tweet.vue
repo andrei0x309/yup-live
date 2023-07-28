@@ -131,10 +131,10 @@
         <div class="indent"></div>
         <div class="pl-4 flex flex-col">
           <p v-html="mainTweet.body"></p>
-          <template v-for="media of mainTweet.mediaEntities" :key="media.url">
-            <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
-            <ImagePreview v-if="media.type === 'image'" :source="media.url" class="py-4 rounded-lg" />
-          </template>
+          <template v-for="media of mainTweet.mediaEntities?.filter(e => e.type === 'video')" :key="media.url">
+          <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
+        </template>
+        <ImagePreview v-if="mainTweet.mediaEntities?.filter(media => media.type === 'image')?.length" :source="mainTweet.mediaEntities?.filter(media => media.type === 'image')?.map(e => e.url) ?? []" class="py-4 rounded-lg" />
         </div>
       </div>
       <span v-else class="text-[1.2rem] text-left">RT:</span>
@@ -161,10 +161,10 @@
           <div class="indent"></div>
           <div class="pl-4 flex flex-col">
             <p v-html="replyOrQuote.body"></p>
-            <template v-for="media of replyOrQuote.mediaEntities" :key="media.url">
-              <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
-              <ImagePreview v-if="media.type === 'image'" :source="media.url" class="py-4 rounded-lg" />
-            </template>
+            <template v-for="media of replyOrQuote.mediaEntities?.filter(e => e.type === 'video')" :key="media.url">
+          <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
+        </template>
+        <ImagePreview v-if="replyOrQuote.mediaEntities?.filter(media => media.type === 'image')?.length" :source="replyOrQuote.mediaEntities?.filter(media => media.type === 'image')?.map(e => e.url) ?? []" class="py-4 rounded-lg" />
           </div>
         </div>
       </div>

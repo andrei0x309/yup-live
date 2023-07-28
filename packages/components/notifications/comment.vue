@@ -17,7 +17,8 @@
           </router-link>
         </div>
         <div class="flex flex-col w-full">
-          <div class="flex">
+          <div class="flex flex-col">
+            <div class="flex">
             <p class="ml-3 flex items-center pb-2 mt-4">
               <router-link :to="`/web3-profile/${sender?._id}`">
                 <b class="mr-2 opacity-60">{{
@@ -34,7 +35,8 @@
                 />
               </span>
             </p>
-            <p>{{ truncateText(notification?.meta?.content ?? "", 200) }}</p>
+            </div>
+            <p class="m-l-4 p-1 text-left">{{ truncateText(notification?.meta?.content ?? "", 200) }}</p>
             <div v-if="notification?.senders?.length > 1">
             <p>Other comentators</p>
             <div class="grid grid-cols-2 gap-4">

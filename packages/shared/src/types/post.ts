@@ -23,6 +23,7 @@ export interface IPost {
       ratingWeight?: number
     }
   }
+  lensId?: string
   negativeWeight?: number
   positiveWeight?: number
   rawPositiveWeight?: number
@@ -33,6 +34,13 @@ export interface IPost {
     protocol: string
     creator: {
       address: string
+      avatarUrl: string
+      fullname: string
+      handle: string
+      meta: {
+        connectedAddr: string
+        fid: number
+      }
     }
     content: string
     attachments: []
@@ -59,22 +67,52 @@ export interface IPost {
         address: string
       }
       erc721Postid?: string
+      parentPostId: string
+      postType?: string
+      hash?: string
+      parentHash?: string
+      uri?: string
+      parents?: Array<IPost['web3Preview']>
       [key: string]: any
     }
-    linkPreview?: []
+    linkPreview?: [
+      {
+        img: string
+        title: string
+        description: string
+        originalUrl: string
+        url: string
+      }
+    ]
     createdAt?: string
     updatedAt?: string
+    parentPost: IPost
+    rootPost: IPost
   }
   web3CreatorProfile?: {
     _id: string
     __v: number
     createdAt: string
-    ens: {}
-    farcaster: {}
-    lens: {}
+    ens: { handle: string }
+    farcaster: {
+      fid: number
+      handle: string
+      avatar: string
+      bio: string
+      fullname: string
+      verifications: [
+        string
+      ]
+    }
+    lens: {
+      avatar: string
+      handle: string
+      profileId: string
+    }
     noData: boolean
     updatedAt: string
     yup: {}
+    fullname: string
     avatar: string
     handle: string
   }
@@ -124,3 +162,48 @@ export interface IPostDeps extends IVotingDeps {
   PostMenu?: ReturnType<typeof defineComponent>
   ToolTip?: ReturnType<typeof defineComponent>
 }
+
+export type linkPreviewTypeEx = OpenGraphPreview & {
+  originalUrl: string
+}
+export interface PostBodyProcessed {
+  userName: string
+  userHandle: string
+  userAvatar: string
+  userAddress: string
+  body: string
+  createdAt?: string
+  verified?: boolean
+  mediaEntities: mediaType[]
+  linkPreviews: linkPreviewTypeEx[]
+  postId?: string
+  lens?: {
+    pubId: string
+  }
+  farcaster?: {
+    hash: string
+    fid: number
+    parentHash: string
+  }
+  bsky?: {
+    uri: string
+  }
+}
+
+
+// export interface Web3PostFarcaster {
+//   userName: string
+//   userHandle: string
+//   userAvatar: string
+//   userAddress: string
+//   userFid: string
+//   body: string
+//   publishedAt?: string
+//   verified?: boolean
+//   mediaEntities: mediaType[]
+//   createdAt: string
+//   thread: string
+//   hash: string
+//   numComments?: number
+//   postId?: string
+// }

@@ -1,9 +1,8 @@
-import { config } from '../config'
 import { fetchWAuth } from '../auth'
 import type { IFollowersResponse } from '../../types/web3Profile'
 import type { IMainStore } from 'shared/src/types/store'
 
-const API_BASE = config.API_BASE || ''
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export const getFollowers = async (apiBase = API_BASE, address: string, start = 0, limit = 10) => {
     try {

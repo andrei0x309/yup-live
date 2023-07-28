@@ -4,7 +4,7 @@
     @click="openLink(linkPreview.url)"
   >
     <template v-if="!noImage && linkPreview?.img">
-      <ImagePreview :source="linkPreview.img" :noPreviewParagraph="false" />
+      <ImagePreview :source="[linkPreview.img]" :noPreviewParagraph="false" :noLightbox="true" />
       <div class="absolute text-[0.8rem] description">
         <p v-if="linkPreview.title" class="pl-4 mb-2 font-semibold">
           {{ truncateText(linkPreview.title, 60) }}

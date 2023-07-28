@@ -77,7 +77,7 @@
               />
             </g>
           </svg>
-          {{ isLogin ? `New user` : "Back" }}
+          {{ isLogin ? `Create New account` : "Back" }}
         </p>
       </button>
       <p style="opacity: 0.7; font-size: 0.7rem; padding: 2rem">
