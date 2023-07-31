@@ -275,7 +275,7 @@ export default defineComponent({
       searchUser,
       formatNumber,
       truncteEVMAddr,
-      parseIpfs   
+      parseIpfs,
      };
   },
 });

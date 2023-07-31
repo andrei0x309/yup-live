@@ -83,7 +83,7 @@
           </div>
         </o-tab-item>
       </o-tabs>
-      <button v-if="hasMore" class="view-btn mt-4 text-[0.92rem] p-3" @click="loadMore"><AddIcon class="inline-block w-4 mr-2" />Load Older <BtnSpinner v-if="loadingMore" class="inline-block w-4 ml-2" /></button>
+      <button v-if="hasMore" class="view-btn mt-4 text-[0.92rem] p-3" @click="doLoadMore"><AddIcon class="inline-block w-4 mr-2" />Load Older <BtnSpinner v-if="loadingMore" class="inline-block w-4 ml-2" /></button>
 
       <!-- <input
           v-model="search"
@@ -119,7 +119,7 @@ import {
 import { useHead, HeadObject } from "@vueuse/head";
 import DangLoader from "components/vote-list/loader.vue";
 import { useRoute } from "vue-router";
-import { getNotifications } from "shared/src/utils/notifications";
+import { getNotifications, loadMore, clearNotifications } from "shared/src/utils/notifications";
 import type { NotifType } from "shared/src/types/notification";
 import AddIcon from "icons/src/add.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
@@ -128,6 +128,7 @@ import VoteNotification from "components/notifications/vote.vue";
 import RewardNotification from  "components/notifications/reward.vue";
 import MultiNotifications from "components/notifications/follow-mention-repost.vue";
 import CommentNotification from "components/notifications/comment.vue";
+import { useMainStore } from "@/store/main";
  
 export default defineComponent({
   name: "Notifications",
@@ -143,7 +144,7 @@ export default defineComponent({
   setup() {
     const loading = ref(false);
     // const search = ref("");
-    // const store = useMainStore();
+    const store = useMainStore();
 
     const route = useRoute();
     const address = route.params.address as string;
@@ -152,12 +153,6 @@ export default defineComponent({
     const hasMore = ref(true);
     const loadingMore = ref(false);
 
-    const types = {
-      "1": "vote",
-      "2": "reward",
-      "3": "follow",
-    }
-    
     const siteData = reactive({
       title: `YUP Live view your notifications`,
       description: `YUP Live view notifications about votes & rewards`,
@@ -246,25 +241,21 @@ export default defineComponent({
       }
     );
 
-    const loadMore = async () => {
-      loadingMore.value = true;
-      const notifs = await getNotifications({
-          address,
-          type: activeTab.value === "0" ? null : [types[activeTab.value as "1" | "2" | "3"] as string] ,
-          start: String(notifications.value.length),
-        })
-      if (notifs.length < 10) {
-        hasMore.value = false;
-      }
-
-       notifications.value = notifications.value.concat(
-        notifs
-      );
-      loadingMore.value = false;
+    const doLoadMore = async () => {
+      await loadMore({
+        address,
+        activeTab,
+        hasMore,
+        loadingMore,
+        notifications,
+      });
     };
 
     onMounted(async () => {
       loading.value = true;
+      if(store?.userData?.account) {
+        clearNotifications(store)
+      }
       await getByActiveTab();
       loading.value = false;
     });
@@ -275,7 +266,7 @@ export default defineComponent({
       loading,
       activeTab,
       hasMore,
-      loadMore,
+      doLoadMore,
       loadingMore
     };
   },

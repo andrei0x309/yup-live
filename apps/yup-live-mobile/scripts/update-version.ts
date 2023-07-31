@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const incVersion = (version: string) => {
     const [major, minor, patch] = version.split('.').map((v) => parseInt(v));
@@ -26,7 +26,6 @@ const newAndroidVersionFile = androidVersionFile.map((line) =>
     line === androidVersionLine ? newAndroidVersionLine : line
 );
 fs.writeFileSync(androidVersionFilePath, newAndroidVersionFile.join('\n'));
-
 const jsonUpdatePath = path.join('../yup-live', 'public', 'mobile', 'preview-latest-version.json');
 const readJsonUpdateFile = fs.readFileSync(jsonUpdatePath, 'utf8');
 const jsonUpdateFile = JSON.parse(readJsonUpdateFile);

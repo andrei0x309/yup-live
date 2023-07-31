@@ -35,7 +35,10 @@ export const submitPost = async ({
             method: 'POST',
             body: JSON.stringify(sendData)
         })
-        if (!req.ok) throw new Error('Error submitting post' + req.statusText)
+        if (!req.ok) {
+            console.error('Error submitting post: ', req.statusText)
+            return null
+        }
         return await req.json()
     } catch (e) {
         console.error('Submit Post: ', e)

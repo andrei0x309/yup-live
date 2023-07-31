@@ -22,6 +22,11 @@ export const recentChanges = [
     //         'added basic lightbox to images displayed as gallery/single'
     //         'refactored post types farcaster, lens, bsky to use same logic for filling and fetching post body and comments',
     //         'fixed emissions data storage location'
+    //         'added option to basic share link to sharte to yup live mobile',
+    //         'added custom svg icon for notifications on yup live mobile',
+    //         're-enabled reward and repost push notifications on yup live mobile',
+    //         'added avatar of user in cross post modal',
+    //         'wrote native service to be able to get push from expo when app is closed',
     //     ],
     // },
     {

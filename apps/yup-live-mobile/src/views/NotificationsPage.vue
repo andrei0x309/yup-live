@@ -9,10 +9,10 @@
         mode="ios"
         @ion-change="segmentChange"
       >
-        <ion-segment-button value="all">
+        <ion-segment-button value="0">
           <ion-label>All</ion-label>
         </ion-segment-button>
-        <ion-segment-button value="rewards">
+        <ion-segment-button value="2">
           <ion-label>Rewards</ion-label>
         </ion-segment-button>
       </ion-segment>
@@ -36,6 +36,7 @@
             <CommentNotification :notification="notification" />
           </template>
         </div>
+        <button v-if="hasMore" class="view-btn mt-4 text-[0.92rem] p-3" @click="doLoadMore"><AddIcon class="inline-block w-4 mr-2" />Load Older <BtnSpinner v-if="loadingMore" class="inline-block w-4 ml-2" /></button>
       </template>
       <template v-else-if="!loading">
         <ion-card>
@@ -80,7 +81,7 @@ import {
 } from "@ionic/vue";
 import { defineComponent, ref, Ref } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
-import { getNotifications } from "shared/src/utils/notifications";
+import { getNotifications, loadMore } from "shared/src/utils/notifications";
 import { useMainStore } from "@/store/main";
 import type { NotifType } from "shared/src/types/notification";
 import { timeAgo } from "shared/src/utils/time";
@@ -115,7 +116,10 @@ export default defineComponent({
     const store = useMainStore();
     const loading = ref(false);
     const notifications = ref([]) as Ref<NotifType[]>;
-    const currentSegment = ref("all");
+    const currentSegment = ref("0");
+
+    const hasMore = ref(false);
+    const loadingMore = ref(false);
 
     // const addTwitterIcon =  (n:any) => {
     //         if(n?.post?.url?.match(/.*?twitter.com\/.*/)) {
@@ -129,7 +133,7 @@ export default defineComponent({
 
     const segmentChange = async (value: any) => {
       currentSegment.value = value.detail.value;
-      if (currentSegment.value === "all") {
+      if (currentSegment.value === "0") {
         notifications.value =
           (await getNotifications({ address: store.userData.address, type: null })) ?? [];
       } else {
@@ -139,6 +143,16 @@ export default defineComponent({
             type: ["reward"],
           })) ?? [];
       }
+    };
+
+    const doLoadMore = async () => {
+      await loadMore({
+        address: store.userData.address,
+        activeTab: currentSegment,
+        hasMore,
+        loadingMore,
+        notifications,
+      });
     };
 
     onIonViewDidEnter(async () => {
@@ -154,6 +168,9 @@ export default defineComponent({
       currentSegment,
       notifications,
       timeAgo,
+      doLoadMore,
+      hasMore,
+      loadingMore
     };
   },
 });

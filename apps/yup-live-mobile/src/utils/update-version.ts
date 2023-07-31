@@ -2,7 +2,8 @@ import { getApp } from "@/utils/capacitor";
 import { IMainStore } from "shared/src/types/store";
 import { storage } from './storage'
 
-const JSON_URL = 'https://yup-live.pages.dev/mobile/latest-version.json';
+const JSON_URL = 'https://jsonkeeper.com/b/FHJ5'
+// const JSON_URL = 'https://yup-live.pages.dev/mobile/latest-version.json';
 
 
 const parseVersionNumber = (version: string) => {

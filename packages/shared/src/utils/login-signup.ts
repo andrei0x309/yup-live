@@ -262,7 +262,7 @@ export const onSignup = async (
     const inst = await web3ModalInstantiate({ loadState, setAlert })
     if (inst) {
         const address = inst.address ?? ""
-        const account = await getYupAccount({ address, type: 'login', loadState, setAlert })
+        const account = await getYupAccount({ address, type: 'signup', loadState, setAlert })
         if (!account) return
         const signature = await signChallenge({ address, loadState, setAlert })
         if (!signature) return

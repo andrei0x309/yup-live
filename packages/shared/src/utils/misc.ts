@@ -75,6 +75,7 @@ export const exportFile = (fileName: string, content: string, type = 'csv') => {
   document.body.removeChild(link)
 }
 
+
 export const formatNumber = (num: number, digits = 0) => {
   return Intl.NumberFormat('en-US', {
     notation: 'compact',

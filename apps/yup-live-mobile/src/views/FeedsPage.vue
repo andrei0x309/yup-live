@@ -1,13 +1,14 @@
 <template>
   <ion-page>
     <HeaderBar text="FEEDS" :menu="true" />
-    <ion-list style="position: sticky;top: 0;z-index: 2;">
-    <ion-item>
+
+
+
+    <!-- <ion-item>
       <ion-select v-model="activeFeed" aria-label="feed" :value="feeds[0][0]" style="margin:auto;" interface="action-sheet" placeholder="Select Feed" @ionChange="feedChange">
         <ion-select-option v-for="feed of feeds" :key="feed[0]" :value="feed[0]">{{feed[1]}}</ion-select-option>
       </ion-select>
-    </ion-item>
-  </ion-list>
+    </ion-item> -->
     <ion-content :fullscreen="true">
   <ion-refresher
               slot="fixed"
@@ -27,6 +28,15 @@
       @didDismiss="loading = false"
     >
     </ion-loading>
+
+    <HorizontalChips>
+    <template #chips>
+      <ion-chip v-for="feed in feeds" :key="feed[0]" :color="feed[0] === activeFeed ? 'success': 'primary'" @click="feedChange(feed[0])" >
+      {{feed[1]}}
+    </ion-chip>
+    </template>
+    </HorizontalChips>
+
   <InfScroll v-if="!loading" :key="`${loading}-loaded`" :postLoaded="true" @hit="onHit">
         <template #content>
           <div v-if="posts.length > 0" class="flex flex-row mx-auto">
@@ -65,6 +75,7 @@ import {
   IonRefresherContent,
   IonItem,
   IonLoading,
+  IonChip,
 onIonViewWillEnter
 } from "@ionic/vue";
 import { defineComponent, ref, Ref, shallowRef } from "vue";
@@ -80,6 +91,8 @@ import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/a
 import { useMainStore } from "@/store/main";
 import { IPost } from "shared/src/types/post";
 import { fetchWAuth } from "shared/src/utils/auth";
+import HorizontalChips from "@/components/misc/horizontal-chips.vue";
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -110,7 +123,9 @@ export default defineComponent({
     IonRefresher,
   IonRefresherContent,
     IonLoading,
-    LineLoader
+    LineLoader,
+    HorizontalChips,
+    IonChip
 
   },
   setup () {
@@ -180,8 +195,8 @@ export default defineComponent({
       feedLoading.value = false
     }
 
-    const feedChange = async (event?: any) => {
-      console.log(event)
+    const feedChange = async (feed: string) => {
+      activeFeed.value = feed
       loading.value = true
       postsIndex.value = 0
       posts.value = await getFeedPosts(postsIndex.value)
@@ -258,4 +273,12 @@ export default defineComponent({
 #container a {
   text-decoration: none;
 }
+
+ion-chip {
+    width: max-content;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
 </style>

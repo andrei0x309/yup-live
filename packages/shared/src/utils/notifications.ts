@@ -1,8 +1,17 @@
 import { fetchWAuth } from './auth'
 import { wait } from './time'
 import type { IMainStore } from '../types/store'
+import type { Ref } from 'vue'
+import type { NotifType } from '../types/notification'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
+const types = {
+    "0": null,
+    "1": "vote",
+    "2": "reward",
+    "3": "follow",
+}
 
 export const notificationTypes = ['reward', 'vote', 'follow', 'repost', 'comment', 'mention']
 export const notificationPlatforms = ["lens", "farcaster", "yup", "bsky"] as const;
@@ -91,3 +100,32 @@ export const clearNotifications = async (store: IMainStore) => {
     }
     return await req.json()
 }
+
+export const loadMore = async ({
+    loadingMore,
+    hasMore,
+    notifications,
+    address,
+    activeTab,
+}: {
+    loadingMore: Ref<boolean>;
+    hasMore: Ref<boolean>;
+    notifications: Ref<NotifType[]>;
+    address: string;
+    activeTab: Ref<string>;
+}) => {
+    loadingMore.value = true;
+    const notifs = await getNotifications({
+        address,
+        type: activeTab.value === "0" ? null : [types[activeTab.value as "1" | "2" | "3"] as string],
+        start: String(notifications.value.length),
+    })
+    if (notifs.length < 10) {
+        hasMore.value = false;
+    }
+
+    notifications.value = notifications.value.concat(
+        notifs
+    );
+    loadingMore.value = false;
+};

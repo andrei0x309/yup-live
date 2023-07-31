@@ -45,7 +45,7 @@
     <div class="flex">
     <!-- <router-link v-if="(numComments ?? 0) > 1" :to="`/post/${mainPost?.postId}`">
     <ComentsIcon class="inline-block w-5 mr-2" />{{ numComments - 1 }}</router-link> -->
-    <component v-if="replyComp" :platforms="['farcaster']" :is="replyComp" :showReplyButton="true" :replyTo="{ farcaster: mainPost.farcaster}"  />
+    <component v-if="replyComp" :platforms="['farcaster']" :is="replyComp" :showReplyButton="true" :replyTo="{ farcaster: { fid:mainPost.farcaster?.fid, hash: mainPost.farcaster?.hash }}"  />
   </div>
   </div>
 </template>
@@ -62,7 +62,7 @@ import ClockIcon from "icons/src/clock.vue";
 import ComentsIcon from 'icons/src/comments.vue'
 // import { getFarcasterYupThread } from "shared/src/utils/requests/farcaster";
 // import { ref } from "vue";
-import { getComments } from 'shared/src/utils/requests/comments'
+// import { getComments } from 'shared/src/utils/requests/comments'
 import type { IPostDeps } from "shared/src/types/post";
 import { useRouter } from 'vue-router'
 

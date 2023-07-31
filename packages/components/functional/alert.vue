@@ -68,6 +68,7 @@ export default defineComponent({
     const titleLocal = ref(props.title)
     const messageLocal = ref(props.message)
     const typeLocal = ref(props.type)
+    const timeoutLocal = ref(props.timeout)
  
     const close = () => {
       ctx.emit('close', props.id)
@@ -98,7 +99,7 @@ export default defineComponent({
     onMounted(() => {
       setTimeout(() => {
         close()
-      }, props.timeout)
+      }, timeoutLocal.value)
     }),
 
     ctx.expose({

@@ -1,4 +1,4 @@
-package gf.info.yup.app;
+package gf.info.yup;
 
 import com.getcapacitor.BridgeActivity;
 

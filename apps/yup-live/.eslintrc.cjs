@@ -17,7 +17,8 @@ module.exports = {
   rules: {
     'vue/multi-word-component-names': 'off',
     'vue/no-v-html': 'off',
-    'vue/attribute-hyphenation': 'off'
+    'vue/attribute-hyphenation': 'off',
+    'vue/no-setup-props-destructure': 'off'
   },
   ignorePatterns: ['**/node_modules/**', 'dist/**', 'public/**']
 }

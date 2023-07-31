@@ -28,6 +28,7 @@
               title="Error"
               type="error"
             />
+            <AvatarBtn :useMainStore="useMainStore" class="mr-2" style="width: 2.3rem; height: 2.3rem; margin: auto" />
             <label
               for="castField"
               class="leading-7 text-sm text-gray-600 dark:text-gray-300"
@@ -247,7 +248,7 @@ const fileToBase64 = (file: File) => {
         sendData,
       });
 
-      if (!result.error) {
+      if (result && !result.error) {
         ctx.emit("success");
         ctx.emit("update:openModal", false);
         stackAlertSuccess("Post sent!");
@@ -276,7 +277,8 @@ const fileToBase64 = (file: File) => {
       images,
       deleteImage,
       maxCharCount,
-      userPlatforms
+      userPlatforms,
+      useMainStore
       };
   },
 });

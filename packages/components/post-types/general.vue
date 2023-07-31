@@ -12,7 +12,7 @@
     </span>
   </div>
   <VideoPlayer v-if="post.isVideo" :key="`${post.image}-video`" :videoSource="post.image" />
-  <ImagePreview v-else :key="post.image" :source="post.image" imgClass="min-w-60" :noLightbox="true" />
+  <ImagePreview v-else :key="post.image" :source="post.image" imgClass="min-w-60" :noLightbox="true"  />
   <div class="py-2 px-4" style="margin: 0.9rem 1rem 1rem 1rem; font-size: 1.1rem">
     <h1 class="text-xl font-medium leading-6 tracking-wide dark:text-gray-300 text-gray-900 cursor-pointer">
       {{ post.title }}

@@ -4,6 +4,8 @@ import { fileURLToPath, URL } from 'url'
 // import eslintPlugin from 'vite-plugin-eslint'
 import WindiCSS from 'vite-plugin-windicss'
 // import nodePolyfills from 'vite-plugin-node-stdlib-browser'
+import basicSsl from '@vitejs/plugin-basic-ssl'
+
 
 export default defineConfig({
     publicDir: './public',
@@ -28,7 +30,8 @@ export default defineConfig({
         // nodePolyfills(),
         vue(),
         // eslintPlugin(),
-        WindiCSS()
+        WindiCSS(),
+        basicSsl()
     ],
     build: {
         rollupOptions: {
@@ -41,6 +44,7 @@ export default defineConfig({
     },
     server: {
         port: 4875,
-        host: true
+        host: true,
+        https: true,
     }
 })

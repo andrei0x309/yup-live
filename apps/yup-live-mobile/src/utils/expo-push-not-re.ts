@@ -57,7 +57,7 @@ const sendPushToken = async ({ store,
     const endPoint = `${API_BASE}/push-token`
     const body = {
         deviceId,
-        pushToken
+        token: pushToken
     }
     const req = await fetchWAuth(store, endPoint, {
         method: 'POST',
@@ -103,19 +103,33 @@ export const getExpoPushTokenAndRegister = async ({ store }: { store: IMainStore
     if (!isAndroid()) {
         return
     }
-    const { PushNotifications } = await import('@capacitor/push-notifications');
+    const { FirebaseMessaging } = await import('@capacitor-firebase/messaging')
+    const { LocalNotifications } = await import('@capacitor/local-notifications');
+
+    let permStatus = await FirebaseMessaging.checkPermissions();
+
+    if (permStatus.receive === 'prompt') {
+        permStatus = await FirebaseMessaging.requestPermissions();
+    }
+
+    if (permStatus.receive !== 'granted') {
+        throw new Error('User denied permissions!');
+    }
+
+    // const { PushNotifications } = await import('@capacitor/push-notifications');
 
     const deviceId = await getInstallationId()
     console.log(deviceId, 'deviceId')
     try {
-    const devicePushTokenP = new Promise((resolve, reject) => {
-        PushNotifications.addListener('registration', (token) => {
-            console.log('Push registration success, token: ' + token.value);
-            resolve(token.value)
-        });
-    })
+        // const devicePushTokenP = new Promise((resolve, reject) => {
+        //     FirebaseMessaging.addListener('registration', (token) => {
+        //         console.log('Push registration success, token: ' + token.value);
+        //         resolve(token.value)
+        //     });
+        // })
+        const devicePushToken = (await FirebaseMessaging.getToken()).token;
 
-    await PushNotifications.createChannel({
+        await FirebaseMessaging.createChannel({
         id: 'default',
         name: 'Yup Live',
         description: 'Yup Live notifications',
@@ -126,27 +140,32 @@ export const getExpoPushTokenAndRegister = async ({ store }: { store: IMainStore
         lightColor: 'FF0000',
     });
 
-    await PushNotifications.addListener('pushNotificationReceived', notification => {
+        await FirebaseMessaging.addListener('notificationReceived', notification => {
+            LocalNotifications.schedule({
+                notifications: [
+                    {
+                        title: (notification.notification.data as any)?.title,
+                        body: (notification.notification.data as any)?.message,
+                        id: 1,
+                        schedule: { at: new Date(Date.now() + 100) },
+                        sound: 'beep.aiff',
+                        attachments: undefined,
+                        actionTypeId: '',
+                        extra: null
+                    }
+                ]
+            });
         console.log('Push notification received: ', notification);
     });
 
-    await PushNotifications.addListener('pushNotificationActionPerformed', notification => {
+        await FirebaseMessaging.addListener('notificationActionPerformed', notification => {
         console.log('Push notification action performed: ' + notification);
         useRouter().push('/tabs/notifications')
     }
     );
 
-    let permStatus = await PushNotifications.checkPermissions();
 
-    if (permStatus.receive === 'prompt') {
-        permStatus = await PushNotifications.requestPermissions();
-    }
 
-    if (permStatus.receive !== 'granted') {
-        throw new Error('User denied permissions!');
-    }
-    await PushNotifications.register()
-    const devicePushToken = await devicePushTokenP
     console.log(devicePushToken, 'devicePushToken')
     const body = {
         type,

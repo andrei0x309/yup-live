@@ -24,7 +24,7 @@
             processedPost?.web3CreatorProfile &&
             processedPost?.web3CreatorProfil?.noData !== true
           "
-          class="min-w-[21rem]"
+          class="min-w-[30vw]"
         >
           <h2 class="mx-auto text-center">Post Creator</h2>
           <Web3ProfileCard

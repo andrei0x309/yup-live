@@ -36,6 +36,7 @@
               title="Error"
               type="error"
             />
+            <AvatarBtn :useMainStore="useMainStore" class="mr-2" style="width: 2.3rem; height: 2.3rem; margin: auto" />
             <label
               for="castField"
               class="leading-7 text-sm text-gray-600 dark:text-gray-300"
@@ -102,7 +103,7 @@ import type { TPlatform, ISendPostData, IReplyTo } from "shared/src/types/web3-p
 import ImageUploadIcon from "icons/src/imageUpload.vue";
 import { mediaUpload, submitPost } from 'shared/src/utils/requests/web3-posting'
 import DeleteIcon from "icons/src/delete.vue";
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+import AvatarBtn from "components/functional/avatarBtn.vue";
 import { 
   IonModal,
   IonContent,
@@ -114,6 +115,8 @@ import {
   IonCheckbox
  } from "@ionic/vue";
  import { getMaxCharCount } from "shared/src/utils/requests/crossPost";
+
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens", 'bsky'];
 
@@ -132,7 +135,8 @@ export default defineComponent({
   IonTitle,
   IonButtons,
   IonButton,
-  IonCheckbox
+  IonCheckbox,
+  AvatarBtn
   },
   props: {
     replyTo: {
@@ -275,7 +279,7 @@ const fileToBase64 = (file: File) => {
         sendData,
       });
 
-      if (!result.error) {
+      if (result && !result.error) {
         ctx.emit("success");
         ctx.emit("update:openModal", false);
         stackAlertSuccess("Post sent!");
@@ -323,7 +327,8 @@ const fileToBase64 = (file: File) => {
       deleteImage,
       maxCharCount,
       updatePostPlatforms,
-      userPlatforms
+      userPlatforms,
+      useMainStore
     };
   },
 });

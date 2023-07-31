@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { parseIpfs } from './ipfs'
-import type { lensPostCommentRaw, Web3LensRaw } from '../../types/web3/lens'
 import type { Web3Media } from '../../types/web3/media'
 
 const lensGraphQl = 'https://api.lens.dev'
@@ -26,37 +25,37 @@ export const commentLensQuery = (id: string, limit = 10, cursor = null) => {
 export const lensIdToRaw = (lensId: string) => lensId.replace('lens://', '')
 export const rawToLensId = (lensId: string) => `lens://${lensId}`
 
-const makeEmptyWeb3LensRaw = () =>
-({
-  creator: {}
-} as Web3LensRaw)
+// const makeEmptyWeb3LensRaw = () =>
+// ({
+//   creator: {}
+// } as Web3LensRaw)
 
-export const convertToWeb3Raw = (obj: lensPostCommentRaw): Web3LensRaw => {
-  const retObj = makeEmptyWeb3LensRaw()
-  retObj.creator!.avatar = parseIpfs(obj.profile?.picture?.original?.url ?? obj.profile?.picture?.uri as string)
-  retObj.creator!.address = obj.profile?.ownedBy
-  retObj.creator!.handle = obj.profile?.handle
-  retObj.creator!.fullname = obj.profile?.name
-  retObj.content = obj?.metadata.content
-  retObj.attachments = obj?.metadata.media as Web3Media
-  retObj.createdAt = obj?.createdAt
-  retObj.id = rawToLensId(obj?.id as string)
-  return retObj
-}
+// export const convertToWeb3Raw = (obj: lensPostCommentRaw): Web3LensRaw => {
+//   const retObj = makeEmptyWeb3LensRaw()
+//   retObj.creator!.avatar = parseIpfs(obj.profile?.picture?.original?.url ?? obj.profile?.picture?.uri as string)
+//   retObj.creator!.address = obj.profile?.ownedBy
+//   retObj.creator!.handle = obj.profile?.handle
+//   retObj.creator!.fullname = obj.profile?.name
+//   retObj.content = obj?.metadata.content
+//   retObj.attachments = obj?.metadata.media as Web3Media
+//   retObj.createdAt = obj?.createdAt
+//   retObj.id = rawToLensId(obj?.id as string)
+//   return retObj
+// }
 
-export const getLensComments = async (id: string) => {
-  const req = await fetch(lensGraphQl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(commentLensQuery(id))
-  })
-  if (req.ok) {
-    const data = await req.json()
-    const web3RawLensPosts = [] as Web3LensRaw[]
-    for (const item of data?.data?.publications?.items ?? []) {
-      web3RawLensPosts.push(convertToWeb3Raw(item))
-    }
-    return web3RawLensPosts
-  }
-  return []
-}
+// export const getLensComments = async (id: string) => {
+//   const req = await fetch(lensGraphQl, {
+//     method: 'POST',
+//     headers: { 'Content-Type': 'application/json' },
+//     body: JSON.stringify(commentLensQuery(id))
+//   })
+//   if (req.ok) {
+//     const data = await req.json()
+//     const web3RawLensPosts = [] as Web3LensRaw[]
+//     for (const item of data?.data?.publications?.items ?? []) {
+//       web3RawLensPosts.push(convertToWeb3Raw(item))
+//     }
+//     return web3RawLensPosts
+//   }
+//   return []
+// }

@@ -134,7 +134,7 @@
           <template v-for="media of mainTweet.mediaEntities?.filter(e => e.type === 'video')" :key="media.url">
           <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
         </template>
-        <ImagePreview v-if="mainTweet.mediaEntities?.filter(media => media.type === 'image')?.length" :source="mainTweet.mediaEntities?.filter(media => media.type === 'image')?.map(e => e.url) ?? []" class="py-4 rounded-lg" />
+        <ImagePreview v-if="mainTweet.mediaEntities?.filter(media => media.type === 'image')?.length" :source="mainTweet.mediaEntities?.filter(media => media.type === 'image')?.map(e => e.url) ?? []" class="py-4 rounded-lg" :postId="post?.id ?? post?._id?.postid" />
         </div>
       </div>
       <span v-else class="text-[1.2rem] text-left">RT:</span>

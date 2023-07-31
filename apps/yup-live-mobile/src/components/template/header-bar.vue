@@ -1,5 +1,5 @@
 <template>
-  <ion-header :translucent="true" >
+  <ion-header id="head-top" :translucent="true" >
     <ion-toolbar>
         <ion-buttons v-if="menu" slot="start">
         <ion-menu-toggle :auto-hide="false">

@@ -23,6 +23,7 @@
         :platforms="['farcaster', 'lens', 'twitter', 'bsky']"
         @update:open-modal="(v: boolean) => (openPostModal = v)"
         @success="postSent"
+        :shareLink="shareLink"
       />
     </ion-page>
   </ion-app>
@@ -82,6 +83,8 @@ export default defineComponent({
     const loading = ref(false);
     const openPostModal = ref(false);
     const promisePostResolved = ref((a: unknown) => {});
+
+    const shareLink = ref("");
 
     const openToast = (msg: string) => {
       toastState.value = true;
@@ -167,6 +170,7 @@ export default defineComponent({
             break;
           }
           case "newPost": {
+            shareLink.value = url;
             openPostModal.value = true;
             await new Promise((resolve) => {
               promisePostResolved.value = resolve;
@@ -248,6 +252,7 @@ export default defineComponent({
 
         if (authInfoVal) {
           checkForUpdateAndNotify(store).then((res) => {
+            console.info(JSON.stringify(res), 'update');
             if (res?.update) {
               openUpdateModal({
                 foreced: res.forced,
@@ -276,7 +281,9 @@ export default defineComponent({
               }
             });
           });
-          getExpoPushTokenAndRegister({ store });
+          setTimeout(() => {
+            getExpoPushTokenAndRegister({ store });
+          }, 2000);
           store.userData = JSON.parse(authInfoVal);
           getConnected(store, store.userData.account);
           store.isLoggedIn = true;
@@ -318,7 +325,8 @@ export default defineComponent({
       setAlertStack,
       useAlertStack,
       openPostModal,
-      postSent
+      postSent,
+      shareLink
     };
   },
 });

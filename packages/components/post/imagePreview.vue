@@ -1,10 +1,10 @@
 <template>
-  <div class="imgPreview flex flex-col content-center justify-center items-center">
+  <div class="imgPreview flex flex-col content-center justify-center items-center" :id="`${hashId(refSources?.[0] ?? '')}-img`">
     <BtnSpinner v-if="isLoading" :key="`loading-${isLoading}`" />
     <div :class="`grid grid-cols-${refSources?.length > 1 ? 2 : 1} gap-4`">
-      <div v-for="(source) in refSources" :key="source">
+      <div v-for="(source, i) in refSources" :key="source">
         <div v-if="!isError">
-          <a :href="`#id${hashId(source)}`">
+          <button @click="openImg(refSources?.[i])" >
             <img
               :key="source"
               :class="`imagePreview ${imgClass}`"
@@ -14,10 +14,11 @@
               @error="onError"
               @load="onLoad"
             />
-          </a>
-          <a v-if="!noLightbox" :href="postId ? `#p-${postId}` : '#'" class="lightbox" :id="`id${hashId(source)}`">
-            <span :style="`background-image: url('${source}')`"></span>
-          </a>
+          </button>
+          <a v-if="!noLightbox" :href="postId ? `${currentRoute ?? ''}#${postId}` : `${currentRoute ?? ''}#${hashId(refSources?.[i] ?? '')}-img`" class="lightbox" :id="`id${hashId(source)}`">
+              <span :style="`background-image: url('${source}')`">
+              </span>
+              </a>
         </div>
         <div
           v-else-if="!isLoading && showPlaceholder"
@@ -44,12 +45,13 @@ import { onMounted, defineComponent, ref, PropType, Ref } from "vue";
 import NoImg from "icons/src/noImg.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import { makeRandomPreview } from "shared/src/utils/misc";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
   name: "ImagePreview",
   components: {
     NoImg,
-    BtnSpinner,
+    BtnSpinner
   },
   props: {
     source: {
@@ -104,6 +106,7 @@ export default defineComponent({
     const randomInt = (min: number, max: number) => {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     };
+    const currentRoute =  ref(useRoute().path)
 
     const hashId = (str: string) => {
       let hash = 0;
@@ -124,6 +127,11 @@ export default defineComponent({
       isLoading.value = false;
     };
 
+    const openImg = (refSource: string) => {
+      if (props.noLightbox) return;
+      (window as any).location = `${currentRoute.value}#id${hashId(refSource)}`;
+    }
+
     onMounted(() => {
       // nothing
       if (!props.source) {
@@ -142,6 +150,8 @@ export default defineComponent({
       makeRandomPreview,
       refSources,
       hashId,
+      currentRoute,
+      openImg
     };
   },
 });
@@ -182,31 +192,34 @@ export default defineComponent({
 }
 
 .lightbox {
-  display: none;
+   display: none;
 
-  position: fixed;
-  z-index: 999;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-
-  padding: 1em;
-  background: rgba(0, 0, 0, 0.8);
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 1em;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: end;
 }
 
 /* Unhide the lightbox when it's the target */
 .lightbox:target {
-  display: block;
+  display: flex;
 }
 
+button:hover img, button:active img{
+  filter: brightness(1.11);
+} 
+
 .lightbox span {
-  /* Full width and height */
   display: block;
   width: 100%;
-  height: 100%;
+  height: 90%;
 
-  /* Size and position background image */
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;

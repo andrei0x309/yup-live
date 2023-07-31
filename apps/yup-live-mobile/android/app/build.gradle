@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "gf.info.yup.app"
+    namespace "gf.info.yup"
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "gf.info.yup"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 22
-        versionName "1.1.22"
+        versionCode 23
+        versionName "1.1.23"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -41,6 +41,8 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+    implementation "com.google.firebase:firebase-messaging:$firebaseMessagingVersion"
+
 }
 
 apply from: 'capacitor.build.gradle'

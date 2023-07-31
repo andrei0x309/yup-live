@@ -638,7 +638,7 @@ export default defineComponent({
     const bskyIdent = ref("");
     const bskyPass = ref("");
 
-    const disabledPush = ['reward', 'repost']
+    const disabledPush = [] as string[];
 
     const deleteAccount = async () => {
       isDeleteLoading.value = true;
