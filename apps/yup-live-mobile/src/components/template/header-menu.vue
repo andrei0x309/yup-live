@@ -2,72 +2,85 @@
   <ion-menu menu-id="menu" content-id="content-page">
     <ion-header>
       <ion-toolbar>
-        <ion-title>Menu
-        <ion-menu-toggle :auto-hide="false" style="position: absolute; right: 2rem">
-        <span v-show="version" class="mx-1 text-[0.95rem]"><span class="text-[0.75rem]">v</span>{{ version  }}</span>
-        <ion-icon :icon="closeCircleOutline" />
-      </ion-menu-toggle>
+        <ion-title
+          >Menu
+          <ion-menu-toggle :auto-hide="false" style="position: absolute; right: 2rem">
+            <span v-show="version" class="mx-1 text-[0.95rem]"
+              ><span class="text-[0.75rem]">v</span>{{ version }}</span
+            >
+            <ion-icon :icon="closeCircleOutline" />
+          </ion-menu-toggle>
         </ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
       <ion-list>
-      <ion-item button @click="doLogOut">
-      <LogOutIcon class="w-5 mr-4" /> Log Out
-      </ion-item>
+        <ion-item button @click="doLogOut">
+          <LogOutIcon class="w-5 mr-4" /> Log Out
+        </ion-item>
       </ion-list>
 
       <ion-list class="mt-2">
-      <ion-item button @click="openSettings">
-        <ion-icon :icon="settingsOutline" class="w-5 mr-4" /> Settings
-      </ion-item>
+        <ion-item button @click="openSettings">
+          <ion-icon :icon="settingsOutline" class="w-5 mr-4" /> Settings
+        </ion-item>
         <ion-item button @click="goTo('/tabs/search')">
-      <ion-icon :icon="searchOutline" class="w-5 mr-4" /> Search
-      </ion-item>
+          <ion-icon :icon="searchOutline" class="w-5 mr-4" /> Search
+        </ion-item>
         <ion-item button @click="goTo('/tabs/metrics')">
-      <ion-icon :icon="podiumOutline" class="w-5 mr-4" /> General Metrics
-      </ion-item>
+          <ion-icon :icon="podiumOutline" class="w-5 mr-4" /> General Metrics
+        </ion-item>
         <ion-item button @click="goTo('/tabs/live')">
-      <ActivityIcon class="w-5 mr-4" /> Live Activity
-      </ion-item>
-      <ion-item button @click="goTo('/tabs/meetings')">
-        <ion-icon :icon="listOutline" class="w-5 mr-4" /> Community Meetings
-      </ion-item>
-      <ion-item button @click="goTo(`/tabs/score/${store.userData?.address}`)">
-        <ScoreIcon class="w-5 mr-4" /> Yup Score
-      </ion-item>
-      <ion-item button @click="goTo('/tabs/stake')">
-        <StakeIcon class="w-5 mr-4" /> Stake
-      </ion-item>
-      <ion-item button @click="goTo('/tabs/info')">
-        <InfoIcon class="w-5 mr-4" /> About & Info
-      </ion-item>
+          <ActivityIcon class="w-5 mr-4" /> Live Activity
+        </ion-item>
+        <ion-item button @click="goTo('/tabs/meetings')">
+          <ion-icon :icon="listOutline" class="w-5 mr-4" /> Community Meetings
+        </ion-item>
+        <ion-item button @click="goTo(`/tabs/score/${store.userData?.address}`)">
+          <ScoreIcon class="w-5 mr-4" /> Yup Score
+        </ion-item>
+        <ion-item button @click="goTo('/tabs/stake')">
+          <StakeIcon class="w-5 mr-4" /> Stake
+        </ion-item>
+        <ion-item button @click="goTo('/tabs/info')">
+          <InfoIcon class="w-5 mr-4" /> About & Info
+        </ion-item>
       </ion-list>
-
     </ion-content>
   </ion-menu>
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, ref } from "vue";
-import { IonHeader, IonToolbar, IonMenu, IonTitle, IonContent, IonMenuToggle, IonIcon, IonItem, IonList, menuController, modalController } from "@ionic/vue";
+import { defineComponent, ref } from "vue";
 import {
-closeCircleOutline,
-podiumOutline,
-searchOutline,
-listOutline,
-settingsOutline
+  IonHeader,
+  IonToolbar,
+  IonMenu,
+  IonTitle,
+  IonContent,
+  IonMenuToggle,
+  IonIcon,
+  IonItem,
+  IonList,
+  menuController,
+  modalController,
+} from "@ionic/vue";
+import {
+  closeCircleOutline,
+  podiumOutline,
+  searchOutline,
+  listOutline,
+  settingsOutline,
 } from "ionicons/icons";
 import { storage } from "@/utils/storage";
 import { useMainStore } from "@/store/main";
 import { useRouter } from "vue-router";
-import LogOutIcon from 'icons/src/logout.vue'
-import ActivityIcon from '@/icons/activity.vue'
-import InfoIcon from 'icons/src/infoIcon.vue'
-import ScoreIcon from 'icons/src/score.vue'
+import LogOutIcon from "icons/src/logout.vue";
+import ActivityIcon from "@/icons/activity.vue";
+import InfoIcon from "icons/src/infoIcon.vue";
+import ScoreIcon from "icons/src/score.vue";
 import StakeIcon from "icons/src/stake.vue";
 import { walletDisconnect } from "shared/src/utils/login-signup";
-import { App } from "@capacitor/app";
 import SettingsModal from "@/views/SettingsModal.vue";
 
 export default defineComponent({
@@ -75,8 +88,18 @@ export default defineComponent({
   components: {
     IonHeader,
     IonToolbar,
-    IonMenu, IonTitle, IonContent, IonMenuToggle, IonIcon,
-    IonItem, IonList, LogOutIcon, ActivityIcon, InfoIcon, ScoreIcon, StakeIcon
+    IonMenu,
+    IonTitle,
+    IonContent,
+    IonMenuToggle,
+    IonIcon,
+    IonItem,
+    IonList,
+    LogOutIcon,
+    ActivityIcon,
+    InfoIcon,
+    ScoreIcon,
+    StakeIcon,
   },
   props: {
     text: {
@@ -87,35 +110,39 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    userData: {
+      type: Object,
+      default: () => {},
+    },
   },
-  setup() {
-    const store = useMainStore()
-    const router = useRouter()
-    const version = ref('')
+  setup(props) {
+    const store = useMainStore();
+    const router = useRouter();
+    const version = ref(store.version);
 
     const doLogOut = async () => {
-      store.isLoggedIn = false
-      await storage.clear()
+      store.isLoggedIn = false;
+      await storage.clear();
       try {
-        await walletDisconnect()
+        await walletDisconnect();
       } catch (e) {
-        console.error(e)
+        console.error(e);
       }
       window?.localStorage?.clear();
-      router.replace('/')
-      menuController.close('menu');
-    }
+      router.replace("/");
+      menuController.close("menu");
+    };
 
     const goTo = (path: string) => {
-      router.push(path)
-      menuController.close('menu');
-    }
+      router.push(path);
+      menuController.close("menu");
+    };
 
     const openSettings = async () => {
       const modal = await modalController.create({
         component: SettingsModal,
         componentProps: {
-          userData: store.userData,
+          userData: props.userData,
         },
       });
       modal.present();
@@ -124,27 +151,17 @@ export default defineComponent({
       return false;
     };
 
-    onBeforeMount( () => {
-      try {
-        App.getInfo().then((info) => {
-          version.value = info.version
-        })
-      } catch (e) {
-        console.error(e)
-      }
-    })
-
     return {
-        closeCircleOutline,
-        doLogOut,
-        goTo,
-        podiumOutline,
-        searchOutline,
-        listOutline,
-        settingsOutline,
-        store,
-        version,
-        openSettings
+      closeCircleOutline,
+      doLogOut,
+      goTo,
+      podiumOutline,
+      searchOutline,
+      listOutline,
+      settingsOutline,
+      store,
+      version,
+      openSettings,
     };
   },
 });

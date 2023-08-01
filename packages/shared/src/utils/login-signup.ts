@@ -110,6 +110,7 @@ const getYupAccount = async ({
                     message: `User with connected address ${address} does not exist.`
                 })
             }
+            walletDisconnect()
             return
         }
         return await reqUser.json()
@@ -122,6 +123,7 @@ const getYupAccount = async ({
                     message: `User with address ${address} already exists.`
                 })
             }
+            walletDisconnect()
             return
         }
         return true
@@ -202,6 +204,7 @@ const logIn = async ({
                 message: "Signature doesn't match the address"
             })
         }
+        walletDisconnect()
         return
     }
     return await reqLogin.json()
@@ -236,6 +239,7 @@ const createAccount = async ({ username, address, signature, loadState = null, s
                 message: 'User registration failed: ' + (await req.text())
             })
         }
+        walletDisconnect()
         return
     } else {
         return await req.json()
@@ -266,7 +270,7 @@ export const onSignup = async (
         if (!account) return
         const signature = await signChallenge({ address, loadState, setAlert })
         if (!signature) return
-        const accountSignUp = await createAccount({ address, signature, username: username, loadState, setAlert })
+        const accountSignUp = await createAccount({ address, signature, username, loadState, setAlert })
         if (!accountSignUp) return
         try {
             if (bio || fullname) {
@@ -282,9 +286,9 @@ export const onSignup = async (
         }
         return {
             address,
-            _id: account._id,
-            avatar: account.avatar,
-            weight: account.weight,
+            _id: accountSignUp.accountId,
+            avatar: '',
+            weight: 1,
             signature,
             authToken: accountSignUp.jwt,
             username: accountSignUp.username

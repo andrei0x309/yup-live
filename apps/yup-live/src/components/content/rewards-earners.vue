@@ -365,7 +365,6 @@ export default defineComponent({
 
       if (!req.ok) {
         arrAcc.influence = '🤔 N/A'
-        console.log(`Request failed with status ${req.status}`)
       }
       const acc = await req.json()
       if (Number(acc.weight) < 20) {

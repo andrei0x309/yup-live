@@ -84,7 +84,6 @@ export default defineComponent({
   setup(props, ctx) {
     const { emit } = ctx
     const INV_MENU_BUTTONS = invObj(MENU_BUTTONS)
-    console.log(INV_MENU_BUTTONS[MENU_BUTTONS.feed], MENU_BUTTONS.feed)
     const buttons = {} as { [key: string]: Element }
     const isActive = ref((BUTTONS_ORDER as { [key: string]: number })[MENU_BUTTONS.feed])
     const nav = ref(null) as unknown as Ref<HTMLElement>

@@ -7,7 +7,7 @@
     <h2 v-if="collections?.length > 0" class="text-[1.3rem] my-4 uppercase">{{ accountId }}'s Collections</h2>
     <div v-else>
       <h2 class="text-[1.3rem] mt-2 uppercase">{{ accountId }} has not created any collection</h2>
-      <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
+      <component :is="(catComp as unknown)" v-if="catComp !== null" class="w-10 mx-auto" />
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <CollectionCard v-for="collection of refCollections" :key="collection._id" :collectionInfo="collection" @deletecol="onDeletePress" />
@@ -71,8 +71,7 @@ export default defineComponent({
     })
 
     onMounted(async () => {
-      console.log(props.collections)
-      console.log(props.collectionPromise)
+
       if (!props.collections) {
         const coll = await props.collectionPromise
         if (coll) {

@@ -279,7 +279,7 @@ export default defineComponent({
         return;
       }
       if (timer && !doingVote.value) {
-        clearTimeout(timer);
+        clearTimeout(timer as number);
       }
       if (!doingVote.value) {
         const lastRating = rating.value;
@@ -356,7 +356,6 @@ export default defineComponent({
 
     onMounted(() => {
       if (props.postId) {
-        console.log(props.hasVote, "dddd");
         props.hasVote.then((res) => {
           if (res.length > 0) {
             vote.value = res[0] as Vote;
@@ -365,7 +364,6 @@ export default defineComponent({
             rating.value = vote.value?.rating;
           }
           checkHidden();
-          console.log(vote.value, refHasVote.value, lastVote.value);
         });
       }
     });

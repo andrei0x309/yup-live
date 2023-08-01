@@ -1,5 +1,8 @@
 <template>
-  <div :class="`flex justify-between m-1 md:m-6 flex-row pPost ${postTypeClass}`" :id="`p-${processedPost.id}`">
+  <div
+    :class="`flex justify-between m-1 md:m-6 flex-row pPost ${postTypeClass}`"
+    :id="`p-${processedPost.id}`"
+  >
     <div
       class="flex flex-col max-w-2xl mx-auto postCard w-full min-w-[20rem]"
       :style="full && post.tag === 'mirror' ? 'max-width: 56rem;' : ''"
@@ -161,7 +164,7 @@ export default defineComponent({
       type: Boolean,
       required: false,
       default: false,
-    }
+    },
   },
   emits: ["updatepostinfo"],
   setup(props, ctx) {
@@ -218,14 +221,6 @@ export default defineComponent({
       props?.post?.previewData?.creator ?? "",
       props.post?.web3Preview?.creator?.address ?? "",
     ].includes(store.userData.address.toLowerCase());
-    console.log(
-      [
-        props?.post?.previewData?.creator ?? "",
-        props.post?.web3Preview?.creator?.address ?? "",
-      ],
-      store.userData.address,
-      isOwner
-    );
     const commentsComp = shallowRef(null) as Ref<ReturnType<typeof defineComponent>>;
 
     // store.$subscribe(() => {
@@ -241,7 +236,6 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      console.log("post mounted", props.deps);
       checkPostType((props.post as unknown) as { url: string; tag: string }).then(
         async (type) => {
           postTypeClass.value = type;
@@ -296,29 +290,28 @@ export default defineComponent({
               postTypeCom.value = (await props.postTypesPromises.preloadGeneral).default;
               break;
           }
-          if(['bsky', 'lens', 'farcaster'].includes(type)) {
+          if (["bsky", "lens", "farcaster"].includes(type)) {
             commentsEnabled.value = true;
-              import("shared/src/utils/requests/comments").then((module) => {
-                module
-                  .getComments({
-                    apiBase: props.deps.apiBase,
-                    postId: props.post._id.postid,
-                  })
-                  .then((res) => {
-                    if (res) {
-                      comments.value = res.comments;
-                      commentsNum.value = res.numComments;
-                    }
-                  });
-              });
-             
+            import("shared/src/utils/requests/comments").then((module) => {
+              module
+                .getComments({
+                  apiBase: props.deps.apiBase,
+                  postId: props.post._id.postid,
+                })
+                .then((res) => {
+                  if (res) {
+                    comments.value = res.comments;
+                    commentsNum.value = res.numComments;
+                  }
+                });
+            });
           }
 
           if (
             commentsEnabled.value &&
             props.crossPost &&
-            ['bsky', 'lens', 'farcaster'].includes(type) &&
-            store.userData.connected?.[type as 'bsky' | 'lens' | 'farcaster']
+            ["bsky", "lens", "farcaster"].includes(type) &&
+            store.userData.connected?.[type as "bsky" | "lens" | "farcaster"]
           ) {
             commentsComp.value = (
               await import("components/post-types/inner/comments.vue")

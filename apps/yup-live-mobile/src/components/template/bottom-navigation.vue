@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-content>
-      <HeaderMenu />
+      <HeaderMenu :key="`k${String(userData?._id)}`" :userData="userData" />
       <ion-tabs style="border-top: 2px solid #1a1a1a">
         <ion-router-outlet id="content-page" ref="outlet" />
 
@@ -15,7 +15,7 @@
             <ion-label>Link Socials</ion-label>
           </ion-tab-button>
 
-          <ion-tab-button tab="account" href="/tabs/account">
+          <ion-tab-button tab="account" href="/tabs/account#head-top">
             <AvatarBtn
               :key="avatar"
               imgClass="h-8 w-8"
@@ -28,11 +28,15 @@
             <ion-label>Account</ion-label>
           </ion-tab-button>
 
-          <ion-tab-button tab="feed" href="/tabs/feeds">
+          <ion-tab-button tab="feed" href="/tabs/feeds#head-top">
             <ion-icon style="font-size: 2.3rem" :icon="filterCircle"></ion-icon>
             <ion-label>Feeds</ion-label>
           </ion-tab-button>
-          <ion-tab-button tab="notifications" href="/tabs/notifications" @click="clearNot">
+          <ion-tab-button
+            tab="notifications"
+            href="/tabs/notifications#head-top"
+            @click="clearNot"
+          >
             <ion-icon style="font-size: 2.3rem" :icon="notificationsCircle"></ion-icon>
             <ion-label>Notifications</ion-label>
             <ion-badge v-show="hasNewNot" color="danger">{{ notDisplay }}</ion-badge>
@@ -207,7 +211,7 @@ export default defineComponent({
         component: SettingsModal,
         componentProps: {
           userData: userData.value,
-          defaultAccordionOpen: "socials"
+          defaultAccordionOpen: "socials",
         },
       });
 
@@ -223,12 +227,11 @@ export default defineComponent({
     };
 
     const clearNot = () => {
-      if(hasNewNot.value) {
+      if (hasNewNot.value) {
         hasNewNot.value = false;
         notDisplay.value = "";
-        clearNotifications(store)
+        clearNotifications(store);
       }
-
     };
 
     return {
@@ -244,7 +247,8 @@ export default defineComponent({
       postSent,
       canDoPost,
       openSettings,
-      clearNot
+      clearNot,
+      userData,
     };
   },
 });

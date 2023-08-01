@@ -29,7 +29,8 @@ const useMainStore = defineStore('main', {
             deletePost: '',
             isLoggedIn: false,
             openConnectModal: false,
-            pushNotifications: []
+            pushNotifications: [],
+            version: ''
         }
     }
 }) as () => IMainStore

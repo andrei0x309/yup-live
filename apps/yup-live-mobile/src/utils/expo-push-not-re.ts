@@ -104,7 +104,6 @@ export const getExpoPushTokenAndRegister = async ({ store }: { store: IMainStore
         return
     }
     const { FirebaseMessaging } = await import('@capacitor-firebase/messaging')
-    const { LocalNotifications } = await import('@capacitor/local-notifications');
 
     let permStatus = await FirebaseMessaging.checkPermissions();
 
@@ -141,20 +140,6 @@ export const getExpoPushTokenAndRegister = async ({ store }: { store: IMainStore
     });
 
         await FirebaseMessaging.addListener('notificationReceived', notification => {
-            LocalNotifications.schedule({
-                notifications: [
-                    {
-                        title: (notification.notification.data as any)?.title,
-                        body: (notification.notification.data as any)?.message,
-                        id: 1,
-                        schedule: { at: new Date(Date.now() + 100) },
-                        sound: 'beep.aiff',
-                        attachments: undefined,
-                        actionTypeId: '',
-                        extra: null
-                    }
-                ]
-            });
         console.log('Push notification received: ', notification);
     });
 
@@ -207,6 +192,7 @@ export const getExpoPushTokenAndRegister = async ({ store }: { store: IMainStore
 
     const data = await response.json();
     const { expoPushToken } = data.data;
+        console.info('Expo push token: ' + expoPushToken);
     sendPushToken({ store, pushToken: expoPushToken, deviceId })
     return data
     } catch {

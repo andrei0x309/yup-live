@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <HeaderBar />
+    <HeaderBar :key="mainStore.version" />
 
     <ion-content class="connect-page ion-text-center" :fullscreen="false">
       <svg
@@ -129,7 +129,7 @@
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: What wallets have been tested?</li>
-              <li class="mb-2">A: <pre class="inline">Rainbow</pre> wallet, and  <pre class="inline">Metamask</pre>, Rainbow seems to work a bit more smoothly.</li>
+              <li class="mb-2">A: <pre class="inline">TrustWallet</pre>, and  <pre class="inline">Metamask</pre>, Rainbow does not wotk well with walletConnect V2 currently.</li>
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: Is the signup open?</li>
@@ -137,15 +137,15 @@
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: What I can do on YUP?</li>
-              <li class="mb-2">A: Browse content, and like or dislike content, you can also create a post by sharing to the app and like or dislike a URL.</li>
+              <li class="mb-2">A: Browse content, and like, post on multiple other soical media platforms, connect accounts and receive aggregated notifications from platforms that you have connected.</li>
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: Is this app open-source?</li>
-              <li class="mb-2">A: Yes, alongside the web-app application, they are both on <pre class="inline">yup-live</pre> repo on my GitHub account <pre class="inline">andrei0x309</pre>.</li>
+              <li class="mb-2">A: Yes, alongside the web-app application and desktop bundle, you can finde the code on <pre class="inline">yup-live</pre> repo on my GitHub account <pre class="inline">andrei0x309</pre>.</li>
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: Is this app available on IOS?</li>
-              <li class="mb-2">A: NO, I won't bundle this app on IOS!!!</li>
+              <li class="mb-2">A: No, it's available on these platforms: Android, Web, Win, Linux, Mac, but never on IOS.</li>
             </ul>
           </li>
         </ul>
@@ -328,13 +328,13 @@ export default defineComponent({
       const res = await req.json()
 
       const loginRes = {
-            address:res.address,
-            _id: res.accountId,
-            avatar: null,
-            weight: "1",
+            address:res?.address ?? "",
+            _id: res?.accountId ?? "",
+            avatar: res?.avatar ?? "",
+            weight: 1,
             signature: '',
-            authToken: res.jwt,
-            username: res.username
+            authToken: res?.jwt ?? "",
+            username: res?.username ?? "",
         }
       await doLogin(loginRes)
       loading.value = false;
@@ -422,7 +422,8 @@ export default defineComponent({
       reviewModalLogin,
       reviewPassword,
       reviewUsername,
-      reviewLogin
+      reviewLogin,
+      mainStore
     };
   },
 });

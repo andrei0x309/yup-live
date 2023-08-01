@@ -45,7 +45,14 @@ import {
   IonLoading,
   modalController,
 } from "@ionic/vue";
-import { defineComponent, ref, onBeforeMount, onBeforeUnmount, defineAsyncComponent, watch } from "vue";
+import {
+  defineComponent,
+  ref,
+  onBeforeMount,
+  onBeforeUnmount,
+  defineAsyncComponent,
+  watch,
+} from "vue";
 import { useMainStore } from "@/store/main";
 import { storage } from "@/utils/storage";
 import { useRouter } from "vue-router";
@@ -58,7 +65,7 @@ import { getConnected } from "shared/src/utils/requests/accounts";
 import AlertStack from "components/functional/alertStack.vue";
 import { setAlertStack, useAlertStack } from "@/store/alertStore";
 import { getExpoPushTokenAndRegister } from "@/utils/expo-push-not-re";
-import { checkForUpdateAndNotify } from "@/utils/update-version";
+import { checkForUpdateAndNotify, getVersion } from "@/utils/update-version";
 import UpdateModal from "@/views/UpdateModal.vue";
 import { getPushSettings } from "@/utils/expo-push-not-re";
 
@@ -85,6 +92,7 @@ export default defineComponent({
     const promisePostResolved = ref((a: unknown) => {});
 
     const shareLink = ref("");
+    const version = ref("");
 
     const openToast = (msg: string) => {
       toastState.value = true;
@@ -244,43 +252,51 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       loading.value = true;
+
       if (!store.isLoggedIn) {
         const authInfo = storage.get("authInfo");
         const settings = storage.get("settings");
-
         const authInfoVal = await authInfo;
 
-        if (authInfoVal) {
-          checkForUpdateAndNotify(store).then((res) => {
-            console.info(JSON.stringify(res), 'update');
-            if (res?.update) {
-              openUpdateModal({
-                foreced: res.forced,
-                message: res.updateMessage,
-                url: res.url,
-              });
-            }
-            import("@capacitor/app").then((lib) => {
-              if (res?.update && res?.forced) {
-                lib.App.addListener("backButton", (r) => {
-                  lib.App.minimizeApp();
-                });
-              } else {
-                lib.App.addListener("backButton", (r) => {
-                  if (!r.canGoBack) {
-                    lib.App.minimizeApp();
-                  } else if (
-                    router.currentRoute.value.path === "/connect" &&
-                    router.currentRoute.value.redirectedFrom?.path === "/tabs/feeds" &&
-                    store.isLoggedIn
-                  ) {
-                    router.replace("/tabs/feeds");
-                    lib.App.minimizeApp();
-                  }
+        getVersion().then((vinfo) => {
+          store.version = vinfo.versionString;
+          console.info("Version: ", JSON.stringify(vinfo));
+          if (authInfoVal) {
+            checkForUpdateAndNotify(store, vinfo.versionNumber).then((res) => {
+              if (res?.update) {
+                openUpdateModal({
+                  foreced: res.forced,
+                  message: res.updateMessage,
+                  url: res.url,
                 });
               }
+              import("@capacitor/app").then((lib) => {
+                if (res?.update && res?.forced) {
+                  lib.App.addListener("backButton", (r) => {
+                    lib.App.minimizeApp();
+                  });
+                } else {
+                  lib.App.addListener("backButton", (r) => {
+                    if (!r.canGoBack) {
+                      lib.App.minimizeApp();
+                    } else if (
+                      router.currentRoute.value.path === "/connect" &&
+                      router.currentRoute.value.redirectedFrom?.path === "/tabs/feeds" &&
+                      store.isLoggedIn
+                    ) {
+                      router.replace("/tabs/feeds");
+                      lib.App.minimizeApp();
+                    }
+                  });
+                }
+              });
             });
-          });
+          }
+        }).catch((err) => {
+          console.error(err);
+        });
+
+        if (authInfoVal) {
           setTimeout(() => {
             getExpoPushTokenAndRegister({ store });
           }, 2000);
@@ -295,7 +311,7 @@ export default defineComponent({
           });
           settings.then((res) => {
             if (res) {
-              store.settings = JSON.parse(res);
+              store.settings = res;
             }
           });
           await router.replace("/tabs/feeds");
@@ -310,7 +326,7 @@ export default defineComponent({
       await wait(3000);
     };
 
-    watch( openPostModal, (v) => {
+    watch(openPostModal, (v) => {
       if (v) {
         promisePostResolved.value = () => {};
       } else {
@@ -326,7 +342,8 @@ export default defineComponent({
       useAlertStack,
       openPostModal,
       postSent,
-      shareLink
+      shareLink,
+      version,
     };
   },
 });

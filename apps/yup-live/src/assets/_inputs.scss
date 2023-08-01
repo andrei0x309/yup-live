@@ -5,7 +5,7 @@
     font-family: 'Open Sans', sans-serif;
     position: relative;
     display: block;
-    margin: 20px auto;
+    margin: 1rem auto;
     padding: 10px;
     width: 84%;
     box-sizing: border-box;
@@ -25,6 +25,7 @@
     -o-transition: all 0.2s ease-in-out;
     transition: all 0.2s ease-in-out;
     max-width: 26rem;
+    
   }
 
   textarea {

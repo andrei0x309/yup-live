@@ -66,12 +66,11 @@ export default defineComponent({
     const onError = () => {
       isError.value = true
       isLoading.value = false
-      console.log('error', isError.value)
+      console.error('error', isError.value)
     }
 
     const onLoad = () => {
       isLoading.value = false
-      console.log('onload', isLoading.value)
     }
 
     const deletecol = (id: string, name: string) => {

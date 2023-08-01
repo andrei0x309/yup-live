@@ -235,7 +235,6 @@ export default defineComponent({
           no: 0
         }
       }
-      console.log(relAccProc)
 
       if (relAddr.length > 0) {
         relAddrProc = {
