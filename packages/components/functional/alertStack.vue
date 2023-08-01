@@ -1,6 +1,6 @@
 <template>
   <div :key="localStack.length" :class="`alert-stack ${mobile ? 'mobile': ''}`">
-    <Alert :mobile="mobile" v-for="alert of localStack" :key="alert.id" :type="alert.type" :message="alert.message" :hidden="false" class="" @close="alertClose" />
+    <Alert :mobile="mobile" v-for="alert of localStack" :key="alert.id" :id="alert.id" :type="alert.type" :message="alert.message" :hidden="false" class="" @close="alertClose" />
   </div>
 </template>
 
@@ -35,7 +35,6 @@ export default defineComponent({
 
 
     const alertClose = (id: string) => {
-      console.log(id)
       alertStore.alertStack = localStack.value.filter((alert) => alert.id === id)
       localStack.value = alertStore.alertStack
     }

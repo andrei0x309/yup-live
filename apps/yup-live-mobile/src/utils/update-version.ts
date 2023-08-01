@@ -89,16 +89,20 @@ const checkIsForcedUpdate = async ({
 
 export const checkForUpdateAndNotify = async (store: IMainStore) => {
     const currentVersion = await getVersionNumber();
+    console.info('currentVersion', currentVersion)
     const isForcedUpdate = await checkIsForcedUpdate({ store, currentVersion });
+    console.info('isForcedUpdate', isForcedUpdate) 
     if (isForcedUpdate) {
         return { update: true, isError: false, error: null, forced: true, updateMessage: store?.settings?.updateMessage ?? '', url: store?.settings?.updateUrl ?? '' }
     }
     const lastCheck = await getLastCheckForUpdate(store);
+    console.info('lastCheck', lastCheck) 
     const now = Date.now();
     if (now - lastCheck > 1000 * 60 * 60 * 24 * 1.5) {
         const res = await checkForUpdate({
             currentVersion
         });
+        console.info('res', res)
         if (res.update) {
             await setUpdateStore({
                 store,

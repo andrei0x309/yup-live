@@ -266,7 +266,7 @@ export const onSignup = async (
         if (!account) return
         const signature = await signChallenge({ address, loadState, setAlert })
         if (!signature) return
-        const accountSignUp = await createAccount({ address, signature, username: username, loadState, setAlert })
+        const accountSignUp = await createAccount({ address, signature, username, loadState, setAlert })
         if (!accountSignUp) return
         try {
             if (bio || fullname) {
@@ -282,9 +282,9 @@ export const onSignup = async (
         }
         return {
             address,
-            _id: account._id,
-            avatar: account.avatar,
-            weight: account.weight,
+            _id: accountSignUp.accountId,
+            avatar: '',
+            weight: 1,
             signature,
             authToken: accountSignUp.jwt,
             username: accountSignUp.username

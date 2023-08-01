@@ -4,7 +4,8 @@
       <h2>{{ formTitle }}</h2>
     </div>
     <Alert
-      v-bind="alertProps"
+      ref="alert"
+      :noTimeout="true"
       style="max-width: 26rem; margin-left: auto; margin-right: auto"
     />
     <form v-if="!isLogin" id="registration-form" class="mt-8" @submit.prevent>
@@ -94,7 +95,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref } from "vue";
+import { onMounted, defineComponent, ref, Ref  } from "vue";
 
 import Alert from "components/functional/alert.vue";
 import { useMainStore } from "@/store/main";
@@ -113,14 +114,6 @@ export default defineComponent({
       type: Function,
       default: () => ({}),
     },
-    setAlert: {
-      type: Function,
-      default: () => ({}),
-    },
-    alertProps: {
-      type: Object,
-      default: () => ({}),
-    },
     loginState: {
       type: Boolean,
       default: true,
@@ -136,6 +129,7 @@ export default defineComponent({
     const fullname = ref("");
     const username = ref("");
     const bio = ref("");
+    const alert = ref(null) as unknown as Ref<typeof Alert>
 
     const onBack = () => {
       formTitle.value = "Log-in";
@@ -145,6 +139,18 @@ export default defineComponent({
     const onNewUser = () => {
       formTitle.value = "Gated Sign-up";
       isLogin.value = false;
+    };
+
+    const setAlert = ({
+      message = "",
+      type = "error",
+    }: {
+      message: string;
+      type: string;
+    }) => {
+      if(type === "error") alert.value?.showErr(message)
+      else alert.value?.showSuccess(message)
+      console.log(alert.value);
     };
 
     const doLogin = ({
@@ -216,7 +222,7 @@ export default defineComponent({
     const onSignupLocal = async () => {
       const signupResult = await onSignup({
         loadState: props.loadState,
-        setAlert: props.setAlert,
+        setAlert,
         username: username.value,
         bio: bio.value,
         fullname: fullname.value,
@@ -230,7 +236,7 @@ export default defineComponent({
     const onLoginLocal = async () => {
       const loginResult = await onLogin({
         loadState: props.loadState,
-        setAlert: props.setAlert,
+        setAlert,
       });
       doAllLogin(loginResult);
       if (loginResult?._id) {
@@ -239,13 +245,8 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      // web3Modal.value = new Web3Modal({
-      //   network: "matic", // optional
-      //   cacheProvider: false, // optional
-      //   providerOptions, // required
-      //   theme: mainStore.theme,
-      // });
-      console.log("tt2");
+      console.log("mounted");
+      // nothing
     });
 
     return {
@@ -258,6 +259,7 @@ export default defineComponent({
       fullname,
       username,
       bio,
+      alert
     };
   },
 });

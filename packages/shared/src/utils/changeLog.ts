@@ -27,6 +27,7 @@ export const recentChanges = [
     //         're-enabled reward and repost push notifications on yup live mobile',
     //         'added avatar of user in cross post modal',
     //         'wrote native service to be able to get push from expo when app is closed',
+    //         'updated all dependecies'
     //     ],
     // },
     {

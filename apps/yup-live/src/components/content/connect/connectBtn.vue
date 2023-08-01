@@ -7,7 +7,11 @@
   </button>
   <button v-else class="logo loggedBtn">
     <router-link :to="`/profile/${mainStore.userData.account}`">
-    <AvatarBtn :useMainStore="useMainStore" class="mr-2" style="width: 2.3rem; height: 2.3rem;" />
+      <AvatarBtn
+        :useMainStore="useMainStore"
+        class="mr-2"
+        style="width: 2.3rem; height: 2.3rem"
+      />
     </router-link>
     <NotifBtn class="mr-2" />
     <LogOutBtn class="mr-2" />
@@ -22,11 +26,10 @@
       <DangLoader />
     </template>
     <component
-      :is="!libWallLoading ? refDynLogComp : undefined"
+      :is="refDynLogComp ? refDynLogComp : undefined"
+      v-show="!libWallLoading"
       :loadState="compLoadState"
       :loginState="refLoginState"
-      :setAlert="setAlert"
-      :alertProps="alertProps"
     />
   </o-modal>
 </template>
@@ -51,8 +54,9 @@ export default defineComponent({
     LogOutBtn,
   },
   setup() {
+    const mainStore = useMainStore();
     const refConnectMod = ref(false);
-    const refLoginState = ref(true);
+    const refLoginState = ref(mainStore.modalLoginState ?? true);
     const libWallLoading = ref(false);
     const refDynLogComp: Ref<dComponent> = shallowRef(undefined);
     const alertProps = {
@@ -61,7 +65,6 @@ export default defineComponent({
       message: "",
       type: "error",
     };
-    const mainStore = useMainStore();
     const isAuth = ref(mainStore.isLoggedIn);
     const loadingMessage = ref("");
 
@@ -83,23 +86,13 @@ export default defineComponent({
       }
     };
 
-    const setAlert = (aProps: {
-      hidden: boolean;
-      title: string;
-      message: string;
-      type: string;
-    }) => {
-      alertProps.hidden = false;
-      alertProps.title = aProps.type;
-      alertProps.message = aProps.message;
-      alertProps.type = aProps.type;
-    };
-
     const connectModal = async () => {
       libWallLoading.value = true;
       refConnectMod.value = true;
       refLoginState.value = mainStore.modalLoginState as boolean;
-      refDynLogComp.value = (await import("./loginSignup.vue")).default;
+      if(!refDynLogComp.value) {
+        refDynLogComp.value = (await import("./loginSignup.vue")).default;
+      }
       libWallLoading.value = false;
     };
 
@@ -127,14 +120,12 @@ export default defineComponent({
       refDynLogComp,
       compLoadState,
       closeModal,
-      alertProps,
-      setAlert,
       modalWasClosed,
       isAuth,
       loadingMessage,
       refLoginState,
       useMainStore,
-      mainStore
+      mainStore,
     };
   },
 });
@@ -216,9 +207,8 @@ header .loggedBtn {
   margin-top: 0.5rem;
 }
 
-#WEB3_CONNECT_MODAL_ID {
-  .web3modal-modal-lightbox {
-    z-index: 45;
-  }
+.login-form textarea {
+  margin: 0rem 2rem;
 }
+
 </style>
