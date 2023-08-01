@@ -55,9 +55,7 @@ export default defineComponent({
   },
   props: {
     source: {
-      required: false,
-      type: Object as PropType<String | String[]>,
-      default: "",
+      type:  [String, Array] as PropType<string | string[]>,
     },
     alt: {
       required: false,

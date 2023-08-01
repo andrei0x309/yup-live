@@ -159,7 +159,6 @@ export default defineComponent({
         })
       })
       const gKP = getGeckoData().then((gecko) => {
-        console.log(gecko)
         dataGecko.value = computed(() => {
           return {
             price: formatNumber(gecko.market_data.current_price.usd, 4),

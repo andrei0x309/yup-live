@@ -51,12 +51,13 @@
         {{text}}
         </span>
       </div>
+      <span v-show="route.fullPath === '/' && version" class="mx-1 text-[0.95rem]"><span class="ml-4 text-[0.75rem]">v</span>{{ version  }}</span>
     </ion-toolbar>
   </ion-header>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref, onMounted } from "vue";
 import {
   IonHeader,
   IonToolbar,
@@ -70,6 +71,8 @@ menu as MenuIcon,
 arrowBack
 } from "ionicons/icons";
 import { useRoute } from "vue-router";
+import { useMainStore } from "@/store/main";
+
 
 export default defineComponent({
   name: "HeaderBar",
@@ -92,8 +95,10 @@ export default defineComponent({
     }
   },
   setup() {
+    const store = useMainStore()
     const route = useRoute();
-
+    const version = ref(store.version)
+ 
     const goBack = () => {
       if (route.path === "/") {
        return;
@@ -101,12 +106,13 @@ export default defineComponent({
         window.history.back();
       }
     };
-
+ 
     return {
         MenuIcon,
         goBack,
         arrowBack,
-        route
+        route,
+        version
     };
   },
 });

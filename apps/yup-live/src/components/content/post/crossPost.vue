@@ -94,8 +94,11 @@ import type { TPlatform, ISendPostData, IReplyTo } from "shared/src/types/web3-p
 import ImageUploadIcon from "icons/src/imageUpload.vue";
 import { mediaUpload, submitPost } from 'shared/src/utils/requests/web3-posting'
 import DeleteIcon from "icons/src/delete.vue";
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 import { getMaxCharCount } from "shared/src/utils/requests/crossPost";
+import AvatarBtn from "components/functional/avatarBtn.vue";
+
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
 
 const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens", "bsky"];
 
@@ -106,7 +109,8 @@ export default defineComponent({
     Alert,
     ReplyIcon,
     ImageUploadIcon,
-    DeleteIcon
+    DeleteIcon,
+    AvatarBtn
   },
   props: {
     replyTo: {
@@ -170,7 +174,6 @@ export default defineComponent({
     watch(
       () => postPlatforms.value,
       (newVal) => {
-        console.log(newVal,  getMaxCharCount(newVal))
         maxCharCount.value = getMaxCharCount(newVal)
       }
     );

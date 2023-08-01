@@ -88,6 +88,11 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
     postBuilder.userHandle = fullPost?.web3CreatorProfile?.handle ?? fullPost?.web3Preview?.creator?.handle ?? 'Anon'
     postBuilder.userName = fullPost?.web3CreatorProfile?.fullname ?? fullPost?.web3Preview?.creator?.fullname ?? 'Anon'
     postBuilder.userAddress = fullPost?.web3CreatorProfile?._id ?? fullPost?.web3Preview?.creator?.address ?? fullPost?.previewData?.creator ?? ''
+
+    if (!postBuilder.userAddress.startsWith('0x')) {
+        postBuilder.userAddress = fullPost?.web3Preview?.creator?.address ?? fullPost?.previewData?.creator ?? ''
+    }
+
     postBuilder.verified = fullPost?.web3Preview?.meta?.isVerifiedAvatar ?? false
     postBuilder.postId = fullPost?._id?.postid ?? fullPost?.id
     postBuilder.linkPreviews = fullPost?.web3Preview?.linkPreview?.map(

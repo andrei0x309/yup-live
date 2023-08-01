@@ -138,7 +138,6 @@ export default defineComponent({
       }
 
       const giniDataReq = await Promise.all(giniDataReqP);
-      console.log(giniDataReq);
       if (giniDataReq.some((r) => r.status !== 200)) {
         apiError.value = true;
         isDataLoading.value = false;
@@ -155,7 +154,6 @@ export default defineComponent({
           value: Number(Number(r.gini).toFixed(4)),
         };
       });
-      console.log(giniTrend.value);
       apiError.value = false;
     };
 

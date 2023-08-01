@@ -9,12 +9,13 @@
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-      <div slot="content" class="ion-padding">
+      <div class="ion-padding">
         <section class="body-font relative">
           <div class="container py-2 mx-auto flex">
             <div
               class="glassCard rounded-lg p-4 flex flex-col md:ml-auto w-full mt-2 md:mt-0 relative shadow-md"
-            >
+            > 
+              <FileDownloadIcon class="w-8 mx-auto" />
               <h2 class="text-[1.1rem] text-center mb-1 font-medium title-font">
                 App Update
               </h2>
@@ -34,10 +35,10 @@
                 Quit App
               </button>
               <button
-                class="bg-green-500 border-0 py-2 px-6 focus:outline-none hover:bg-green-600 rounded text-lg"
+                class="bg-green-500 border-0 py-2 px-6 focus:outline-none hover:bg-green-600 rounded text-lg mt-4"
                 @click="goToUpdateApp"
               >
-                <GoToIcon class="w-5 mr-2" />Update
+                <GoToIcon class="w-5 mr-2 inline" />Update
               </button>
             </div>
           </div>
@@ -62,7 +63,8 @@ import {
 
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import GoToIcon from "icons/src/goTo.vue";
-import { getApp } from "@/utils/capacitor";
+import FileDownloadIcon from 'icons/src/fileDownload.vue'
+import { isAndroid } from "@/utils/capacitor";
 
 export default defineComponent({
   name: "UpdateModal",
@@ -75,7 +77,8 @@ export default defineComponent({
     IonButtons,
     IonButton,
     BtnSpinner,
-    GoToIcon
+    GoToIcon,
+    FileDownloadIcon
   },
   props: {
     forced: {
@@ -101,8 +104,11 @@ export default defineComponent({
       close();
     };
 
-    const quit = () => {
-        getApp()?.exitApp();
+    const quit = async () => {
+      if(isAndroid()) {
+        const { App } = await import("@capacitor/app");
+        App?.exitApp();
+      }
     };
 
     onMounted(async () => {});

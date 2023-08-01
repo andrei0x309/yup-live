@@ -150,7 +150,6 @@ export default defineComponent({
     }) => {
       if(type === "error") alert.value?.showErr(message)
       else alert.value?.showSuccess(message)
-      console.log(alert.value);
     };
 
     const doLogin = ({
@@ -245,7 +244,6 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      console.log("mounted");
       // nothing
     });
 

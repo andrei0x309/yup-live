@@ -207,8 +207,8 @@ import {
 import { defineComponent } from "vue";
 import { ref, onMounted } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
-import { getApp } from  "@/utils/capacitor";
 import { recentChanges } from "shared/src/utils/changeLog"
+import { useMainStore } from "@/store/main";
 
 export default defineComponent({
   name: "InfoPage",
@@ -239,7 +239,7 @@ export default defineComponent({
     IonButton,
   },
   setup() {
-
+    const store = useMainStore();
     const currentSegment = ref("login");
     const username = ref("");
     const bio = ref("");
@@ -249,7 +249,7 @@ export default defineComponent({
     const tostMsg = ref("");
     const changesModalOpen = ref(false);
     const guideModalOpen = ref(false);
-    const appVersion = ref("");
+    const appVersion = ref(store?.version ?? "");
 
     const segmentChange = (value: any) => {
       currentSegment.value = value.detail.value;
@@ -257,14 +257,8 @@ export default defineComponent({
 
 
     onMounted(async () => {
-      loading.value = true;
-      try {
-      const info = await getApp()?.getInfo();
-      appVersion.value = info ? info.version : "";
-       } catch (error) {
-         // not implemented on web
-      }
-      loading.value = false;
+      loading.value = true
+      loading.value = false
     });
 
     return {

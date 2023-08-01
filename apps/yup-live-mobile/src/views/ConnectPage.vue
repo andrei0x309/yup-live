@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <HeaderBar />
+    <HeaderBar :key="mainStore.version" />
 
     <ion-content class="connect-page ion-text-center" :fullscreen="false">
       <svg
@@ -422,7 +422,8 @@ export default defineComponent({
       reviewModalLogin,
       reviewPassword,
       reviewUsername,
-      reviewLogin
+      reviewLogin,
+      mainStore
     };
   },
 });

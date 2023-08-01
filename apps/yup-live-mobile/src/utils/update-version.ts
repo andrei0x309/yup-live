@@ -1,9 +1,10 @@
-import { getApp } from "@/utils/capacitor";
+import { isAndroid } from "@/utils/capacitor";
 import { IMainStore } from "shared/src/types/store";
 import { storage } from './storage'
 
-const JSON_URL = 'https://jsonkeeper.com/b/FHJ5'
-// const JSON_URL = 'https://yup-live.pages.dev/mobile/latest-version.json';
+const TEST_VERSION = '1.1.23'
+// const JSON_URL = 'https://localhost:4566/mobile/preview-latest-version.json';
+const JSON_URL = 'https://yup-live.pages.dev/mobile/latest-version.json';
 
 
 const parseVersionNumber = (version: string) => {
@@ -11,17 +12,35 @@ const parseVersionNumber = (version: string) => {
     return versionNumber;
 }
 
-const getVersionNumber = async () => {
+export const getVersion = async () => {
     try {
-        const info = await getApp()?.getInfo();
-        return parseVersionNumber(info?.version ?? '');
-    } catch (error) {
-        return null
+        let info: { version: string } | undefined;
+        if (isAndroid()) {
+            const { App } = await import("@capacitor/app");
+
+            info = isAndroid() ? await App.getInfo() : undefined;
+        }
+
+        if (info?.version) {
+            return {
+                versionString: info?.version,
+                versionNumber: parseVersionNumber(info?.version),
+            }
+        }
+        return {
+            versionString: TEST_VERSION,
+            versionNumber: parseVersionNumber(TEST_VERSION),
+        }
+    } catch {
+        return {
+            versionString: TEST_VERSION,
+            versionNumber: parseVersionNumber(TEST_VERSION),
+        }
     }
 }
 
 const getLastCheckForUpdate = async (store: IMainStore) => {
-    const lastCheck = store?.settings?.lastCheckForUpdate ?? Date.now();
+    const lastCheck = store?.settings?.lastCheckForUpdate ?? 0;
     return lastCheck;
 }
 
@@ -45,7 +64,14 @@ const setUpdateStore = async ({
         store.settings.lastCheckForUpdate = lastCheck;
         store.settings.forcedVersion = forced ? currentVersion : 0;
         store.settings.updateMessage = forced ? forcedMessage : message;
-        await storage.set('settings', store.settings);
+        await storage.set('settings', { ...store.settings });
+    }
+}
+
+export const unsetLastCheckForUpdate = async (store: IMainStore) => {
+    if (store?.settings && store?.settings?.lastCheckForUpdate) {
+        store.settings.lastCheckForUpdate = undefined;
+        await storage.set('settings', { ...store.settings });
     }
 }
 
@@ -57,9 +83,10 @@ const checkForUpdate = async ({ currentVersion }: { currentVersion: number | nul
     }
     try {
         const json = await res.json();
-        if (!currentVersion) currentVersion = await getVersionNumber();
+        if (!currentVersion) currentVersion = (await getVersion()).versionNumber;
         if (!currentVersion) return { update: false, isError: true, error: 'Could not get current version', forced: false, updateMessage: null, url: null }
         const latestVersion = parseVersionNumber(json.version);
+
         return {
             update: latestVersion > currentVersion,
             isError: false,
@@ -87,22 +114,19 @@ const checkIsForcedUpdate = async ({
 }
 
 
-export const checkForUpdateAndNotify = async (store: IMainStore) => {
-    const currentVersion = await getVersionNumber();
-    console.info('currentVersion', currentVersion)
+export const checkForUpdateAndNotify = async (store: IMainStore, currentVersion: number | undefined) => {
+    // await unsetLastCheckForUpdate(store);
+    currentVersion = currentVersion ?? (await getVersion()).versionNumber;
     const isForcedUpdate = await checkIsForcedUpdate({ store, currentVersion });
-    console.info('isForcedUpdate', isForcedUpdate) 
     if (isForcedUpdate) {
         return { update: true, isError: false, error: null, forced: true, updateMessage: store?.settings?.updateMessage ?? '', url: store?.settings?.updateUrl ?? '' }
     }
     const lastCheck = await getLastCheckForUpdate(store);
-    console.info('lastCheck', lastCheck) 
     const now = Date.now();
     if (now - lastCheck > 1000 * 60 * 60 * 24 * 1.5) {
         const res = await checkForUpdate({
             currentVersion
         });
-        console.info('res', res)
         if (res.update) {
             await setUpdateStore({
                 store,
@@ -113,6 +137,7 @@ export const checkForUpdateAndNotify = async (store: IMainStore) => {
             });
             return res;
         }
+        return { update: false, isError: false, error: null, forced: false, updateMessage: null, url: null }
     }
     return { update: false, isError: false, error: null, forced: false, updateMessage: null, url: null }
 }

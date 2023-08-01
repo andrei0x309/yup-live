@@ -143,13 +143,10 @@ fig
       }
       // @ts-expect-error - possibly null
       window.plotData = props.data.join(',')
-      // @ts-expect-error - possibly null
-      console.log('plotData', window.plotData)
       const pythonScript = window.document.createElement('script')
       pythonScript.src = 'https://pyscript.net/alpha/pyscript.js'
       pythonScript.defer = true
       pythonScript.onload = async () => {
-        console.log('python script loaded')
         const pyScript = getPyScript()
         // @ts-expect-error - possibly null
         pyScriptContainer.value.appendChild(pyScript)

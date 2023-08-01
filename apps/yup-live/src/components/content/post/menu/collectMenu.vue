@@ -86,7 +86,6 @@ export default defineComponent({
     const onError = () => {
       isError.value = true
       isLoading.value = false
-      console.log('error', isError.value)
     }
 
     const closeMenu = () => {
@@ -97,7 +96,6 @@ export default defineComponent({
 
     const onLoad = () => {
       isLoading.value = false
-      console.log('onload', isLoading.value)
     }
     const checkIfInCollection = async (): Promise<Record<string, boolean>> => {
       const isInCollection = {} as Record<string, boolean>

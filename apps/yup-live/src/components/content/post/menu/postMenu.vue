@@ -155,12 +155,10 @@ export default defineComponent({
     const onError = () => {
       isError.value = true
       isLoading.value = false
-      console.log('error', isError.value)
     }
 
     const onLoad = () => {
       isLoading.value = false
-      console.log('onload', isLoading.value)
     }
 
     const sharePost = () => {
@@ -225,7 +223,7 @@ export default defineComponent({
           }
           delLoading.value = false
         } catch (error) {
-          console.log('error', error)
+          console.error('error', error)
           stackAlertError('The vote could not be deleted!')
         }
 
@@ -307,7 +305,6 @@ export default defineComponent({
             return new Date(b?.timestamp).getTime() - new Date(a?.timestamp).getTime()
           })
         voters.value = result as unknown as Voter[]
-        console.log(voters.value)
         modalLoading.value = false
       }
     }
