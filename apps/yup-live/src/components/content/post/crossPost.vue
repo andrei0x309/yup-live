@@ -218,49 +218,7 @@ const fileToBase64 = (file: File) => {
       images.value = images.value.filter((image) => image.id !== id);
     };
 
-    const sendPost = async () => {
-      if (!postContent.value) {
-        showError("Post must have some content");
-        return;
-      } else if (postContent.value.length > maxCharCount.value) {
-        showError(`Post cannot be longer than ${maxCharCount.value} characters`);
-        return;
-      }
-      isSendPost.value = true;
-
-      const sendData = {
-        content: postContent.value,
-        platforms: postPlatforms.value,
-        media: images.value.map((image: Record<string,unknown>) => {
-          const ret = {} as Record<string,unknown>
-          if(image.farcaster) ret['farcaster'] = image.farcaster
-          if(image.twitter) ret['twitter'] = image.twitter
-          if(image.lens) ret['lens'] = image.lens
-          if(image.bsky) ret['bsky'] = image.bsky
-          return ret
-        }),
-      } as ISendPostData;
-
-      if(props.replyTo) {
-        sendData.replyTo = props.replyTo
-      }
-
-      const result = await submitPost({
-        store,
-        apiBase: API_BASE,
-        sendData,
-      });
-
-      if (result && !result.error) {
-        ctx.emit("success");
-        ctx.emit("update:openModal", false);
-        stackAlertSuccess("Post sent!");
-      } else {
-        showError("Something went wrong");
-      }
-
-      isSendPost.value = false;
-    };
+    
 
     return {
       openCastModal,

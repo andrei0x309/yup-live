@@ -42,6 +42,7 @@
     "qrcode.vue": "^3.4.0",
     "shared": "*",
     "text-clipper": "^2.2.0",
+    "threads-api": "^1.6.3",
     "util": "^0.12.5",
     "vue": "^3.2.41",
     "vue-cup-avatar": "^0.1.9",

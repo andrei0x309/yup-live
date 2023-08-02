@@ -1,5 +1,4 @@
 import type { IMainStore } from 'shared/src/types/store'
-import { config } from '../config'
 import type { Ref } from 'vue'
 import { fetchWAuth } from '../auth'
 
