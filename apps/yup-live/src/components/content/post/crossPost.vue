@@ -72,7 +72,7 @@
           <button
             :disabled="isSendPost"
             class="bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-            @click="sendPost"
+            @click="doSendPost"
           >
             <BtnSpinner v-if="isSendPost" class="inline mr-2" />Send
           </button>
@@ -88,11 +88,11 @@ import BtnSpinner from "icons/src/btnSpinner.vue";
 import Alert from "components/functional/alert.vue";
 // import { FCSendCast } from "shared/src/utils/farcaster";
 import { useMainStore } from "@/store/main";
-import { stackAlertSuccess } from "@/store/alertStore";
+import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 import ReplyIcon from "icons/src/reply.vue";
-import type { TPlatform, ISendPostData, IReplyTo } from "shared/src/types/web3-posting";
+import type { TPlatform, IReplyTo } from "shared/src/types/web3-posting";
 import ImageUploadIcon from "icons/src/imageUpload.vue";
-import { mediaUpload, submitPost } from 'shared/src/utils/requests/web3-posting'
+import { mediaUpload, sendPost, PLATFORMS } from 'shared/src/utils/requests/web3-posting'
 import DeleteIcon from "icons/src/delete.vue";
 import { getMaxCharCount } from "shared/src/utils/requests/crossPost";
 import AvatarBtn from "components/functional/avatarBtn.vue";
@@ -100,7 +100,6 @@ import AvatarBtn from "components/functional/avatarBtn.vue";
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 
-const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens", "bsky"];
 
 export default defineComponent({
   name: "CrossPost",
@@ -218,6 +217,21 @@ const fileToBase64 = (file: File) => {
       images.value = images.value.filter((image) => image.id !== id);
     };
 
+    const doSendPost = async () => {
+      await sendPost({
+        store,
+        postContent,
+        postPlatforms,
+        maxCharCount,
+        isSendPost,
+        replyTo: props.replyTo || undefined,
+        images,
+        ctx,
+        showError,
+        stackAlertSuccess,
+        stackAlertWarning
+      });
+    }
     
 
     return {
@@ -227,7 +241,7 @@ const fileToBase64 = (file: File) => {
       postContentCharCount,
       postError,
       postErrorKey,
-      sendPost,
+      doSendPost,
       sendClose,
       postPlatforms,
       PLATFORMS,

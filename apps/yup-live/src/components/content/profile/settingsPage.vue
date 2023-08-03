@@ -127,6 +127,35 @@
 
             Disconnect from BlueSky
           </button>
+          <template v-if="!isConnectedToThreads">
+              <button
+                :disabled="isConnectToBsky"
+                class="mt-4 bg-gray-600 border-0 py-2 px-6 focus:outline-none hover:bg-gray-900 rounded text-lg"
+                @click="
+                  () => {
+                    settingsModalContent = 'threads-connect';
+                    settingsModal = true;
+                  }
+                "
+              >
+                <ThreadsIcon class="w-6 inline mr-2" />
+                <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to
+                Threads
+              </button>
+            </template>
+            <button
+              v-else
+              :disabled="isDisconnectFromThreads"
+              class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+              @click="doDisconnectThreads"
+            >
+              <BtnSpinner
+                v-if="isDisconnectFromThreads"
+                class="inline mr-2"
+              /><ThreadsIcon class="w-6 inline mr-2" />
+
+              Disconnect from Threads
+            </button>
         </div>
       </div>
     </section>
@@ -398,14 +427,34 @@
       <input v-model="bskyIdent" type="text" name="ident" placeholder="Identifier" class="mb-4 rounded p-2 text-[#222]" />
       <input v-model="bskyPass" type="password" name="pass" placeholder="Password" class="mb-4 rounded p-2 text-[#222]" />
           <button
-            v-if="farcasterDeepLink.length === 0"
-            :disabled="isConnectToFarcaster"
+            :disabled="isConnectedToBsky"
             class="bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded text-lg mt-4"
             @click="() => doBskyConnect()"
           >
           <BlueSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
-            <BtnSpinner v-if="isConnectToFarcaster" class="inline mr-2" />Connect to
+            <BtnSpinner v-if="isConnectToBsky" class="inline mr-2" />Connect to
             BlueSky
+          </button>
+        </div>
+    </template>
+    <template v-else-if="settingsModalContent === 'threads-connect'">
+            <div class="mx-8 flex flex-col">
+            <p class="text-[1rem]">Conect to Threads</p>
+            <small class="my-4">
+            <ul>
+            <li>Credentials are required to connect to Threads</li>
+            <li>Threads token will be saved by YUP API not the credentials entered here.</li>
+            </ul></small>
+      <input v-model="threadsUser" type="text" name="ident" placeholder="Username" class="mb-4 rounded p-2 text-[#222]" />
+      <input v-model="threadsPass" type="password" name="pass" placeholder="Password" class="mb-4 rounded p-2 text-[#222]" />
+          <button
+            :disabled="isConnectToThreads"
+            class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg mt-4"
+            @click="() => doConnectThreads()"
+          >
+          <ThreadsIcon class="w-6 inline mr-2" />
+            <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to
+            Threads
           </button>
         </div>
     </template>
@@ -462,6 +511,8 @@ import "vue-cup-avatar/dist/style.css";
 import QrcodeVue from "qrcode.vue";
 import WalletIcon from "icons/src/walletIcon.vue";
 import { CancelablePromise } from "shared/src/utils/misc";
+import ThreadsIcon from "icons/src/threads.vue";
+import { connectToThreads, disconnectThreads } from 'shared/src/utils/requests/threads'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -477,7 +528,8 @@ export default defineComponent({
     TwitterIcon,
     QrcodeVue,
     WalletIcon,
-    BlueSkyIcon
+    BlueSkyIcon,
+    ThreadsIcon
   },
   props: {
     userData: {
@@ -533,6 +585,13 @@ export default defineComponent({
     const defaultAccountFeed = ref(localStorage.getItem("defaultAccountFeed") || "likes");
 
     const Web3Libs = ref(null) as unknown as Ref<TWeb3Libs>;
+
+    const isConnectedToThreads = ref(store.userData.connected?.threads ?? false);
+    const isConnectToThreads = ref(false);
+    const isDisconnectFromThreads = ref(false);
+
+    const threadsUser = ref("");
+    const threadsPass = ref("");
 
     const deleteAccount = async () => {
       isDeleteLoading.value = true;
@@ -805,7 +864,7 @@ export default defineComponent({
     };
 
     const doBskyConnect = async () => {
-      connectBlueSky({
+      const bsky = await connectBlueSky({
           bskyAppPassword: bskyPass.value,
           bskyUser: bskyIdent.value,
           stackAlertError,
@@ -813,12 +872,16 @@ export default defineComponent({
           store,
           apiBase: API_BASE,
           isConnectedToBsky,
-          isConnectToBsky
+          isConnectToBsky,
+          settingsModal
       })
+      if(bsky) {
+        setConnected(store, "bsky", true);
+      }
     }
 
     const doBskyDisconnect = async () => {
-      disconnectBlueSky({
+      const bsky = await disconnectBlueSky({
         stackAlertError,
         stackAlertSuccess,
         store,
@@ -826,6 +889,9 @@ export default defineComponent({
         isDisconnectFromBlueSky,
         isConnectedToBsky
       })
+      if(bsky) {
+        setConnected(store, "bsky", false);
+      }
     }
 
     const doUploadAvatar = async (blob: Blob) => {
@@ -842,16 +908,36 @@ export default defineComponent({
       })
     }
 
-    // const doTestLensPost = async () => {
-    //   const req = await fetchWAuth(store, `${API_BASE}/lens/create-test-post`, {
-    //     method: "POST",
-    //   });
-    //   if (!req) {
-    //     stackAlertError("Error while posting to lens");
-    //   } else {
-    //     stackAlertSuccess("Posted to lens successfully");
-    //   }
-    // };
+    const doConnectThreads = async () => {
+      const threads = await connectToThreads({
+        stackAlertError,
+        stackAlertSuccess,
+        store,
+        apiBase: API_BASE,
+        isConnectedToThreads,
+        isConnectToThreads,
+        threadsPassword: threadsPass.value,
+        threadsUser: threadsUser.value,
+        settingsModal
+      });
+      if(threads) {
+        setConnected(store, "threads", true);
+      }
+    }
+
+    const doDisconnectThreads = async () => {
+      const threads = await disconnectThreads({
+        stackAlertError,
+        stackAlertSuccess,
+        store,
+        apiBase: API_BASE,
+        isDisconnectFromThreads,
+        isConnectedToThreads,
+      });
+      if(threads) {
+        setConnected(store, "threads", false);
+      }
+    }
 
     return {
       isLoading,
@@ -904,7 +990,14 @@ export default defineComponent({
       isConnectedToBsky,
       isConnectToBsky,
       isDisconnectFromBlueSky,
-      doBskyDisconnect
+      doBskyDisconnect,
+      isConnectedToThreads,
+      isConnectToThreads,
+      isDisconnectFromThreads,
+      doConnectThreads,
+      doDisconnectThreads,
+      threadsUser,
+      threadsPass,
     };
   },
 });

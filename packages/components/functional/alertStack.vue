@@ -56,9 +56,9 @@ export default defineComponent({
   max-width: 90%;
   animation: slide-in 0.3s forwards;
   transform: translateX(+120%);
+  z-index: 100;
 
   &.mobile {
-    z-index: 20;
     bottom: 3.8rem;
     width: 98%;
   }

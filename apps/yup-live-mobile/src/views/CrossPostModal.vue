@@ -7,7 +7,14 @@
         <ion-toolbar>
           <ion-title>Post</ion-title>
           <ion-buttons slot="end">
-            <ion-button @click="() => { openCastModal = false }">Close</ion-button>
+            <ion-button @click="() => { openCastModal = false }">Cancel</ion-button>
+            <button
+            :disabled="isSendPost"
+            class="bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+            @click="doSendPost"
+          >
+            <BtnSpinner v-if="isSendPost" class="inline mr-2" />Send
+          </button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
@@ -78,13 +85,6 @@
             />
             Add Image
           </button>
-          <button
-            :disabled="isSendPost"
-            class="bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-            @click="sendPost"
-          >
-            <BtnSpinner v-if="isSendPost" class="inline mr-2" />Send
-          </button>
         </div>
       </div>
     </section>
@@ -97,11 +97,11 @@ import { defineComponent, onMounted, PropType, ref, computed, watch } from "vue"
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import Alert from "components/functional/alert.vue";
 import { useMainStore } from "@/store/main";
-import { stackAlertSuccess } from "@/store/alertStore";
+import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 import ReplyIcon from "icons/src/reply.vue";
-import type { TPlatform, ISendPostData, IReplyTo } from "shared/src/types/web3-posting";
+import type { TPlatform, IReplyTo } from "shared/src/types/web3-posting";
 import ImageUploadIcon from "icons/src/imageUpload.vue";
-import { mediaUpload, submitPost } from 'shared/src/utils/requests/web3-posting'
+import { mediaUpload, sendPost, PLATFORMS } from 'shared/src/utils/requests/web3-posting'
 import DeleteIcon from "icons/src/delete.vue";
 import AvatarBtn from "components/functional/avatarBtn.vue";
 import { 
@@ -117,8 +117,6 @@ import {
  import { getMaxCharCount } from "shared/src/utils/requests/crossPost";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-
-const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens", 'bsky'];
 
 export default defineComponent({
   name: "CrossPost",
@@ -247,48 +245,21 @@ const fileToBase64 = (file: File) => {
       images.value = images.value.filter((image) => image.id !== id);
     };
 
-    const sendPost = async () => {
-      if (!postContent.value) {
-        showError("Post must have some content");
-        return;
-      } else if (postContent.value.length > maxCharCount.value) {
-        showError(`Cast cannot be longer than ${maxCharCount.value} characters`);
-        return;
-      }
-      isSendPost.value = true;
-
-      const sendData = {
-        content: postContent.value,
-        platforms: postPlatforms.value,
-        media: images.value.map((image: Record<string,unknown>) => {
-          const ret = {} as Record<string,unknown>
-          if(image.farcaster) ret['farcaster'] = image.farcaster
-          if(image.twitter) ret['twitter'] = image.twitter
-          if(image.lens) ret['lens'] = image.lens
-          return ret
-        }),
-      } as ISendPostData;
-
-      if(props.replyTo) {
-        sendData.replyTo = props.replyTo
-      }
-
-      const result = await submitPost({
+    const doSendPost = async () => {
+      await sendPost({
         store,
-        apiBase: API_BASE,
-        sendData,
+        postContent,
+        postPlatforms,
+        maxCharCount,
+        isSendPost,
+        replyTo: props.replyTo || undefined,
+        images,
+        ctx,
+        showError,
+        stackAlertSuccess,
+        stackAlertWarning
       });
-
-      if (result && !result.error) {
-        ctx.emit("success");
-        ctx.emit("update:openModal", false);
-        stackAlertSuccess("Post sent!");
-      } else {
-        showError("Something went wrong");
-      }
-
-      isSendPost.value = false;
-    };
+    }
 
     const updatePostPlatforms =  (event: any) => {
       const platform = event.detail.value
@@ -315,7 +286,7 @@ const fileToBase64 = (file: File) => {
       postContentCharCount,
       postError,
       postErrorKey,
-      sendPost,
+      doSendPost,
       sendClose,
       postPlatforms,
       PLATFORMS,

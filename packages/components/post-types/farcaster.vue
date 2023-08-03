@@ -13,7 +13,7 @@
 
 import { onMounted, defineComponent, ref, Ref, PropType } from 'vue'
 import { getPostType } from 'shared/src/utils/misc'
-import type { mediaType } from 'shared/src/types/post'
+import type { Embed, mediaType } from 'shared/src/types/post'
 import { normalizePost } from 'shared/src/utils/post'
 import FarcasterPostBody from './inner/farcasterPostBody.vue'
 import type { IPost, PostBodyProcessed, linkPreviewTypeEx } from 'shared/src/types/post'
@@ -65,12 +65,13 @@ export default defineComponent({
       mediaEntities: [] as mediaType[],
       lensId: '',
       linkPreviews: [] as linkPreviewTypeEx[],
+      embeds: [] as Embed[],
       faracster: {
         fid: 0,
         hash: '',
         parentHash: '',
-      }
-    }
+      },
+    } as PostBodyProcessed
 
     const mainPost = ref(userObject) as Ref<PostBodyProcessed>
     const replyPost = ref(userObject) as Ref<PostBodyProcessed>

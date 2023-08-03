@@ -1,7 +1,10 @@
 <template>
   <ion-page>
     <ion-content>
-      <HeaderMenu :key="`k${String(userData?._id)}`" :userData="userData" />
+      <HeaderMenu
+        :key="`k${String(userData?._id)}${userData?.evmAddress}${store.isLoggedIn}`"
+        :userData="userData"
+      />
       <ion-tabs style="border-top: 2px solid #1a1a1a">
         <ion-router-outlet id="content-page" ref="outlet" />
 
@@ -68,7 +71,7 @@
       <CrossPost
         :key="`${openPostModal}k`"
         :openModal="openPostModal"
-        :platforms="['farcaster', 'lens', 'twitter', 'bsky']"
+        :platforms="PLATFORMS"
         @update:open-modal="(v: boolean) => (openPostModal = v)"
         @success="postSent"
       />
@@ -80,7 +83,7 @@
 import {
   defineComponent,
   ref,
-  onBeforeMount,
+  // onBeforeMount,
   Ref,
   onBeforeUnmount,
   defineAsyncComponent,
@@ -96,6 +99,7 @@ import {
   IonIcon,
   IonBadge,
   modalController,
+  onIonViewWillEnter,
 } from "@ionic/vue";
 import { notificationsCircle, filterCircle } from "ionicons/icons";
 import AvatarBtn from "components/functional/avatarBtn.vue";
@@ -112,6 +116,7 @@ import { canPost } from "shared/src/utils/requests/crossPost";
 import SettingsModal from "@/views/SettingsModal.vue";
 import { createUserData } from "shared/src/utils/requests/accounts";
 import { clearNotifications } from "shared/src/utils/notifications";
+import { PLATFORMS } from "shared/src/utils/requests/web3-posting";
 
 export default defineComponent({
   name: "BottomNavigation",
@@ -141,6 +146,7 @@ export default defineComponent({
     const notDisplay = ref("");
     let timerPromise: CancelablePromise | null = null;
     const canDoPost = ref(canPost(store));
+    let isLoggedIn = false;
     const openPostModal = ref(false);
     const userData = (ref({
       _id: "",
@@ -178,25 +184,27 @@ export default defineComponent({
       });
     };
 
-    onBeforeMount(async () => {
+    onIonViewWillEnter(async () => {
       if (!store.isLoggedIn) {
         const authInfo = await storage.get("authInfo");
         if (authInfo) {
           store.userData = JSON.parse(authInfo);
           avatar.value = store.userData.avatar;
           account.value = store.userData.account;
-          checkNot();
-
-          createUserData(store.userData.account, true).then((uD) => {
-            if (!uD.error) {
-              userData.value = Object.assign(userData.value, uD.data?.userData);
-            }
-          });
 
           store.isLoggedIn = true;
-        } else {
-          router.replace("/");
         }
+      } else {
+        router.replace("/");
+      }
+      if (store.isLoggedIn) {
+        checkNot();
+
+        createUserData(store.userData.account, true).then((uD) => {
+          if (!uD.error) {
+            userData.value = Object.assign(userData.value, uD.data?.userData);
+          }
+        });
       }
     });
 
@@ -249,6 +257,8 @@ export default defineComponent({
       openSettings,
       clearNot,
       userData,
+      PLATFORMS,
+      store,
     };
   },
 });

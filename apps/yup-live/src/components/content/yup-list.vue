@@ -14,7 +14,7 @@
         <h3>YUP Recent Tweet</h3>
         <Post :post="data[0]" :deps="deps" :postTypesPromises="postTypesPromises" :isHidenInfo="true" />
         </div>
-        <div>
+        <div class="ml-4">
         <h3>YUP Recent Cast</h3>
         <Post :post="data[1]" :deps="deps" :postTypesPromises="postTypesPromises" :isHidenInfo="true" />
         </div>

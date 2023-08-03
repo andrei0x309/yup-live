@@ -20,7 +20,7 @@
       <CrossPost
         :key="`${openPostModal}k`"
         :openModal="openPostModal"
-        :platforms="['farcaster', 'lens', 'twitter', 'bsky']"
+        :platforms="PLATFORMS"
         @update:open-modal="(v: boolean) => (openPostModal = v)"
         @success="postSent"
         :shareLink="shareLink"
@@ -68,6 +68,8 @@ import { getExpoPushTokenAndRegister } from "@/utils/expo-push-not-re";
 import { checkForUpdateAndNotify, getVersion } from "@/utils/update-version";
 import UpdateModal from "@/views/UpdateModal.vue";
 import { getPushSettings } from "@/utils/expo-push-not-re";
+import { PLATFORMS } from "shared/src/utils/requests/web3-posting";
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -344,6 +346,7 @@ export default defineComponent({
       postSent,
       shareLink,
       version,
+      PLATFORMS
     };
   },
 });

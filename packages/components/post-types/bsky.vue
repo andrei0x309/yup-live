@@ -18,7 +18,7 @@ import BskyPostBody from "./inner/bskyPostBody.vue";
 // import { getLensComments, lensIdToRaw, rawToLensId } from "shared/src/utils/web3/lens";
 import { getPostType } from 'shared/src/utils/misc'
 import { normalizePost } from 'shared/src/utils/post'
-import type { linkPreviewTypeEx, mediaType, PostBodyProcessed, IPost } from 'shared/src/types/post'
+import type { linkPreviewTypeEx, mediaType, PostBodyProcessed, IPost, Embed } from 'shared/src/types/post'
 // import MD from 'markdown-it'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
@@ -66,10 +66,11 @@ export default defineComponent({
       mediaEntities: [] as mediaType[],
       lensId: '',
       linkPreviews: [] as linkPreviewTypeEx[],
-      lens: {
-        pubId: '',
+      embeds: [] as Embed[],
+      bsjy: {
+        uri: '',
       }
-    }
+    } as PostBodyProcessed
 
     const mainPost = ref(userObject) as Ref<PostBodyProcessed>
     const replyPost = ref(userObject) as Ref<PostBodyProcessed>

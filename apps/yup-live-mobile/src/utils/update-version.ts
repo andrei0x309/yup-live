@@ -3,7 +3,7 @@ import { IMainStore } from "shared/src/types/store";
 import { storage } from './storage'
 
 const TEST_VERSION = '1.1.23'
-// const JSON_URL = 'https://localhost:4566/mobile/preview-latest-version.json';
+// const JSON_URL = 'https://api.npoint.io/35bd47edaceb4d7bdf53';
 const JSON_URL = 'https://yup-live.pages.dev/mobile/latest-version.json';
 
 
@@ -77,16 +77,19 @@ export const unsetLastCheckForUpdate = async (store: IMainStore) => {
 
 
 const checkForUpdate = async ({ currentVersion }: { currentVersion: number | null }) => {
-    const res = await fetch(JSON_URL);
-    if (!res.ok) {
-        return { update: false, isError: true, error: res?.statusText, forced: false, updateMessage: null, url: null }
-    }
     try {
+        console.info('checkForUpdate', JSON_URL);
+        const res = await fetch(JSON_URL);
+        if (!res.ok) {
+            return { update: false, isError: true, error: res?.statusText, forced: false, updateMessage: null, url: null }
+        }
+
         const json = await res.json();
+        console.info('json', JSON.stringify(json));
         if (!currentVersion) currentVersion = (await getVersion()).versionNumber;
         if (!currentVersion) return { update: false, isError: true, error: 'Could not get current version', forced: false, updateMessage: null, url: null }
         const latestVersion = parseVersionNumber(json.version);
-
+        console.info('update', latestVersion > currentVersion)
         return {
             update: latestVersion > currentVersion,
             isError: false,
@@ -96,6 +99,7 @@ const checkForUpdate = async ({ currentVersion }: { currentVersion: number | nul
             url: json.url
         }
     } catch (error) {
+        console.error(error);
         return { update: false, isError: true, error: String(error), forced: false, updateMessage: null, url: null }
     }
 
@@ -115,7 +119,7 @@ const checkIsForcedUpdate = async ({
 
 
 export const checkForUpdateAndNotify = async (store: IMainStore, currentVersion: number | undefined) => {
-    // await unsetLastCheckForUpdate(store);
+    await unsetLastCheckForUpdate(store);
     currentVersion = currentVersion ?? (await getVersion()).versionNumber;
     const isForcedUpdate = await checkIsForcedUpdate({ store, currentVersion });
     if (isForcedUpdate) {

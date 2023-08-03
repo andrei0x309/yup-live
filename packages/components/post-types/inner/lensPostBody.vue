@@ -33,6 +33,9 @@
 
  
           <LinkPreview v-for="(preview, index) in mainPost.linkPreviews" :linkPreview="preview" :key="preview.url" :noImage="index > 0 || mainPost.mediaEntities?.length > 0" />
+
+            <ExternalEmbeds v-if="mainPost?.embeds?.length" :embeds="mainPost.embeds" />
+
       </div>
     </div>
     <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-3">
@@ -59,6 +62,8 @@ import ImagePreview from 'components/post/imagePreview.vue'
 import LinkPreview from 'components/post/linkPreview.vue'
 import VerifiedIcon from 'icons/src/verified.vue'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
+import ExternalEmbeds from "components/post/post-external/external-embeds.vue"
+
 import type { PostBodyProcessed } from 'shared/src/types/post'
 
 export default defineComponent({
@@ -70,7 +75,8 @@ export default defineComponent({
     ImagePreview,
     VerifiedIcon,
     LensIcon,
-    LinkPreview
+    LinkPreview,
+    ExternalEmbeds
   },
   props: {
     mainPost: {

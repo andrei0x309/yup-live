@@ -10,6 +10,7 @@ export interface IStoreUserData {
     twitter: boolean
     lens: boolean
     bsky: boolean
+    threads: boolean
   }
 }
 

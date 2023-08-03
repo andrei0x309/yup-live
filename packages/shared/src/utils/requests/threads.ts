@@ -1,9 +1,10 @@
 import type { Ref } from 'vue';
 import type { IMainStore } from '../../types/store'
+import { fetchWAuth } from '../auth'
+
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-import { ThreadsAPI } from 'threads-api';
 
-
+const deviceID = 'android-k3wpbt5bk5c0000'
 
 const connectErrorThreads = ({
     stackAlertError,
@@ -26,6 +27,7 @@ export const connectToThreads = async ({
     isConnectedToThreads,
     isConnectToThreads,
     apiBase = API_BASE,
+    settingsModal
 }: {
     store: IMainStore
     threadsUser: string
@@ -35,25 +37,32 @@ export const connectToThreads = async ({
     apiBase?: string
     isConnectedToThreads: Ref<boolean>
     isConnectToThreads: Ref<boolean>
+        settingsModal: Ref<boolean>
 }
 
 ) => {
     if (isConnectToThreads.value) return
-
-    let token = null;
+    isConnectToThreads.value = true
     try {
-        const threadsAPI = new ThreadsAPI({
-            username: threadsUser,
-            password: threadsPassword
-        });
 
-        token = await threadsAPI.getToken();
-    } catch {
+        const req = await fetch(`${API_BASE}/web3-auth/threads/token`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: threadsUser,
+                password: threadsPassword,
+                deviceID
+            })
+        })
+        if (!req.ok) {
         return connectErrorThreads({
             stackAlertError,
             isConnectToThreads,
         })
     }
+        const { token, userID } = await req.json()
     if (!token) {
         return connectErrorThreads({
             stackAlertError,
@@ -61,13 +70,80 @@ export const connectToThreads = async ({
         })
     }
 
+
     const data = {
         auth: {
-            threads
+                threads: {
+                    token,
+                    userId: userID.replace(',', '').trim(),
+                    deviceId: deviceID
+                }
+            }
         }
+
+        const reqSave = await fetchWAuth(store, `${apiBase}/web3-auth`, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        })
+        if (!reqSave.ok) {
+            isConnectToThreads.value = false
+            stackAlertError('Could not connect to Threads, error saving token')
+            return false
+        }
+
+        if (store.userData.connected) store.userData.connected.threads = true
+        isConnectToThreads.value = false
+        isConnectedToThreads.value = true
+        stackAlertSuccess('Connected to Threads')
+        settingsModal.value = false
+        return reqSave.ok
+
+    } catch (e) {
+        console.error(e);
+        return connectErrorThreads({
+            stackAlertError,
+            isConnectToThreads,
+        })
+    }
+}
+
+
+export const disconnectThreads = async ({
+    store,
+    stackAlertError,
+    stackAlertSuccess,
+    isDisconnectFromThreads,
+    isConnectedToThreads,
+    apiBase = API_BASE,
+}: {
+    store: IMainStore
+    stackAlertError: (msg: string) => void
+    stackAlertSuccess: (msg: string) => void
+    isDisconnectFromThreads: Ref<boolean>
+    isConnectedToThreads: Ref<boolean>
+    apiBase?: string
+}) => {
+    if (isDisconnectFromThreads.value) return
+    isDisconnectFromThreads.value = true
+
+    const req = await fetchWAuth(store, `${apiBase}/web3-auth`, {
+        method: 'DELETE',
+        body: JSON.stringify({
+            platforms: ['threads']
+        })
+    })
+
+    if (!req.ok) {
+        stackAlertError('Could not disconnect from Threads')
+        isDisconnectFromThreads.value = false
+        return false
     }
 
-
-
-
+    if (req.ok) {
+        isDisconnectFromThreads.value = false
+        isConnectedToThreads.value = false
+        if (store.userData.connected) store.userData.connected.threads = false
+        stackAlertSuccess('Successfully disconnected from Threads')
+    }
+    return true
 }

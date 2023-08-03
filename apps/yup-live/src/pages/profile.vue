@@ -181,7 +181,7 @@
   <CrossPost
     :key="`${openPostModal}k`"
     :openModal="openPostModal"
-    :platforms="['farcaster', 'lens', 'twitter', 'bsky']"
+    :platforms="PLATFORMS"
     @update:open-modal="(v) => (openPostModal = v)"
     @success="postSent"
   />
@@ -243,6 +243,8 @@ import {
   stackAlertWarning,
 } from "@/store/alertStore";
 import { OTooltip } from "@oruga-ui/oruga-next";
+import { PLATFORMS } from "shared/src/utils/requests/web3-posting";
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -657,6 +659,7 @@ export default defineComponent({
       defaultAccountFeed,
       postDeps,
       hasAtLeastOnePConnected,
+      PLATFORMS
     };
   },
 });

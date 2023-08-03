@@ -186,6 +186,35 @@
 
               Disconnect from BlueSky
             </button>
+            <template v-if="!isConnectedToThreads">
+              <button
+                :disabled="isConnectToBsky"
+                class="mt-4 bg-gray-600 border-0 py-2 px-6 focus:outline-none hover:bg-gray-900 rounded text-lg"
+                @click="
+                  () => {
+                    settingsModalContent = 'threads-connect';
+                    settingsModal = true;
+                  }
+                "
+              >
+                <ThreadsIcon class="w-6 inline mr-2" />
+                <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to
+                Threads
+              </button>
+            </template>
+            <button
+              v-else
+              :disabled="isDisconnectFromThreads"
+              class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+              @click="doDisconnectThreads"
+            >
+              <BtnSpinner
+                v-if="isDisconnectFromThreads"
+                class="inline mr-2"
+              /><ThreadsIcon class="w-6 inline mr-2" />
+
+              Disconnect from Threads
+            </button>
           </div>
         </ion-accordion>
         <ion-accordion value="settings">
@@ -452,6 +481,50 @@
               </div>
             </template>
           </template>
+          <template v-else-if="settingsModalContent === 'bsky-connect'">
+            <div class="mx-8 flex flex-col">
+            <p class="text-[1rem]">Conect to BlueSky</p>
+            <small class="my-4">
+            <ul>
+            <li>Credentials are required to connect to bsky</li>
+            <li>Identifier is your email or blueSky handle</li>
+            <li>Password is either an app password(recommended) or your blue sky account password.</li>
+            <li>Login session will be forwarded to YUP API</li>
+            </ul></small>
+      <input v-model="threadsUser" type="text" name="ident" placeholder="Identifier" class="mb-4 rounded p-2 text-[#222]" />
+      <input v-model="bskyPass" type="password" name="pass" placeholder="Password" class="mb-4 rounded p-2 text-[#222]" />
+          <button
+            :disabled="isConnectedToBsky"
+            class="bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded text-lg mt-4"
+            @click="() => doBskyConnect()"
+          >
+          <BlueSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
+            <BtnSpinner v-if="isConnectToBsky" class="inline mr-2" />Connect to
+            BlueSky
+          </button>
+        </div>
+    </template>
+    <template v-else-if="settingsModalContent === 'threads-connect'">
+            <div class="mx-8 flex flex-col">
+            <p class="text-[1rem]">Conect to Threads</p>
+            <small class="my-4">
+            <ul>
+            <li>Credentials are required to connect to Threads</li>
+            <li>Threads token will be saved by YUP API not the credentials entered here.</li>
+            </ul></small>
+      <input v-model="threadsUser" type="text" name="ident" placeholder="Username" class="mb-4 rounded p-2 text-[#222]" />
+      <input v-model="threadsPass" type="password" name="pass" placeholder="Password" class="mb-4 rounded p-2 text-[#222]" />
+          <button
+            :disabled="isConnectToThreads"
+            class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg mt-4"
+            @click="() => doConnectThreads()"
+          >
+          <ThreadsIcon class="w-6 inline mr-2" />
+            <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to
+            Threads
+          </button>
+        </div>
+    </template>
         </ion-content>
       </ion-modal>
     </ion-content>
@@ -533,7 +606,8 @@ import DangLoader from "components/vote-list/loader.vue";
 import { connectBlueSky, disconnectBlueSky } from "shared/src/utils/requests/bsky";
 import { PUSH_NOTIFICATION_TYPES, setPushSettings  } from "@/utils/expo-push-not-re"
 import BlueSkyIcon from "icons/src/bsky.vue";
-
+import ThreadsIcon from "icons/src/threads.vue";
+import { connectToThreads, disconnectThreads } from 'shared/src/utils/requests/threads'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -571,6 +645,7 @@ export default defineComponent({
     BlueSkyIcon,
     CustomButton,
     DangLoader,
+    ThreadsIcon
   },
   props: {
     userData: {
@@ -639,6 +714,15 @@ export default defineComponent({
     const bskyPass = ref("");
 
     const disabledPush = [] as string[];
+
+    const isConnectedToThreads = ref(store.userData.connected?.threads ?? false);
+    const isConnectToThreads = ref(false);
+    const isDisconnectFromThreads = ref(false);
+
+    const threadsUser = ref("");
+    const threadsPass = ref("");
+
+
 
     const deleteAccount = async () => {
       isDeleteLoading.value = true;
@@ -934,28 +1018,66 @@ export default defineComponent({
     };
 
     const doBskyConnect = async () => {
-      connectBlueSky({
-        bskyAppPassword: bskyPass.value,
-        bskyUser: bskyIdent.value,
-        stackAlertError,
-        stackAlertSuccess,
-        store,
-        apiBase: API_BASE,
-        isConnectedToBsky,
-        isConnectToBsky,
-      });
-    };
+      const bsky = await connectBlueSky({
+          bskyAppPassword: bskyPass.value,
+          bskyUser: bskyIdent.value,
+          stackAlertError,
+          stackAlertSuccess,
+          store,
+          apiBase: API_BASE,
+          isConnectedToBsky,
+          isConnectToBsky,
+          settingsModal
+      })
+      if(bsky) {
+        setConnected(store, "bsky", true);
+      }
+    }
 
     const doBskyDisconnect = async () => {
-      disconnectBlueSky({
+      const bsky = await disconnectBlueSky({
         stackAlertError,
         stackAlertSuccess,
         store,
         apiBase: API_BASE,
         isDisconnectFromBlueSky,
-        isConnectedToBsky,
+        isConnectedToBsky
+      })
+      if(bsky) {
+        setConnected(store, "bsky", false);
+      }
+    }
+
+    const doConnectThreads = async () => {
+      const threads = await connectToThreads({
+        stackAlertError,
+        stackAlertSuccess,
+        store,
+        apiBase: API_BASE,
+        isConnectedToThreads,
+        isConnectToThreads,
+        threadsPassword: threadsPass.value,
+        threadsUser: threadsUser.value,
+        settingsModal
       });
-    };
+      if(threads) {
+        setConnected(store, "threads", true);
+      }
+    }
+
+    const doDisconnectThreads = async () => {
+      const threads = await disconnectThreads({
+        stackAlertError,
+        stackAlertSuccess,
+        store,
+        apiBase: API_BASE,
+        isDisconnectFromThreads,
+        isConnectedToThreads,
+      });
+      if(threads) {
+        setConnected(store, "threads", false);
+      }
+    }
 
     const openAlert = (msg: string) => {
       alertMsg.value = msg;
@@ -1055,7 +1177,14 @@ export default defineComponent({
       PUSH_NOTIFICATION_TYPES,
       changePush,
       isPushLoading,
-      disabledPush
+      disabledPush,
+      isConnectedToThreads,
+      isConnectToThreads,
+      isDisconnectFromThreads,
+      doConnectThreads,
+      doDisconnectThreads,
+      threadsUser,
+      threadsPass,
     };
   },
 });

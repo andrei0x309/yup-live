@@ -4,6 +4,7 @@ import type { IUserData } from '../../types/account'
 import type { NameValue } from '../../types/account'
 import type { IMainStore } from '../../types/store'
 import type { Ref } from 'vue'
+import type { TPlatform } from '../../types/web3-posting'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -113,7 +114,9 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
       connected: connected || {
         farcaster: false,
         twitter: false,
-        lens: false
+        lens: false,
+        bsky: false,
+        threads: false
       }
     } as IUserData,
     userFields: [] as Array<NameValue>
@@ -325,13 +328,14 @@ export const getConnected = async (store: IMainStore, account: string) => {
   return connected
 }
 
-export const setConnected = (store: IMainStore, platform: 'farcaster' | 'twitter' | 'lens' | 'bsky', value: boolean) => {
+export const setConnected = (store: IMainStore, platform: TPlatform, value: boolean) => {
   if (!store.userData.connected) {
     store.userData.connected = {
       farcaster: false,
       twitter: false,
       lens: false,
-      bsky: false
+      bsky: false,
+      threads: false
     }
   }
   store.userData.connected[platform] = value

@@ -46,6 +46,9 @@
           <ProfileBskyIcon class="-ml-1 w-6 inline-block" />
           {{ lWeb3Profile?.bsky?.handle }}
         </div>
+        <div v-if="lWeb3Profile?.threads?.handle">
+          <ThreadsIcon class="mr-2 w-4 inline-block" /> {{ lWeb3Profile?.threads?.handle }}
+        </div>
 
         <FollowUnfollwBtn
           :evmAddr="id"
@@ -53,7 +56,7 @@
           :iconClass="'inline-block w-3 mr-0'"
           :deps="deps"
         />
-        <router-link v-if="addViewBtn" :to="`/web3-profile/${id}`" class="ml-10 view-btn text-[0.85rem] mt-3 w-22 p-1 text-center inline-block"
+        <router-link v-if="addViewBtn && id.startsWith('0x')" :to="`/web3-profile/${id}`" class="ml-10 view-btn text-[0.85rem] mt-3 w-22 p-1 text-center inline-block"
             >Check</router-link>
         
       </div>
@@ -72,6 +75,8 @@ import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import ProfileEthIcon from "icons/src/profileEth.vue";
 import ProfileYupIcon from "icons/src/profileYup.vue";
 import ProfileBskyIcon from "icons/src/bskyClouds.vue";
+import ThreadsIcon from "icons/src/threads.vue";
+
 import TwitterIcon from "icons/src/twitter.vue";
 import ScoreIcon from "icons/src/score.vue";
 import FollowersIcon from "icons/src/followers.vue";
@@ -92,7 +97,8 @@ export default defineComponent({
     ScoreIcon,
     FollowersIcon,
     FollowUnfollwBtn,
-    ProfileBskyIcon
+    ProfileBskyIcon,
+    ThreadsIcon
   },
   props: {
     web3Profile: {
@@ -153,7 +159,7 @@ export default defineComponent({
 .snip1344 {
   position: relative;
   overflow: hidden;
-  height: 25rem;
+  height: fit-content; 
   max-width: 20rem;
   min-width: 18rem;
   width: 100%;
@@ -170,6 +176,7 @@ export default defineComponent({
     ),
     linear-gradient(39deg, rgba(98, 92, 92, 0.2117647059), rgba(32, 31, 31, 0.5607843137));
   box-shadow: 2px 2px #2b2d2e;
+  margin: auto;
 
   .handles {
     text-align: initial;
@@ -203,19 +210,17 @@ export default defineComponent({
 }
 .snip1344 .background {
   width: 100%;
-  vertical-align: top;
-  opacity: 0.15;
-  -webkit-filter: grayscale(100%) blur(10px);
-  filter: sepia(1) blur(50px) brightness(0.4);
-  -webkit-transition: all 2s ease;
-  transition: all 2s ease;
+    vertical-align: top;
+    opacity: 0.45;
+    -webkit-filter: grayscale(100%) blur(10px);
+    filter: sepia(1) blur(20px) brightness(0.4);
+    -webkit-transition: all 2s ease;
+    transition: all 2s ease;
+    height: 12rem;
 }
 .snip1344 figcaption {
   width: 100%;
   padding: 15px 25px;
-  position: absolute;
-  left: 0;
-  top: 37%;
 }
 .snip1344 .web3Avatar {
   border-radius: 50%;

@@ -1,14 +1,6 @@
 <template>
   <div>
-  <BtnSpinner v-if="loading" />
-  <iframe
-    class="w-full min-h-60"
-    :src="`https://www.youtube-nocookie.com/embed/${videoId}`"
-    title="YouTube video player"
-    frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    allowfullscreen
-  ></iframe>
+  <YoutubeEmbed :source="post.url" />
   <div class="flex justify-between -mt-2 px-4" style="z-index: 1">
     <span class="inline-block favIco"><YoutubeIcon class="w-6" /> </span>
     <span class="flex mtime h-min space-x-1 items-center rounded-full text-xs font-medium mt-2">
@@ -32,17 +24,17 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 import YoutubeIcon from 'icons/src/youtube.vue'
 import ClockIcon from 'icons/src/clock.vue'
-import BtnSpinner from 'icons/src/btnSpinner.vue'
+import YoutubeEmbed from 'components/post/post-external/youtube-embed.vue'
 
 export default defineComponent({
   name: 'PostYoutube',
   components: {
     YoutubeIcon,
     ClockIcon,
-    BtnSpinner
+    YoutubeEmbed
   },
   props: {
     post: {
@@ -51,22 +43,8 @@ export default defineComponent({
       default: () => ({})
     }
   },
-  setup(props) {
-    const loading = ref(false)
-    const videoId = ref('')
-    onMounted(() => {
-      console.log('pppp', props.post.url)
-      const match = /v=(.*?)$/.exec(props.post.url.split('&')[0])
-      if (match) {
-        videoId.value = match[1]
-      }
-      console.log('adsasa', videoId.value)
-    })
-
-    return {
-      loading,
-      videoId
-    }
+  setup() {
+    return {}
   }
 })
 </script>

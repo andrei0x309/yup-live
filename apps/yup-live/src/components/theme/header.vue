@@ -225,7 +225,7 @@
     <CrossPost
       :key="`${openPostModal}k`"
       :openModal="openPostModal"
-      :platforms="['farcaster', 'lens', 'twitter', 'bsky']"
+      :platforms="PLATFORMS"
       @update:open-modal="(v: boolean) => (openPostModal = v)"
       @success="postSent"
     />
@@ -244,6 +244,7 @@ import { canPost } from "shared/src/utils/requests/crossPost";
 import CrossPost from "@/components/content/post/crossPost.vue";
 import CrossPostIcon from "icons/src/crossPost.vue";
 import ConnectPlatformIcon from "icons/src/connect.vue";
+import { PLATFORMS } from "shared/src/utils/requests/web3-posting";
 
 export default defineComponent({
   name: "HeaderTemplate",
@@ -328,6 +329,7 @@ export default defineComponent({
       canDoPost,
       store,
       isLoggedIn,
+      PLATFORMS,
     };
   },
 });

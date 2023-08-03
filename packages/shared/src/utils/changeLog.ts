@@ -1,5 +1,16 @@
 export const recentChanges = [
     {
+        date: "3 August - 2023",
+        title: "Changes",
+        changes: [
+            'added auto-retry for failed platforms on post',
+            'added thread platform connecting, disconnecting, posting, and post type support',
+            'move post button in yup-live mobile to top beside cancel button',
+            'various style changes, especially web3Profile card to better fit if user has many socials',
+            'refactored embeds & addded new external embeds'
+        ],
+    },
+    {
         date: "1 August - 2023",
         title: "Changes",
         changes: [

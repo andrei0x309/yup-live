@@ -9,9 +9,20 @@
         :isSelf="false"
         :isTwitter="true"
         :pAccount="mainPost.userHandle"
-        @click="() => {goToCreator()}"
+        @click="
+          () => {
+            goToCreator();
+          }
+        "
       />
-      <div class="flex flex-col text-justify pl-3 cursor-pointer" @click="() => {goToCreator()}">
+      <div
+        class="flex flex-col text-justify pl-3 cursor-pointer"
+        @click="
+          () => {
+            goToCreator();
+          }
+        "
+      >
         <span>{{ mainPost.userName }}</span>
         <span class="opacity-70"
           >@{{ mainPost.userHandle }}
@@ -19,20 +30,36 @@
         /></span>
       </div>
       <span v-if="isReply" class="flex mfavIco ml-auto">
-        <FarcasterIcon class="w-5 h-5" />
+        <ThreadsIcon class="w-5 h-5" />
       </span>
-      <span v-else class="inline-block ml-auto"><FarcasterIcon class="w-3 h-3" /></span>
+      <span v-else class="inline-block ml-auto"><ThreadsIcon class="w-3 h-3" /></span>
     </div>
     <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
       <div :class="`indent ${isReply ? 'reply-line' : ''}`"></div>
       <div class="pl-1">
         <p v-html="mainPost.body"></p>
-        <template v-for="media of mainPost.mediaEntities?.filter(e => e.type === 'video')" :key="media.url">
-          <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
+        <template
+          v-for="media of mainPost.mediaEntities?.filter((e) => e.type === 'video')"
+          :key="media.url"
+        >
+          <VideoPlayer
+            v-if="media.type === 'video'"
+            :videoSource="media.url"
+            class="py-4 rounded-lg"
+          />
         </template>
-        <ImagePreview v-if="mainPost.mediaEntities?.filter(media => media.type === 'image')?.length" :source="mainPost.mediaEntities?.filter(media => media.type === 'image')?.map(e => e.url) ?? []" class="py-4 rounded-lg" :postId="mainPost.postId" />
-      
-          <ExternalEmbeds v-if="mainPost?.embeds?.length" :embeds="mainPost.embeds" />
+        <ImagePreview
+          v-if="mainPost.mediaEntities?.filter((media) => media.type === 'image')?.length"
+          :source="
+            mainPost.mediaEntities
+              ?.filter((media) => media.type === 'image')
+              ?.map((e) => e.url) ?? []
+          "
+          class="py-4 rounded-lg"
+          :postId="mainPost.postId"
+        />
+        <ExternalEmbeds v-if="mainPost?.embeds?.length" :embeds="mainPost.embeds" />
+
       </div>
     </div>
     <span
@@ -44,29 +71,39 @@
       </p>
     </span>
     <div class="flex">
-    <!-- <router-link v-if="(numComments ?? 0) > 1" :to="`/post/${mainPost?.postId}`">
-    <ComentsIcon class="inline-block w-5 mr-2" />{{ numComments - 1 }}</router-link> -->
-    <component v-if="replyComp" :platforms="['farcaster']" :is="replyComp" :showReplyButton="true" :replyTo="{ farcaster: { fid:mainPost.farcaster?.fid, hash: mainPost.farcaster?.hash }}"  />
-  </div>
+      <!-- <router-link v-if="(numComments ?? 0) > 1" :to="`/post/${mainPost?.postId}`">
+      <ComentsIcon class="inline-block w-5 mr-2" />{{ numComments - 1 }}</router-link> -->
+      <component
+        v-if="replyComp"
+        :platforms="['threads']"
+        :is="replyComp"
+        :showReplyButton="true"
+        :replyTo="{
+          threads:  mainPost.threads?.parentPostID,
+        }"
+      />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { onMounted, defineComponent, PropType, ref } from "vue";
-import type { PostBodyProcessed } from 'shared/src/types/post'
+import type { PostBodyProcessed } from "shared/src/types/post";
 import AvatarBtn from "components/functional/avatarBtn.vue";
 import VideoPlayer from "components/post/videoPlayer.vue";
 import FarcasterIcon from "icons/src/farcaster.vue";
 import ImagePreview from "components/post/imagePreview.vue";
 import VerifiedIcon from "icons/src/verified.vue";
 import ClockIcon from "icons/src/clock.vue";
-import ComentsIcon from 'icons/src/comments.vue'
-import ExternalEmbeds from "components/post/post-external/external-embeds.vue"
+import ComentsIcon from "icons/src/comments.vue";
 // import { getFarcasterYupThread } from "shared/src/utils/requests/farcaster";
 // import { ref } from "vue";
 // import { getComments } from 'shared/src/utils/requests/comments'
 import type { IPostDeps } from "shared/src/types/post";
-import { useRouter } from 'vue-router'
+import { useRouter } from "vue-router";
+import ThreadsIcon from "icons/src/threads.vue";
+import ExternalEmbeds from "components/post/post-external/external-embeds.vue"
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE as string;
 
@@ -80,6 +117,7 @@ export default defineComponent({
     VerifiedIcon,
     ClockIcon,
     ComentsIcon,
+    ThreadsIcon,
     ExternalEmbeds
   },
   props: {
@@ -109,16 +147,17 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const numComments = ref(0)
-    const router = useRouter()
-    
+    const numComments = ref(0);
+    const router = useRouter();
+
     const goToCreator = () => {
-      if(props.mainPost.userAddress) {
-      router.push(`/web3-profile/${props.mainPost.userAddress}`)
+      if (props.mainPost.userAddress) {
+        router.push(`/web3-profile/${props.mainPost.userAddress}`);
       } else {
-        props?.deps?.stackAlertWarning && props.deps.stackAlertWarning('User does not have a connected address')
+        props?.deps?.stackAlertWarning &&
+          props.deps.stackAlertWarning("User does not have a connected address");
       }
-    }
+    };
 
     onMounted(() => {
       // if(props.fetchComments) {
@@ -134,9 +173,8 @@ export default defineComponent({
 
     return {
       numComments,
-      goToCreator
+      goToCreator,
     };
-
   },
 });
 </script>

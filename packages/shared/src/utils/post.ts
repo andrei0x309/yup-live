@@ -1,4 +1,4 @@
-import type { IPost, IProcessedPost, IRPostShareInfo, PostBodyProcessed, linkPreviewTypeEx, mediaType } from 'shared/src/types/post'
+import type { IPost, IProcessedPost, IRPostShareInfo, PostBodyProcessed, linkPreviewTypeEx, mediaType, Embed } from 'shared/src/types/post'
 import type { Web3Media } from 'shared/src/types/web3/media'
 import { isImage } from 'shared/src/utils/misc'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
@@ -54,9 +54,17 @@ const parseBody = (text: string, linkPreviews: linkPreviewTypeEx[]) => {
     return text
 }
 
-const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[]) => {
+const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], embeds: Embed[]) => {
     const retArr = [] as mediaType[]
     mediaObject.forEach((e) => {
+        if (e.url) {
+            if (e.url.includes('youtube.com')) return
+            if (linkPreviews.some((el) => el.img === e.url)) return
+            if (embeds.some((el) => el.url === e.url)) return
+            if (isImage(e.url)) {
+                retArr.push({ type: 'image', url: parseIpfs(e.url) })
+            }
+        }
         if (e.images) {
             e.images.forEach((el) => {
                 if (el) {
@@ -68,19 +76,41 @@ const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[]) =
             e.videos.forEach((el) => {
                 if (el) {
                     retArr.push({ type: 'video', url: parseIpfs(el) })
-                    console.log(parseIpfs(el))
                 }
             })
         }
-        if (e.url) {
-            if (isImage(e.url)) {
-                retArr.push({ type: 'image', url: parseIpfs(e.url) })
-            }
-        }
     })
-    if (linkPreviews?.length === 0) return retArr
-    return retArr.filter((e) => !(e.type === 'image' && linkPreviews.some((el) => el.img === e.url)))
+    return retArr
 }
+
+const parseEmbeds = (content: string) => {
+    const embeds = [] as Embed[]
+    const regexYoutube = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/g
+    const regexSpotify = /(?:https?:\/\/)?(?:www\.)?(?:open\.spotify\.com)\/(?:track)\/(.+)/g
+
+    const youtubeMatch = content.match(regexYoutube)
+    const spotifyMatch = content.match(regexSpotify)
+
+    if (youtubeMatch) {
+        embeds.push({
+            type: 'youtube',
+            url: youtubeMatch[0].slice(0, -1)
+        })
+    }
+
+    if (spotifyMatch) {
+        embeds.push({
+            type: 'spotify',
+            url: spotifyMatch[0]?.trim()
+        })
+    }
+
+    content = content.replace(regexYoutube, '')
+    content = content.replace(regexSpotify, '')
+
+    return { embeds, content }
+}
+
 
 export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
     const postBuilder = {} as PostBodyProcessed
@@ -95,6 +125,8 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
 
     postBuilder.verified = fullPost?.web3Preview?.meta?.isVerifiedAvatar ?? false
     postBuilder.postId = fullPost?._id?.postid ?? fullPost?.id
+    const emebeds = parseEmbeds(fullPost?.web3Preview?.content ?? fullPost?.previewData?.description ?? '')
+
     postBuilder.linkPreviews = fullPost?.web3Preview?.linkPreview?.map(
         (e) =>
             (({
@@ -104,8 +136,13 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
                 description: e?.description ?? ''
             })
             ) ?? []) as linkPreviewTypeEx[]
-    postBuilder.mediaEntities = parseMedia(fullPost?.web3Preview?.attachments ?? [], postBuilder.linkPreviews ?? [])
-    postBuilder.body = parseBody(fullPost?.web3Preview?.content ?? fullPost?.previewData?.description ?? 'N/A', postBuilder.linkPreviews ?? [])
+
+    postBuilder.linkPreviews = (postBuilder.linkPreviews ?? []).filter((e) => !emebeds.embeds.some((el) => el.url === e.url))
+    postBuilder.mediaEntities = parseMedia(fullPost?.web3Preview?.attachments ?? [], postBuilder.linkPreviews ?? [], emebeds.embeds)
+
+    postBuilder.embeds = emebeds.embeds
+
+    postBuilder.body = parseBody(emebeds.content ?? 'N/A', postBuilder.linkPreviews ?? [])
     postBuilder.createdAt = timeAgo(fullPost?.web3Preview?.createdAt ?? fullPost?.createdAt ?? new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString())
     postBuilder.lens = {
         pubId: ''
@@ -123,6 +160,9 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
         uri: ''
     }
     postBuilder.bsky.uri = fullPost?.web3Preview?.meta?.uri ?? fullPost?.web3Preview?.id ?? ''
-
+    postBuilder.threads = {
+        parentPostID: '',
+    }
+    postBuilder.threads.parentPostID = fullPost?.web3Preview?.meta?.parentPostId ?? ''
     return postBuilder
 }

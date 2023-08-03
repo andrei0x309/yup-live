@@ -8,7 +8,6 @@ import { ViteSSGOptions } from 'vite-ssg'
 import generateSitemap from 'vite-ssg-sitemap'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 
-
 const production = process.env.NODE_ENV === 'production'
 
 const ssgOptions: ViteSSGOptions = {
@@ -68,7 +67,7 @@ export default defineConfig({
     vue(),
     eslintPlugin(),
     WindiCSS(),
-    basicSsl()
+    basicSsl(),
   ],
   build: {
     rollupOptions: {

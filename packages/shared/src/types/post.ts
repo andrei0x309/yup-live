@@ -177,6 +177,7 @@ export interface PostBodyProcessed {
   mediaEntities: mediaType[]
   linkPreviews: linkPreviewTypeEx[]
   postId?: string
+  embeds: Embed[]
   lens?: {
     pubId: string
   }
@@ -188,8 +189,16 @@ export interface PostBodyProcessed {
   bsky?: {
     uri: string
   }
+  threads?: {
+    parentPostID: string
+  }
+
 }
 
+export type Embed = {
+  type: string
+  url: string
+}
 
 // export interface Web3PostFarcaster {
 //   userName: string

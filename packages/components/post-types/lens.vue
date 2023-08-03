@@ -15,7 +15,7 @@ import { onMounted, defineComponent, ref, Ref, PropType } from 'vue'
 import { getPostType } from 'shared/src/utils/misc'
 import LensPostBody from './inner/lensPostBody.vue'
 import { normalizePost } from 'shared/src/utils/post'
-import type { linkPreviewTypeEx, mediaType, PostBodyProcessed, IPost } from 'shared/src/types/post'
+import type { linkPreviewTypeEx, mediaType, PostBodyProcessed, IPost, Embed } from 'shared/src/types/post'
 // import MD from 'markdown-it'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
@@ -63,10 +63,11 @@ export default defineComponent({
       mediaEntities: [] as mediaType[],
       lensId: '',
       linkPreviews: [] as linkPreviewTypeEx[],
+      embeds: [] as Embed[],
       lens: {
         pubId: '',
       }
-    }
+    } as PostBodyProcessed
 
     const mainPost = ref(userObject) as Ref<PostBodyProcessed>
     const replyPost = ref(userObject) as Ref<PostBodyProcessed>

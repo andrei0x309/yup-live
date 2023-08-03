@@ -15,10 +15,10 @@
               @load="onLoad"
             />
           </button>
-          <a v-if="!noLightbox" :href="postId ? `${currentRoute ?? ''}#${postId}` : `${currentRoute ?? ''}#${hashId(refSources?.[i] ?? '')}-img`" class="lightbox" :id="`id${hashId(source)}`">
+          <button v-if="!noLightbox" @click="closeImage" class="lightbox" :id="`id${hashId(source)}`">
               <span :style="`background-image: url('${source}')`">
               </span>
-              </a>
+              </button>
         </div>
         <div
           v-else-if="!isLoading && showPlaceholder"
@@ -45,7 +45,6 @@ import { onMounted, defineComponent, ref, PropType, Ref } from "vue";
 import NoImg from "icons/src/noImg.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import { makeRandomPreview } from "shared/src/utils/misc";
-import { useRoute } from "vue-router";
 
 export default defineComponent({
   name: "ImagePreview",
@@ -104,7 +103,6 @@ export default defineComponent({
     const randomInt = (min: number, max: number) => {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     };
-    const currentRoute =  ref(useRoute().path)
 
     const hashId = (str: string) => {
       let hash = 0;
@@ -127,7 +125,15 @@ export default defineComponent({
 
     const openImg = (refSource: string) => {
       if (props.noLightbox) return;
-      (window as any).location = `${currentRoute.value}#id${hashId(refSource)}`;
+      const currentPath = window?.location?.pathname;
+      (window as any).location = `${currentPath}#id${hashId(refSource)}`;
+    }
+
+    const closeImage = () => {
+      const currentPath = window?.location?.pathname;
+
+ 
+      (window as any).location = props.postId ? `${currentPath ?? ''}#${props.postId}` : `${currentPath ?? ''}#${hashId(refSources.value?.[0] ?? '')}-img`;
     }
 
     onMounted(() => {
@@ -148,8 +154,8 @@ export default defineComponent({
       makeRandomPreview,
       refSources,
       hashId,
-      currentRoute,
-      openImg
+      openImg,
+      closeImage
     };
   },
 });

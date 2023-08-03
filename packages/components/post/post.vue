@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="`flex justify-between m-1 md:m-6 flex-row pPost ${postTypeClass}`"
+    :class="`flex justify-between my-4 flex-row pPost ${postTypeClass}`"
     :id="`p-${processedPost.id}`"
   >
     <div
@@ -263,6 +263,11 @@ export default defineComponent({
               processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
               postTypeCom.value = (await props.postTypesPromises.preloadBsky).default;
               break;
+            case "threads":
+              processedPost.web3Preview = props.post.web3Preview;
+              processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
+              postTypeCom.value = (await props.postTypesPromises.preloadThreads).default;
+              break;
             case "erc721":
               processedPost.web3Preview = props.post.web3Preview;
               processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
@@ -290,7 +295,7 @@ export default defineComponent({
               postTypeCom.value = (await props.postTypesPromises.preloadGeneral).default;
               break;
           }
-          if (["bsky", "lens", "farcaster"].includes(type)) {
+          if (["bsky", "lens", "farcaster", "threads"].includes(type)) {
             commentsEnabled.value = true;
             import("shared/src/utils/requests/comments").then((module) => {
               module
@@ -311,7 +316,7 @@ export default defineComponent({
             commentsEnabled.value &&
             props.crossPost &&
             ["bsky", "lens", "farcaster"].includes(type) &&
-            store.userData.connected?.[type as "bsky" | "lens" | "farcaster"]
+            store.userData.connected?.[type as "bsky" | "lens" | "farcaster" | "threads"]
           ) {
             commentsComp.value = (
               await import("components/post-types/inner/comments.vue")
@@ -326,7 +331,7 @@ export default defineComponent({
       processPost(props.post, processedPost, cloneWeights, postShareInfo);
     });
 
-    const tags = ["mirror", "poap", "farcaster", "lens", "snapshot", "erc721", "bsky"];
+    const tags = ["mirror", "poap", "farcaster", "lens", "snapshot", "erc721", "bsky", "threads"];
 
     const checkPostType = async (post: { url: string; tag: string }) => {
       if (post.tag === "twitter") return "tweet";

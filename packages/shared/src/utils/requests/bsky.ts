@@ -37,15 +37,13 @@ export const disconnectBlueSky = async ({
         return false
     }
 
-    if (store.userData.connected) store.userData.connected.bsky = false
-
-
     if (req.ok) {
         isDisconnectFromBlueSky.value = false
         isConnectedToBsky.value = false
         if (store.userData.connected) store.userData.connected.bsky = false
         stackAlertSuccess('Successfully disconnected from Bluesky')
     }
+    return true
 }
 
 export const connectBlueSky = async ({
@@ -57,6 +55,7 @@ export const connectBlueSky = async ({
     isConnectedToBsky,
     isConnectToBsky,
     apiBase = API_BASE,
+    settingsModal
 }: {
     store: IMainStore
     bskyUser: string
@@ -66,6 +65,7 @@ export const connectBlueSky = async ({
     apiBase?: string
     isConnectedToBsky: Ref<boolean>
     isConnectToBsky: Ref<boolean>
+        settingsModal: Ref<boolean>
 }
 
 ) => {
@@ -105,5 +105,6 @@ export const connectBlueSky = async ({
     isConnectToBsky.value = false
     isConnectedToBsky.value = true
     stackAlertSuccess('Connected to Bluesky')
+    settingsModal.value = false
     return reqSave.ok
 }

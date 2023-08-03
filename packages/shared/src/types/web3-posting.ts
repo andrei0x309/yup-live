@@ -1,4 +1,4 @@
-export type TPlatform = 'farcaster' | 'twitter' | 'lens' | 'bsky'
+export type TPlatform = 'farcaster' | 'twitter' | 'lens' | 'bsky' | 'threads'
 
 export type TMedia = {
     faracster: string
@@ -14,6 +14,7 @@ export interface IReplyTo {
         fid: string
         hash: string
     }
+    threads: string
 }
 
 export interface ISendPostData {

@@ -1,9 +1,11 @@
-import { TPlatform, ISendPostData } from '../../types/web3-posting';
+import { TPlatform, ISendPostData, IReplyTo } from '../../types/web3-posting';
 import { fetchWAuth } from '../auth';
 import type { IMainStore } from '../../types/store';
 import type { Ref } from 'vue';
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
+export const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens", "bsky", "threads"];
 
 export const mediaUpload = async (store: IMainStore, apiBase: string, platforms: TPlatform[], file: File) => {
     try {
@@ -94,9 +96,9 @@ const retryPost = async ({ taskId, store,
         taskId: string
     }) => {
     try {
-        const req = await fetchWAuth(store, `${apiBase}/retry-post`, {
+        const req = await fetchWAuth(store, `${apiBase}/web3-post/${taskId}`, {
             method: 'POST',
-            body: JSON.stringify({ taskId })
+            body: JSON.stringify({})
         })
         if (!req.ok) throw new Error('Error retrying post' + req.statusText)
         return await req.json()
@@ -120,14 +122,14 @@ export const sendPost = async ({
     stackAlertWarning,
     showError
 }: {
-    replyTo?: Record<string, unknown>
+        replyTo?: IReplyTo
     postContent: Ref<string>
     maxCharCount: Ref<number>
     isSendPost: Ref<boolean>
     postPlatforms: Ref<TPlatform[]>
     images: Ref<Record<string, unknown>[]>
     store: IMainStore
-    ctx?: { emit: (event: string, ...args: any[]) => void },
+        ctx?: { [key: string]: any },
     stackAlertSuccess?: (message: string) => void,
     stackAlertWarning?: (message: string) => void,
     showError?: (message: string) => void
@@ -150,6 +152,7 @@ export const sendPost = async ({
             if (image.twitter) ret['twitter'] = image.twitter
             if (image.lens) ret['lens'] = image.lens
             if (image.bsky) ret['bsky'] = image.bsky
+            if (image.threads) ret['threads'] = image.threads
             return ret
         }),
     } as ISendPostData;
@@ -165,13 +168,13 @@ export const sendPost = async ({
     });
 
     if (result && !result.error) {
-        ctx && ctx.emit("success");
-        ctx && ctx.emit("update:openModal", false);
+        ctx && ctx?.emit("success");
+        ctx && ctx?.emit("update:openModal", false);
         stackAlertSuccess && stackAlertSuccess("Post sent!");
     }
     else if (result && result.partial) {
-        ctx && ctx.emit("success");
-        ctx && ctx.emit("update:openModal", false);
+        ctx && ctx?.emit("success");
+        ctx && ctx?.emit("update:openModal", false);
         const failed = result.platforms.join(", ");
         stackAlertWarning && stackAlertWarning("Post sent to all platforms except " + failed + "One retry will be attempted automatically.");
     } else {
