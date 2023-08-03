@@ -29,14 +29,26 @@
           <template v-else-if="notification.eventType === 'reward'">
             <RewardNotification :notification="notification" />
           </template>
-          <template v-else-if="['follow', 'mention', 'repost'].includes(notification.eventType)">
-            <MultiNotifications :notification="notification" :type="notification.eventType" />
+          <template
+            v-else-if="['follow', 'mention', 'repost'].includes(notification.eventType)"
+          >
+            <MultiNotifications
+              :notification="notification"
+              :type="notification.eventType"
+            />
           </template>
           <template v-else-if="notification.eventType === 'comment'">
             <CommentNotification :notification="notification" />
           </template>
         </div>
-        <button v-if="hasMore" class="view-btn mt-4 text-[0.92rem] p-3" @click="doLoadMore"><AddIcon class="inline-block w-4 mr-2" />Load Older <BtnSpinner v-if="loadingMore" class="inline-block w-4 ml-2" /></button>
+        <button
+          v-if="hasMore"
+          class="view-btn mt-4 text-[0.92rem] p-3 w-full"
+          @click="doLoadMore"
+        >
+          <AddIcon class="inline-block w-4 mr-2" />Load Older
+          <BtnSpinner v-if="loadingMore" class="inline-block w-4 ml-2" />
+        </button>
       </template>
       <template v-else-if="!loading">
         <ion-card>
@@ -93,6 +105,9 @@ import RewardNotification from "components/notifications/reward.vue";
 import MultiNotifications from "components/notifications/follow-mention-repost.vue";
 import CommentNotification from "components/notifications/comment.vue";
 
+import BtnSpinner from "icons/src/btnSpinner.vue";
+import AddIcon from "icons/src/add.vue";
+
 export default defineComponent({
   name: "NotificationsPage",
   components: {
@@ -110,7 +125,9 @@ export default defineComponent({
     VoteNotification,
     RewardNotification,
     MultiNotifications,
-    CommentNotification
+    CommentNotification,
+    BtnSpinner,
+    AddIcon,
   },
   setup() {
     const store = useMainStore();
@@ -159,6 +176,10 @@ export default defineComponent({
       loading.value = true;
       notifications.value =
         (await getNotifications({ address: store.userData.address, type: null })) ?? [];
+      hasMore.value = true;
+      if (notifications.value.length < 10) {
+        hasMore.value = false;
+      }
       loading.value = false;
     });
 
@@ -170,17 +191,17 @@ export default defineComponent({
       timeAgo,
       doLoadMore,
       hasMore,
-      loadingMore
+      loadingMore,
     };
   },
 });
 </script>
 
-<style scoped>
+<style>
 .notComp {
   border: 1px solid #181818;
   margin-top: 2rem;
-  font-size: 0.93rem;
+  font-size: 0.8rem;
   width: 100%;
   max-width: 46rem;
   word-break: break-all;

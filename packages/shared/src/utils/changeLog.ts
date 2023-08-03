@@ -1,5 +1,14 @@
 export const recentChanges = [
     {
+        date: "4 August - 2023",
+        title: "Changes",
+        changes: [
+            'added horizontal chips to account page',
+            'added threads icon to profile card for connected',
+            'small ui changes for yup live notifications',
+        ],
+    },
+    {
         date: "3 August - 2023",
         title: "Changes",
         changes: [

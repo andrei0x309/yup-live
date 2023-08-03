@@ -47,7 +47,7 @@
           <ProfileFarcasterIcon class="w-6 mx-2" v-if="store?.userData?.connected?.farcaster" />
           <ProfileLensIcon class="w-6 mx-2" v-if="store?.userData?.connected?.lens" />
           <ProfileBskyIcon class="w-10 mx-1" v-if="store?.userData?.connected?.bsky" />
-
+          <ThreadsIcon class="w-6 mx-2" v-if="store?.userData?.connected?.threads" />
       </div>
       </div>
     </div>
@@ -76,7 +76,7 @@ import ProfileBskyIcon from "icons/src/bskyClouds.vue";
 import TwitterIcon from "icons/src/twitter.vue";
 import { canPost } from 'shared/src/utils/requests/crossPost';
 import { useMainStore } from '@/store/main';
-
+import ThreadsIcon from 'icons/src/threads.vue'
 
 export default defineComponent({
   name: 'PostInfo',
@@ -88,7 +88,8 @@ export default defineComponent({
     ProfileLensIcon,
     ProfileBskyIcon,
     TwitterIcon,
-    ProfileFarcasterIcon
+    ProfileFarcasterIcon,
+    ThreadsIcon
   },
   props: {
     postInfo: {

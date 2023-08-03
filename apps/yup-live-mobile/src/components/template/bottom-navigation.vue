@@ -1,6 +1,7 @@
 <template>
   <ion-page>
-    <ion-content>
+    <ion-content ref="content">
+      <div id="top-el"></div>
       <HeaderMenu
         :key="`k${String(userData?._id)}${userData?.evmAddress}${store.isLoggedIn}`"
         :userData="userData"
@@ -18,7 +19,10 @@
             <ion-label>Link Socials</ion-label>
           </ion-tab-button>
 
-          <ion-tab-button tab="account" href="/tabs/account#head-top">
+          <ion-tab-button
+            tab="account"
+            href="/tabs/account"
+          >
             <AvatarBtn
               :key="avatar"
               imgClass="h-8 w-8"
@@ -31,14 +35,21 @@
             <ion-label>Account</ion-label>
           </ion-tab-button>
 
-          <ion-tab-button tab="feed" href="/tabs/feeds#head-top">
+          <ion-tab-button
+            tab="feed"
+            href="/tabs/feeds"
+          >
             <ion-icon style="font-size: 2.3rem" :icon="filterCircle"></ion-icon>
             <ion-label>Feeds</ion-label>
           </ion-tab-button>
           <ion-tab-button
             tab="notifications"
-            href="/tabs/notifications#head-top"
-            @click="clearNot"
+            href="/tabs/notifications"
+            @click="
+              () => {
+                clearNot();
+              }
+            "
           >
             <ion-icon style="font-size: 2.3rem" :icon="notificationsCircle"></ion-icon>
             <ion-label>Notifications</ion-label>
@@ -83,10 +94,10 @@
 import {
   defineComponent,
   ref,
-  // onBeforeMount,
   Ref,
   onBeforeUnmount,
   defineAsyncComponent,
+  onMounted,
 } from "vue";
 import {
   IonPage,
@@ -99,7 +110,6 @@ import {
   IonIcon,
   IonBadge,
   modalController,
-  onIonViewWillEnter,
 } from "@ionic/vue";
 import { notificationsCircle, filterCircle } from "ionicons/icons";
 import AvatarBtn from "components/functional/avatarBtn.vue";
@@ -146,7 +156,6 @@ export default defineComponent({
     const notDisplay = ref("");
     let timerPromise: CancelablePromise | null = null;
     const canDoPost = ref(canPost(store));
-    let isLoggedIn = false;
     const openPostModal = ref(false);
     const userData = (ref({
       _id: "",
@@ -184,7 +193,7 @@ export default defineComponent({
       });
     };
 
-    onIonViewWillEnter(async () => {
+    onMounted(async () => {
       if (!store.isLoggedIn) {
         const authInfo = await storage.get("authInfo");
         if (authInfo) {
@@ -241,6 +250,7 @@ export default defineComponent({
         clearNotifications(store);
       }
     };
+
 
     return {
       notificationsCircle,

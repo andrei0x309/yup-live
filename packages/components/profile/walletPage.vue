@@ -371,6 +371,8 @@ export default defineComponent({
 <style lang="scss">
 .wallet-section {
 
+  margin-bottom: 2rem;
+
   .token {
     width: 14rem;
     height: 12rem;

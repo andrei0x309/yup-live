@@ -62,18 +62,19 @@
         <router-link v-if="!isLoadingUser" class="asocLink mb-2" :to="`/web3-profile/${userData.evmAddress}`">View Web3 profile</router-link>
         <ion-list style="position: sticky; top: 0; z-index: 2">
           <ion-item>
-            <ion-select
-              v-model="currentAccountPage"
-              style="margin: auto"
-              interface="action-sheet"
-              placeholder="Select Feed"
-              aria-label="Select Feed"
-              @ionChange="accountPageChange"
-            >
-              <ion-select-option :value="accountPages[0]">Likes Feed</ion-select-option>
-              <ion-select-option :value="accountPages[1]">Created Content</ion-select-option>
-              <ion-select-option :value="accountPages[2]">Wallet</ion-select-option>
-            </ion-select>
+            <HorizontalChips>
+    <template #chips>
+      <ion-chip :key="accountPages[0]" :color="accountPages[0] === currentAccountPage ? 'success': 'primary'" @click="accountPageChange(accountPages[0])" >
+        Created Content
+      </ion-chip>
+      <ion-chip :key="accountPages[1]" :color="accountPages[1] === currentAccountPage ? 'success': 'primary'" @click="accountPageChange(accountPages[1])" >
+        Likes
+      </ion-chip>
+      <ion-chip :key="accountPages[2]" :color="accountPages[2] === currentAccountPage ? 'success': 'primary'" @click="accountPageChange(accountPages[2])" >
+        Wallet
+      </ion-chip>
+    </template>
+    </HorizontalChips>
           </ion-item>
         </ion-list>
         <div
@@ -185,14 +186,13 @@ import {
   IonContent,
   IonPage,
   onIonViewDidEnter,
-  IonSelect,
-  IonSelectOption,
   IonItem,
   IonList,
   IonRefresher,
   IonRefresherContent,
   IonIcon,
   modalController,
+  IonChip,
 } from "@ionic/vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 
@@ -221,6 +221,8 @@ import {
   stackAlertWarning,
 } from "@/store/alertStore";
 import PostMenu from "@/components/post/menu/postMenu.vue";
+import HorizontalChips from "@/components/misc/horizontal-chips.vue";
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -251,13 +253,13 @@ export default defineComponent({
     HeaderBar,
     IonPage,
     IonContent,
-    IonSelect,
-    IonSelectOption,
+    IonChip,
     IonItem,
     IonList,
     IonRefresher,
     IonRefresherContent,
     IonIcon,
+    HorizontalChips
   },
   setup() {
     const route = useRoute();
@@ -265,7 +267,7 @@ export default defineComponent({
     const userId = ref("");
     // const accountRoute = route.params.accountRoute as string
 
-    const accountPages = ["feed", "created", "wallet"];
+    const accountPages = [ "created", "feed", "wallet"];
 
     const search = ref("");
     const apiError = ref(false);
@@ -291,9 +293,7 @@ export default defineComponent({
     const isAuth = ref(store.isLoggedIn);
     // let LoadTimeout = 0
     const walletKeyRefresh = ref(0);
-    const isOwnAccount = ref(
-      store?.isLoggedIn && store?.userData.account === userId.value
-    );
+ 
 
     const userData = (ref({
       _id: "",
@@ -410,35 +410,7 @@ export default defineComponent({
         postLoaded.value = true;
       });
     };
-
-
-    // const menuChange = (tabId: string) => {
-    //   currentMenuTab.value = tabId
-    //   if (currentMenuTab.value === MENU_BUTTONS.feed) {
-    //     getFeedPosts = getHomeFeedPosts
-    //     resetPosts()
-    //   }
-    //   // else if (currentMenuTab.value === MENU_BUTTONS.web3) {
-    //   //   getFeedPosts = getCreatedFeedPosts
-    //   //   resetPosts()
-    //   // }
-    // }
-
-    // const collectionsPageCollections = computed(() => {
-    //   if (userId !== store.userData.account) {
-    //     return collectionsEx.collections
-    //   } else {
-    //     return collections.collections
-    //   }
-    // })
-
-    // const collectionsPagePromise = computed(() => {
-    //   if (userId !== store.userData.account) {
-    //     return collectionsEx.collectionsPromise as Promise<ICollection[]>
-    //   } else {
-    //     return collections.collectionsPromise as Promise<ICollection[]>
-    //   }
-    // })
+ 
 
     const userLoad = (noLoading = false) => {
       userId.value =
@@ -461,8 +433,8 @@ export default defineComponent({
           }
         });
 
-        if (currentAccountPage.value === "feed") {
-          getFeedPosts = getHomeFeedPosts;
+        if (currentAccountPage.value === "created") {
+          getFeedPosts = getCreatedFeedPosts;
         } else if (currentAccountPage.value === "none") {
           // getFeedPosts = getCreatedFeedPosts
         }
@@ -482,20 +454,21 @@ export default defineComponent({
 
     // onIonViewWillLeave( () => clearTimeout(LoadTimeout))
 
-    const accountPageChange = async () => {
-      if (currentAccountPage.value === accountPages[0]) {
-        postLoaded.value = false;
-        postsIndex.value = 0;
-        getFeedPosts = getHomeFeedPosts;
-        posts.value = await getFeedPosts(postsIndex.value);
-        postLoaded.value = true;
-      } else if (currentAccountPage.value === accountPages[1]) {
+    const accountPageChange = async (page: string) => {
+      if (page === accountPages[0]) {
         postLoaded.value = false;
         postsIndex.value = 0;
         getFeedPosts = getCreatedFeedPosts;
         posts.value = await getFeedPosts(postsIndex.value);
         postLoaded.value = true;
+      } else if (page === accountPages[1]) {
+        postLoaded.value = false;
+        postsIndex.value = 0;
+        getFeedPosts = getHomeFeedPosts;
+        posts.value = await getFeedPosts(postsIndex.value);
+        postLoaded.value = true;
       }
+      currentAccountPage.value = page;
     };
 
     const handleRefresh = async (event: any) => {
