@@ -176,7 +176,6 @@ export default defineComponent({
     ),
     linear-gradient(39deg, rgba(98, 92, 92, 0.2117647059), rgba(32, 31, 31, 0.5607843137));
   box-shadow: 2px 2px #2b2d2e;
-  margin: auto;
 
   .handles {
     text-align: initial;

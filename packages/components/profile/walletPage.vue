@@ -376,6 +376,11 @@ export default defineComponent({
   .token {
     width: 14rem;
     height: 12rem;
+
+    img {
+      height: 3rem;
+    }
+
   }
 
   .nft {

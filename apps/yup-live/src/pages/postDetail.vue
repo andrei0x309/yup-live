@@ -3,7 +3,7 @@
     <div class="bg-color table-list w-full mb-4 min-h-[75vh] flex justify-start">
       <div class="flex flex-col lg:flex-row">
         <div>
-          <h2 class="mb-4 text-[1.2rem]">
+          <h2 class="mt-12 mb-4 text-[1.2rem]">
             Post UUIDv4: <span class="opacity-80 text-[1.1rem]">{{ postId }}</span>
           </h2>
           <DangLoader v-if="isDataLoading" />
@@ -28,7 +28,7 @@
         >
           <h2 class="mb-4">Post Creator</h2>
           <Web3ProfileCard
-            class="ml-8"
+            class="mx-auto"
             :web3Profile="(processedPost.web3CreatorProfile as IWeb3Profile) ?? null"
             :overWriteEVM="
               processedPost.tag === 'farcaster' && processedPost?.previewData?.creator
@@ -265,7 +265,6 @@ export default defineComponent({
   h2 {
     font-size: 1.5rem;
     font-weight: 500;
-    margin-top: 2rem;
   }
 
   table {
