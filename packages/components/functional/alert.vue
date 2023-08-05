@@ -1,5 +1,5 @@
 <template>
-  <div v-show="!hiddenLocal" class="shadow-md p-3 flex flex-row rounded-lg relative alertCmp">
+  <div v-if="!hiddenLocal" class="shadow-md p-3 flex flex-row rounded-lg relative alertCmp">
     <div
       :class="`${
         typeLocal === 'warning' ? 'yellow' : typeLocal === 'error' ? 'red' : 'green'
@@ -84,7 +84,6 @@ export default defineComponent({
       hiddenLocal.value = false
       titleLocal.value = t
       messageLocal.value = m
-      console.log('AAA showMsg')
     }
 
     const showErr = (err: string) => {
@@ -103,7 +102,6 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      console.log('AAA mounted')
       if (props.noTimeout) return
       setTimeout(() => {
         close()
