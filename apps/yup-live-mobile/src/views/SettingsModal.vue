@@ -491,8 +491,8 @@
             <li>Password is either an app password(recommended) or your blue sky account password.</li>
             <li>Login session will be forwarded to YUP API</li>
             </ul></small>
-      <input v-model="threadsUser" type="text" name="ident" placeholder="Identifier" class="mb-4 rounded p-2 text-[#222]" />
-      <input v-model="bskyPass" type="password" name="pass" placeholder="Password" class="mb-4 rounded p-2 text-[#222]" />
+      <input v-model="bskyIdent" type="text" name="ident" placeholder="Identifier" class="mb-4 rounded p-2 text-[#e0e0e0]" />
+      <input v-model="bskyPass" type="password" name="pass" placeholder="Password" class="mb-4 rounded p-2 text-[#e0e0e0]" />
           <button
             :disabled="isConnectedToBsky"
             class="bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded text-lg mt-4"
@@ -512,8 +512,8 @@
             <li>Credentials are required to connect to Threads</li>
             <li>Threads token will be saved by YUP API not the credentials entered here.</li>
             </ul></small>
-      <input v-model="threadsUser" type="text" name="ident" placeholder="Username" class="mb-4 rounded p-2 text-[#222]" />
-      <input v-model="threadsPass" type="password" name="pass" placeholder="Password" class="mb-4 rounded p-2 text-[#222]" />
+      <input v-model="threadsUser" type="text" name="ident" placeholder="Username" class="mb-4 rounded p-2 text-[#e0e0e0]" />
+      <input v-model="threadsPass" type="password" name="pass" placeholder="Password" class="mb-4 rounded p-2 text-[#e0e0e0]" />
           <button
             :disabled="isConnectToThreads"
             class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg mt-4"
