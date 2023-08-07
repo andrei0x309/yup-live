@@ -36,10 +36,15 @@ export default defineComponent({
         return
       }
 
+      const ilegalChars = ['&', '?', 'v=', '"', "'", ' ']
+
       const match = /v=(.*?)$/.exec(props.source.split('&')[0])
       if (match) {
         videoId.value = match[1]
       }
+      ilegalChars.forEach(char => {
+        videoId.value = videoId.value.replace(char, '')
+      })
     })
 
     return {

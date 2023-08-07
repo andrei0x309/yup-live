@@ -105,7 +105,7 @@ const parseEmbeds = (content: string) => {
     if (youtubeMatch) {
         embeds.push({
             type: 'youtube',
-            url: youtubeMatch[0].slice(0, -1)
+            url: youtubeMatch[0]
         })
     }
 

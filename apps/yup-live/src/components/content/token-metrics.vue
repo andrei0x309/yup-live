@@ -91,7 +91,7 @@ export default defineComponent({
         return 10000
       }
 
-      const yearData = await import(/* @vite-ignore */`../../assets/emissions/years/${today.getFullYear()}.js`/* @vite-ignore */)
+      const yearData = await import(/* @vite-ignore */`/emissions/years/${today.getFullYear()}.js`/* @vite-ignore */)
       const dateString = `${today.getFullYear()}-${('0' + String(today.getMonth() + 1)).slice(-2)}-${('0' + String(today.getDate())).slice(
         -2
       )}`

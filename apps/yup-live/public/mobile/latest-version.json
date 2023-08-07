@@ -1,5 +1,5 @@
 {
-  "version": "1.1.27",
+  "version": "1.1.28",
   "forced": true,
   "message": "A new version of the app is available. It is recommended to update to the latest version. Do you want to update now?",
   "forcedMessage": "The current version of the app is no longer supported. You must update to the latest version to continue using the app. Do you want to update now?",
