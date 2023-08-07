@@ -4,7 +4,7 @@
     @click="openLink(linkPreview.url)"
   >
     <template v-if="!noImage && linkPreview?.img">
-      <ImagePreview :source="[linkPreview.img]" :noPreviewParagraph="false" :noLightbox="true" />
+      <ImagePreview :source="[linkPreview.img]" imgClass="min-h-[14rem] rounded-lg" :noPreviewParagraph="false" :noLightbox="true" />
       <div class="absolute text-[0.8rem] description">
         <p v-if="linkPreview.title" class="pl-4 mb-2 font-semibold">
           {{ truncateText(linkPreview.title, 60) }}
@@ -70,22 +70,16 @@ export default defineComponent({
 <style scoped lang="scss">
 .linkPreview {
   margin: 0.5rem;
-  margin-top: 0;
   position: relative;
   .description {
-    bottom: 0.5rem;
+    bottom: 1rem;
     padding: 0.8rem;
-    width: 98%;
+    width: 99%;
     color: aliceblue;
     line-height: 1.1rem;
     border-radius: 0.3rem;
     margin-top: 1rem;
-    background: linear-gradient(
-        234deg,
-        rgba(80, 76, 76, 0.1411764706),
-        rgba(24, 24, 24, 0.5490196078)
-      ),
-      linear-gradient(39deg, rgba(98, 92, 92, 0.432), rgba(32, 31, 31, 0.788));
+    background: linear-gradient(253deg, rgb(33 33 33 / 14%), rgb(24 24 24)), linear-gradient(161deg, rgb(29 18 49 / 43%), rgb(2 2 2 / 79%));
     box-shadow: 1px 1px #262d30;
   }
 }

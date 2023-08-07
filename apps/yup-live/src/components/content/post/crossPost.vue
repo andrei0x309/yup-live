@@ -4,9 +4,9 @@
   </button>
   <o-modal v-model:active="openCastModal" contentClass="modalDefault" @close="sendClose">
     <section class="body-font relative">
-      <div class="container px-5 py-2 mx-auto flex">
+      <div class="container p-1 mx-auto flex">
         <div
-          class="glassCard rounded-lg p-8 flex flex-col md:ml-auto w-full mt-8 relative shadow-md"
+          class="glassCard rounded-lg p-8 flex flex-col md:ml-auto w-full relative mt-0 shadow-md"
         >
           <h2 class="text-lg mb-1 font-medium title-font">{{ platforms?.length > 1 ? 'Create New Post': 'Reply' }}</h2>
           <div v-if="platforms?.length > 1" class="block my-4">
@@ -218,7 +218,7 @@ const fileToBase64 = (file: File) => {
     };
 
     const doSendPost = async () => {
-      await sendPost({
+      const result = await sendPost({
         store,
         postContent,
         postPlatforms,
@@ -226,11 +226,15 @@ const fileToBase64 = (file: File) => {
         isSendPost,
         replyTo: props.replyTo || undefined,
         images,
-        ctx,
         showError,
         stackAlertSuccess,
         stackAlertWarning
       });
+      if (result) {
+        ctx.emit("success");
+        openCastModal.value = false;
+        ctx.emit("update:openModal", false);
+      }
     }
     
 
@@ -265,5 +269,7 @@ const fileToBase64 = (file: File) => {
     border: 4px solid #3333339e;
     border-radius: 0.7rem;
     color: aliceblue;
+    min-height: 25vh;
+    min-width: 35vw;
 }
 </style>

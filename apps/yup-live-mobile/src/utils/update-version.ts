@@ -119,7 +119,7 @@ const checkIsForcedUpdate = async ({
 
 
 export const checkForUpdateAndNotify = async (store: IMainStore, currentVersion: number | undefined) => {
-    await unsetLastCheckForUpdate(store);
+    // await unsetLastCheckForUpdate(store);
     currentVersion = currentVersion ?? (await getVersion()).versionNumber;
     const isForcedUpdate = await checkIsForcedUpdate({ store, currentVersion });
     if (isForcedUpdate) {

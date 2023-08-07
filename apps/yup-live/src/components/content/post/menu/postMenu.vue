@@ -77,7 +77,7 @@ import GoToIcon from 'icons/src/goTo.vue'
 import RetryIcon from 'icons/src/retry.vue'
 import { wait } from 'shared/src/utils/time'
 import { fetchWAuth } from 'shared/src/utils/auth'
-import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from 'shared/src/store/alertStore'
 import FlagIcon from 'icons/src/flag.vue'
 
 import type { PartialAccountInfo } from 'shared/src/types/account'

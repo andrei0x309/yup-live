@@ -109,7 +109,8 @@
                 </div>
               </div>
               <div v-else>
-                <h2 class="text-[1.3rem] mt-8 uppercase text-center">User did not create content</h2>
+                <h2 v-if="!feedLoading" class="text-[1.3rem] mt-8 uppercase text-center">User did not create content</h2>
+                <DangLoader v-else class="mt-28" :unset="true" />
               </div>
             </template>
           </InfScroll>
@@ -205,7 +206,7 @@ import {
   stackAlertError,
   stackAlertSuccess,
   stackAlertWarning,
-} from "@/store/alertStore";
+} from "shared/src/store/alertStore";
 import PostMenu from "@/components/post/menu/postMenu.vue";
 import { IWeb3Profile } from "shared/src/types/web3Profile";
 import { fetchWeb3Profile } from "shared/src/utils/requests/web3Profiles";

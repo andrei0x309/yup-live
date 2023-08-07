@@ -97,11 +97,6 @@ const routes = [
   //   name: 'Web3Auth',
   //   component: () => import('@/pages/web3Auth.vue')
   // },
-  // {
-  //   path: '/lens',
-  //   name: 'Lens',
-  //   component: () => import('@/pages/lens.vue')
-  // },
   {
     path: '/web3-social',
     name: 'Web3Social',

@@ -2,7 +2,7 @@
   <ion-page>
     <HeaderBar :key="mainStore.version" />
 
-    <ion-content class="connect-page ion-text-center" :fullscreen="false">
+    <ion-content v-if="!enterLoading" class="connect-page ion-text-center" :fullscreen="false">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         style="
@@ -44,7 +44,7 @@
           <ion-label>Login</ion-label>
         </ion-segment-button>
         <ion-segment-button value="signup">
-          <ion-label>SignUp</ion-label>
+          <ion-label>SignYup</ion-label>
         </ion-segment-button>
       </ion-segment>
 
@@ -217,13 +217,12 @@ import {
   IonLoading,
   IonAccordionGroup,
   IonToast,
-  onIonViewWillEnter,
   IonModal,
   IonToolbar,
   IonTitle,
   IonHeader,
   IonButtons,
-  IonButton
+  IonButton,
 } from "@ionic/vue";
 import { defineComponent } from "vue";
 import { ref, Ref, onMounted, } from "vue";
@@ -269,6 +268,7 @@ export default defineComponent({
     const bio = ref("");
     const fullName = ref("");
     const loading = ref(false);
+    const enterLoading = ref(true);
     const mainStore = useMainStore();
     const toastState = ref(false);
     const tostMsg = ref("");
@@ -361,7 +361,7 @@ export default defineComponent({
           getConnected(mainStore, params?._id ?? "").catch((err) => {
           console.error("Failed to get connected", err);
         });
-          router.push("/tabs/feeds");
+          router.replace("/tabs/feeds");
         } catch (error) {
           console.error("Failed to set auth data", error);
         }
@@ -394,17 +394,14 @@ export default defineComponent({
       loading.value = false
     };
 
-    onIonViewWillEnter(async () => {
-      loading.value = true;
+    onMounted(async () => {
       const authInfo = await storage.get("authInfo");
       if (authInfo) {
-        await router.replace("/tabs/feeds");
+        // await router.push("/tabs/feeds");
+        // await router.removeRoute("/")
       }
       loading.value = false;
-    });
-
-    onMounted(async () => {
-      loading.value = false;
+      enterLoading.value = false;
     });
 
     return {
@@ -423,7 +420,8 @@ export default defineComponent({
       reviewPassword,
       reviewUsername,
       reviewLogin,
-      mainStore
+      mainStore,
+      enterLoading
     };
   },
 });

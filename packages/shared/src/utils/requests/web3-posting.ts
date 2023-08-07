@@ -47,8 +47,10 @@ export const submitPost = async ({
             if (!status) return null
             const failed = [] as string[]
             const statusPlatforms = Object.entries(status)
-            for (const [value, key] of statusPlatforms) {
-                if (value === 'failed') failed.push(key as string)
+            for (const [key, value] of statusPlatforms) {
+                if (!(value as { ok: boolean })?.ok) {
+                    failed.push(key)
+                }
             }
 
             if (failed.length === statusPlatforms.length) return null
@@ -117,7 +119,6 @@ export const sendPost = async ({
     postPlatforms,
     images,
     store,
-    ctx,
     stackAlertSuccess,
     stackAlertWarning,
     showError
@@ -128,8 +129,7 @@ export const sendPost = async ({
     isSendPost: Ref<boolean>
     postPlatforms: Ref<TPlatform[]>
     images: Ref<Record<string, unknown>[]>
-    store: IMainStore
-        ctx?: { [key: string]: any },
+        store: IMainStore
     stackAlertSuccess?: (message: string) => void,
     stackAlertWarning?: (message: string) => void,
     showError?: (message: string) => void
@@ -167,19 +167,17 @@ export const sendPost = async ({
         sendData,
     });
 
+    isSendPost.value = false;
+
     if (result && !result.error) {
-        ctx && ctx?.emit("success");
-        ctx && ctx?.emit("update:openModal", false);
         stackAlertSuccess && stackAlertSuccess("Post sent!");
     }
     else if (result && result.partial) {
-        ctx && ctx?.emit("success");
-        ctx && ctx?.emit("update:openModal", false);
         const failed = result.platforms.join(", ");
         stackAlertWarning && stackAlertWarning("Post sent to all platforms except " + failed + "One retry will be attempted automatically.");
     } else {
         showError && showError("Post failed to send to all platforms");
+        return false;
     }
-
-    isSendPost.value = false;
+    return true
 };

@@ -61,8 +61,19 @@ const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], e
             if (e.url.includes('youtube.com')) return
             if (linkPreviews.some((el) => el.img === e.url)) return
             if (embeds.some((el) => el.url === e.url)) return
+            if (e.url && (e.title || e.description)) {
+                linkPreviews.push({
+                    url: e.url,
+                    title: e.title ?? '',
+                    description: e.description ?? '',
+                    img: e.images?.[0] ?? e.url,
+                    originalUrl: e.url
+                })
+                return
+            }
             if (isImage(e.url)) {
                 retArr.push({ type: 'image', url: parseIpfs(e.url) })
+                return
             }
         }
         if (e.images) {
@@ -80,7 +91,7 @@ const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], e
             })
         }
     })
-    return retArr
+    return { retArr, linkPreviews }
 }
 
 const parseEmbeds = (content: string) => {
@@ -119,9 +130,9 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
     postBuilder.userName = fullPost?.web3CreatorProfile?.fullname ?? fullPost?.web3Preview?.creator?.fullname ?? 'Anon'
     postBuilder.userAddress = fullPost?.web3CreatorProfile?._id ?? fullPost?.web3Preview?.creator?.address ?? fullPost?.previewData?.creator ?? ''
 
-    if (!postBuilder.userAddress.startsWith('0x')) {
-        postBuilder.userAddress = fullPost?.web3Preview?.creator?.address ?? fullPost?.previewData?.creator ?? ''
-    }
+    // if (!postBuilder.userAddress.startsWith('0x')) {
+    //     postBuilder.userAddress = fullPost?.web3Preview?.creator?.address ?? fullPost?.previewData?.creator ?? ''
+    // }
 
     postBuilder.verified = fullPost?.web3Preview?.meta?.isVerifiedAvatar ?? false
     postBuilder.postId = fullPost?._id?.postid ?? fullPost?.id
@@ -138,7 +149,10 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
             ) ?? []) as linkPreviewTypeEx[]
 
     postBuilder.linkPreviews = (postBuilder.linkPreviews ?? []).filter((e) => !emebeds.embeds.some((el) => el.url === e.url))
-    postBuilder.mediaEntities = parseMedia(fullPost?.web3Preview?.attachments ?? [], postBuilder.linkPreviews ?? [], emebeds.embeds)
+    const parseTheMedia = parseMedia(fullPost?.web3Preview?.attachments ?? [], postBuilder.linkPreviews ?? [], emebeds.embeds)
+
+    postBuilder.mediaEntities = parseTheMedia.retArr
+    postBuilder.linkPreviews = parseTheMedia.linkPreviews
 
     postBuilder.embeds = emebeds.embeds
 

@@ -63,7 +63,7 @@ import {
   IonItem,
   IonList,
   menuController,
-  modalController,
+  modalController
 } from "@ionic/vue";
 import {
   closeCircleOutline,
@@ -121,7 +121,7 @@ export default defineComponent({
     const version = ref(store.version);
 
     const doLogOut = async () => {
-      store.isLoggedIn = false;
+      await menuController.close("menu");
       await storage.clear();
       try {
         await walletDisconnect();
@@ -129,13 +129,21 @@ export default defineComponent({
         console.error(e);
       }
       window?.localStorage?.clear();
-      router.replace("/");
-      menuController.close("menu");
+      try {
+      } catch (e) {
+        console.error(e);
+      }
+      store.isLoggedIn = false;
+      await router.replace("/");
     };
 
     const goTo = (path: string) => {
       router.push(path);
-      menuController.close("menu");
+      menuController.isOpen().then((isOpen) => {
+        if (isOpen) {
+          menuController.close("menu");
+        }
+      });
     };
 
     const openSettings = async () => {

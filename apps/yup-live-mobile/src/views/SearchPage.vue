@@ -223,7 +223,7 @@ import {
   stackAlertError,
   stackAlertSuccess,
   stackAlertWarning,
-} from "@/store/alertStore";
+} from "shared/src/store/alertStore";
 import { useMainStore } from "@/store/main";
 import { IPost } from "shared/src/types/post";
 import AvatarBtn from 'components/functional/avatarBtn.vue'

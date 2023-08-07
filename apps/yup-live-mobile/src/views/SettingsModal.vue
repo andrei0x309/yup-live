@@ -260,19 +260,30 @@
           <div slot="content" class="ion-padding">
             <ion-list v-for="type of PUSH_NOTIFICATION_TYPES">
               <ion-item>
-                <ion-label style="text-transform: capitalize;">{{ type }}</ion-label>
+                <ion-label style="text-transform: capitalize">{{ type }}</ion-label>
                 <ion-toggle
                   :key="type"
                   slot="end"
                   :aria-label="`Enable push for ${type}`"
-                  :disabled="!store.pushNotifications || isPushLoading || disabledPush.includes(type)"
+                  :disabled="
+                    !store.pushNotifications ||
+                    isPushLoading ||
+                    disabledPush.includes(type)
+                  "
                   :class="`${isPushLoading ? 'opacity-50 blink' : ''}`"
                   :checked="store.pushNotifications?.includes(type)"
                   @ion-change="changePush(type)"
                 ></ion-toggle>
               </ion-item>
               <ion-item v-if="disabledPush?.length > 0">
-                <small>Not implemented yet on backend: <span v-for="disabled of disabledPush" v-html="disabled" :key="disabled" />.</small>
+                <small
+                  >Not implemented yet on backend:
+                  <span
+                    v-for="disabled of disabledPush"
+                    v-html="disabled"
+                    :key="disabled"
+                  />.</small
+                >
               </ion-item>
             </ion-list>
           </div>
@@ -483,48 +494,80 @@
           </template>
           <template v-else-if="settingsModalContent === 'bsky-connect'">
             <div class="mx-8 flex flex-col">
-            <p class="text-[1rem]">Conect to BlueSky</p>
-            <small class="my-4">
-            <ul>
-            <li>Credentials are required to connect to bsky</li>
-            <li>Identifier is your email or blueSky handle</li>
-            <li>Password is either an app password(recommended) or your blue sky account password.</li>
-            <li>Login session will be forwarded to YUP API</li>
-            </ul></small>
-      <input v-model="bskyIdent" type="text" name="ident" placeholder="Identifier" class="mb-4 rounded p-2 text-[#e0e0e0]" />
-      <input v-model="bskyPass" type="password" name="pass" placeholder="Password" class="mb-4 rounded p-2 text-[#e0e0e0]" />
-          <button
-            :disabled="isConnectedToBsky"
-            class="bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded text-lg mt-4"
-            @click="() => doBskyConnect()"
-          >
-          <BlueSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
-            <BtnSpinner v-if="isConnectToBsky" class="inline mr-2" />Connect to
-            BlueSky
-          </button>
-        </div>
-    </template>
-    <template v-else-if="settingsModalContent === 'threads-connect'">
+              <p class="text-[1rem]">Conect to BlueSky</p>
+              <small class="my-4">
+                <ul>
+                  <li>Credentials are required to connect to bsky</li>
+                  <li>Identifier is your email or blueSky handle</li>
+                  <li>
+                    Password is either an app password(recommended) or your blue sky
+                    account password.
+                  </li>
+                  <li>Login session will be forwarded to YUP API</li>
+                </ul></small
+              >
+              <input
+                v-model="bskyIdent"
+                type="text"
+                name="ident"
+                placeholder="Identifier"
+                class="mb-4 rounded p-2 text-[#e0e0e0]"
+              />
+              <input
+                v-model="bskyPass"
+                type="password"
+                name="pass"
+                placeholder="Password"
+                class="mb-4 rounded p-2 text-[#e0e0e0]"
+              />
+              <button
+                :disabled="isConnectedToBsky"
+                class="bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded text-lg mt-4"
+                @click="() => doBskyConnect()"
+              >
+                <BlueSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
+                <BtnSpinner v-if="isConnectToBsky" class="inline mr-2" />Connect to
+                BlueSky
+              </button>
+            </div>
+          </template>
+          <template v-else-if="settingsModalContent === 'threads-connect'">
             <div class="mx-8 flex flex-col">
-            <p class="text-[1rem]">Conect to Threads</p>
-            <small class="my-4">
-            <ul>
-            <li>Credentials are required to connect to Threads</li>
-            <li>Threads token will be saved by YUP API not the credentials entered here.</li>
-            </ul></small>
-      <input v-model="threadsUser" type="text" name="ident" placeholder="Username" class="mb-4 rounded p-2 text-[#e0e0e0]" />
-      <input v-model="threadsPass" type="password" name="pass" placeholder="Password" class="mb-4 rounded p-2 text-[#e0e0e0]" />
-          <button
-            :disabled="isConnectToThreads"
-            class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg mt-4"
-            @click="() => doConnectThreads()"
-          >
-          <ThreadsIcon class="w-6 inline mr-2" />
-            <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to
-            Threads
-          </button>
-        </div>
-    </template>
+              <p class="text-[1rem]">Conect to Threads</p>
+              <small class="my-4">
+                <ul>
+                  <li>Credentials are required to connect to Threads</li>
+                  <li>
+                    Threads token will be saved by YUP API not the credentials entered
+                    here.
+                  </li>
+                </ul></small
+              >
+              <input
+                v-model="threadsUser"
+                type="text"
+                name="ident"
+                placeholder="Username"
+                class="mb-4 rounded p-2 text-[#e0e0e0]"
+              />
+              <input
+                v-model="threadsPass"
+                type="password"
+                name="pass"
+                placeholder="Password"
+                class="mb-4 rounded p-2 text-[#e0e0e0]"
+              />
+              <button
+                :disabled="isConnectToThreads"
+                class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg mt-4"
+                @click="() => doConnectThreads()"
+              >
+                <ThreadsIcon class="w-6 inline mr-2" />
+                <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to
+                Threads
+              </button>
+            </div>
+          </template>
         </ion-content>
       </ion-modal>
     </ion-content>
@@ -568,7 +611,7 @@ import {
   stackAlertError,
   stackAlertSuccess,
   stackAlertWarning,
-} from "@/store/alertStore";
+} from "shared/src/store/alertStore";
 // import { formatNumber } from "shared/src/utils/misc";
 import { fetchWAuth } from "shared/src/utils/auth";
 import { useMainStore } from "@/store/main";
@@ -584,13 +627,14 @@ import { uploadAvatar } from "shared/src/utils/requests/accounts";
 import { getTimeRemaining } from "shared/src/utils/time";
 import { web3Libs, TWeb3Libs } from "shared/src/utils/evmTxs";
 import {
-  getLensUserData,
-  authLens,
-  setDispatcher,
-  setAuthLens,
+  // getLensUserData,
+  // authLens,
+  // setDispatcher,
+  // setAuthLens,
   disconnectLens,
-  setDispatcherWithBackend,
-  removeLocalLensAuth,
+  // setDispatcherWithBackend,
+  // removeLocalLensAuth,
+  connectLens,
 } from "shared/src/utils/requests/lens";
 import { CancelablePromise } from "shared/src/utils/misc";
 import {
@@ -604,10 +648,10 @@ import "vue-cup-avatar/dist/style.css";
 import CustomButton from "components/functional/customButton.vue";
 import DangLoader from "components/vote-list/loader.vue";
 import { connectBlueSky, disconnectBlueSky } from "shared/src/utils/requests/bsky";
-import { PUSH_NOTIFICATION_TYPES, setPushSettings  } from "@/utils/expo-push-not-re"
+import { PUSH_NOTIFICATION_TYPES, setPushSettings } from "@/utils/expo-push-not-re";
 import BlueSkyIcon from "icons/src/bsky.vue";
 import ThreadsIcon from "icons/src/threads.vue";
-import { connectToThreads, disconnectThreads } from 'shared/src/utils/requests/threads'
+import { connectToThreads, disconnectThreads } from "shared/src/utils/requests/threads";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -645,7 +689,7 @@ export default defineComponent({
     BlueSkyIcon,
     CustomButton,
     DangLoader,
-    ThreadsIcon
+    ThreadsIcon,
   },
   props: {
     userData: {
@@ -721,8 +765,6 @@ export default defineComponent({
 
     const threadsUser = ref("");
     const threadsPass = ref("");
-
-
 
     const deleteAccount = async () => {
       isDeleteLoading.value = true;
@@ -820,101 +862,6 @@ export default defineComponent({
       }
     };
 
-    const cleanDoConnectLens = (error: string) => {
-      if (error) stackAlertError(error);
-      isConnectToLens.value = false;
-      removeLocalLensAuth();
-      return null;
-    };
-
-    const doConnectLens = async (setTestDispatcher = false) => {
-      if (isConnectToLens.value) {
-        return;
-      }
-      isConnectToLens.value = true;
-      const user = await getLensUserData(store.userData.address);
-      if (!user) {
-        return cleanDoConnectLens(
-          "No lens user found, please set your default lens account for this address"
-        );
-      }
-      const profileId = user.data.defaultProfile.id;
-      const auth = await authLens({
-        web3Libs: Web3Libs.value,
-        stackAlertWarning,
-        stackAlertSuccess,
-      });
-      console.log("auth", auth);
-      if (!auth) {
-        return cleanDoConnectLens("Error while authenticating lens");
-      }
-      const { accessToken: authToken, refreshToken } = auth;
-      if (!setTestDispatcher) {
-        const needToSetDispatcher = !user?.data?.defaultProfile?.dispatcher?.canUseRelay;
-        if (needToSetDispatcher) {
-          settingsModalContent.value = "lens-dispatcher";
-          settingsModal.value = true;
-          const userConfirm = new Promise((resolve) => {
-            resolvePromiseSetDispatcher.value = resolve;
-          });
-          if (!(await userConfirm)) {
-            return cleanDoConnectLens("User refused to set dispatcher");
-          }
-          const sigDisp = await setDispatcher({
-            profileId,
-            authToken,
-            web3Libs: Web3Libs.value,
-            test: false,
-          });
-          if (!sigDisp) {
-            return cleanDoConnectLens("Error while signing dispatcher");
-          }
-          const sigDispBackend = await setDispatcherWithBackend({
-            dispatcher: sigDisp.dispatcher,
-            profileId,
-            apiBase: API_BASE,
-            store,
-            deadline: sigDisp.deadline,
-            signature: sigDisp.signature,
-          });
-          if (!sigDispBackend) {
-            return cleanDoConnectLens("Error while signing dispatcher");
-          }
-        }
-      } else {
-        const sigDisp = await setDispatcher({
-          profileId,
-          authToken,
-          web3Libs: Web3Libs.value,
-          test: true,
-        });
-        if (!sigDisp) {
-          return cleanDoConnectLens("Error while signing dispatcher");
-        }
-        const sigDispBackend = await setDispatcherWithBackend({
-          dispatcher: sigDisp.dispatcher,
-          profileId,
-          apiBase: API_BASE,
-          store,
-          deadline: sigDisp.deadline,
-          signature: sigDisp.signature,
-        });
-        if (!sigDispBackend) {
-          return cleanDoConnectLens("Error while signing dispatcher");
-        }
-      }
-      await setAuthLens({
-        store,
-        apiBase: API_BASE,
-        accessToken: authToken,
-        refreshToken,
-      });
-      isConnectedToLens.value = true;
-      isConnectToLens.value = false;
-      setConnected(store, "lens", true);
-      stackAlertSuccess("Successfully connected to lens");
-    };
-
     const doConnectToFarcaster = async (type: string) => {
       let connectResult = null;
       if (type === "wallet") {
@@ -985,6 +932,25 @@ export default defineComponent({
       }
     };
 
+    const doConnectLens = async (setTestDispatcher: boolean) => {
+      const result = await connectLens({
+        setTestDispatcher,
+        stackAlertWarning,
+        stackAlertSuccess,
+        stackAlertError,
+        store,
+        Web3Libs,
+        isConnectToLens,
+        settingsModalContent,
+        settingsModal,
+        resolvePromiseSetDispatcher,
+        isConnectedToLens,
+      });
+      if (result) {
+        setConnected(store, "lens", true);
+      }
+    };
+
     const doDisconnectLens = async () => {
       const req = await disconnectLens({
         store,
@@ -1019,20 +985,20 @@ export default defineComponent({
 
     const doBskyConnect = async () => {
       const bsky = await connectBlueSky({
-          bskyAppPassword: bskyPass.value,
-          bskyUser: bskyIdent.value,
-          stackAlertError,
-          stackAlertSuccess,
-          store,
-          apiBase: API_BASE,
-          isConnectedToBsky,
-          isConnectToBsky,
-          settingsModal
-      })
-      if(bsky) {
+        bskyAppPassword: bskyPass.value,
+        bskyUser: bskyIdent.value,
+        stackAlertError,
+        stackAlertSuccess,
+        store,
+        apiBase: API_BASE,
+        isConnectedToBsky,
+        isConnectToBsky,
+        settingsModal,
+      });
+      if (bsky) {
         setConnected(store, "bsky", true);
       }
-    }
+    };
 
     const doBskyDisconnect = async () => {
       const bsky = await disconnectBlueSky({
@@ -1041,12 +1007,12 @@ export default defineComponent({
         store,
         apiBase: API_BASE,
         isDisconnectFromBlueSky,
-        isConnectedToBsky
-      })
-      if(bsky) {
+        isConnectedToBsky,
+      });
+      if (bsky) {
         setConnected(store, "bsky", false);
       }
-    }
+    };
 
     const doConnectThreads = async () => {
       const threads = await connectToThreads({
@@ -1058,12 +1024,12 @@ export default defineComponent({
         isConnectToThreads,
         threadsPassword: threadsPass.value,
         threadsUser: threadsUser.value,
-        settingsModal
+        settingsModal,
       });
-      if(threads) {
+      if (threads) {
         setConnected(store, "threads", true);
       }
-    }
+    };
 
     const doDisconnectThreads = async () => {
       const threads = await disconnectThreads({
@@ -1074,10 +1040,10 @@ export default defineComponent({
         isDisconnectFromThreads,
         isConnectedToThreads,
       });
-      if(threads) {
+      if (threads) {
         setConnected(store, "threads", false);
       }
-    }
+    };
 
     const openAlert = (msg: string) => {
       alertMsg.value = msg;
@@ -1098,7 +1064,7 @@ export default defineComponent({
 
       const result = await setPushSettings({
         notificationTypes: [type],
-        store
+        store,
       });
       if (!result) {
         stackAlertError("Error while changing push settings");
@@ -1113,7 +1079,7 @@ export default defineComponent({
 
     onMounted(async () => {
       Web3Libs.value = web3Libs();
-      if(props.defaultAccordionOpen === "socials") {
+      if (props.defaultAccordionOpen === "socials") {
         openAlert("Connect your socials in order to create posts on those platforms.");
       }
       isLoading.value = false;

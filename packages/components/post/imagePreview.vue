@@ -4,7 +4,7 @@
     <div :class="`grid grid-cols-${refSources?.length > 1 ? 2 : 1} gap-4`">
       <div v-for="(source, i) in refSources" :key="source">
         <div v-if="!isError">
-          <button @click="openImg(refSources?.[i])" >
+          <button @click="openImg(source)" >
             <img
               :key="source"
               :class="`imagePreview ${imgClass}`"
@@ -15,7 +15,7 @@
               @load="onLoad"
             />
           </button>
-          <button v-if="!noLightbox" @click="closeImage" class="lightbox" :id="`id${hashId(source)}`">
+          <button v-if="!noLightbox" @click="closeImage(source)" class="lightbox" :id="`id${hashId(source)}`">
               <span :style="`background-image: url('${source}')`">
               </span>
               </button>
@@ -105,6 +105,7 @@ export default defineComponent({
     };
 
     const hashId = (str: string) => {
+      str = str + window.location.pathname;
       let hash = 0;
       for (let i = 0, len = str.length; i < len; i++) {
         let chr = str.charCodeAt(i);
@@ -124,16 +125,17 @@ export default defineComponent({
     };
 
     const openImg = (refSource: string) => {
-      if (props.noLightbox) return;
-      const currentPath = window?.location?.pathname;
-      (window as any).location = `${currentPath}#id${hashId(refSource)}`;
+      const getImg = document.getElementById(`id${hashId(refSource)}`);
+      if (getImg) {
+        getImg.style.display = "flex";
+      }
     }
 
-    const closeImage = () => {
-      const currentPath = window?.location?.pathname;
-
- 
-      (window as any).location = props.postId ? `${currentPath ?? ''}#${props.postId}` : `${currentPath ?? ''}#${hashId(refSources.value?.[0] ?? '')}-img`;
+    const closeImage = (refSource: string) => {
+      const getImg = document.getElementById(`id${hashId(refSource)}`);
+      if (getImg) {
+        getImg.style.display = "none";
+      }
     }
 
     onMounted(() => {
@@ -165,7 +167,7 @@ export default defineComponent({
 .imagePreview {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: fill;
   object-position: center;
   max-height: 20rem;
   border-radius: 0.9rem;
@@ -211,9 +213,6 @@ export default defineComponent({
 }
 
 /* Unhide the lightbox when it's the target */
-.lightbox:target {
-  display: flex;
-}
 
 button:hover img, button:active img{
   filter: brightness(1.11);

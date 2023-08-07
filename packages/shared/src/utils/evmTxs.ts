@@ -1,6 +1,5 @@
 
-import omitDeep from 'omit-deep'
-import { TypedDataDomain } from '@ethersproject/abstract-signer'
+// import { TypedDataDomain } from '@ethersproject/abstract-signer'
 import { config } from './config'
 import type { signTypedData as TsignTypedData } from '@wagmi/core'
 
@@ -21,6 +20,7 @@ let configureChains: Awaited<ReturnType<typeof web3Libs>['wgamiCore']>['configur
 let createConfig: Awaited<ReturnType<typeof web3Libs>['wgamiCore']>['createConfig']
 let wagmiConfig: ReturnType<typeof createConfig>
 let wgamiChains: Awaited<ReturnType<typeof web3Libs>['wgamiChains']>
+let coinBaseConnector: Awaited<ReturnType<typeof web3Libs>['CoinbaseWalletConnector']>['CoinbaseWalletConnector']
 
 
 export const web3Libs = () => {
@@ -29,6 +29,7 @@ export const web3Libs = () => {
         web3ModalHtml: import("@web3modal/html"),
         wgamiCore: import("@wagmi/core"),
         wgamiChains: import("@wagmi/core/chains"),
+        CoinbaseWalletConnector: import("@wagmi/core/connectors/coinbaseWallet"),
     }
 }
 
@@ -69,18 +70,32 @@ export const tryToGetAddressWithoutPrompt = async ({
     const { Web3Modal } = await localWeb3Libs.web3ModalHtml
     const { configureChains, createConfig, getAccount } = await localWeb3Libs.wgamiCore
     const { polygon, mainnet } = await localWeb3Libs.wgamiChains
-
+    const { CoinbaseWalletConnector } = await localWeb3Libs.CoinbaseWalletConnector
     const chains = [polygon, mainnet]
 
-    const { publicClient } = configureChains(chains, [w3mProvider({ projectId: config.PROJECT_ID })])
+    const { publicClient, webSocketPublicClient } = configureChains(chains, [w3mProvider({ projectId: config.PROJECT_ID })])
     const wagmiConfig = createConfig({
         autoConnect: true,
-        connectors: w3mConnectors({ projectId: config.PROJECT_ID, chains }),
-        publicClient
+        connectors: [...w3mConnectors({ projectId: config.PROJECT_ID, chains }),
+        new CoinbaseWalletConnector({
+            options: {
+                appName: 'Yup Live',
+                jsonRpcUrl: config.POLY_RPC,
+            }
+        })
+        ],
+        publicClient,
+        webSocketPublicClient
     })
     const ethereumClient = new EthereumClient(wagmiConfig, chains)
 
-    new Web3Modal({ projectId: config.PROJECT_ID }, ethereumClient)
+    new Web3Modal({
+        projectId: config.PROJECT_ID,
+        enableAccountView: false,
+        enableExplorer: false,
+        themeMode: 'dark',
+        defaultChain: chains[0]
+    }, ethereumClient)
 
     return (await getAccount()).address || null
 }
@@ -93,32 +108,51 @@ export const prepareForTransaction = async ({
         localWeb3Libs: ReturnType<typeof web3Libs>
 }) => {
 
-    const [web3ModalEthereum, web3ModalHtml, wgamiCore, chainsLib] = await Promise.all([
+    const [web3ModalEthereum, web3ModalHtml, wgamiCore, chainsLib, coinbaseWalletLib] = await Promise.all([
         localWeb3Libs.web3ModalEthereum,
         localWeb3Libs.web3ModalHtml,
         localWeb3Libs.wgamiCore,
-        localWeb3Libs.wgamiChains
+        localWeb3Libs.wgamiChains,
+        localWeb3Libs.CoinbaseWalletConnector
     ])
+
 
     EthereumClient = EthereumClient || web3ModalEthereum.EthereumClient
     w3mConnectors = w3mConnectors || web3ModalEthereum.w3mConnectors
+    coinBaseConnector = coinBaseConnector || coinbaseWalletLib.default.CoinbaseWalletConnector
     w3mProvider = w3mProvider || web3ModalEthereum.w3mProvider
     Web3Modal = Web3Modal || web3ModalHtml.Web3Modal
     configureChains = configureChains || wgamiCore.configureChains
+
     createConfig = createConfig || wgamiCore.createConfig
+
     const { polygon, mainnet } = wgamiChains || chainsLib
 
     const chains = [polygon, mainnet]
 
-    const { publicClient } = configureChains(chains, [w3mProvider({ projectId: config.PROJECT_ID })])
+    const { publicClient, webSocketPublicClient } = configureChains(chains, [w3mProvider({ projectId: config.PROJECT_ID })])
     wagmiConfig = wagmiConfig || createConfig({
         autoConnect: true,
-        connectors: w3mConnectors({ projectId: config.PROJECT_ID, chains }),
-        publicClient
+        connectors: [...w3mConnectors({ projectId: config.PROJECT_ID, chains }),
+        new coinBaseConnector({
+            options: {
+                appName: 'Yup Live',
+                jsonRpcUrl: config.POLY_RPC,
+            }
+        })
+        ],
+        publicClient,
+        webSocketPublicClient
     })
     const ethereumClient = new EthereumClient(wagmiConfig, chains)
 
-    const web3Modal = new Web3Modal({ projectId: config.PROJECT_ID }, ethereumClient)
+    const web3Modal = new Web3Modal({
+        projectId: config.PROJECT_ID,
+        enableAccountView: false,
+        enableExplorer: false,
+        themeMode: 'dark',
+        defaultChain: chains[0]
+    }, ethereumClient)
 
     if (web3Modal) {
         let conn = await wgamiCore.getAccount()
@@ -179,26 +213,30 @@ export const signCanonChallenge = async (payload: Record<string, unknown>, signM
     return signature;
 };
 
-export const omit = (object: any, name: string) => {
-    return omitDeep(object, name as any)
-}
-
 export const signedTypeData = async ({
     domain,
     types,
     value,
+    primaryType = 'SetDispatcherWithSig',
     signTypedData
 }: {
-    domain: TypedDataDomain,
+        domain: Record<string, any>,
     types: Record<string, any>,
     value: Record<string, any>,
+        primaryType?: string,
         signTypedData: typeof TsignTypedData
 }
 ) => {
+    try {
+
     return await signTypedData({
-        domain: omit(domain, '__typename'),
-        types: omit(types, '__typename') as any,
-        message: omit(value, '__typename') as any
-    } as any
+        domain,
+        types,
+        message: value,
+        primaryType,
+    }
     )
+    } catch (error) {
+        console.log(error)
+    }
 }

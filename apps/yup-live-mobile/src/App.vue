@@ -63,7 +63,7 @@ import { fetchWAuth } from "shared/src/utils/auth";
 import { wait } from "shared/src/utils/time";
 import { getConnected } from "shared/src/utils/requests/accounts";
 import AlertStack from "components/functional/alertStack.vue";
-import { setAlertStack, useAlertStack } from "@/store/alertStore";
+import { setAlertStack, useAlertStack } from "shared/src/store/alertStore";
 import { getExpoPushTokenAndRegister } from "@/utils/expo-push-not-re";
 import { checkForUpdateAndNotify, getVersion } from "@/utils/update-version";
 import UpdateModal from "@/views/UpdateModal.vue";
@@ -282,7 +282,7 @@ export default defineComponent({
                     if (!r.canGoBack) {
                       lib.App.minimizeApp();
                     } else if (
-                      router.currentRoute.value.path === "/connect" &&
+                      router.currentRoute.value.path === "/" &&
                       router.currentRoute.value.redirectedFrom?.path === "/tabs/feeds" &&
                       store.isLoggedIn
                     ) {

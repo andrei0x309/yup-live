@@ -1,5 +1,22 @@
 export const recentChanges = [
     {
+        date: "7 August - 2023",
+        title: "Changes",
+        changes: [
+            'improved cross post modal',
+            'refactored lens connection',
+            'improved parsing of media',
+            'added coinbase wallet support',
+            'optimized, reduced and updated all dependencies',
+            'updated gradle to latest 8.1.0',
+            'changed icon to match splash screen',
+            'replace latest yup tweets with latest yup lens posts on yup.live home page',
+            'released 1.1.28 version',
+            'refactored alert system',
+            'enabled viewing of bsky profiles since backend now supports it'
+        ],
+    },
+    {
         date: "4 August - 2023",
         title: "Changes",
         changes: [

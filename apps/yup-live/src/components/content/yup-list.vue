@@ -11,11 +11,11 @@
     <div>
       <div v-if="data[0] || data[1]" class="flex justify-center flex-col lg:flex-row">
         <div>
-        <h3>YUP Recent Tweet</h3>
+        <h3>Yup on Lens</h3>
         <Post :post="data[0]" :deps="deps" :postTypesPromises="postTypesPromises" :isHidenInfo="true" />
         </div>
         <div class="ml-4">
-        <h3>YUP Recent Cast</h3>
+        <h3>Yup on Farcaster</h3>
         <Post :post="data[1]" :deps="deps" :postTypesPromises="postTypesPromises" :isHidenInfo="true" />
         </div>
       </div>
@@ -203,7 +203,7 @@ export default defineComponent({
 
     const getPageData = async (pageNum: number) => {
       isDataLoading.value = true;
-      const req1 = fetch(`${API_BASE}/posts/yup/twitter`, {
+      const req1 = fetch(`${API_BASE}/posts/yup/lens`, {
         headers: {
           "Content-Type": "application/json;charset=utf-8",
         },

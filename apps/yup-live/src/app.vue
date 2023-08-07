@@ -5,6 +5,7 @@
     <router-view :key="route.path" />
   </main>
   <FooterCom />
+  
   <AlertStack :useAlertStack="useAlertStack" :setAlertStack="setAlertStack" />
 </template>
 
@@ -17,8 +18,8 @@ import { useMainStore } from "@/store/main";
 import { useCollectionStore, getCollections } from "./store/collections";
 import type { ICollection } from "shared/src/types/store";
 import { useRoute } from "vue-router";
-import AlertStack from "components/functional/alertStack.vue";
 import { setAlertStack, useAlertStack } from "@/store/alertStore";
+import AlertStack from "components/functional/alertStack.vue";
 import { getConnected } from "shared/src/utils/requests/accounts";
 
 // const API_BASE = import.meta.env.VITE_YUP_API_BASE;

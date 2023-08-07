@@ -203,8 +203,6 @@ export default defineComponent({
 
           store.isLoggedIn = true;
         }
-      } else {
-        router.replace("/");
       }
       if (store.isLoggedIn) {
         checkNot();
@@ -240,7 +238,6 @@ export default defineComponent({
 
     const postSent = () => {
       openPostModal.value = false;
-      router.push(`/profile/${store.userData.account}/feed`);
     };
 
     const clearNot = () => {

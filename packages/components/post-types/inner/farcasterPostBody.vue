@@ -18,10 +18,9 @@
           <VerifiedIcon v-if="mainPost.verified" class="verIcon"
         /></span>
       </div>
-      <span v-if="isReply" class="flex mfavIco ml-auto">
+      <span class="flex mfavIco ml-auto">
         <FarcasterIcon class="w-5 h-5" />
       </span>
-      <span v-else class="inline-block ml-auto"><FarcasterIcon class="w-3 h-3" /></span>
     </div>
     <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
       <div :class="`indent ${isReply ? 'reply-line' : ''}`"></div>

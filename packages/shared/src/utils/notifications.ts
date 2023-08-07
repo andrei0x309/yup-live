@@ -55,6 +55,7 @@ export const getNotifications = async (
 }
 
 export const getNotificationsCount = async (address: string) => {
+    try {
     const req = await fetch(`${API_BASE}/web3-notifications/${address}`)
 
     if (req.status === 200) {
@@ -70,6 +71,9 @@ export const getNotificationsCount = async (address: string) => {
         return { notNum, hasNewNot, notDisplay }
     }
     return { notNum: 0, hasNewNot: false, notDisplay: '0' }
+    } catch {
+        return { notNum: 0, hasNewNot: false, notDisplay: '0' }
+    }
 }
 
 export const clearNotifications = async (store: IMainStore) => {

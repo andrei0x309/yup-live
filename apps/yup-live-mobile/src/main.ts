@@ -42,6 +42,6 @@ router.isReady().then(() => {
     app.mount('#app');
     setTimeout(() => {
         SplashScreen.hide();
-    }, 1300)
+    }, 200)
 });
 

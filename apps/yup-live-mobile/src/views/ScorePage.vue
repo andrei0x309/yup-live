@@ -196,7 +196,7 @@ import {
 import HeaderBar from "@/components/template/header-bar.vue";
 import {
   stackAlertWarning,
-} from "@/store/alertStore";
+} from "shared/src/store/alertStore";
 import {
   onMounted,
   defineComponent,
@@ -250,7 +250,8 @@ export default defineComponent({
       yupAccount.value = await getYupData({
           address: search.value,
           apiBase: API_BASE,
-          stackAlertWarning
+          stackAlertWarning,
+          mobile: true
         });
       isDataLoading.value = false;
     };
@@ -261,7 +262,8 @@ export default defineComponent({
         yupAccount.value = await getYupData({
           address: addr.value,
           apiBase: API_BASE,
-          stackAlertWarning
+          stackAlertWarning,
+          mobile: true
         });
       }
       isDataLoading.value = false;

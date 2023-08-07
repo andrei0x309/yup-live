@@ -64,7 +64,7 @@ import HeaderBar from "@/components/template/header-bar.vue";
 import PostMenu from '@/components/post/menu/postMenu.vue'
 import type { IPostDeps } from 'shared/src/types/post'
 import type { IMainStore } from 'shared/src/types/store'
-import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "shared/src/store/alertStore";
 import { useMainStore } from "@/store/main";
 import Post from 'components/post/post.vue'
 import { IPost } from "shared/src/types/post";

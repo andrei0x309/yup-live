@@ -80,9 +80,13 @@ export const web3ModalInstantiate = async (
 }
 
 export const walletDisconnect = async () => {
+    try {
     const [, lib2] = await w3libsP
     const { disconnect } = lib2
     await disconnect()
+    } catch {
+        // do nothing
+    }
 }
 
 const getYupAccount = async ({

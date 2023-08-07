@@ -1,5 +1,5 @@
 // import { createApp } from 'vue'
-
+import { createPinia } from 'pinia'
 import { ViteSSG } from 'vite-ssg'
 import App from '@/app.vue'
 import { routes } from '@/router'
@@ -21,7 +21,6 @@ import {
   Radio,
   Checkbox,
 } from '@oruga-ui/oruga-next'
-import { createPinia } from 'pinia'
 import { Buffer } from 'buffer'
 
 globalThis.Buffer = Buffer

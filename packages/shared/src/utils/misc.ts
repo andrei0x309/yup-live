@@ -136,5 +136,34 @@ export class CancelablePromise {
 export const getPostType = (post: any) => {
   if (post?.web3Preview?.meta?.parents?.length > 0) return 'reply'
   if (post?.web3Preview?.meta?.postType === 'comment') return 'reply'
+  if (post?.web3Preview?.meta?.parentPost?._id) return 'reply'
   return 'single'
 }
+
+// export const decodeJWT = (jwt: string) => {
+//   const base64urlDecode = (str: string) => {
+//     while (str.length % 4 !== 0) {
+//       str += '=';
+//     }
+//     const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+//     return atob(base64);
+//   };
+
+//   const parts = jwt.split('.');
+//   if (parts.length !== 3) {
+//     console.log('Invalid JWT', parts.length);
+//     return null; // Invalid JWT format, return null
+//   }
+
+//   try {
+//     const [header, payload] = parts.map(base64urlDecode);
+//     console.log(header, payload)
+//     return {
+//       header: JSON.parse(header),
+//       payload: JSON.parse(payload),
+//     };
+//   } catch (error) {
+//     console.error(error);
+//     return null; // Error decoding or parsing the JWT, return null
+//   }
+// };

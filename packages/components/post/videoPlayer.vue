@@ -1,11 +1,11 @@
 <template>
-  <video v-if="!isError" class="w-full rounded-t-lg" controls playsinline preload="auto" @canplay="canPlay">
+  <video v-if="!isError" class="w-full rounded-t-lg min-w-[20rem]" controls playsinline preload="auto" @canplay="canPlay">
     <source :key="videoType" :src="videoSource" :type="`video/mp4`" @error="error" />
   </video>
   <div v-else-if="!loading && isError" :class="`noPreview rounded-t-lg ${noPreviewClass}`">
-    <img class="postBkImg" alt="random image" :src="makeRandomPreview(true)" loading="lazy" />
-    <YoutubeIcon class="noImg" />
-    <p class="-mt-7 mb-7 text-lg">Video is not available</p>
+    <img class="postBkImg min-w-[20rem]" alt="random image" :src="makeRandomPreview(true)" loading="lazy" />
+    <YoutubeIcon class="noImgIcon" />
+    <p class="noImg-txt">Video is not available</p>
   </div>
 </template>
 
@@ -77,3 +77,28 @@ export default defineComponent({
   }
 })
 </script>
+
+<style lang="scss" scoped>
+
+.noImgIcon {
+  width: 12rem;
+    height: 12rem;
+    margin: 0 auto;
+    display: block;
+    position: absolute;
+    top: 3rem;
+    left: calc(70% - 14rem);
+}
+
+.noImg-txt {
+  text-align: center;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #fff;
+    position: absolute;
+    top: 15rem;
+    left: calc(50% - 10rem);
+    width: 20rem;
+}
+
+</style>

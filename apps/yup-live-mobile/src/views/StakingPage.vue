@@ -103,7 +103,7 @@ import NoInput from 'components/staking/noInput.vue';
 import CustomButton from "components/functional/customButton.vue";
 import { useMainStore } from "@/store/main";
 import YUPCollectIcon from "icons/src/yup-collect.vue";
-import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
+import { stackAlertSuccess, stackAlertWarning } from "shared/src/store/alertStore";
 import WalletIcon from "icons/src/walletIcon.vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 import { connect, getAprs, onStake, onUnstake, fetchContractsData, onReward  } from 'shared/src/utils/stake'

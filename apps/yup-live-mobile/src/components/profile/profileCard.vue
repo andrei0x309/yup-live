@@ -275,6 +275,8 @@ html[class='dark'] {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      position: absolute;
+      z-index: 9; 
     }
   }
   .name {

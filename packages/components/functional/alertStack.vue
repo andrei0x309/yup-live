@@ -1,11 +1,11 @@
 <template>
-  <div :key="localStack.length" :class="`alert-stack ${mobile ? 'mobile': ''}`">
-    <Alert :mobile="mobile" v-for="alert of localStack" :key="alert.id" :id="alert.id" :type="alert.type" :message="alert.message" :hidden="false" class="" @close="alertClose" />
+  <div :key="alertStore.alertStack.length" :class="`alert-stack ${mobile ? 'mobile': ''}`">
+    <Alert :mobile="mobile" v-for="alert of alertStore.alertStack" :key="alert.id" :id="alert.id" :type="alert.type" :message="alert.message" :hidden="false" class="" @close="alertClose" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref } from 'vue'
+import { defineComponent, onMounted } from 'vue'
 import Alert from './alert.vue'
 import type { AlertInfo } from 'shared/src/types/common'
 
@@ -30,17 +30,15 @@ export default defineComponent({
   },
   setup(props) {
     const alertStore = props.useAlertStack()
-    const localStack = ref(alertStore.alertStack) as unknown as Ref<Array<AlertInfo>>
     props.setAlertStack(alertStore)
 
 
     const alertClose = (id: string) => {
-      alertStore.alertStack = localStack.value.filter((alert) => alert.id === id)
-      localStack.value = alertStore.alertStack
+      alertStore.alertStack = alertStore.alertStack.filter((alert: AlertInfo) => alert.id !== id)
     }
 
     return {
-      localStack,
+      alertStore,
       alertClose
     }
   }

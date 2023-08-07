@@ -75,7 +75,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref, Ref } from "vue";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
-import { stackAlertError } from "@/store/alertStore";
+import { stackAlertError } from "shared/src/store/alertStore";
 import ShareIcon from "icons/src/share.vue";
 import DangLoader from "components/vote-list/loader.vue";
 import Alert from "components/functional/alert.vue";

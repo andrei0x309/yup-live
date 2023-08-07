@@ -20,9 +20,9 @@
       </ion-header>
       <ion-content class="ion-padding">
         <section class="body-font relative">
-      <div class="container cross-post px-5 py-2 mx-auto flex">
+      <div class="container cross-post px-1 py-2 mx-auto flex">
         <div
-          class="glassCard rounded-lg p-8 flex flex-col md:ml-auto w-full mt-8 relative shadow-md"
+          class="glassCard rounded-lg p-4 flex flex-col md:ml-auto w-full mt-4 relative shadow-md"
         >
           <div v-if="platforms?.length > 1" class="block my-4">
             <ion-checkbox
@@ -97,7 +97,7 @@ import { defineComponent, onMounted, PropType, ref, computed, watch } from "vue"
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import Alert from "components/functional/alert.vue";
 import { useMainStore } from "@/store/main";
-import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
+import { stackAlertSuccess, stackAlertWarning } from "shared/src/store/alertStore";
 import ReplyIcon from "icons/src/reply.vue";
 import type { TPlatform, IReplyTo } from "shared/src/types/web3-posting";
 import ImageUploadIcon from "icons/src/imageUpload.vue";
@@ -246,7 +246,7 @@ const fileToBase64 = (file: File) => {
     };
 
     const doSendPost = async () => {
-      await sendPost({
+      const result = await sendPost({
         store,
         postContent,
         postPlatforms,
@@ -254,11 +254,15 @@ const fileToBase64 = (file: File) => {
         isSendPost,
         replyTo: props.replyTo || undefined,
         images,
-        ctx,
         showError,
         stackAlertSuccess,
         stackAlertWarning
       });
+      if (result) {
+        ctx.emit("success");
+        openCastModal.value = false;
+        ctx.emit("update:openModal", false);
+      }
     }
 
     const updatePostPlatforms =  (event: any) => {
@@ -315,6 +319,7 @@ const fileToBase64 = (file: File) => {
     background-color: #a1a5a952;
     border: 4px solid #3333339e;
     border-radius: 0.7rem;
+    min-height: 13rem;
     color: aliceblue;
 }
 

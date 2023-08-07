@@ -36,13 +36,12 @@
     "dayjs": "^1.11.6",
     "ethers": "^5.7.2",
     "icons": "*",
-    "long": "^5.2.3",
-    "omit-deep": "^0.3.0",
     "pinia": "^2.0.23",
     "qrcode.vue": "^3.4.0",
     "shared": "*",
     "text-clipper": "^2.2.0",
     "util": "^0.12.5",
+    "viem": "^1.5.3",
     "vue": "^3.2.41",
     "vue-cup-avatar": "^0.1.9",
     "vue-router": "^4.1.6",
@@ -78,7 +77,6 @@
     "typescript": "^4.8.4",
     "vite": "^4.1.2",
     "vite-plugin-eslint": "^1.8.1",
-    "vite-plugin-node-stdlib-browser": "^0.1.1",
     "vite-plugin-windicss": "^1.8.8",
     "vite-ssg": "^0.21.2",
     "vite-ssg-sitemap": "^0.4.3",
@@ -88,6 +86,7 @@
   "removedDeps": {
     "@web3auth/base": "^1.1.4",
     "@web3auth/openlogin-adapter": "^1.1.4",
-    "@web3auth/web3auth": "^1.1.4"
+    "@web3auth/web3auth": "^1.1.4",
+    "vite-plugin-node-stdlib-browser": "^0.1.1"
   }
 }

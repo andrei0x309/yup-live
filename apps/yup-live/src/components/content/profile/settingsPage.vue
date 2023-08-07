@@ -54,11 +54,16 @@
               >
             </o-checkbox>
             <button
-            v-if="!isTwitterCancel && isLoadingTwitter"
-            class="view-btn" @click="() => {
-              isTwitterCancel = true;
-
-            }">Cancel Twitter Linking</button>
+              v-if="!isTwitterCancel && isLoadingTwitter"
+              class="view-btn"
+              @click="
+                () => {
+                  isTwitterCancel = true;
+                }
+              "
+            >
+              Cancel Twitter Linking
+            </button>
           </template>
           <template v-else>
             <button
@@ -110,8 +115,7 @@
               "
             >
               <BlueSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
-              <BtnSpinner v-if="isConnectToBsky" class="inline mr-2" />Connect to
-              BlueSky
+              <BtnSpinner v-if="isConnectToBsky" class="inline mr-2" />Connect to BlueSky
             </button>
           </template>
           <button
@@ -120,42 +124,40 @@
             class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
             @click="doBskyDisconnect"
           >
-            <BtnSpinner
-              v-if="isDisconnectFromBlueSky"
-              class="inline mr-2"
-            /><BlueSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
+            <BtnSpinner v-if="isDisconnectFromBlueSky" class="inline mr-2" /><BlueSkyIcon
+              class="w-6 inline mr-2 bg-gray-200 rounded-full"
+            />
 
             Disconnect from BlueSky
           </button>
           <template v-if="!isConnectedToThreads">
-              <button
-                :disabled="isConnectToBsky"
-                class="mt-4 bg-gray-600 border-0 py-2 px-6 focus:outline-none hover:bg-gray-900 rounded text-lg"
-                @click="
-                  () => {
-                    settingsModalContent = 'threads-connect';
-                    settingsModal = true;
-                  }
-                "
-              >
-                <ThreadsIcon class="w-6 inline mr-2" />
-                <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to
-                Threads
-              </button>
-            </template>
             <button
-              v-else
-              :disabled="isDisconnectFromThreads"
-              class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
-              @click="doDisconnectThreads"
+              :disabled="isConnectToBsky"
+              class="mt-4 bg-gray-600 border-0 py-2 px-6 focus:outline-none hover:bg-gray-900 rounded text-lg"
+              @click="
+                () => {
+                  settingsModalContent = 'threads-connect';
+                  settingsModal = true;
+                }
+              "
             >
-              <BtnSpinner
-                v-if="isDisconnectFromThreads"
-                class="inline mr-2"
-              /><ThreadsIcon class="w-6 inline mr-2" />
-
-              Disconnect from Threads
+              <ThreadsIcon class="w-6 inline mr-2" />
+              <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to
+              Threads
             </button>
+          </template>
+          <button
+            v-else
+            :disabled="isDisconnectFromThreads"
+            class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+            @click="doDisconnectThreads"
+          >
+            <BtnSpinner v-if="isDisconnectFromThreads" class="inline mr-2" /><ThreadsIcon
+              class="w-6 inline mr-2"
+            />
+
+            Disconnect from Threads
+          </button>
         </div>
       </div>
     </section>
@@ -415,48 +417,77 @@
       </o-tabs>
     </template>
     <template v-else-if="settingsModalContent === 'bsky-connect'">
-            <div class="mx-8 flex flex-col">
-            <p class="text-[1rem]">Conect to BlueSky</p>
-            <small class="my-4">
-            <ul>
+      <div class="mx-8 flex flex-col">
+        <p class="text-[1rem]">Conect to BlueSky</p>
+        <small class="my-4">
+          <ul>
             <li>Credentials are required to connect to bsky</li>
             <li>Identifier is your email or blueSky handle</li>
-            <li>Password is either an app password(recommended) or your blue sky account password.</li>
+            <li>
+              Password is either an app password(recommended) or your blue sky account
+              password.
+            </li>
             <li>Login session will be forwarded to YUP API</li>
-            </ul></small>
-      <input v-model="bskyIdent" type="text" name="ident" placeholder="Identifier" class="mb-4 rounded p-2 text-[#222]" />
-      <input v-model="bskyPass" type="password" name="pass" placeholder="Password" class="mb-4 rounded p-2 text-[#222]" />
-          <button
-            :disabled="isConnectedToBsky"
-            class="bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded text-lg mt-4"
-            @click="() => doBskyConnect()"
-          >
+          </ul></small
+        >
+        <input
+          v-model="bskyIdent"
+          type="text"
+          name="ident"
+          placeholder="Identifier"
+          class="mb-4 rounded p-2 text-[#222]"
+        />
+        <input
+          v-model="bskyPass"
+          type="password"
+          name="pass"
+          placeholder="Password"
+          class="mb-4 rounded p-2 text-[#222]"
+        />
+        <button
+          :disabled="isConnectedToBsky"
+          class="bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded text-lg mt-4"
+          @click="() => doBskyConnect()"
+        >
           <BlueSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
-            <BtnSpinner v-if="isConnectToBsky" class="inline mr-2" />Connect to
-            BlueSky
-          </button>
-        </div>
+          <BtnSpinner v-if="isConnectToBsky" class="inline mr-2" />Connect to BlueSky
+        </button>
+      </div>
     </template>
     <template v-else-if="settingsModalContent === 'threads-connect'">
-            <div class="mx-8 flex flex-col">
-            <p class="text-[1rem]">Conect to Threads</p>
-            <small class="my-4">
-            <ul>
+      <div class="mx-8 flex flex-col">
+        <p class="text-[1rem]">Conect to Threads</p>
+        <small class="my-4">
+          <ul>
             <li>Credentials are required to connect to Threads</li>
-            <li>Threads token will be saved by YUP API not the credentials entered here.</li>
-            </ul></small>
-      <input v-model="threadsUser" type="text" name="ident" placeholder="Username" class="mb-4 rounded p-2 text-[#222]" />
-      <input v-model="threadsPass" type="password" name="pass" placeholder="Password" class="mb-4 rounded p-2 text-[#222]" />
-          <button
-            :disabled="isConnectToThreads"
-            class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg mt-4"
-            @click="() => doConnectThreads()"
-          >
+            <li>
+              Threads token will be saved by YUP API not the credentials entered here.
+            </li>
+          </ul></small
+        >
+        <input
+          v-model="threadsUser"
+          type="text"
+          name="ident"
+          placeholder="Username"
+          class="mb-4 rounded p-2 text-[#222]"
+        />
+        <input
+          v-model="threadsPass"
+          type="password"
+          name="pass"
+          placeholder="Password"
+          class="mb-4 rounded p-2 text-[#222]"
+        />
+        <button
+          :disabled="isConnectToThreads"
+          class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg mt-4"
+          @click="() => doConnectThreads()"
+        >
           <ThreadsIcon class="w-6 inline mr-2" />
-            <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to
-            Threads
-          </button>
-        </div>
+          <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to Threads
+        </button>
+      </div>
     </template>
   </o-modal>
 </template>
@@ -493,26 +524,15 @@ import {
 } from "shared/src/utils/requests/farcaster";
 import { connectBlueSky, disconnectBlueSky } from "shared/src/utils/requests/bsky";
 import { VACropper } from "vue-cup-avatar";
-import {
- TWeb3Libs,
- web3Libs
-} from "shared/src/utils/evmTxs";
-import {
-  getLensUserData,
-  authLens,
-  setDispatcher,
-  setAuthLens,
-  disconnectLens,
-  setDispatcherWithBackend,
-  removeLocalLensAuth,
-} from "shared/src/utils/requests/lens";
+import { TWeb3Libs, web3Libs } from "shared/src/utils/evmTxs";
+import { disconnectLens, connectLens } from "shared/src/utils/requests/lens";
 import { getTimeRemaining } from "shared/src/utils/time";
 import "vue-cup-avatar/dist/style.css";
 import QrcodeVue from "qrcode.vue";
 import WalletIcon from "icons/src/walletIcon.vue";
 import { CancelablePromise } from "shared/src/utils/misc";
 import ThreadsIcon from "icons/src/threads.vue";
-import { connectToThreads, disconnectThreads } from 'shared/src/utils/requests/threads'
+import { connectToThreads, disconnectThreads } from "shared/src/utils/requests/threads";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -529,7 +549,7 @@ export default defineComponent({
     QrcodeVue,
     WalletIcon,
     BlueSkyIcon,
-    ThreadsIcon
+    ThreadsIcon,
   },
   props: {
     userData: {
@@ -572,7 +592,7 @@ export default defineComponent({
     const isAvatarLoading = ref(false);
     const isConnectedToLens = ref(store.userData.connected?.lens ?? false);
     const isConnectToLens = ref(false);
-    const isConnectToBsky = ref(false); 
+    const isConnectToBsky = ref(false);
     const farcasterConnectTabs = ref("warpcast");
 
     const bskyIdent = ref("");
@@ -584,7 +604,7 @@ export default defineComponent({
     };
     const defaultAccountFeed = ref(localStorage.getItem("defaultAccountFeed") || "likes");
 
-    const Web3Libs = ref(null) as unknown as Ref<TWeb3Libs>;
+    const Web3Libs = (ref(null) as unknown) as Ref<TWeb3Libs>;
 
     const isConnectedToThreads = ref(store.userData.connected?.threads ?? false);
     const isConnectToThreads = ref(false);
@@ -614,98 +634,23 @@ export default defineComponent({
       router.push("/");
     };
 
-    const cleanDoConnectLens = (error: string) => {
-      if (error) stackAlertError(error);
-      isConnectToLens.value = false;
-      removeLocalLensAuth();
-      return null;
-    };
-
-    const doConnectLens = async (setTestDispatcher = false) => {
-      if (isConnectToLens.value) {
-        return;
-      }
-      isConnectToLens.value = true;
-      const user = await getLensUserData(store.userData.address);
-      if (!user) {
-        return cleanDoConnectLens(
-          "No lens user found, please set your default lens account for this address"
-        );
-      }
-      const profileId = user.data.defaultProfile.id;
-      const auth = await authLens({
-        web3Libs: Web3Libs.value,
+    const doConnectLens = async (setTestDispatcher: boolean) => {
+      const result = await connectLens({
+        setTestDispatcher,
         stackAlertWarning,
-      });
-      console.log("auth", auth);
-      if (!auth) {
-        return cleanDoConnectLens("Error while authenticating lens");
-      }
-      const { accessToken: authToken, refreshToken } = auth;
-      if (!setTestDispatcher) {
-        const needToSetDispatcher = !user?.data?.defaultProfile?.dispatcher?.canUseRelay;
-        if (needToSetDispatcher) {
-          settingsModalContent.value = "lens-dispatcher";
-          settingsModal.value = true;
-          const userConfirm = new Promise((resolve) => {
-            resolvePromiseSetDispatcher.value = resolve;
-          });
-          if (!(await userConfirm)) {
-            return cleanDoConnectLens("User refused to set dispatcher");
-          }
-          const sigDisp = await setDispatcher({
-            profileId,
-            authToken,
-            web3Libs: Web3Libs.value,
-            test: false,
-          });
-          if (!sigDisp) {
-            return cleanDoConnectLens("Error while signing dispatcher");
-          }
-          const sigDispBackend = await setDispatcherWithBackend({
-            dispatcher: sigDisp.dispatcher,
-            profileId,
-            apiBase: API_BASE,
-            store,
-            deadline: sigDisp.deadline,
-            signature: sigDisp.signature,
-          });
-          if (!sigDispBackend) {
-            return cleanDoConnectLens("Error while signing dispatcher");
-          }
-        }
-      } else {
-        const sigDisp = await setDispatcher({
-          profileId,
-          authToken,
-          web3Libs: Web3Libs.value,
-          test: true,
-        });
-        if (!sigDisp) {
-          return cleanDoConnectLens("Error while signing dispatcher");
-        }
-        const sigDispBackend = await setDispatcherWithBackend({
-          dispatcher: sigDisp.dispatcher,
-          profileId,
-          apiBase: API_BASE,
-          store,
-          deadline: sigDisp.deadline,
-          signature: sigDisp.signature,
-        });
-        if (!sigDispBackend) {
-          return cleanDoConnectLens("Error while signing dispatcher");
-        }
-      }
-      await setAuthLens({
+        stackAlertSuccess,
+        stackAlertError,
         store,
-        apiBase: API_BASE,
-        accessToken: authToken,
-        refreshToken,
+        Web3Libs,
+        isConnectToLens,
+        settingsModalContent,
+        settingsModal,
+        resolvePromiseSetDispatcher,
+        isConnectedToLens,
       });
-      isConnectedToLens.value = true;
-      isConnectToLens.value = false;
-      setConnected(store, "lens", true);
-      stackAlertSuccess("Successfully connected to lens");
+      if (result) {
+        setConnected(store, "lens", true);
+      }
     };
 
     const doConnectToFarcaster = async (type: string) => {
@@ -812,7 +757,12 @@ export default defineComponent({
       }
       isLoadingTwitter.value = true;
       isTwitterCancel.value = false;
-      const connect = await linkTwitter(store, twFollowersAsKeywords.value, true, isTwitterCancel);
+      const connect = await linkTwitter(
+        store,
+        twFollowersAsKeywords.value,
+        true,
+        isTwitterCancel
+      );
       if (connect.error) {
         stackAlertError("Error while connecting to twitter");
       } else {
@@ -865,20 +815,20 @@ export default defineComponent({
 
     const doBskyConnect = async () => {
       const bsky = await connectBlueSky({
-          bskyAppPassword: bskyPass.value,
-          bskyUser: bskyIdent.value,
-          stackAlertError,
-          stackAlertSuccess,
-          store,
-          apiBase: API_BASE,
-          isConnectedToBsky,
-          isConnectToBsky,
-          settingsModal
-      })
-      if(bsky) {
+        bskyAppPassword: bskyPass.value,
+        bskyUser: bskyIdent.value,
+        stackAlertError,
+        stackAlertSuccess,
+        store,
+        apiBase: API_BASE,
+        isConnectedToBsky,
+        isConnectToBsky,
+        settingsModal,
+      });
+      if (bsky) {
         setConnected(store, "bsky", true);
       }
-    }
+    };
 
     const doBskyDisconnect = async () => {
       const bsky = await disconnectBlueSky({
@@ -887,16 +837,16 @@ export default defineComponent({
         store,
         apiBase: API_BASE,
         isDisconnectFromBlueSky,
-        isConnectedToBsky
-      })
-      if(bsky) {
+        isConnectedToBsky,
+      });
+      if (bsky) {
         setConnected(store, "bsky", false);
       }
-    }
+    };
 
     const doUploadAvatar = async (blob: Blob) => {
-      if(isAvatarLoading.value) {
-        return
+      if (isAvatarLoading.value) {
+        return;
       }
       await uploadAvatar({
         blob,
@@ -904,9 +854,9 @@ export default defineComponent({
         avatar,
         isAvatarLoading,
         stackAlertError,
-        stackAlertSuccess
-      })
-    }
+        stackAlertSuccess,
+      });
+    };
 
     const doConnectThreads = async () => {
       const threads = await connectToThreads({
@@ -918,12 +868,12 @@ export default defineComponent({
         isConnectToThreads,
         threadsPassword: threadsPass.value,
         threadsUser: threadsUser.value,
-        settingsModal
+        settingsModal,
       });
-      if(threads) {
+      if (threads) {
         setConnected(store, "threads", true);
       }
-    }
+    };
 
     const doDisconnectThreads = async () => {
       const threads = await disconnectThreads({
@@ -934,10 +884,10 @@ export default defineComponent({
         isDisconnectFromThreads,
         isConnectedToThreads,
       });
-      if(threads) {
+      if (threads) {
         setConnected(store, "threads", false);
       }
-    }
+    };
 
     return {
       isLoading,

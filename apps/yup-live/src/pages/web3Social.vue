@@ -159,7 +159,7 @@ import { useMainStore } from '@/store/main'
 import { useRoute } from 'vue-router'
 import { isValidAddress, formatNumber, truncteEVMAddr } from 'shared/src/utils/misc'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
-import { stackAlertWarning } from '@/store/alertStore'
+import { stackAlertWarning } from 'shared/src/store/alertStore'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
 import type { MirrorAccountResponse, YUPAccountResponse, FarcasterAccountResponse, LensAccountResponse } from 'shared/src/types/web3/web3Socials'
 import RadarIcon from 'icons/src/radar.vue'
@@ -169,10 +169,6 @@ import CustomButton from 'components/functional/customButton.vue'
 import { getLensUserData } from 'shared/src/utils/requests/lens'
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
-
-// const providerOptionsProm = import('shared/src/utils/evm')
-// const web3Mprom = import('web3modal')
-// const ethers = import('ethers')
 
 const refRadarIcon = RadarIcon
 const refGoToIcon = GoToIcon

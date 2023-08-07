@@ -89,7 +89,7 @@ import { useRouter } from 'vue-router'
 // import RetryIcon from 'icons/src/retry.vue'
 import { wait } from 'shared/src/utils/time'
 import { fetchWAuth } from 'shared/src/utils/auth'
-import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from 'shared/src/store/alertStore'
 import type { PartialAccountInfo } from 'shared/src/types/account'
 import type { Vote } from 'shared/src/types/vote'
 import { Share } from '@capacitor/share';

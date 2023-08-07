@@ -9,6 +9,7 @@ import { getFidByToken, getFidByAddress } from 'shared/src/utils/farcaster';
 // import { digestSha256 } from "shared/src/utils/misc";
 import { wait } from '../time'
 import { arrayify } from '@ethersproject/bytes'
+import { walletDisconnect } from '../login-signup'
 
 const buffer = import("buffer/");
 const EIP_191_PREFIX = "eip191:";
@@ -303,6 +304,7 @@ export const connectToFarcaster = async ({
             const address = (await wgamiCore.getAccount()).address ?? ''
             const fidNo = await getFidByAddress(store, address, apiBase);
             if (!fidNo) {
+                walletDisconnect()
                 stackAlertError("This address does not have a Farcaster account use the farcaster address to sign");
                 isConnectToFarcaster.value = false;
                 return false;
@@ -329,6 +331,7 @@ export const connectToFarcaster = async ({
             } as any)
             // await signer._signTypedData(EIP_712_FARCASTER_DOMAIN, { MessageData: EIP_712_FARCASTER_MESSAGE_DATA }, { hash })
             if (!signature) {
+                walletDisconnect()
                 stackAlertError("User rejected signature")
                 isConnectToFarcaster.value = false;
                 return false
@@ -361,6 +364,7 @@ export const connectToFarcaster = async ({
     } catch (err) {
         console.error(err);
         isConnectToFarcaster.value = false;
+        walletDisconnect()
         stackAlertError(
             "Error while connecting to farcaster: User rejected connect request"
         );

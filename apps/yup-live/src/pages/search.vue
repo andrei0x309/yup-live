@@ -255,7 +255,7 @@ import Post from "components/post/post.vue";
 import PostInfo from "@/components/content/post/postInfo.vue";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 import LineLoader from "components/functional/lineLoader.vue";
-import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from 'shared/src/store/alertStore'
 import { useMainStore, openConnectModal } from '@/store/main'
 import { IPostDeps } from 'shared/src/types/post'
 import type { IPost } from 'shared/src/types/post'

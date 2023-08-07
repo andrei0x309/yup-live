@@ -4,16 +4,13 @@ const config: CapacitorConfig = {
   appId: 'gf.info.yup',
   appName: 'Yup Live Mobile',
   webDir: 'dist',
-  android: {
-    overrideUserAgent: 'Mozilla/5.0 (Linux; Android 12; SM-A205U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.5304.141 Mobile Safari/537.36'
-  },
   server: {
     androidScheme: 'https',
-    hostname: 'yup.info.gf'
+    hostname: 'yup.live'
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 15000,
+      launchShowDuration: 8000,
       launchAutoHide: false,
       backgroundColor: "#222",
       androidSplashResourceName: "splash",
@@ -29,11 +26,6 @@ const config: CapacitorConfig = {
     },
     FirebaseMessaging: {
       presentationOptions: ["badge", "sound", "alert"],
-    },
-    LocalNotifications: {
-      "smallIcon": "ic_stat_icon_config_sample",
-      "iconColor": "#488AFF",
-      "sound": "beep.wav"
     }
   },
 };
