@@ -1,5 +1,13 @@
 export const recentChanges = [
     {
+        date: "9 August - 2023",
+        title: "Changes",
+        changes: [
+            'improved push token handling',
+            'added edge cases to handle youtube eembeds'
+        ],
+    },
+    {
         date: "7 August - 2023",
         title: "Changes",
         changes: [

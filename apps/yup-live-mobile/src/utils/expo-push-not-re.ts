@@ -3,29 +3,34 @@ import { storage } from './storage';
 import { fetchWAuth } from 'shared/src/utils/auth';
 import { useRouter } from 'vue-router';
 import { isAndroid } from './capacitor';
+import { Device } from '@capacitor/device';
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export const PUSH_NOTIFICATION_TYPES = ['follow', 'reward', 'vote', 'comment', 'mention', 'repost']
 
-function generateUUID () {
-    var d = new Date().getTime();
-    var d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now() * 1000)) || 0;
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = Math.random() * 16;
-        if (d > 0) {
-            r = (d + r) % 16 | 0;
-            d = Math.floor(d / 16);
-        } else {
-            r = (d2 + r) % 16 | 0;
-            d2 = Math.floor(d2 / 16);
-        }
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
-    });
+async function generateUUIDFromString (inputString: string) {
+    const textEncoder = new TextEncoder();
+    const data = textEncoder.encode('6ba7b810-9dad-11d1-80b4-00c04fd430c8' + inputString);
+    const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+
+    const uuid = [
+        hashHex.substr(0, 8),
+        hashHex.substr(8, 4),
+        '5' + hashHex.substr(13, 3),
+        '8' + hashHex.substr(16, 3),
+        hashHex.substr(19, 12)
+    ].join('-');
+
+    return uuid;
 }
 
 const genInstallationId = async () => {
-    const id = generateUUID().toLowerCase()
+    const id = await generateUUIDFromString((await Device.getId()).identifier)
     console.log(id, 'id')
     await storage.set('installationId', id)
     return id
@@ -65,6 +70,41 @@ const sendPushToken = async ({ store,
     })
 
     return req.ok
+}
+
+const getPushTokens = async ({ store }: { store: IMainStore }) => {
+    const endPoint = `${API_BASE}/push-token`
+    const req = await fetchWAuth(store, endPoint, {
+        method: 'GET',
+    })
+
+    if (!req.ok) {
+        return false
+    }
+
+    const data = await req.json()
+    return data
+}
+
+const clearPushTokens = async ({ store }: { store: IMainStore }) => {
+    const endPoint = `${API_BASE}/push-token`
+    const req = await fetchWAuth(store, endPoint, {
+        method: 'DELETE',
+    })
+
+    return req.ok
+}
+
+export const checkClearPushTokens = async ({ store }: { store: IMainStore }) => {
+    try {
+        const tokens = await getPushTokens({ store })
+        if (tokens && tokens.length > 2) {
+            await clearPushTokens({ store })
+        }
+    }
+    catch (e) {
+        console.error(e)
+    }
 }
 
 export const getPushSettings = async ({ store }: { store: IMainStore }) => {
@@ -149,9 +189,7 @@ export const getExpoPushTokenAndRegister = async ({ store }: { store: IMainStore
     }
     );
 
-
-
-    console.log(devicePushToken, 'devicePushToken')
+        console.info(devicePushToken, 'devicePushToken')
     const body = {
         type,
         deviceId,
@@ -193,6 +231,7 @@ export const getExpoPushTokenAndRegister = async ({ store }: { store: IMainStore
     const data = await response.json();
     const { expoPushToken } = data.data;
         console.info('Expo push token: ' + expoPushToken);
+        await checkClearPushTokens({ store })
     sendPushToken({ store, pushToken: expoPushToken, deviceId })
     return data
     } catch {

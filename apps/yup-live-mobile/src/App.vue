@@ -299,7 +299,7 @@ export default defineComponent({
         });
 
         if (authInfoVal) {
-          setTimeout(() => {
+          setTimeout(async () => {
             getExpoPushTokenAndRegister({ store });
           }, 2000);
           store.userData = JSON.parse(authInfoVal);

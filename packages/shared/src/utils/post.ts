@@ -96,7 +96,7 @@ const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], e
 
 const parseEmbeds = (content: string) => {
     const embeds = [] as Embed[]
-    const regexYoutube = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/g
+    const regexYoutube = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+?)( |\n|\t|$)/g
     const regexSpotify = /(?:https?:\/\/)?(?:www\.)?(?:open\.spotify\.com)\/(?:track)\/(.+)/g
 
     const youtubeMatch = content.match(regexYoutube)
@@ -155,6 +155,8 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
     postBuilder.linkPreviews = parseTheMedia.linkPreviews
 
     postBuilder.embeds = emebeds.embeds
+
+    console.log(postBuilder.embeds)
 
     postBuilder.body = parseBody(emebeds.content ?? 'N/A', postBuilder.linkPreviews ?? [])
     postBuilder.createdAt = timeAgo(fullPost?.web3Preview?.createdAt ?? fullPost?.createdAt ?? new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString())

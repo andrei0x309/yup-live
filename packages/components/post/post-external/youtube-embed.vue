@@ -30,10 +30,14 @@ export default defineComponent({
     const loading = ref(true)
     const videoId = ref('')
     onMounted(() => {
-      if(!props.source) return
+      console.log(props.source, 'id')
+      if(!props.source) return loading.value = false
       if(props.source.includes('shorts/')) {
         videoId.value = props.source.split('shorts/')[1].split('?')[0].trim()
-        return
+        return loading.value = false
+      } else if (props.source.includes('youtu.be')) {
+        videoId.value = props.source.split('youtu.be/')[1].split('?')[0].trim()
+        return loading.value = false
       }
 
       const ilegalChars = ['&', '?', 'v=', '"', "'", ' ']
@@ -45,6 +49,9 @@ export default defineComponent({
       ilegalChars.forEach(char => {
         videoId.value = videoId.value.replace(char, '')
       })
+      console.log(videoId.value, 'id')
+      return loading.value = false
+      
     })
 
     return {
