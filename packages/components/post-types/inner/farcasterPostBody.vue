@@ -29,6 +29,9 @@
         <template v-for="media of mainPost.mediaEntities?.filter(e => e.type === 'video')" :key="media.url">
           <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
         </template>
+
+        <LinkPreview v-for="(preview, index) in mainPost.linkPreviews" :linkPreview="preview" :key="preview.url" :noImage="index > 0 || mainPost.mediaEntities?.length > 0" />
+
         <ImagePreview v-if="mainPost.mediaEntities?.filter(media => media.type === 'image')?.length" :source="mainPost.mediaEntities?.filter(media => media.type === 'image')?.map(e => e.url) ?? []" class="py-4 rounded-lg" :postId="mainPost.postId" />
       
           <ExternalEmbeds v-if="mainPost?.embeds?.length" :embeds="mainPost.embeds" />
@@ -45,7 +48,7 @@
     <div class="flex">
     <!-- <router-link v-if="(numComments ?? 0) > 1" :to="`/post/${mainPost?.postId}`">
     <ComentsIcon class="inline-block w-5 mr-2" />{{ numComments - 1 }}</router-link> -->
-    <component v-if="replyComp" :platforms="['farcaster']" :is="replyComp" :showReplyButton="true" :replyTo="{ farcaster: { fid:mainPost.farcaster?.fid, hash: mainPost.farcaster?.hash }}"  />
+    <component v-if="replyComp" :platforms="['farcaster']" :is="replyComp" :showReplyButton="true" :replyTo="{ farcaster: { fid: String(mainPost.farcaster?.fid), hash: mainPost.farcaster?.hash }}"  />
   </div>
   </div>
 </template>
@@ -64,6 +67,7 @@ import ExternalEmbeds from "components/post/post-external/external-embeds.vue"
 // import { getFarcasterYupThread } from "shared/src/utils/requests/farcaster";
 // import { ref } from "vue";
 // import { getComments } from 'shared/src/utils/requests/comments'
+import LinkPreview from 'components/post/linkPreview.vue'
 import type { IPostDeps } from "shared/src/types/post";
 import { useRouter } from 'vue-router'
 
@@ -79,7 +83,8 @@ export default defineComponent({
     VerifiedIcon,
     ClockIcon,
     ComentsIcon,
-    ExternalEmbeds
+    ExternalEmbeds,
+    LinkPreview
   },
   props: {
     mainPost: {

@@ -241,51 +241,43 @@ export default defineComponent({
           postTypeClass.value = type;
           switch (type) {
             case "tweet":
-              processedPost.tweetInfo = props.post.tweetInfo?.tweet
-                ? props.post.tweetInfo?.tweet
-                : props.post.tweetInfo;
+              processedPost.tweetInfo = props.post?.tweetInfo?.tweet
+                ? props.post?.tweetInfo?.tweet
+                : props.post?.tweetInfo;
               postTypeCom.value = (await props.postTypesPromises.preLoadTweet).default;
               break;
             case "farcaster":
               processedPost.web3Preview = props.post.web3Preview;
-              processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
               postTypeCom.value = (
                 await props.postTypesPromises.preloadFarcaster
               ).default;
               break;
             case "lens":
               processedPost.web3Preview = props.post.web3Preview;
-              processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
               postTypeCom.value = (await props.postTypesPromises.preloadLens).default;
               break;
             case "bsky":
               processedPost.web3Preview = props.post.web3Preview;
-              processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
               postTypeCom.value = (await props.postTypesPromises.preloadBsky).default;
               break;
             case "threads":
               processedPost.web3Preview = props.post.web3Preview;
-              processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
               postTypeCom.value = (await props.postTypesPromises.preloadThreads).default;
               break;
             case "erc721":
               processedPost.web3Preview = props.post.web3Preview;
-              processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
               postTypeCom.value = (await props.postTypesPromises.preloadErc721).default;
               break;
             case "poap":
               processedPost.web3Preview = props.post.web3Preview;
-              processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
               postTypeCom.value = (await props.postTypesPromises.preloadPoap).default;
               break;
             case "mirror":
               processedPost.web3Preview = props.post.web3Preview;
-              processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
               postTypeCom.value = (await props.postTypesPromises.preloadMirror).default;
               break;
             case "snapshot":
               processedPost.web3Preview = props.post.web3Preview;
-              processedPost.web3CreatorProfile = props.post.web3CreatorProfile;
               postTypeCom.value = (await props.postTypesPromises.preloadSnapshot).default;
               break;
             case "youtubeVideo":
@@ -325,6 +317,7 @@ export default defineComponent({
               replyComp.value = module.default;
             });
           }
+          processedPost.web3CreatorProfile = props.post?.web3CreatorProfile ?? null;
           postTypeLoading.value = false;
         }
       );

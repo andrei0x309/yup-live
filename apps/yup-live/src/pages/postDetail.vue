@@ -29,7 +29,7 @@
           <h2 class="mb-4">Post Creator</h2>
           <Web3ProfileCard
             class="mx-auto"
-            :web3Profile="(processedPost.web3CreatorProfile as IWeb3Profile) ?? null"
+            :web3Profile="(processedPost?.web3CreatorProfile as IWeb3Profile) ?? null"
             :overWriteEVM="
               processedPost.tag === 'farcaster' && processedPost?.previewData?.creator
                 ? processedPost?.previewData?.creator

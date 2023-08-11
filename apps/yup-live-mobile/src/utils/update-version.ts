@@ -127,7 +127,7 @@ export const checkForUpdateAndNotify = async (store: IMainStore, currentVersion:
     }
     const lastCheck = await getLastCheckForUpdate(store);
     const now = Date.now();
-    if (now - lastCheck > 1000 * 60 * 60 * 24 * 1.5) {
+    if (now - lastCheck > 1000 * 60 * 60 * 6) {
         const res = await checkForUpdate({
             currentVersion
         });

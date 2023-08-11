@@ -156,8 +156,6 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
 
     postBuilder.embeds = emebeds.embeds
 
-    console.log(postBuilder.embeds)
-
     postBuilder.body = parseBody(emebeds.content ?? 'N/A', postBuilder.linkPreviews ?? [])
     postBuilder.createdAt = timeAgo(fullPost?.web3Preview?.createdAt ?? fullPost?.createdAt ?? new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString())
     postBuilder.lens = {
@@ -170,7 +168,7 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
         parentHash: ''
     }
     postBuilder.farcaster.hash = fullPost?.web3Preview?.meta?.hash ?? ''
-    postBuilder.farcaster.fid = fullPost?.web3Preview?.meta?.fid ?? fullPost.web3CreatorProfile?.farcaster?.fid ?? 0
+    postBuilder.farcaster.fid = fullPost?.web3Preview?.meta?.fid ?? fullPost?.web3CreatorProfile?.farcaster?.fid ?? 0
     postBuilder.farcaster.parentHash = fullPost?.web3Preview?.meta?.parentHash ?? ''
     postBuilder.bsky = {
         uri: ''
