@@ -3,14 +3,12 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import * as d3 from 'd3'
 
-import { onMounted, defineComponent, ref, Ref } from 'vue'
+import { onMounted, ref, Ref } from 'vue'
 
-export default defineComponent({
-  name: 'ChartD3',
-  props: {
+   const props = defineProps({
     gradient: {
       required: true,
       type: Array
@@ -45,8 +43,8 @@ export default defineComponent({
       required: true,
       type: Number
     }
-  },
-  setup(props) {
+  })
+ 
     const graphRef = ref(null) as unknown as Ref<HTMLElement>
 
     const mountGraph = async () => {
@@ -152,7 +150,7 @@ export default defineComponent({
             x.domain([4, 8])
           } else {
             x.domain([x.invert((extent as unknown as number[])[0]), x.invert((extent as unknown as number[])[1])])
-            area.select('.brush').call((brush as unknown as { move: () => void }).move, null)
+            area.select('.brush').call((brush as unknown as { move: () => void }).move)
           }
 
           xAxis.transition().duration(1000).call(d3.axisBottom(x))
@@ -205,9 +203,4 @@ export default defineComponent({
       mountGraph()
     })
 
-    return {
-      graphRef
-    }
-  }
-})
 </script>

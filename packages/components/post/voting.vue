@@ -69,10 +69,8 @@ import { onMounted, defineComponent, ref, Ref, PropType } from "vue";
 import ThumbsUp from "icons/src/thumbsUp.vue";
 import ThumbsDown from "icons/src/thumbsDown.vue";
 import { formatNumber } from "shared/src/utils/misc";
-// import { useMainStore, openConnectModal } from '@/store/main'
 import { fetchWAuth } from "shared/src/utils/auth";
 import type { Vote } from "shared/src/types/vote";
-// import { stackAlertError, stackAlertSuccess, stackAlertWarning } from 'shared/src/store/alertStore'
 import type { IVotingDeps } from "shared/src/types/vote";
 import LikesIcon from "icons/src/likes.vue";
 

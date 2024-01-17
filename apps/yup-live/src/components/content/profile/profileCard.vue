@@ -38,7 +38,7 @@
     <template v-else>
       <FollowUnfollwBtn 
     :evmAddr="userData.evmAddress"
-    class="mt-10 view-btn text-[0.85rem] w-22 p-1 text-center mx-auto"
+    class="mt-10 view-btn text-[0.85rem] w-20 p-1 text-center mx-auto"
     :iconClass="'inline-block w-3 mr-0'"
     :deps="{
             apiBase: API_BASE,
@@ -83,7 +83,7 @@ import type { NameValue } from 'shared/src/types/account'
 import FollowersIcon from 'icons/src/followers.vue'
 import FollowUnfollwBtn from "components/profile/followUnfollowBtn.vue"
 import { useMainStore, openConnectModal } from '@/store/main'
-import { stackAlertWarning, stackAlertSuccess } from 'shared/src/store/alertStore'
+import { stackAlertWarning, stackAlertSuccess } from '@/store/alertStore'
 import { OTooltip } from '@oruga-ui/oruga-next'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;

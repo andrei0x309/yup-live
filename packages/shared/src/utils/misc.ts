@@ -140,6 +140,11 @@ export const getPostType = (post: any) => {
   return 'single'
 }
 
+export const validateEmail = (email: string) => {
+  const re = /\S+@\S+\.\S+/;
+  return re.test(email);
+}
+
 // export const decodeJWT = (jwt: string) => {
 //   const base64urlDecode = (str: string) => {
 //     while (str.length % 4 !== 0) {

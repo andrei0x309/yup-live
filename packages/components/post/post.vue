@@ -4,7 +4,7 @@
     :id="`p-${processedPost.id}`"
   >
     <div
-      class="flex flex-col max-w-2xl mx-auto postCard w-full min-w-[20rem]"
+      class="flex flex-col max-w-2xl mx-auto postCard w-full md:min-w-[21rem] lg:min-w-[36rem] xl:min-w-[36rem]`"
       :style="full && post.tag === 'mirror' ? 'max-width: 56rem;' : ''"
     >
       <component
@@ -47,7 +47,7 @@
               /></router-link>
               <InfoIcon
                 v-if="!isHidenInfo"
-                class="hidden w-5 lg:flex ml-2 mr-4 cursor-pointer"
+                class="hidden !w-5 lg:flex ml-2 mr-4 cursor-pointer"
                 @click="updatePostInfo"
               />
             </div>
@@ -78,7 +78,7 @@
       <component
         v-if="full && commentsEnabled && comments?.length"
         :is="commentsComp"
-        :key="`${processedPost.id}-comments-${comments.length}`"
+        :key="`${processedPost?.id || ''}-comments-${comments?.length || ''}`"
         :comments="comments"
         :deps="deps"
         :postTypesPromises="postTypesPromises"
@@ -303,19 +303,21 @@ export default defineComponent({
                 });
             });
           }
-
-          if (
-            commentsEnabled.value &&
-            props.crossPost &&
-            ["bsky", "lens", "farcaster"].includes(type) &&
-            store.userData.connected?.[type as "bsky" | "lens" | "farcaster" | "threads"]
-          ) {
+          if (commentsEnabled.value) {
             commentsComp.value = (
               await import("components/post-types/inner/comments.vue")
             ).default;
-            props.crossPost()?.then((module) => {
-              replyComp.value = module.default;
-            });
+            if (
+              props.crossPost &&
+              ["bsky", "lens", "farcaster"].includes(type) &&
+              store.userData.connected?.[
+                type as "bsky" | "lens" | "farcaster" | "threads"
+              ]
+            ) {
+              props.crossPost()?.then((module) => {
+                replyComp.value = module.default;
+              });
+            }
           }
           processedPost.web3CreatorProfile = props.post?.web3CreatorProfile ?? null;
           postTypeLoading.value = false;
@@ -324,7 +326,16 @@ export default defineComponent({
       processPost(props.post, processedPost, cloneWeights, postShareInfo);
     });
 
-    const tags = ["mirror", "poap", "farcaster", "lens", "snapshot", "erc721", "bsky", "threads"];
+    const tags = [
+      "mirror",
+      "poap",
+      "farcaster",
+      "lens",
+      "snapshot",
+      "erc721",
+      "bsky",
+      "threads",
+    ];
 
     const checkPostType = async (post: { url: string; tag: string }) => {
       if (post.tag === "twitter") return "tweet";
@@ -384,21 +395,21 @@ export default defineComponent({
 .mfavIco {
   background: radial-gradient(
     ellipse at bottom,
-    rgb(243 226 158 / 42%) 0%,
-    rgb(199 158 243 / 45%) 100%
+    var(--ion-color-light-shade) 0%,
+    rgb(199 158 243 / 38%) 100%
   );
-  box-shadow: 0px 0px 0px 2px rgb(115 118 118 / 15%);
+  box-shadow: 0px 0px 0px 2px rgba(115, 118, 118, 0.15);
   border-radius: 50%;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
   justify-content: center;
   align-items: center;
   position: relative;
   top: -0.3rem;
+  opacity: 0.8;
   img {
     filter: brightness(0) invert(1);
   }
-  opacity: 0.8;
 }
 
 .mtime {
@@ -427,7 +438,6 @@ export default defineComponent({
 
 .pPost.mirror div.postCard {
   word-break: break-word;
-  overflow-x: hidden;
 }
 
 div.w3TweetTypeBody {
@@ -446,9 +456,9 @@ div.w3TweetTypeBody {
   }
 
   .indent {
-    width: 1rem;
-    margin-left: 1.5rem;
-    margin-right: 1rem;
+    width: 0.4rem;
+    margin-left: 1.1rem;
+    margin-right: 0.8rem;
   }
 }
 </style>

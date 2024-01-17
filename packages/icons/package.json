@@ -10,8 +10,6 @@
   "files": [
     "dist/**"
   ],
-  "scripts": {
-  },
   "jest": {
     "preset": "jest-presets/jest/node"
   }

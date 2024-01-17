@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
+  <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto">
     <section class="bg-color emission-section mt-4">
       <h2 class="text-2xl lg:text-3xl font-bold text-center mb-4 md:mb-6 p-12">Yup Phase I Emissions:</h2>
       <ChartD3
@@ -43,8 +43,8 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, reactive, computed, onUnmounted, Ref } from 'vue'
-import { useHead, HeadObject } from '@vueuse/head'
+import { onMounted, defineComponent, ref, reactive, computed, onUnmounted } from 'vue'
+import { useHead } from 'unhead'
 import ChartD3 from '@/components/content/chart-d3.vue'
 import { useMainStore } from '@/store/main'
 import { useRoute } from 'vue-router'
@@ -73,8 +73,7 @@ export default defineComponent({
     })
 
     useHead({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description),
+      title: computed(() => siteData.title).value,
       meta: [
         {
           name: 'og:image',
@@ -82,7 +81,7 @@ export default defineComponent({
         },
         {
           name: 'description',
-          content: computed(() => siteData.description)
+          content: computed(() => siteData.description).value
         },
         {
           name: 'og:type',
@@ -90,15 +89,15 @@ export default defineComponent({
         },
         {
           name: 'og:title',
-          content: computed(() => siteData.title)
+          content: computed(() => siteData.title).value
         },
         {
           name: 'og:description',
-          content: computed(() => siteData.description)
+          content: computed(() => siteData.description).value
         },
         {
           name: 'og:url',
-          content: computed(() => route.fullPath)
+          content: computed(() => route.fullPath).value
         },
         {
           name: 'twitter:card',
@@ -106,18 +105,18 @@ export default defineComponent({
         },
         {
           name: 'twitter:url',
-          content: computed(() => route.fullPath)
+          content: computed(() => route.fullPath).value
         },
         {
           name: 'twitter:title',
-          content: computed(() => siteData.title)
+          content: computed(() => siteData.title).value
         },
         {
           name: 'twitter:description',
-          content: computed(() => siteData.description)
+          content: computed(() => siteData.description).value
         }
       ]
-    } as unknown as Ref<HeadObject>)
+    })
 
     const toggleBlob = () => {
       blobAnim.value = blobAnim.value ? false : true

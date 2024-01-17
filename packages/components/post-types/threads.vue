@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div v-if="postType === 'single' || full" ref="postWrap" class="p-4">
+    <div v-if="postType === 'single' || full" ref="postWrap" class="p-2">
       <ThreadsPostBody :replyComp="replyComp" :mainPost="mainPost" :postId="post.id" />
     </div>
-    <div v-else ref="postWrap" class="p-4">
+    <div v-else ref="postWrap" class="p-2">
       <ThreadsPostBody
         v-if="!isComment"
         :replyComp="replyComp"

@@ -1,9 +1,9 @@
 <template>
   <div>
-  <div v-if="postType === 'single' || full" ref="postWrap" class="p-4">
+  <div v-if="postType === 'single' || full" ref="postWrap" class="p-2">
     <FarcasterPostBody :replyComp="replyComp" :mainPost="mainPost" :postId="post.id"/>
   </div>
-  <div v-else ref="postWrap" class="p-4">
+  <div v-else ref="postWrap" class="p-2">
     <FarcasterPostBody v-if="!isComment" :replyComp="replyComp" :mainPost="mainPost" :postId="post.id" :isReply="true" :fetchComments="true" />
     <FarcasterPostBody :replyComp="replyComp" :mainPost="replyPost" :postId="post.id" />
   </div>
@@ -66,7 +66,7 @@ export default defineComponent({
       lensId: '',
       linkPreviews: [] as linkPreviewTypeEx[],
       embeds: [] as Embed[],
-      faracster: {
+      farcaster: {
         fid: 0,
         hash: '',
         parentHash: '',

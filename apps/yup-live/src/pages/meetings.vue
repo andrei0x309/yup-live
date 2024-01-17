@@ -107,7 +107,7 @@ import ShareIcon from "icons/src/share.vue";
 import RadarIcon from "icons/src/radar.vue"
 import DangLoader from "components/vote-list/loader.vue"
 import Alert from "components/functional/alert.vue"
-import { useHead, HeadObject } from '@vueuse/head'
+import { useHead } from 'unhead'
 
 export default defineComponent({
   name: "MeetingRecordings",
@@ -145,7 +145,6 @@ export default defineComponent({
 
     useHead({
       title: siteData.title,
-      description: siteData.description,
       meta: [
         {
           name: 'og:image',
@@ -185,10 +184,10 @@ export default defineComponent({
         },
         {
           name: 'twitter:description',
-          content: () => siteData.description
+          content: siteData.description
         }
       ]
-    } as unknown as Ref<HeadObject>)
+    })
 
     const getPastMeetings = async (page: number) => {
       const res = await fetch(`${endpointBase}/get-meetings`, {

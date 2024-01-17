@@ -41,7 +41,7 @@
                       id="fullnameField"
                       v-model="fullName"
                       type="text"
-                      class="text-white w-full rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                      class="bg-gray-950 text-white w-full rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                     />
                   </div>
                   <div class="relative mb-4">
@@ -53,7 +53,7 @@
                     <textarea
                       id="bioField"
                       v-model="bio"
-                      class="text-white w-full rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-30 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
+                      class="bg-gray-950 text-white w-full rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-30 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
                     >
                     </textarea>
                   </div>
@@ -141,7 +141,7 @@
             <template v-if="!isConnectedToLens">
               <button
                 class="mt-4 bg-green-500 border-0 py-2 px-6 focus:outline-none hover:bg-green-600 rounded text-lg"
-                @click="() => doConnectLens(false)"
+                @click="() => doConnectLens()"
               >
                 <ProfileLensIcon class="w-6 inline mr-2" />
                 <BtnSpinner v-if="isConnectToLens" class="inline mr-2" /> Connect to Lens
@@ -186,7 +186,7 @@
 
               Disconnect from BlueSky
             </button>
-            <template v-if="!isConnectedToThreads">
+            <!-- <template v-if="!isConnectedToThreads">
               <button
                 :disabled="isConnectToBsky"
                 class="mt-4 bg-gray-600 border-0 py-2 px-6 focus:outline-none hover:bg-gray-900 rounded text-lg"
@@ -214,7 +214,7 @@
               /><ThreadsIcon class="w-6 inline mr-2" />
 
               Disconnect from Threads
-            </button>
+            </button> -->
           </div>
         </ion-accordion>
         <ion-accordion value="settings">
@@ -258,7 +258,7 @@
             <ion-label>Push Notifications</ion-label>
           </ion-item>
           <div slot="content" class="ion-padding">
-            <ion-list v-for="type of PUSH_NOTIFICATION_TYPES">
+            <ion-list v-for="type of PUSH_NOTIFICATION_TYPES" :key="type">
               <ion-item>
                 <ion-label style="text-transform: capitalize">{{ type }}</ion-label>
                 <ion-toggle
@@ -280,8 +280,8 @@
                   >Not implemented yet on backend:
                   <span
                     v-for="disabled of disabledPush"
-                    v-html="disabled"
                     :key="disabled"
+                    v-html="disabled"
                   />.</small
                 >
               </ion-item>
@@ -401,7 +401,7 @@
             </div>
           </template>
           <template v-else-if="settingsModalContent === 'farcaster-connect'">
-            <ion-segment
+            <!-- <ion-segment
               style="width: auto"
               class=""
               :value="farcasterConnectTabs"
@@ -416,7 +416,7 @@
                 <WalletIcon class="w-5 mr-2" />
                 <ion-label>Use Wallet</ion-label>
               </ion-segment-button>
-            </ion-segment>
+            </ion-segment> -->
             <template v-if="farcasterConnectTabs === 'warpcast'">
               <div class="flex justify-center text-center flex-col">
                 <small class="my-4"
@@ -605,14 +605,11 @@ import {
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import { storage } from "@/utils/storage";
 
-// import DangLoader from "components/vote-list/loader.vue";
-// import CustomButton from 'components/functional/customButton.vue'
 import {
   stackAlertError,
   stackAlertSuccess,
   stackAlertWarning,
-} from "shared/src/store/alertStore";
-// import { formatNumber } from "shared/src/utils/misc";
+} from "@/store/alert-store";
 import { fetchWAuth } from "shared/src/utils/auth";
 import { useMainStore } from "@/store/main";
 import { editProfile, setConnected } from "shared/src/utils/requests/accounts";
@@ -626,16 +623,7 @@ import { VACropper } from "vue-cup-avatar";
 import { uploadAvatar } from "shared/src/utils/requests/accounts";
 import { getTimeRemaining } from "shared/src/utils/time";
 import { web3Libs, TWeb3Libs } from "shared/src/utils/evmTxs";
-import {
-  // getLensUserData,
-  // authLens,
-  // setDispatcher,
-  // setAuthLens,
-  disconnectLens,
-  // setDispatcherWithBackend,
-  // removeLocalLensAuth,
-  connectLens,
-} from "shared/src/utils/requests/lens";
+import { disconnectLens, connectLens } from "shared/src/utils/requests/lens";
 import { CancelablePromise } from "shared/src/utils/misc";
 import {
   connectToFarcaster,
@@ -932,9 +920,8 @@ export default defineComponent({
       }
     };
 
-    const doConnectLens = async (setTestDispatcher: boolean) => {
+    const doConnectLens = async () => {
       const result = await connectLens({
-        setTestDispatcher,
         stackAlertWarning,
         stackAlertSuccess,
         stackAlertError,
@@ -1095,7 +1082,6 @@ export default defineComponent({
       toastMsg,
       noAccounts,
       alertHeader,
-      defaultAccordionOpen,
       radioTheme,
       deleteAccount,
       onEditProfile,

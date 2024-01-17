@@ -5,7 +5,7 @@
         <div class="profile-bg"></div>
         <div class="profile-mask"></div>
         <div class="post-details">
-          <InfoIcon class="w-16" style="opacity: 0.6" />
+          <InfoIcon class="!w-16" style="opacity: 0.6" />
           <div class="personal-details">
             <div>Post Info:</div>
           </div>

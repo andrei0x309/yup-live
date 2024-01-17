@@ -1,8 +1,8 @@
   <template>
-    <div v-if="postType === 'single' || full" ref="postWrap" class="p-4">
+    <div v-if="postType === 'single' || full" ref="postWrap" class="p-2">
     <BskyPostBody :replyComp="replyComp" :mainPost="mainPost"/>
   </div>
-  <div v-else ref="postWrap" class="p-4">
+  <div v-else ref="postWrap" class="p-2">
     <BskyPostBody v-if="!isComment" :replyComp="replyComp" :mainPost="mainPost" :postId="post.id" :isReply="true" :fetchComments="true" />
     <BskyPostBody :replyComp="replyComp" :mainPost="replyPost" />
   </div>

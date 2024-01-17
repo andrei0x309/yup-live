@@ -26,7 +26,7 @@
         <div class="flex flex-col p-4 thinSBox text-center">
           <div class="flex row mx-auto">
             <div class="flex flex-col">
-              <YUPPOLY class="w-30 mt-5" />
+              <YUPPOLY class="w-32 mt-5" />
             </div>
             <div class="flex flex-col text-[1.2rem] p-6 mb-4">
               <p class="p-2">Stake YUP-WETH LP Tokens</p>
@@ -103,7 +103,7 @@ import NoInput from 'components/staking/noInput.vue';
 import CustomButton from "components/functional/customButton.vue";
 import { useMainStore } from "@/store/main";
 import YUPCollectIcon from "icons/src/yup-collect.vue";
-import { stackAlertSuccess, stackAlertWarning } from "shared/src/store/alertStore";
+import { stackAlertSuccess, stackAlertWarning } from "@/store/alert-store";
 import WalletIcon from "icons/src/walletIcon.vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 import { connect, getAprs, onStake, onUnstake, fetchContractsData, onReward  } from 'shared/src/utils/stake'

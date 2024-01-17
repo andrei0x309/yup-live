@@ -7,9 +7,10 @@
     </div>
     <div v-if="lWeb3Profile?.yupScore ?? 0 > 0" class="yupScore">
       <router-link :to="`/score/${id}`">
-      <ScoreIcon class="inline-block w-4 mr-2" />{{
-        Math.trunc(lWeb3Profile?.yupScore ?? 0)
-      }}</router-link>
+        <ScoreIcon class="inline-block w-4 mr-2" />{{
+          Math.trunc(lWeb3Profile?.yupScore ?? 0)
+        }}</router-link
+      >
     </div>
     <img
       :key="avatar"
@@ -21,7 +22,11 @@
     />
 
     <figcaption>
-      <h3>[ {{ lWeb3Profile?.handle || `${id.slice(0, 6)}...`  }} ]<span>Additional Handles</span></h3>
+      <h3>
+        [ {{ lWeb3Profile?.handle || `${id.slice(0, 6)}...` }} ]<span
+          >Additional Handles</span
+        >
+      </h3>
       <div class="handles">
         <div v-if="lWeb3Profile?.ens?.handle">
           <ProfileEthIcon class="mr-2 w-3 inline-block" /> {{ lWeb3Profile.ens.handle }}
@@ -47,18 +52,25 @@
           {{ lWeb3Profile?.bsky?.handle }}
         </div>
         <div v-if="lWeb3Profile?.threads?.handle">
-          <ThreadsIcon class="mr-2 w-4 inline-block" /> {{ lWeb3Profile?.threads?.handle }}
+          <ThreadsIcon class="mr-2 w-4 inline-block" />
+          {{ lWeb3Profile?.threads?.handle }}
         </div>
 
         <FollowUnfollwBtn
           :evmAddr="id"
-          class="ml-10 view-btn text-[0.85rem] mt-3 w-22 p-1 text-center"
+          class="mr-10 view-btn text-[0.85rem] mt-3 w-22 p-1 text-center"
           :iconClass="'inline-block w-3 mr-0'"
           :deps="deps"
         />
-        <router-link v-if="addViewBtn && id.startsWith('0x')" :to="`/web3-profile/${id}`" class="ml-10 view-btn text-[0.85rem] mt-3 w-22 p-1 text-center inline-block"
-            >Check</router-link>
-        
+        <router-link
+          v-if="addViewBtn && id.startsWith('0x')"
+          :to="`/web3-profile/${id}`"
+          class="mr-10 view-btn text-[0.85rem] mt-3 w-22 p-1 text-center inline-block"
+          >Check</router-link
+        >
+        <slot name="block"></slot>
+        <slot name="report"></slot>
+
       </div>
     </figcaption>
   </figure>
@@ -81,9 +93,8 @@ import TwitterIcon from "icons/src/twitter.vue";
 import ScoreIcon from "icons/src/score.vue";
 import FollowersIcon from "icons/src/followers.vue";
 import FollowUnfollwBtn from "components/profile/followUnfollowBtn.vue";
-import type { IDepsWeb3Profile  } from 'shared/src/types/web3/web3Deps'
-import { fetchWeb3Profile } from 'shared/src/utils/requests/web3Profiles'
-
+import type { IDepsWeb3Profile } from "shared/src/types/web3/web3Deps";
+import { fetchWeb3Profile } from "shared/src/utils/requests/web3Profiles";
 
 export default defineComponent({
   name: "Web3ProfileCard",
@@ -98,7 +109,7 @@ export default defineComponent({
     FollowersIcon,
     FollowUnfollwBtn,
     ProfileBskyIcon,
-    ThreadsIcon
+    ThreadsIcon,
   },
   props: {
     web3Profile: {
@@ -122,18 +133,23 @@ export default defineComponent({
     },
     deps: {
       type: Object as PropType<IDepsWeb3Profile>,
-      required: true
-      }
+      required: true,
+    },
   },
   setup(props) {
     const isLoading = ref(true);
     const avatar = ref(props.web3Profile?.avatar ?? "");
-    const id = ref(props.overWriteEVM ?? props.web3Profile?.evmAddress ?? props.web3Profile?._id ?? "");
+    const id = ref(
+      props.overWriteEVM ?? props.web3Profile?.evmAddress ?? props.web3Profile?._id ?? ""
+    );
     const lWeb3Profile = ref(props.web3Profile);
 
     onMounted(async () => {
-      if(props.overWriteEVM) {
-        lWeb3Profile.value = await fetchWeb3Profile(props.deps.apiBase, props.overWriteEVM)
+      if (props.overWriteEVM) {
+        lWeb3Profile.value = await fetchWeb3Profile(
+          props.deps.apiBase,
+          props.overWriteEVM
+        );
       }
 
       if (!lWeb3Profile.value?.avatar) {
@@ -149,7 +165,7 @@ export default defineComponent({
       isLoading,
       avatar,
       id,
-      lWeb3Profile
+      lWeb3Profile,
     };
   },
 });
@@ -159,7 +175,7 @@ export default defineComponent({
 .snip1344 {
   position: relative;
   overflow: hidden;
-  height: fit-content; 
+  height: fit-content;
   max-width: 20rem;
   min-width: 18rem;
   width: 100%;
@@ -209,13 +225,13 @@ export default defineComponent({
 }
 .snip1344 .background {
   width: 100%;
-    vertical-align: top;
-    opacity: 0.45;
-    -webkit-filter: grayscale(100%) blur(10px);
-    filter: sepia(1) blur(20px) brightness(0.4);
-    -webkit-transition: all 2s ease;
-    transition: all 2s ease;
-    height: 12rem;
+  vertical-align: top;
+  opacity: 0.45;
+  -webkit-filter: grayscale(100%) blur(10px);
+  filter: sepia(1) blur(20px) brightness(0.4);
+  -webkit-transition: all 2s ease;
+  transition: all 2s ease;
+  height: 12rem;
 }
 .snip1344 figcaption {
   width: 100%;
@@ -236,6 +252,7 @@ export default defineComponent({
 .snip1344 h3 {
   margin: 0 0 5px;
   font-weight: 400;
+  font-size: 1.2rem;
 }
 .snip1344 h3 span {
   display: block;

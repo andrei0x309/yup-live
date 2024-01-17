@@ -23,14 +23,14 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent } from 'vue'
+import { onMounted, defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'InfoIcon',
+  name: "InfoIcon",
   setup() {
     onMounted(() => {
       // nothing
-    })
-  }
-})
+    });
+  },
+});
 </script>

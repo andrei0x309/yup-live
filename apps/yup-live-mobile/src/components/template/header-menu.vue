@@ -33,9 +33,6 @@
         <ion-item button @click="goTo('/tabs/live')">
           <ActivityIcon class="w-5 mr-4" /> Live Activity
         </ion-item>
-        <ion-item button @click="goTo('/tabs/meetings')">
-          <ion-icon :icon="listOutline" class="w-5 mr-4" /> Community Meetings
-        </ion-item>
         <ion-item button @click="goTo(`/tabs/score/${store.userData?.address}`)">
           <ScoreIcon class="w-5 mr-4" /> Yup Score
         </ion-item>
@@ -43,7 +40,7 @@
           <StakeIcon class="w-5 mr-4" /> Stake
         </ion-item>
         <ion-item button @click="goTo('/tabs/info')">
-          <InfoIcon class="w-5 mr-4" /> About & Info
+          <InfoIcon class="!w-5 mr-4" /> About & Info
         </ion-item>
       </ion-list>
     </ion-content>

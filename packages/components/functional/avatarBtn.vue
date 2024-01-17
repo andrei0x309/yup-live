@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-col content-center justify-center items-center">
     <BtnSpinner v-if="isLoading" />
-    <img :key="source" :class="`avatarImg ${imgClass}`" :src="source" :alt="altImg" loading="lazy" @error="onError" @load="onLoad" />
+    <img :ref="imgEl" :key="source" :class="`${isLoading ? '' : 'avatarImg '}${imgClass}`" :src="source" :alt="altImg" loading="lazy" @error="onError" @load="onLoad" />
   </div>
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref } from 'vue'
+import { onMounted, defineComponent, ref, onBeforeUnmount, Ref, VNodeRef } from 'vue'
 import BtnSpinner from 'icons/src/btnSpinner.vue'
 import { makeRandAvatar } from 'shared/src/utils/accounts'
 
@@ -48,6 +48,9 @@ export default defineComponent({
     const user = ref(!props.isSelf ? props.pAccount : store?.userData?.account)
     const altImg = ref(!props.isSelf ? `avatar of ${props.pAccount}` : `avatar of ${store.userData.account}`)
     const isLoading = ref(true)
+    let timer: any = null
+    const obvsEl = ref(null) as unknown as Ref<IntersectionObserver>
+    const imgEl = ref(null) as unknown as Ref<VNodeRef>
 
     const onError = () => {
       source.value = makeRandAvatar(!props.isSelf ? props.pAccount : store?.userData?.account)
@@ -55,6 +58,7 @@ export default defineComponent({
     }
 
     const onLoad = () => {
+      clearTimeout(timer)
       isLoading.value = false
     }
 
@@ -62,6 +66,29 @@ export default defineComponent({
       if (!props.pSource && !props.isSelf) {
         onError()
       }
+
+      if (imgEl.value) {
+      obvsEl.value = new IntersectionObserver(
+          ([entry]) => {
+            if (entry && entry.isIntersecting) {
+                    if (isLoading.value) {
+            timer = setTimeout(() => {
+              onError()
+            }, 1850)
+      }
+            }
+          },
+          { threshold: 0.5 }
+        )
+
+        obvsEl.value.observe(imgEl.value as unknown as Element)
+      }
+      
+      
+    })
+
+    onBeforeUnmount(() => {
+      obvsEl.value?.disconnect()
     })
 
     return {
@@ -70,7 +97,8 @@ export default defineComponent({
       onLoad,
       isLoading,
       altImg,
-      user    
+      user,
+      imgEl
     }
   }
 })

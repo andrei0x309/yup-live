@@ -87,7 +87,7 @@ import Post from 'components/post/post.vue'
 import PostMenu from '@/components/post/menu/postMenu.vue'
 import type { IPostDeps } from 'shared/src/types/post'
 import type { IMainStore } from 'shared/src/types/store'
-import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "shared/src/store/alertStore";
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alert-store";
 import { useMainStore } from "@/store/main";
 import { IPost } from "shared/src/types/post";
 import { fetchWAuth } from "shared/src/utils/auth";

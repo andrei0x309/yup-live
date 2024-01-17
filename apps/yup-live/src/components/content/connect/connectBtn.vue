@@ -90,7 +90,7 @@ export default defineComponent({
       libWallLoading.value = true;
       refConnectMod.value = true;
       refLoginState.value = mainStore.modalLoginState as boolean;
-      if(!refDynLogComp.value) {
+      if (!refDynLogComp.value) {
         refDynLogComp.value = (await import("./loginSignup.vue")).default;
       }
       libWallLoading.value = false;
@@ -210,5 +210,4 @@ header .loggedBtn {
 .login-form textarea {
   margin: 0rem 2rem;
 }
-
 </style>

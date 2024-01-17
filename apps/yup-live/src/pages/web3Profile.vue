@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto mb-8">
+  <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto mb-8">
     <div class="bg-color flex flex-col">
 
       <h2 v-if="web3Profile?._id" class="text-2xl font-bold text-center mt-4 mb-4">Web3Profile for address: {{ truncteEVMAddr(web3Profile._id) }}</h2>
@@ -148,7 +148,7 @@ import {
   defineAsyncComponent,
   shallowRef
 } from "vue";
-import { useHead, HeadObject } from "@vueuse/head";
+import { useHead } from "unhead";
 import DangLoader from "components/vote-list/loader.vue";
 import { useMainStore, openConnectModal } from "@/store/main";
 import { useRoute } from "vue-router";
@@ -162,7 +162,7 @@ import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 import Alert from "components/functional/alert.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import WalletIcon from 'icons/src/walletIcon.vue';
-import { utilsAFGetCreated } from "shared/src/utils/requests/accountFeeds";
+import { getWeb3CreatedFeed } from "shared/src/utils/requests/accountFeeds";
 import { fetchWeb3Profile, fetchRecommendedWeb3Profiles } from "shared/src/utils/requests/web3Profiles";
 import type { IWeb3Profile, IWeb3ProfileRecommendation } from "shared/src/types/web3Profile";
 import { truncteEVMAddr } from "shared/src/utils/misc";
@@ -262,7 +262,7 @@ export default defineComponent({
     const recommandedProfiles = ref([]) as Ref<Array<IWeb3ProfileRecommendation>>;
     const followersCount = ref(0);
     const followers = ref([]) as Ref<Array<string>>; 
-
+ 
     // const router = useRouter()
 
     const siteData = reactive({
@@ -270,9 +270,8 @@ export default defineComponent({
       description: `Check this web3 social profile - on yup live`,
     });
 
-    useHead(({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description),
+    useHead({
+      title: computed(() => siteData.title).value,
       meta: [
         {
           name: 'og:image',
@@ -280,7 +279,7 @@ export default defineComponent({
         },
         {
           name: "description",
-          content: computed(() => siteData.description),
+          content: computed(() => siteData.description).value,
         },
         {
           name: "og:type",
@@ -288,15 +287,15 @@ export default defineComponent({
         },
         {
           name: "og:title",
-          content: computed(() => siteData.title),
+          content: computed(() => siteData.title).value,
         },
         {
           name: "og:description",
-          content: computed(() => siteData.description),
+          content: computed(() => siteData.description).value,
         },
         {
           name: "og:url",
-          content: computed(() => route.fullPath),
+          content: computed(() => route.fullPath).value,
         },
         {
           name: "twitter:card",
@@ -304,22 +303,22 @@ export default defineComponent({
         },
         {
           name: "twitter:url",
-          content: computed(() => route.fullPath),
+          content: computed(() => route.fullPath).value,
         },
         {
           name: "twitter:title",
-          content: computed(() => siteData.title),
+          content: computed(() => siteData.title).value,
         },
         {
           name: "twitter:description",
-          content: computed(() => siteData.description),
+          content: computed(() => siteData.description).value,
         },
         {
           name: "twitter:image",
           content: `/share/yup-live-ogs/og-yup-live-web3-profile.png`
         },
       ],
-    } as unknown) as Ref<HeadObject>);
+    });
 
     store.$subscribe(async () => {
       isOwnAccount.value = store?.isLoggedIn && store?.userData.address === userAddr.value;
@@ -350,7 +349,7 @@ export default defineComponent({
     });
 
     const getCreatedFeedPosts = async (start = 0) => {
-      return (await utilsAFGetCreated(API_BASE, start, userAddr.value)).posts;
+      return (await getWeb3CreatedFeed(API_BASE, start, userAddr.value)).posts;
     };
  
     let getFeedPosts = getCreatedFeedPosts;

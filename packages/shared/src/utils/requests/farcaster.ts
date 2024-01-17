@@ -1,8 +1,6 @@
-import { config } from '../config'
 import { fetchWAuth } from '../auth'
 import type { IMainStore } from 'shared/src/types/store'
-import type { Ref } from 'vue'
-import { ref } from 'vue'
+import { ref, Ref } from 'vue'
 import { prepareForTransaction, signCanonChallenge, TWeb3Libs } from '../evmTxs'
 import { getFidByToken, getFidByAddress } from 'shared/src/utils/farcaster';
 // import { FCSendCast } from "shared/src/utils/farcaster";
@@ -122,7 +120,7 @@ const poolTokenInfo = async ({
     apiBase?: string
 }) => {
     try {
-        const reqInfo = await fetchWAuth(store, `${apiBase}/proxy/farcaster/v2/signer-request?token=${reqToken}`, {
+        const reqInfo = await fetchWAuth(store, `${apiBase}/farcaster/signer-request/${reqToken}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
         })
@@ -248,6 +246,7 @@ export const connectToFarcaster = async ({
                 return false;
             }
             const reqToken = addSignerRequest._id
+            const deeplinkUrl = addSignerRequest.deeplinkUrl
             let signerInfo
             let signerInfoRetries = 0
             while (!signerInfo && signerInfoRetries < 20) {
@@ -262,7 +261,7 @@ export const connectToFarcaster = async ({
                 isConnectToFarcaster.value = false;
                 return false;
             }
-            deepLink.value = 'farcaster://signer-add?token=' + reqToken
+            deepLink.value = deeplinkUrl
 
             if (!showQr) {
                 window.open(deepLink.value, '_blank')

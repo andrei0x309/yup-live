@@ -1,9 +1,9 @@
 <template>
-  <video v-if="!isError" class="w-full rounded-t-lg min-w-[20rem]" controls playsinline preload="auto" @canplay="canPlay">
+  <video v-if="!isError" class="w-full rounded-t-lg min-w-[24rem]" controls playsinline preload="auto" @canplay="canPlay">
     <source :key="videoType" :src="videoSource" :type="`video/mp4`" @error="error" />
   </video>
   <div v-else-if="!loading && isError" :class="`noPreview rounded-t-lg ${noPreviewClass}`">
-    <img class="postBkImg min-w-[20rem]" alt="random image" :src="makeRandomPreview(true)" loading="lazy" />
+    <img class="postBkImg min-w-[24rem]" alt="random image" :src="makeRandomPreview(true)" loading="lazy" />
     <YoutubeIcon class="noImgIcon" />
     <p class="noImg-txt">Video is not available</p>
   </div>

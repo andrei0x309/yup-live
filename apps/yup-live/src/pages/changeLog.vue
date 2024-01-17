@@ -1,8 +1,8 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
+  <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto">
     <div class="bg-color page-log w-full mb-4">
       <h1
-        class="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl m-8 text-[#d7a73cd1]"
+        class="text-4xl font-extrabold tracking-tight sm:text-5xl m-8 text-[#ffc400ad]"
         style="text-shadow: 2px 2px 2px var(--glass-menu-bg)"
       >
         Changelog Yup Live Web/Android
@@ -49,19 +49,13 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from "vue";
+<script setup lang="ts">
+import { ref } from "vue";
 import CustomButton from "components/functional/customButton.vue";
 import AddIcon from "icons/src/add.vue";
-import { useHead } from "@vueuse/head";
+import { useHead } from 'unhead'
 import { changes } from "shared/src/utils/changeLog";
 
-export default defineComponent({
-  name: "ChangeLog",
-  components: {
-    CustomButton,
-  },
-  setup() {
     const siteData = {
       title: `Yup Live ChangeLog`,
       description: `Sumary of changes to yup live, all code is open source and available on github`,
@@ -94,19 +88,14 @@ export default defineComponent({
       }
     };
 
-    return {
-      subsetChanges,
-      hasMore,
-      loadMore,
-      AddIcon,
-    };
-  },
-});
 </script>
 
 <style scoped lang="scss">
 .page-log {
   min-height: calc(100vh - 2rem);
   text-align: justify;
+  max-width: 98%;
+  margin-left: auto;
+  margin-right: auto;
 }
 </style>

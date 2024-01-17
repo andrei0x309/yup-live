@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
+  <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto">
     <div class="bg-color page-stake w-full mb-4 flex flex-col">
       <h2 class="text-[1.3rem] p-6 tracking-wide uppercase">Staking</h2>
       <template v-if="loading">
@@ -35,7 +35,7 @@
             <div class="flex flex-col p-4 thinSBox">
               <div class="flex row">
                 <div class="flex flex-col">
-                  <YUPPOLY class="w-30 mt-5" />
+                  <YUPPOLY class="w-32 mt-5" />
                 </div>
                 <div class="flex flex-col text-[1.2rem] p-6 mb-4">
                   <p class="p-2">Stake YUP-WETH LP Tokens</p>
@@ -105,7 +105,7 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref, ref } from 'vue'
-import { useHead, HeadObject } from '@vueuse/head'
+import { useHead } from 'unhead'
 import DangLoader from 'components/vote-list/loader.vue'
 // import { useRoute } from 'vue-router'
 import StakeIcon from 'icons/src/stake.vue'
@@ -118,7 +118,7 @@ import {TWeb3Libs, web3Libs } from 'shared/src/utils/evmTxs'
 
 import { useMainStore } from '@/store/main'
 import YUPCollectIcon from 'icons/src/yup-collect.vue'
-import { stackAlertSuccess, stackAlertWarning } from 'shared/src/store/alertStore'
+import { stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
 import WalletIcon from 'icons/src/walletIcon.vue'
 import { connect, getAprs, onStake, onUnstake, fetchContractsData, onReward  } from 'shared/src/utils/stake'
 
@@ -187,15 +187,14 @@ export default defineComponent({
     })
 
     useHead({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description),
+      title: computed(() => siteData.title).value,
       meta: [
         {
           name: 'description',
-          content: computed(() => siteData.description)
+          content: computed(() => siteData.description).value
         },
       ]
-    } as unknown as Ref<HeadObject>)
+    })
 
 
     // const getHistoricRewards = async (address: string) => {

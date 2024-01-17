@@ -1,10 +1,60 @@
 export const recentChanges = [
     {
+        date: "16 January - 2024",
+        title: "Changes",
+        changes: [
+            'new android version 1.2.2',
+            'optimized cross-post modal',
+            'improved support for crossposting videos on Android',
+            'small UI improvements',
+        ]
+    },
+    {
+        date: "13 January - 2024",
+        title: "Changes",
+        changes: [
+            'optimized avatar loading with viewport observer',
+            'removed community meetings from yup live mobile',
+        ]
+    },
+    {
+        date: "12 January - 2024",
+        title: "Changes",
+        changes: [
+            'added more support for blocking/reporting users and posts',
+            'updated farcaster connect to use only warpcast as is no more support for arbitrary connect with wallet',
+            'released new version of yup live mobile 1.2.1',
+            'verified, updated & tested connecting accounts to: lens, twitter, blueksy, farcaster'
+        ]
+    },
+    {
+        date: "10 January - 2024",
+        title: "Changes",
+        changes: [
+            'updated to latest turbo repo',
+            'updated avatars api to 7.x',
+            'migrated from windicss(deprecated) to latest tailwindcss',
+        ]
+    },
+    {
+        date: "2 January - 2024",
+        title: "Changes",
+        changes: [
+            'restricted access to yup live desktop to only people that get access through polygon contract',
+            'updated web3modal to latest major 3.x.x, updated all ethereum libs & wallet interaction utils to work with new libs',
+            'removed threads connect/disconnect because is not supported at the moment by backend',
+            'updated yup live web to latest major vite 5.x.x',
+            'updated turborepo to latest major stable pkg manager yarn 4.x.x',
+            'updated to latest vue 3.4.x',
+            'changed runtime environment to node 20.10.0',
+        ]
+    },
+    {
         date: "9 August - 2023",
         title: "Changes",
         changes: [
             'improved push token handling',
-            'added edge cases to handle youtube eembeds'
+            'added edge cases to handle youtube embeds'
         ],
     },
     {

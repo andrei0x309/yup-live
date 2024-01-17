@@ -19,7 +19,7 @@
       </div>
       </router-link>
       <span class="flex mfavIco ml-auto">
-        <LensIcon class="w-6 h-6 lensIcon" />
+        <LensIcon class="w-5 h-5 lensIcon" />
       </span>
     </div>
     <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
@@ -38,7 +38,7 @@
 
       </div>
     </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-3">
+    <span class="flex opacity-60 h-min space-x-1 items-center rounded-full text-[0.7rem] order-last justify-end mt-4 mr-2">
       <ClockIcon class="w-4 h-4" />
       <p class="text-xs">
         {{ mainPost.createdAt }}

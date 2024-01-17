@@ -48,8 +48,8 @@
             <p class="p-3">{{ nft.collectionName }}</p>
             <ImagePreview
               :source="nft.imageURI"
-              imgClass="min-w-30 max-h-50"
-              noPreviewClass="min-w-30 max-h-50"
+              imgClass="min-w-32 max-h-52"
+              noPreviewClass="min-w-32 max-h-52"
               :noPreviewParagraph="false"
             />
             <p class="p-3"><a rel="noopener noreferrer nofollow" target="_blank" :href="nft.link">OpenSea</a></p>
@@ -64,8 +64,8 @@
             <p class="p-3">{{ nft.collectionName }}</p>
             <ImagePreview
               :source="nft.imageURI"
-              imgClass="min-w-30 max-h-50"
-              noPreviewClass="min-w-30 max-h-50"
+              imgClass="min-w-32 max-h-52"
+              noPreviewClass="min-w-32 max-h-52"
               :noPreviewParagraph="false"
             />
             <p class="p-3"><a rel="noopener noreferrer nofollow" target="_blank" :href="nft.link">OpenSea</a></p>
@@ -78,7 +78,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 justify-center wallet-section">
           <div v-for="nft of poaps" :key="nft.eventId" class="grid-missing flex flex-col p-4 glassCard nft">
             <p class="p-3">{{ nft.title }}</p>
-            <ImagePreview :source="nft.image" imgClass="min-w-30 max-h-50" noPreviewClass="min-w-30 max-h-50" :noPreviewParagraph="false" :noLightbox="true" />
+            <ImagePreview :source="nft.image" imgClass="min-w-32 max-h-52" noPreviewClass="min-w-32 max-h-52" :noPreviewParagraph="false" :noLightbox="true" />
             <p class="p-3"><a rel="noopener noreferrer nofollow" target="_blank" :href="nft.link">Event on POAP</a></p>
           </div>
         </div>

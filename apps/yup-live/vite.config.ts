@@ -1,12 +1,12 @@
-import { defineConfig } from 'vite'
+import { defineConfig, PluginOption } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'url'
 import eslintPlugin from 'vite-plugin-eslint'
-import WindiCSS from 'vite-plugin-windicss'
 // import nodePolyfills from 'vite-plugin-node-stdlib-browser'
 import { ViteSSGOptions } from 'vite-ssg'
 import generateSitemap from 'vite-ssg-sitemap'
 import basicSsl from '@vitejs/plugin-basic-ssl'
+
 
 const production = process.env.NODE_ENV === 'production'
 
@@ -66,12 +66,15 @@ export default defineConfig({
     // nodePolyfills(),
     vue(),
     eslintPlugin(),
-    WindiCSS(),
     basicSsl(),
-  ],
+  ] as unknown as Array<PluginOption>,
   build: {
     rollupOptions: {
       // plugins: [nodePolyfills()]
+      input: {
+        index: fileURLToPath(new URL('./index.html', import.meta.url)),
+        login: fileURLToPath(new URL('./login.html', import.meta.url)),
+      }
     },
     commonjsOptions: {
       transformMixedEsModules: true
@@ -81,6 +84,7 @@ export default defineConfig({
   server: {
     port: 4566,
     host: true,
-    https: true
+    https: {}
   }
 })
+

@@ -1,6 +1,6 @@
 <template>
   <div>
-  <div v-if="tweetType === 'original'" class="p-4">
+  <div v-if="tweetType === 'original'" class="p-2">
     <div class="flex p-2">
       <AvatarBtn
         :key="mainTweet.userAvatar"
@@ -15,7 +15,7 @@
         <span>{{ mainTweet.userName }}</span>
         <span class="opacity-70">@{{ mainTweet.userHandle }} <VerifiedIcon v-if="mainTweet.verified" class="verIcon" /></span>
       </div>
-      <span class="flex mfavIco ml-auto"><TwitterIcon class="w-6 h-6 tIcon" /></span>
+      <span class="flex mfavIco ml-auto"><TwitterIcon class="w-5 h-5 tIcon" /></span>
     </div>
     <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
       <div class="indent"></div>
@@ -27,7 +27,7 @@
         </template>
       </div>
     </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-3">
+    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-[0.7rem] order-last justify-end mt-3">
       <ClockIcon class="w-4 h-4" />
       <p class="text-xs">
         {{ post.createdAt }}
@@ -37,7 +37,7 @@
   <div v-else-if="tweetType === 'missing'">
     <div v-if="!embedLoaded">
       <p><WarningIcon class="w-10 mx-auto mt-2" /></p>
-      <p class="p-4" v-if="deleted">Sorry this tweet is not available anymore was <b>deleted</b>!</p>
+      <p class="p-2" v-if="deleted">Sorry this tweet is not available anymore was <b>deleted</b>!</p>
       <div v-else>
       <p>Preview for this tweet is missing.</p>
       <p>Do you want to load an embed?</p>
@@ -46,7 +46,7 @@
     </div>
     <div ref="tweet" :id="`${missingTweetId}`"></div>
   </div>
-  <div v-else-if="tweetType === 'reply'" class="p-4">
+  <div v-else-if="tweetType === 'reply'" class="p-2">
     <div class="relative mb-6">
       <div class="flex p-2">
         <AvatarBtn
@@ -62,7 +62,7 @@
           <span>{{ mainTweet.userName }}</span>
           <span class="opacity-70">@{{ mainTweet.userHandle }} <VerifiedIcon v-if="mainTweet.verified" class="verIcon" /></span>
         </div>
-        <span class="inline-block favIco ml-auto"><TwitterIcon class="w-6 h-6" /></span>
+        <span class="inline-block favIco ml-auto"><TwitterIcon class="w-5 h-5" /></span>
       </div>
       <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
         <div class="indent reply-line"></div>
@@ -102,14 +102,14 @@
         </div>
       </div>
     </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-3">
+    <span class="flex opacity-60 h-min space-x-1 items-center rounded-full text-[0.7rem] order-last justify-end mt-4 mr-2">
       <ClockIcon class="w-4 h-4" />
       <p class="text-xs">
         {{ post.createdAt }}
       </p>
     </span>
   </div>
-  <div v-else-if="tweetType === 'quoted' || tweetType === 'retweet'" class="p-4">
+  <div v-else-if="tweetType === 'quoted' || tweetType === 'retweet'" class="p-2">
     <div :class="`relative ${tweetType === 'quoted' ?? 'mb-6'}:''`">
       <div class="flex p-2">
         <AvatarBtn
@@ -125,7 +125,7 @@
           <span>{{ mainTweet.userName }}</span>
           <span class="opacity-70">@{{ mainTweet.userHandle }} <VerifiedIcon v-if="mainTweet.verified" class="verIcon" /></span>
         </div>
-        <span class="inline-block favIco ml-auto"><TwitterIcon class="w-6 h-6" /></span>
+        <span class="inline-block favIco ml-auto"><TwitterIcon class="w-5 h-5" /></span>
       </div>
       <div v-if="tweetType === 'quoted'" class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
         <div class="indent"></div>
@@ -169,7 +169,7 @@
         </div>
       </div>
     </div>
-    <span class="flex opacity-70 h-min space-x-1 items-center rounded-full text-xs order-last justify-end mt-3">
+    <span class="flex opacity-60 h-min space-x-1 items-center rounded-full text-[0.7rem] order-last justify-end mt-4 mr-2">
       <ClockIcon class="w-4 h-4" />
       <p class="text-xs">
         {{ post.createdAt }}

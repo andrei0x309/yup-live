@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
+  <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto">
     <div class="bg-color table-list w-full mb-4">
       <h2>Check YUP Score Details:</h2>
       <div class="flex rounded bg-gray-200 w-max-[30rem] mx-auto my-2">
@@ -180,7 +180,7 @@ import {
   Ref,
   ref,
 } from "vue";
-import { useHead, HeadObject } from "@vueuse/head";
+import { useHead } from "@vueuse/head";
 import DangLoader from "components/vote-list/loader.vue";
 import { useMainStore } from "@/store/main";
 import { useRoute } from "vue-router";
@@ -216,8 +216,7 @@ export default defineComponent({
     });
 
     useHead(({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description),
+      title: computed(() => siteData.title).value,
       meta: [
         {
           name: "og:image",
@@ -225,7 +224,7 @@ export default defineComponent({
         },
         {
           name: "description",
-          content: computed(() => siteData.description),
+          content: computed(() => siteData.description).value,
         },
         {
           name: "og:type",
@@ -233,15 +232,15 @@ export default defineComponent({
         },
         {
           name: "og:title",
-          content: computed(() => siteData.title),
+          content: computed(() => siteData.title).value,
         },
         {
           name: "og:description",
-          content: computed(() => siteData.description),
+          content: computed(() => siteData.description).value,
         },
         {
           name: "og:url",
-          content: computed(() => route.fullPath),
+          content: computed(() => route.fullPath).value,
         },
         {
           name: "twitter:card",
@@ -249,18 +248,18 @@ export default defineComponent({
         },
         {
           name: "twitter:url",
-          content: computed(() => route.fullPath),
+          content: computed(() => route.fullPath).value,
         },
         {
           name: "twitter:title",
-          content: computed(() => siteData.title),
+          content: computed(() => siteData.title).value,
         },
         {
           name: "twitter:description",
-          content: computed(() => siteData.description),
+          content: computed(() => siteData.description).value,
         },
       ],
-    } as unknown) as Ref<HeadObject>);
+    }));
 
     onUnmounted(() => {
       // do nothing

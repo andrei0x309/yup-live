@@ -113,7 +113,11 @@ export default defineComponent({
       return data
     }
     const getGeckoData = async () => {
-      const req = await fetch(' https://api.coingecko.com/api/v3/coins/yup')
+      const req = await fetch('https://yup-token-cache-hono.deno.dev/token/yup', {
+        headers: {
+          'Authorization': (Math.random() / 20.2).toString(36).substring(2) + Date.now().toString(36)
+        }
+      })
       if (!req.ok) {
         throw new Error(`Request failed with status ${req.status}`)
       }
@@ -229,6 +233,7 @@ html[class='dark'] {
   border-radius: 0.5rem;
   box-shadow: 0.2rem 0.5rem 0rem;
   grid-template-columns: 1fr 1fr 1fr 1fr;
+  
 
   h2 {
     display: inline-block;

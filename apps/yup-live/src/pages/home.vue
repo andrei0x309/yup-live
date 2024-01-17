@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
+  <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto">
     <TokenMetrics />
     <TableNav :key="`table-nav-${pageActive}`" :linkActive="pageActive" />
     <YupList v-if="pages.default === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />
@@ -12,8 +12,8 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, reactive, computed, onUnmounted, Ref, watch, defineAsyncComponent } from 'vue'
-import { useHead, HeadObject } from '@vueuse/head'
+import { onMounted, defineComponent, ref, reactive, computed, onUnmounted, watch, defineAsyncComponent } from 'vue'
+import { useHead } from 'unhead'
 import TokenMetrics from '@/components/content/token-metrics.vue'
 import YupList from '@/components/content/yup-list.vue'
 import TableNav from '@/components/content/table-nav.vue'
@@ -87,8 +87,7 @@ export default defineComponent({
     })
 
     useHead({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description),
+      title: computed(() => siteData.title).value,
       meta: [
         {
           name: 'og:image',
@@ -96,7 +95,7 @@ export default defineComponent({
         },
         {
           name: 'description',
-          content: computed(() => siteData.description)
+          content: computed(() => siteData.description).value
         },
         {
           name: 'og:type',
@@ -104,15 +103,15 @@ export default defineComponent({
         },
         {
           name: 'og:title',
-          content: computed(() => siteData.title)
+          content: computed(() => siteData.title).value
         },
         {
           name: 'og:description',
-          content: computed(() => siteData.description)
+          content: computed(() => siteData.description).value
         },
         {
           name: 'og:url',
-          content: computed(() => route.fullPath)
+          content: computed(() => route.fullPath).value
         },
         {
           name: 'twitter:card',
@@ -120,18 +119,18 @@ export default defineComponent({
         },
         {
           name: 'twitter:url',
-          content: computed(() => route.fullPath)
+          content: computed(() => route.fullPath).value
         },
         {
           name: 'twitter:title',
-          content: computed(() => siteData.title)
+          content: computed(() => siteData.title).value
         },
         {
           name: 'twitter:description',
-          content: computed(() => siteData.description)
+          content: computed(() => siteData.description).value
         }
       ]
-    } as unknown as Ref<HeadObject>)
+    })
 
     const setPageNum = (pageNo: number) => {
       if (pageNo) {
@@ -226,19 +225,17 @@ export default defineComponent({
   margin-top: 0.5rem;
 }
 
-html[class='dark'] .table-list,
-html[class='dark'] .bg-color {
-  color: #d9d9d9;
-  box-shadow: 0.2rem 0.5rem 0rem #1b1b1b;
-
-  .o-table__wrapper--mobile tr:not(.o-table__tr--selected) {
-    background-color: #1b1b1b;
-  }
-}
-
 .cat-emojy {
   font-size: 0.8rem;
   top: 0.02rem;
   position: relative;
 }
+
+.page {
+  @media screen and  (max-width: 1400px) {
+    width: 98%;
+    
+  }
+}
+
 </style>

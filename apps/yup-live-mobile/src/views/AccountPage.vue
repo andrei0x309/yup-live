@@ -3,9 +3,9 @@
     <HeaderBar text="ACCOUNT" :menu="true" />
 
     <ion-content :fullscreen="true">
-      <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto mb-8">
+      <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto mb-8">
         <div class="bg-color flex flex-col">
-          <template v-if="!apiError">
+          <template v-if="!apiError && !isUserBlocked">
             <ion-refresher
               slot="fixed"
               mode="ios"
@@ -22,16 +22,54 @@
                 <ProfileCard :userData="userData">
                   <template #settings>
                     <ion-icon
+                      v-if="isOwnAccount"
                       :icon="settingsOutline"
                       button
                       class="settingsIcon"
                       @click="openSettings"
                     />
                   </template>
+
+                  <template v-if="!isOwnAccount" #block>
+                    <button
+                      class="mx-auto view-btn text-[0.85rem] mt-3 min-w-20 p-1 text-center block opacity-75 mb-2"
+                      @click="doBlock"
+                    >
+                      Block
+                    </button>
+                  </template>
+
+                  <template v-if="!isOwnAccount" #report>
+                    <button
+                      class="mx-auto view-btn text-[0.85rem] mt-3 min-w-20 p-1 text-center block opacity-75 mb-2"
+                      @click="doReport"
+                    >
+                      Report
+                    </button>
+                  </template>
                 </ProfileCard>
               </template>
             </div>
           </template>
+          <div class="profile w-full mb-4 flex flex-row" v-else-if="isUserBlocked">
+            <BlockedProfile
+              :web3Profile="{
+                _id: userData.evmAddress,
+                evmAddress: userData.evmAddress,
+                avatar: userData.avatar,
+                handle: userData.username,
+              }"
+            >
+              <template #unblock>
+                <button
+                  class="ml-12 view-btn text-[0.85rem] mt-3 min-w-20 p-1 text-center block"
+                  @click="doUnblock"
+                >
+                  Unblock
+                </button>
+              </template>
+            </BlockedProfile>
+          </div>
           <div v-else class="min-h-[40rem]">
             <div
               style="max-width: 40rem; margin: auto"
@@ -59,22 +97,39 @@
             </div>
           </div>
         </div>
-        <router-link v-if="!isLoadingUser" class="asocLink mb-2" :to="`/web3-profile/${userData.evmAddress}`">View Web3 profile</router-link>
+        <router-link
+          v-if="!isLoadingUser"
+          class="asocLink mb-2"
+          :to="`/web3-profile/${userData.evmAddress}`"
+          >View Web3 profile</router-link
+        >
         <ion-list style="position: sticky; top: 0; z-index: 2">
           <ion-item>
             <HorizontalChips>
-    <template #chips>
-      <ion-chip :key="accountPages[0]" :color="accountPages[0] === currentAccountPage ? 'success': 'primary'" @click="accountPageChange(accountPages[0])" >
-        Created Content
-      </ion-chip>
-      <ion-chip :key="accountPages[1]" :color="accountPages[1] === currentAccountPage ? 'success': 'primary'" @click="accountPageChange(accountPages[1])" >
-        Likes
-      </ion-chip>
-      <ion-chip :key="accountPages[2]" :color="accountPages[2] === currentAccountPage ? 'success': 'primary'" @click="accountPageChange(accountPages[2])" >
-        Wallet
-      </ion-chip>
-    </template>
-    </HorizontalChips>
+              <template #chips>
+                <ion-chip
+                  :key="accountPages[0]"
+                  :color="accountPages[0] === currentAccountPage ? 'success' : 'primary'"
+                  @click="accountPageChange(accountPages[0])"
+                >
+                  Created Content
+                </ion-chip>
+                <ion-chip
+                  :key="accountPages[1]"
+                  :color="accountPages[1] === currentAccountPage ? 'success' : 'primary'"
+                  @click="accountPageChange(accountPages[1])"
+                >
+                  Likes
+                </ion-chip>
+                <ion-chip
+                  :key="accountPages[2]"
+                  :color="accountPages[2] === currentAccountPage ? 'success' : 'primary'"
+                  @click="accountPageChange(accountPages[2])"
+                >
+                  Wallet
+                </ion-chip>
+              </template>
+            </HorizontalChips>
           </ion-item>
         </ion-list>
         <div
@@ -117,7 +172,9 @@
                 </div>
               </div>
               <div v-else>
-                <h2 v-if="!feedLoading" class="text-[1.3rem] mt-8 uppercase text-center">User did not create content</h2>
+                <h2 v-if="!feedLoading" class="text-[1.3rem] mt-8 uppercase text-center">
+                  User did not create content
+                </h2>
                 <DangLoader v-else class="mt-28" :unset="true" />
               </div>
             </template>
@@ -130,55 +187,10 @@
             :apiBase="API_BASE"
             :stackAlertError="stackAlertError"
           />
-          <!-- <CollectionsPage
-        v-if="currentMenuTab === MENU_BUTTONS.collections"
-        :accountId="userId"
-        :collections="collectionsPageCollections"
-        :collectionPromise="collectionsPagePromise"
-      />
-      <FollowersPage v-if="currentMenuTab === MENU_BUTTONS.followers" :followersList="followers" :account="userData.username" />
-      <div v-if="currentMenuTab === MENU_BUTTONS.settings">
-        <p class="text-[1.3rem] mt-2 uppercase">THIS TAB IS NOT IMPLEMENTED YET</p>
-      </div> -->
-          <!-- <InfScroll
-        v-if="currentMenuTab === MENU_BUTTONS.web3 && postLoaded"
-        :key="`${postLoaded}-loaded`"
-        :postLoaded="postLoaded"
-        @hit="onHit"
-      >
-        <template #content>
-          <div v-if="posts.length > 0" class="flex flex-row mx-auto">
-            <div class="flex flex-col">
-              <Post
-                v-for="post of posts"
-                :id="(post as Record<string, any>)._id.postid"
-                :key="(post  as Record<string, any>)._id.postid"
-                :post="(post as Record<string, any>)"
-                :postTypesPromises="postTypesPromises"
-                :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
-                @updatepostinfo="
-                  (postid: string) => {
-                    postInfo = posts.find((p: any): boolean => postid === p._id.postid)
-                  }
-                "
-              />
-              <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
-            </div>
-            <PostInfo
-              :key="(postInfo as Record<string, any>)._id.postid"
-              class="hidden lg:flex"
-              :post="(postInfo as Record<string, any>)"
-            />
-          </div>
-          <div v-else>
-            <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
-            <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
-          </div>
-        </template>
-      </InfScroll> -->
         </div>
       </div>
     </ion-content>
+    <ReportUserModal :userId="userData.evmAddress ?? ''" ref="reportModal" />
   </ion-page>
 </template>
 
@@ -197,7 +209,7 @@ import {
 } from "@ionic/vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 
-import { defineComponent, onUnmounted, Ref, ref, shallowRef, defineAsyncComponent } from "vue";
+import { defineComponent, onUnmounted, Ref, ref, shallowRef, ShallowRef } from "vue";
 import DangLoader from "components/vote-list/loader.vue";
 import ProfileCard from "@/components/profile/profileCard.vue";
 // import ProfileInfoCard from '@/components/content/profile/infoCard.vue'
@@ -220,10 +232,12 @@ import {
   stackAlertError,
   stackAlertSuccess,
   stackAlertWarning,
-} from "shared/src/store/alertStore";
+} from "@/store/alert-store";
 import PostMenu from "@/components/post/menu/postMenu.vue";
 import HorizontalChips from "@/components/misc/horizontal-chips.vue";
-
+import BlockedProfile from "components/profile/blockedProfile.vue";
+import { addBlock, removeBlock, isBlocked } from "shared/src/utils/requests/accounts";
+import ReportUserModal from "@/components/profile/reportUser.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -242,14 +256,9 @@ export default defineComponent({
   components: {
     DangLoader,
     ProfileCard,
-    // ProfileInfoCard,
-    // ProfileMenu,
     Post,
     InfScroll,
-    // CollectionsPage,
-    // PostInfo,
     LineLoader,
-    // FollowersPage,
     WalletPage,
     HeaderBar,
     IonPage,
@@ -260,7 +269,9 @@ export default defineComponent({
     IonRefresher,
     IonRefresherContent,
     IonIcon,
-    HorizontalChips
+    HorizontalChips,
+    BlockedProfile,
+    ReportUserModal,
   },
   setup() {
     const route = useRoute();
@@ -268,7 +279,7 @@ export default defineComponent({
     const userId = ref("");
     // const accountRoute = route.params.accountRoute as string
 
-    const accountPages = [ "created", "feed", "wallet"];
+    const accountPages = ["created", "feed", "wallet"];
 
     const search = ref("");
     const apiError = ref(false);
@@ -294,7 +305,13 @@ export default defineComponent({
     const isAuth = ref(store.isLoggedIn);
     // let LoadTimeout = 0
     const walletKeyRefresh = ref(0);
- 
+
+    const isOwnAccount = ref(
+      store?.isLoggedIn && store?.userData.account === userId.value
+    );
+
+    const isUserBlocked = ref(false);
+    const reportModal = shallowRef(null) as ShallowRef<typeof ReportUserModal | null>;
 
     const userData = (ref({
       _id: "",
@@ -321,6 +338,7 @@ export default defineComponent({
 
     store.$subscribe(async () => {
       isAuth.value = store.isLoggedIn;
+      isOwnAccount.value = store?.isLoggedIn && store?.userData.account === userId.value;
 
       if (store.deletePost) {
         const el = document?.getElementById(store.deletePost);
@@ -411,12 +429,11 @@ export default defineComponent({
         postLoaded.value = true;
       });
     };
- 
 
     const userLoad = (noLoading = false) => {
       userId.value =
         (route.params.userId as string) ?? (store.userData.account as string);
-      createUserData(userId.value, true).then((uD) => {
+      createUserData(userId.value, true).then(async (uD) => {
         if (uD.error) {
           apiErrorMsg.value = `Account { ${userId.value} } not found`;
           apiError.value = true;
@@ -445,12 +462,21 @@ export default defineComponent({
           }
         });
 
+        isOwnAccount.value =
+          store?.isLoggedIn && store?.userData.account === userId.value;
+
+        isUserBlocked.value = await isBlocked({
+          address: userData.value.evmAddress,
+          store,
+        });
+
         isLoadingUser.value = false;
       });
     };
 
     onIonViewDidEnter(async () => {
       userLoad();
+      console.log(store?.isLoggedIn, store?.userData.account, userId.value);
     });
 
     // onIonViewWillLeave( () => clearTimeout(LoadTimeout))
@@ -497,6 +523,37 @@ export default defineComponent({
       return false;
     };
 
+    const doBlock = async () => {
+      const res = await addBlock({
+        address: userData.value.evmAddress,
+        store,
+      });
+      if (res) {
+        isUserBlocked.value = true;
+        stackAlertSuccess("User blocked");
+      } else {
+        stackAlertError("Error blocking user");
+      }
+    };
+
+    const doUnblock = async () => {
+      const res = await removeBlock({
+        address: userData.value.evmAddress,
+        store,
+      });
+      if (res) {
+        isUserBlocked.value = false;
+        stackAlertSuccess("User unblocked");
+      } else {
+        stackAlertError("Error unblocking user");
+      }
+    };
+
+    const doReport = () => {
+      console.log("doReport", reportModal?.value);
+      reportModal?.value?.toggleModal();
+    };
+
     onUnmounted(() => {
       // do nothing
     });
@@ -533,7 +590,13 @@ export default defineComponent({
       openSettings,
       API_BASE,
       stackAlertError,
-      postDeps
+      postDeps,
+      isOwnAccount,
+      doBlock,
+      doUnblock,
+      doReport,
+      isUserBlocked,
+      reportModal,
     };
   },
 });
@@ -549,36 +612,35 @@ export default defineComponent({
     top: 1rem;
     font-size: 1.4rem;
   }
-
 }
 .asocLink {
   text-transform: uppercase;
-    font-size: 0.85rem;
-    border: 1px solid rgb(50, 50, 50);
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.4rem;
-    opacity: 0.8;
-    box-shadow: 2px -1px 0px 0px rgb(249 249 249 / 28%);
-    transition: all 0.3s ease-in-out;
-    justify-content: center;
-    display: flex;
-    width: 10rem;
-    margin-left: auto;
-    margin-right: auto;
-    color: #ffffffe0;
+  font-size: 0.85rem;
+  border: 1px solid rgb(50, 50, 50);
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.4rem;
+  opacity: 0.8;
+  box-shadow: 2px -1px 0px 0px rgb(249 249 249 / 28%);
+  transition: all 0.3s ease-in-out;
+  justify-content: center;
+  display: flex;
+  width: 10rem;
+  margin-left: auto;
+  margin-right: auto;
+  color: #ffffffe0;
 }
 
 .glow-button {
   --button-background: #383040bd;
   --button-color: #fff;
   --button-shadow: rgb(0 0 0 / 20%);
-    --button-shine-left: rgba(120, 0, 245, 0.5);
-    --button-shine-right: rgb(31 2 62 / 65%);
-  --button-glow-start: #B000E8;
-  --button-glow-end: #009FFD;
+  --button-shine-left: rgba(120, 0, 245, 0.5);
+  --button-shine-right: rgb(31 2 62 / 65%);
+  --button-glow-start: #b000e8;
+  --button-glow-end: #009ffd;
   -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
+  -moz-appearance: none;
+  appearance: none;
   outline: none;
   border: none;
   font-family: inherit;

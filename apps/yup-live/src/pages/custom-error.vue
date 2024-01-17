@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
+  <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto">
     <div :key="`${isMobile}-error`" :class="`main-error bg-color w-full ${isMobile ? 'flex-column' : ''}`">
       <div>
         <div :class="`${isMobile ? 'm-14 error-fs-mobile' : 'm-20 error-fs-desktop'}`">
@@ -27,8 +27,8 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref } from 'vue'
-import { useHead, HeadObject } from '@vueuse/head'
+import { onMounted, defineComponent, reactive, computed, onUnmounted } from 'vue'
+import { useHead } from 'unhead'
 import { useRoute, useRouter } from 'vue-router'
 
 export default defineComponent({
@@ -73,19 +73,18 @@ export default defineComponent({
     })
 
     useHead({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description),
+      title: computed(() => siteData.title).value,
       meta: [
         {
           name: 'description',
-          content: computed(() => siteData.description)
+          content: computed(() => siteData.description).value
         },
         {
           name: 'og:image',
           content: `/share/yup-live-ogs/og-yup-live-default.png`
         },
       ]
-    } as unknown as Ref<HeadObject>)
+    })
 
     return {
       goHome,

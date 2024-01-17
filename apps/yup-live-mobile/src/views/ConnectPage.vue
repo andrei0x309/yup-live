@@ -44,7 +44,7 @@
           <ion-label>Login</ion-label>
         </ion-segment-button>
         <ion-segment-button value="signup">
-          <ion-label>SignYup</ion-label>
+          <ion-label>Signup</ion-label>
         </ion-segment-button>
       </ion-segment>
 
@@ -199,7 +199,7 @@
   </ion-page>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import {
   IonContent,
   IonPage,
@@ -224,8 +224,7 @@ import {
   IonButtons,
   IonButton,
 } from "@ionic/vue";
-import { defineComponent } from "vue";
-import { ref, Ref, onMounted, } from "vue";
+import { ref, onMounted } from "vue";
 import { onLogin, onSignup } from "shared/src/utils/login-signup";
 import { useMainStore } from "@/store/main";
 import { storage } from "@/utils/storage";
@@ -233,36 +232,7 @@ import CustomButton from "@/components/misc/button-connect-page.vue";
 import { useRouter } from "vue-router";
 import HeaderBar from "@/components/template/header-bar.vue";
 import { getConnected } from "shared/src/utils/requests/accounts";
-
-export default defineComponent({
-  name: "ConnectPage",
-  components: {
-    IonContent,
-    IonPage,
-    IonLoading,
-    CustomButton,
-    IonLabel,
-    IonSegment,
-    IonSegmentButton,
-    IonAccordion,
-    IonItem,
-    IonInput,
-    IonTextarea,
-    IonCard,
-    IonCardContent,
-    IonCardSubtitle,
-    IonCardHeader,
-    IonAccordionGroup,
-    IonToast,
-    HeaderBar,
-    IonModal,
-    IonToolbar,
-    IonTitle,
-    IonHeader,
-  IonButtons,
-  IonButton
-  },
-  setup() {
+ 
     const currentSegment = ref("login");
     const username = ref("");
     const bio = ref("");
@@ -364,6 +334,7 @@ export default defineComponent({
           router.replace("/tabs/feeds");
         } catch (error) {
           console.error("Failed to set auth data", error);
+          console.log(router)
         }
       } else {
         window?.localStorage?.clear()
@@ -403,28 +374,7 @@ export default defineComponent({
       loading.value = false;
       enterLoading.value = false;
     });
-
-    return {
-      onSignupLocal,
-      onLoginLocal,
-      currentSegment,
-      segmentChange,
-      username,
-      bio,
-      fullName,
-      loading,
-      toastState,
-      tostMsg,
-      infoModalOpen,
-      reviewModalLogin,
-      reviewPassword,
-      reviewUsername,
-      reviewLogin,
-      mainStore,
-      enterLoading
-    };
-  },
-});
+ 
 </script>
 
 

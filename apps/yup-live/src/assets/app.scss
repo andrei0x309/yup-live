@@ -1,3 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 .blinkTxt {
     animation: blink 2s linear infinite;
 }

@@ -12,8 +12,8 @@
           </div>
     </div>
     <div class="flex flex-col w-full">
-      <div class="flex">
-        <p class="ml-3 flex items-center pb-2">
+      <div class="flex flex-col">
+        <p class="ml-3 flex items-center pb-1">
           <b class="mr-2 opacity-60">by</b>
           <template v-if="notification?.senders?.length > 1">
             <template v-if="notification?.senders?.length <= 3">
@@ -38,17 +38,17 @@
                   <span class="opacity-60">,&nbsp;</span>
                 </template>
               </template>
-              <template v-if="notification.count > 3">
-                <span class="opacity-60"
-                  >&nbsp;and {{ notification.count - 3 }} more</span
-                >
-              </template>
             </template>
           </template>
           <router-link v-else :to="`/web3-profile/${notification.senders[0]?._id}`">{{
             notification.senders[0]?.handle
           }}</router-link>
         </p>
+        <template v-if="notification.count > 3">
+                <span class="opacity-60 ml-2 flex items-center pb-1"
+                  >&nbsp;and {{ notification.count - 3 }} more</span
+                >
+       </template>
       </div>
       <p class="ml-3 mt-3 flex items-center w-full">
         <b

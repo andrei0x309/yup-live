@@ -5,32 +5,9 @@ import type { NameValue } from '../../types/account'
 import type { IMainStore } from '../../types/store'
 import type { Ref } from 'vue'
 import type { TPlatform } from '../../types/web3-posting'
+import { fetchWAuth } from '../auth'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-
-export const getUserFollowers = async (userId: string) => {
-  try {
-    const req = await fetch(`${API_BASE}/followers/${userId}`)
-    if (req.ok) {
-      return { error: false, data: await req.json() }
-    }
-    return { error: true, msg: "API didn't return expected response." }
-  } catch {
-    return { error: true, msg: 'API is not available' }
-  }
-}
-
-export const getUserFollowing = async (userId: string) => {
-  try {
-    const req = await fetch(`${API_BASE}/following/${userId}`)
-    if (req.ok) {
-      return { error: false, data: await req.json() }
-    }
-    return { error: true, msg: "API didn't return expected response." }
-  } catch {
-    return { error: true, msg: 'API is not available' }
-  }
-}
 
 export const getActionUsage = async (userId: string) => {
   try {
@@ -59,6 +36,7 @@ export const createActionUsage = async (userId: string, balance: number) => {
 }
 
 export const getUserData = async (userId: string, refreshWeight = false) => {
+  if (!userId) return { error: true, msg: 'No user id provided' }
   try {
     const req = await fetch(`${API_BASE}/accounts/${userId}`)
     if (req.ok) {
@@ -340,4 +318,161 @@ export const setConnected = (store: IMainStore, platform: TPlatform, value: bool
   }
   store.userData.connected[platform] = value
   localStorage.setItem('connected', JSON.stringify(store.userData.connected))
+}
+
+export const getBlocks = async ({
+  store,
+  start = 0,
+  limit = 10
+}: {
+  store: IMainStore
+  start?: number
+  limit?: number
+}) => {
+  try {
+    const res = await fetchWAuth(store, `${API_BASE}/blocks/?start=${start}&limit=${limit}`)
+    if (!res.ok) {
+      console.error('getBlocks: not 200', res)
+      return []
+    }
+    return await res.json()
+  } catch (e) {
+    console.error('getBlocks exception', e)
+    return []
+  }
+}
+
+export const addBlock = async ({
+  store,
+  address,
+  localOnly = false
+}: {
+  store: IMainStore
+  address: string
+  localOnly?: boolean
+}) => {
+  try {
+    const localProfileBlocks = localStorage.getItem('profileBlocks')
+
+    try {
+      if (localProfileBlocks) {
+        const parseProfileBlocks = JSON.parse(localProfileBlocks)
+        const { profiles } = parseProfileBlocks
+        if (profiles?.includes(address)) {
+          return true
+        } else {
+          profiles.push(address)
+          parseProfileBlocks.timestamp = Date.now()
+          localStorage.setItem('profileBlocks', JSON.stringify(parseProfileBlocks))
+        }
+      } else {
+        localStorage.setItem('profileBlocks', JSON.stringify({ profiles: [address], timestamp: Date.now() }))
+      }
+    } catch (e) {
+      console.error('addBlock exception', e)
+    }
+
+    if (localOnly) {
+      return true
+    }
+
+    const res = await fetchWAuth(store, `${API_BASE}/blocks`, {
+      method: 'POST',
+      body: JSON.stringify({ address }),
+    })
+    if (!res.ok) {
+      console.error('addBlock: not 200', res)
+      return false
+    }
+
+
+    return true
+  } catch (e) {
+    console.error('addBlock exception', e)
+    return false
+  }
+}
+
+export const removeBlock = async ({
+  store,
+  address,
+}: {
+  store: IMainStore
+  address: string
+}) => {
+  try {
+    const localProfileBlocks = localStorage.getItem('profileBlocks')
+
+    try {
+      if (localProfileBlocks) {
+        const parseProfileBlocks = JSON.parse(localProfileBlocks)
+        const { profiles } = parseProfileBlocks
+        if (profiles?.includes(address)) {
+          profiles.splice(profiles.indexOf(address), 1)
+          localStorage.setItem('profileBlocks', JSON.stringify(parseProfileBlocks))
+        }
+      }
+    } catch (e) {
+      console.error('removeBlock exception', e)
+    }
+
+    const res = await fetchWAuth(store, `${API_BASE}/blocks`, {
+      method: 'DELETE',
+      body: JSON.stringify({ address }),
+    })
+    if (!res.ok) {
+      console.error('removeBlock: not 200', res)
+      return false
+    }
+    return true
+  } catch (e) {
+    console.error('removeBlock exception', e)
+    return false
+  }
+}
+
+export const isBlocked = async ({
+  store,
+  address
+}: {
+  store: IMainStore
+  address: string
+}) => {
+  const localProfileBlocks = localStorage.getItem('profileBlocks')
+  try {
+    if (localProfileBlocks) {
+      const parseProfileBlocks = JSON.parse(localProfileBlocks)
+      const { profiles } = parseProfileBlocks
+      if (profiles?.includes(address)) {
+        return true
+      }
+    }
+    const blocks = await getBlocks({ store })
+    if (blocks?.blocks?.includes(address)) {
+      addBlock({ store, address, localOnly: true })
+      return true
+    }
+
+  } catch (e) {
+    console.error('isBlocked exception', e)
+  }
+  return false
+}
+
+export const clearProfileBlocks = () => {
+  try {
+    const localProfileBlocks = localStorage.getItem('profileBlocks')
+    if (localProfileBlocks) {
+      const parseProfileBlocks = JSON.parse(localProfileBlocks)
+      if (parseProfileBlocks.timestamp) {
+        const now = Date.now()
+        const sixDays = 6 * 24 * 60 * 60 * 1000
+        if (now - parseProfileBlocks.timestamp > sixDays) {
+          localStorage.removeItem('profileBlocks')
+        }
+      }
+    }
+  } catch (e) {
+    console.error('clearProfileBlocks exception', e)
+  }
 }

@@ -117,7 +117,7 @@ export const sendPost = async ({
     maxCharCount,
     isSendPost,
     postPlatforms,
-    images,
+    media,
     store,
     stackAlertSuccess,
     stackAlertWarning,
@@ -128,7 +128,7 @@ export const sendPost = async ({
     maxCharCount: Ref<number>
     isSendPost: Ref<boolean>
     postPlatforms: Ref<TPlatform[]>
-    images: Ref<Record<string, unknown>[]>
+        media: Record<string, unknown>[]
         store: IMainStore
     stackAlertSuccess?: (message: string) => void,
     stackAlertWarning?: (message: string) => void,
@@ -146,13 +146,13 @@ export const sendPost = async ({
     const sendData = {
         content: postContent.value,
         platforms: postPlatforms.value,
-        media: images.value.map((image: Record<string, unknown>) => {
+        media: media.map((media: Record<string, unknown>) => {
             const ret = {} as Record<string, unknown>
-            if (image.farcaster) ret['farcaster'] = image.farcaster
-            if (image.twitter) ret['twitter'] = image.twitter
-            if (image.lens) ret['lens'] = image.lens
-            if (image.bsky) ret['bsky'] = image.bsky
-            if (image.threads) ret['threads'] = image.threads
+            if (media.farcaster) ret['farcaster'] = media.farcaster
+            if (media.twitter) ret['twitter'] = media.twitter
+            if (media.lens) ret['lens'] = media.lens
+            if (media.bsky) ret['bsky'] = media.bsky
+            if (media.threads) ret['threads'] = media.threads
             return ret
         }),
     } as ISendPostData;

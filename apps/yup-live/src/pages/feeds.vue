@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
+  <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto">
     <div class="bg-color w-full mb-4">
       <nav class="feedNav">
         <ul>
@@ -79,7 +79,7 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, reactive, onUnmounted, Ref, ref, shallowRef } from 'vue'
-import { useHead, HeadObject } from '@vueuse/head'
+import { useHead } from 'unhead'
 import DangLoader from 'components/vote-list/loader.vue'
 import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
 // import DateIcon from 'icons/src/date.vue'
@@ -89,7 +89,7 @@ import { useRoute } from 'vue-router'
 import Post from 'components/post/post.vue'
 import PostInfo from '@/components/content/post/postInfo.vue'
 import LineLoader from 'components/functional/lineLoader.vue'
-import { stackAlertError, stackAlertSuccess, stackAlertWarning } from 'shared/src/store/alertStore'
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
 import { useMainStore, openConnectModal } from '@/store/main'
 import { IPostDeps } from 'shared/src/types/post'
 import type { IPost } from 'shared/src/types/post'
@@ -154,7 +154,6 @@ export default defineComponent({
 
     useHead({
       title: siteData.title,
-      description: siteData.description,
       meta: [
         {
           name: 'og:image',
@@ -194,10 +193,10 @@ export default defineComponent({
         },
         {
           name: 'twitter:description',
-          content: () => siteData.description
+          content: siteData.description
         }
       ]
-    } as unknown as Ref<HeadObject>)
+    })
 
     const getFeedPosts = async (start = 0) => {
       try {

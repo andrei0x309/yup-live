@@ -32,7 +32,7 @@
         @click="dwJson()"
       >
         <FileDownloadIcon class="m-1" />
-        <span class="font-medium font-bold"
+        <span class="font-bold"
           >Download JSON for this period for top 100 users</span
         >
       </button>
@@ -67,7 +67,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 // import { useRoute, useRouter } from 'vue-router'
 import DangLoader from "components/vote-list/loader.vue";
 import { useMainStore } from "@/store/main";
@@ -78,21 +78,14 @@ import FileDownloadIcon from 'icons/src/fileDownload.vue'
 
 import {
   onMounted,
-  defineComponent,
-  // inject,
   ref,
-  //   reactive,
   watch,
   onUnmounted,
   Ref,
 } from "vue";
 
-export default defineComponent({
-  name: "GiniTrend",
-  components: { ChartD3, DangLoader, FileDownloadIcon },
-  setup() {
+ 
     const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-    // const API_BASE = "http://localhost:4001"
 
     const weekText = ["Last Week"];
     for (let i = 2; i <= 12; i++) {
@@ -103,9 +96,7 @@ export default defineComponent({
     const isDataLoading = ref(false);
     const store = useMainStore();
     const timePeriod = ref(1);
-    const tableTimePeriod = ref("loading...");
     const giniTrend: Ref<Array<Record<string, unknown>>> = ref([]);
-    const graphRef = (ref(null) as unknown) as Ref<HTMLElement>;
     const lightGradient = [
       "#0f53b5",
       "#0d52b6",
@@ -125,9 +116,6 @@ export default defineComponent({
     const gradient = ref(store.theme === "dark" ? darkGradient : lightGradient);
 
     const iconsColor = ref(store.theme === "dark" ? "#ccc" : "#020201");
-
-    const data: Ref<Record<string, string | number | boolean>[]> = ref([]);
-
  
 
     const getGiniData = async () => {
@@ -190,21 +178,6 @@ export default defineComponent({
       // do nothing
     });
 
-    return {
-      data,
-      iconsColor,
-      tableTimePeriod,
-      timePeriod,
-      giniTrend,
-      weekText,
-      isDataLoading,
-      graphRef,
-      apiError,
-      gradient,
-      dwJson,
-    };
-  },
-});
 </script>
 
 <style lang="scss">

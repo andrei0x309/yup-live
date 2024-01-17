@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto flex">
+  <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto flex">
     <div class="bg-color page-not w-full mb-4 flex flex-col">
       <div v-if="!loading" class="flex flex-col text-center items-center pb-4">
         <h2 class="p-4 tracking-wide uppercase">Collection: {{ collectionData.name }}</h2>
@@ -58,7 +58,7 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref, ref, shallowRef } from 'vue'
-import { useHead, HeadObject } from '@vueuse/head'
+import { useHead } from 'unhead'
 import DangLoader from 'components/vote-list/loader.vue'
 import { useRoute } from 'vue-router'
 import InfScroll from 'components/functional/inf-scroll/infScroll.vue'
@@ -120,12 +120,11 @@ export default defineComponent({
     })
 
     useHead({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description),
+      title: computed(() => siteData.title).value,
       meta: [
         {
           name: 'description',
-          content: computed(() => siteData.description)
+          content: computed(() => siteData.description).value
         },
         {
           name: 'og:type',
@@ -133,15 +132,15 @@ export default defineComponent({
         },
         {
           name: 'og:title',
-          content: computed(() => siteData.title)
+          content: computed(() => siteData.title).value
         },
         {
           name: 'og:description',
-          content: computed(() => siteData.description)
+          content: computed(() => siteData.description).value
         },
         {
           name: 'og:url',
-          content: computed(() => route.fullPath)
+          content: computed(() => route.fullPath).value
         },
         {
           name: 'twitter:card',
@@ -149,18 +148,18 @@ export default defineComponent({
         },
         {
           name: 'twitter:url',
-          content: computed(() => route.fullPath)
+          content: computed(() => route.fullPath).value
         },
         {
           name: 'twitter:title',
-          content: computed(() => siteData.title)
+          content: computed(() => siteData.title).value
         },
         {
           name: 'twitter:description',
-          content: computed(() => siteData.description)
+          content: computed(() => siteData.description).value
         }
       ]
-    } as unknown as Ref<HeadObject>)
+    })
 
     onUnmounted(() => {
       // do nothing

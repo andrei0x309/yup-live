@@ -10,7 +10,8 @@ const routes = [
   {
     path: '/',
     name: 'HomePage',
-    component: HomePage
+    component: HomePage,
+    alias: ['/', '/index.html']
   },
   {
     path: '/page/:pageNo',
@@ -205,15 +206,15 @@ const routes = [
     redirect: 'https://app.yup.io/staking'
   },
   {
-    name: 'ErrorPage',
     path: '/error/code/:code',
+    name: 'ErrorPage',
     component: () => import('@/pages/custom-error.vue')
   },
-  {
-    name: 'ErrorPage',
-    path: '/:pathMatch(.*)',
-    component: () => import('@/pages/custom-error.vue')
-  }
+  // {
+  //   path: '/:pathMatch(.*)*',
+  //   name: 'ErrorPage',
+  //   component: () => import('@/pages/custom-error.vue')
+  // }
 ]
 
 const router = createRouter({

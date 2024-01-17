@@ -19,6 +19,7 @@ export interface IMainStore {
   userData: IStoreUserData
   isLoggedIn?: boolean
   openConnectModal?: boolean
+  openCrossPostModal?: boolean
   modalLoginState?: boolean
   farcaster?: string
   fid?: string

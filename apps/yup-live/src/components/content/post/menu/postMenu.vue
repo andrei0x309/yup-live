@@ -8,7 +8,7 @@
       @click="menuOpen = !menuOpen"
     >
       <template #content>
-        <ul class="w-30 text-justify postMenu">
+        <ul class="w-32 text-justify postMenu">
           <li class="pt-1 cursor-pointer" @click="showVoters"><RadarIcon class="w-5 inline -mt-1 mr-1" />View Voters</li>
           <li v-if="refHasVote" class="pt-1 cursor-pointer" @click="deleteVote">
             <DeleteIcon :class="`w-5 inline -mt-1 mr-1 ${delLoading ? 'rotate' : ''}`" />Delete Vote
@@ -77,7 +77,7 @@ import GoToIcon from 'icons/src/goTo.vue'
 import RetryIcon from 'icons/src/retry.vue'
 import { wait } from 'shared/src/utils/time'
 import { fetchWAuth } from 'shared/src/utils/auth'
-import { stackAlertError, stackAlertSuccess, stackAlertWarning } from 'shared/src/store/alertStore'
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
 import FlagIcon from 'icons/src/flag.vue'
 
 import type { PartialAccountInfo } from 'shared/src/types/account'
@@ -167,7 +167,6 @@ export default defineComponent({
         text: props.postShareInfo.text,
         url: props.postShareInfo.url
       }
-      console.log('share', share)
       if (navigator.share) {
         navigator
           .share(share)
@@ -311,8 +310,8 @@ export default defineComponent({
 
     const doReport = async () => {
       try {
-      if(!reportText.value.length || reportText.value.length < 10) {
-        stackAlertError('Please enter a reason for the report.')
+      if(!reportText.value.length || reportText.value.length < 6) {
+        stackAlertError('Repot reason is to short, it need at least 6 characters.')
         return
       }
       isReporting.value = true

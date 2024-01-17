@@ -50,15 +50,14 @@
           <ThreadsIcon class="w-6 mx-2" v-if="store?.userData?.connected?.threads" />
       </div>
       </div>
+      <slot name="block"></slot>
+      <slot name="report"></slot>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { onMounted, defineComponent, ref, PropType } from 'vue'
-// import ProfileUseBar from '@/components/content/profile/useBar.vue'
-// import FollowersIcon from 'icons/src/followers.vue'
-// import AddFollow from 'icons/src/addFollow.vue'
 import { makeRandAvatar } from 'shared/src/utils/accounts'
 import type { NameValue } from 'shared/src/types/account'
 import {
@@ -79,7 +78,7 @@ import { useMainStore } from '@/store/main';
 import ThreadsIcon from 'icons/src/threads.vue'
 
 export default defineComponent({
-  name: 'PostInfo',
+  name: 'ProfileCard',
   components: {
     // ProfileUseBar,
     // AddFollow,
@@ -121,6 +120,7 @@ export default defineComponent({
   },
   setup(props) {
     const source = ref(props.userData.avatar)
+
     // const isLoading = ref(true)
 
     const onError = () => {

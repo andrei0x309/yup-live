@@ -3,9 +3,9 @@
     <HeaderBar text="WEB3 PROFILE" :menu="true" />
 
     <ion-content :fullscreen="true">
-      <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto mb-8">
+      <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto mb-8">
         <div class="bg-color flex flex-col">
-          <template v-if="!apiError">
+          <template v-if="!apiError && !isUserBlocked">
             <ion-refresher
               slot="fixed"
               mode="ios"
@@ -20,13 +20,43 @@
               <DangLoader v-if="isLoadingProfile" class="mt-28" :unset="true" />
               <template v-else>
                 <Web3ProfileCard
-              :web3Profile="web3Profile" :followersCount="followersCount"
-              :deps="web3Deps"
-              />
+                  :web3Profile="web3Profile"
+                  :followersCount="followersCount"
+                  :deps="web3Deps"
+                >
+                  <template #block>
+                    <button
+                      class="ml-14 view-btn text-[0.85rem] mt-3 min-w-20 p-1 text-center block"
+                      @click="doBlock"
+                    >
+                      Block
+                    </button>
+                  </template>
 
+                  <template #report>
+                    <button
+                      class="ml-14 view-btn text-[0.85rem] mt-3 min-w-20 p-1 text-center block"
+                      @click="doReport"
+                    >
+                      Report
+                    </button>
+                  </template>
+                </Web3ProfileCard>
               </template>
             </div>
           </template>
+          <div class="profile w-full mb-4 flex flex-row" v-else-if="isUserBlocked">
+            <BlockedProfile :web3Profile="web3Profile">
+              <template #unblock>
+                <button
+                  class="ml-12 view-btn text-[0.85rem] mt-3 min-w-20 p-1 text-center block"
+                  @click="doUnblock"
+                >
+                  Unblock
+                </button>
+              </template>
+            </BlockedProfile>
+          </div>
           <div v-else class="min-h-[40rem]">
             <div
               style="max-width: 40rem; margin: auto"
@@ -54,39 +84,32 @@
             </div>
           </div>
         </div>
-        <ion-list style="position: sticky; top: 0; z-index: 2">
-          <ion-item>
-            <ion-select
-              v-model="currentAccountPage"
-              style="margin: auto"
-              interface="action-sheet"
-              placeholder="Select Feed"
-              
-              @ionChange="pageChange"
-            >
-              <ion-select-option :value="accountPages[0]">Created Content</ion-select-option>
-              <ion-select-option :value="accountPages[1]">Wallet</ion-select-option>
-            </ion-select>
-          </ion-item>
-        </ion-list>
         <div
-          v-if="!apiError"
+          v-if="!apiError && !isUserBlocked"
           class="bg-color table-list profile w-full mb-4 flex flex-col"
         >
-          <template
-            v-if="
-              [accountPages[0]].includes(currentAccountPage) &&
-              !postLoaded
-            "
-          >
+          <ion-list style="position: sticky; top: 0; z-index: 2">
+            <ion-item>
+              <ion-select
+                v-model="currentAccountPage"
+                style="margin: auto"
+                interface="action-sheet"
+                placeholder="Select Feed"
+                @ionChange="pageChange"
+              >
+                <ion-select-option :value="accountPages[0]"
+                  >Created Content</ion-select-option
+                >
+                <ion-select-option :value="accountPages[1]">Wallet</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-list>
+          <template v-if="[accountPages[0]].includes(currentAccountPage) && !postLoaded">
             <p class="text-center m-4">Loading user feed</p>
             <DangLoader :unset="true" />
           </template>
           <InfScroll
-            v-if="
-              [accountPages[0]].includes(currentAccountPage) &&
-              postLoaded
-            "
+            v-if="[accountPages[0]].includes(currentAccountPage) && postLoaded"
             :key="`${postLoaded}-loaded`"
             :postLoaded="postLoaded"
             :top-detection="false"
@@ -109,7 +132,9 @@
                 </div>
               </div>
               <div v-else>
-                <h2 v-if="!feedLoading" class="text-[1.3rem] mt-8 uppercase text-center">User did not create content</h2>
+                <h2 v-if="!feedLoading" class="text-[1.3rem] mt-8 uppercase text-center">
+                  User did not create content
+                </h2>
                 <DangLoader v-else class="mt-28" :unset="true" />
               </div>
             </template>
@@ -122,55 +147,13 @@
             :apiBase="API_BASE"
             :stackAlertError="stackAlertError"
           />
-          <!-- <CollectionsPage
-          v-if="currentMenuTab === MENU_BUTTONS.collections"
-          :accountId="userId"
-          :collections="collectionsPageCollections"
-          :collectionPromise="collectionsPagePromise"
-        />
-        <FollowersPage v-if="currentMenuTab === MENU_BUTTONS.followers" :followersList="followers" :account="userData.username" />
-        <div v-if="currentMenuTab === MENU_BUTTONS.settings">
-          <p class="text-[1.3rem] mt-2 uppercase">THIS TAB IS NOT IMPLEMENTED YET</p>
-        </div> -->
-          <!-- <InfScroll
-          v-if="currentMenuTab === MENU_BUTTONS.web3 && postLoaded"
-          :key="`${postLoaded}-loaded`"
-          :postLoaded="postLoaded"
-          @hit="onHit"
-        >
-          <template #content>
-            <div v-if="posts.length > 0" class="flex flex-row mx-auto">
-              <div class="flex flex-col">
-                <Post
-                  v-for="post of posts"
-                  :id="(post as Record<string, any>)._id.postid"
-                  :key="(post  as Record<string, any>)._id.postid"
-                  :post="(post as Record<string, any>)"
-                  :postTypesPromises="postTypesPromises"
-                  :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
-                  @updatepostinfo="
-                    (postid: string) => {
-                      postInfo = posts.find((p: any): boolean => postid === p._id.postid)
-                    }
-                  "
-                />
-                <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />
-              </div>
-              <PostInfo
-                :key="(postInfo as Record<string, any>)._id.postid"
-                class="hidden lg:flex"
-                :post="(postInfo as Record<string, any>)"
-              />
-            </div>
-            <div v-else>
-              <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
-              <component :is="catComp" v-if="catComp !== null" class="w-10 mx-auto" />
-            </div>
-          </template>
-        </InfScroll> -->
         </div>
       </div>
     </ion-content>
+    <ReportUserModal
+      :userId="web3Profile?._id ?? web3Profile?.evmAddress ?? ''"
+      ref="reportModal"
+    />
   </ion-page>
 </template>
 
@@ -188,7 +171,7 @@ import {
 } from "@ionic/vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 
-import { defineComponent, onUnmounted, Ref, ref, shallowRef } from "vue";
+import { defineComponent, onUnmounted, Ref, ref, shallowRef, ShallowRef } from "vue";
 import DangLoader from "components/vote-list/loader.vue";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 import { useMainStore } from "@/store/main";
@@ -206,11 +189,14 @@ import {
   stackAlertError,
   stackAlertSuccess,
   stackAlertWarning,
-} from "shared/src/store/alertStore";
+} from "@/store/alert-store";
 import PostMenu from "@/components/post/menu/postMenu.vue";
 import { IWeb3Profile } from "shared/src/types/web3Profile";
 import { fetchWeb3Profile } from "shared/src/utils/requests/web3Profiles";
 import Web3ProfileCard from "components/profile/web3ProfileCard.vue";
+import BlockedProfile from "components/profile/blockedProfile.vue";
+import { addBlock, removeBlock, isBlocked } from "shared/src/utils/requests/accounts";
+import ReportUserModal from "@/components/profile/reportUser.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -219,8 +205,8 @@ const web3Deps = {
   useMainStore,
   stackAlertWarning,
   stackAlertSuccess,
-  apiBase:API_BASE
-}
+  apiBase: API_BASE,
+};
 
 const postDeps: IPostDeps = {
   stackAlertError,
@@ -233,18 +219,14 @@ const postDeps: IPostDeps = {
 };
 
 export default defineComponent({
-  name: "ProfilePage",
+  name: "Web3ProfilePage",
   components: {
     DangLoader,
     Web3ProfileCard,
-    // ProfileInfoCard,
-    // ProfileMenu,
     Post,
     InfScroll,
-    // CollectionsPage,
-    // PostInfo,
     LineLoader,
-    // FollowersPage,
+    BlockedProfile,
     WalletPage,
     HeaderBar,
     IonPage,
@@ -255,6 +237,7 @@ export default defineComponent({
     IonList,
     IonRefresher,
     IonRefresherContent,
+    ReportUserModal,
   },
   setup() {
     const route = useRoute();
@@ -270,25 +253,20 @@ export default defineComponent({
     const isLoadingProfile = ref(true);
     const influence: Ref<null | string> = ref(null);
     const historicInfluence: Ref<Array<Record<string, string | number>>> = ref([]);
-    // const userFields = ref([]) as Ref<Array<NameValue>>
     const posts = ref([]) as Ref<Array<IPost>>;
     const postsIndex = ref(0);
     const postLoaded = ref(false);
     const feedLoading = ref(false);
-    // const currentMenuTab = ref(
-    //   Object.keys(MENU_BUTTONS).includes(accountRoute) ? (MENU_BUTTONS as { [key: string]: string })[accountRoute] : MENU_BUTTONS.feed
-    // )
     const currentAccountPage = ref(accountPages[0]);
     const catComp = shallowRef(null) as Ref<unknown>;
 
-    // const collections = useCollectionStore()
-    // const collectionsEx = useCollectionStoreEx()
     const postInfo = ref(null) as Ref<unknown>;
     const isAuth = ref(store.isLoggedIn);
-    // let LoadTimeout = 0
     const walletKeyRefresh = ref(0);
     const followersCount = ref(0);
-    const followers = ref([]) as Ref<Array<string>>; 
+    const followers = ref([]) as Ref<Array<string>>;
+    const isUserBlocked = ref(false);
+    const reportModal = shallowRef(null) as ShallowRef<typeof ReportUserModal | null>;
 
     // const router = useRouter()
 
@@ -296,16 +274,36 @@ export default defineComponent({
       isAuth.value = store.isLoggedIn;
     });
 
-    // watch(currentMenuTab, (newValue) => {
-    //   // const oldValue = currentMenuTab.value
-    //   currentMenuTab.value = newValue
-    //   // if (oldValue !== newValue) {
-    //   //   if (newValue === MENU_BUTTONS.FEED) {
-    //   //     // do nothing
-    //   //   } else if (oldValue === MENU_BUTTONS.COLLECTIONS) {
-    //   //   }
-    //   // }
-    // })
+    const doBlock = async () => {
+      const res = await addBlock({
+        address: userAddr.value,
+        store,
+      });
+      if (res) {
+        isUserBlocked.value = true;
+        stackAlertSuccess("User blocked");
+      } else {
+        stackAlertError("Error blocking user");
+      }
+    };
+
+    const doUnblock = async () => {
+      const res = await removeBlock({
+        address: userAddr.value,
+        store,
+      });
+      if (res) {
+        isUserBlocked.value = false;
+        stackAlertSuccess("User unblocked");
+      } else {
+        stackAlertError("Error unblocking user");
+      }
+    };
+
+    const doReport = () => {
+      console.log("doReport", reportModal?.value);
+      reportModal?.value?.toggleModal();
+    };
 
     const getCreatedFeedPosts = async (start = 0) => {
       const res = await fetch(
@@ -352,22 +350,26 @@ export default defineComponent({
       });
     };
 
-
     onIonViewDidEnter(async () => {
-      web3Profile.value = await fetchWeb3Profile(API_BASE, userAddr.value)
-      if(!web3Profile.value) {
+      web3Profile.value = await fetchWeb3Profile(API_BASE, userAddr.value);
+      if (!web3Profile.value) {
         apiErrorMsg.value = `Web Profile { ${userAddr.value} } not found`;
         apiError.value = true;
       }
 
-      resetPosts()
+      isUserBlocked.value = await isBlocked({
+        address: userAddr.value,
+        store,
+      });
+
+      resetPosts();
 
       getFollowers(API_BASE, userAddr.value).then((res) => {
-        if(res) {
-          followers.value = res.followers.map((f: { _id: string}) => f._id)
-          followersCount.value = res.totalCount
+        if (res) {
+          followers.value = res.followers.map((f: { _id: string }) => f._id);
+          followersCount.value = res.totalCount;
         }
-        isLoadingProfile.value = false
+        isLoadingProfile.value = false;
       });
     });
 
@@ -394,7 +396,6 @@ export default defineComponent({
       }
       event.target.complete();
     };
-
 
     onUnmounted(() => {
       // do nothing
@@ -433,7 +434,12 @@ export default defineComponent({
       web3Deps,
       web3Profile,
       followersCount,
-      userAddr
+      userAddr,
+      doBlock,
+      doUnblock,
+      doReport,
+      isUserBlocked,
+      reportModal,
     };
   },
 });

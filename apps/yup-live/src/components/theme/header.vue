@@ -105,7 +105,7 @@
         <!-- logo - end -->
 
         <!-- nav - start -->
-        <nav class="hidden lg:flex gap-6 text-[0.8rem]">
+        <nav v-if="!noAccess" class="hidden lg:flex gap-6 text-[0.8rem]">
           <template v-if="isLoggedIn">
             <button
               v-if="canDoPost"
@@ -192,13 +192,14 @@
           </o-dropdown>
         </nav>
         <!-- nav - end -->
-        <div class="flex flex-row">
+        <div v-if="!noAccess" class="flex flex-row">
           <ConnectButton />
 
           <!-- buttons - start -->
         </div>
 
         <button
+          v-if="!noAccess"
           type="button"
           class="sm:inline-flex lg:hidden items-center text-sm md:text-base font-semibold rounded-lg gap-2 px-2.5 py-2 headerMenuBtn"
           @click="toggleSidebar()"
@@ -256,6 +257,12 @@ export default defineComponent({
     CrossPost,
     CrossPostIcon,
     ConnectPlatformIcon,
+  },
+  props: {
+    noAccess: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props) {
     const sidebarOpen = ref(false);

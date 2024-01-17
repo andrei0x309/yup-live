@@ -9,14 +9,17 @@ const POLY_RPC = import.meta.env.VITE_POLYGON_RPC
 
 const ethers = import('ethers')
 
+type ethersType = Awaited<typeof ethers>['ethers']
+type JsonRpcProvider = InstanceType<ethersType['JsonRpcProvider']>
+
 const { POLY_LIQUIDITY_REWARDS, POLY_UNI_LP_TOKEN } = getPolyContractAddresses(137)
 
 let rewardRatePoly = 0
 let totalStakePoly = 0
 let rewardsPoly = 0
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let ethersLib: any
-let ethersProvider
+let ethersLib: ethersType
+let ethersProvider: JsonRpcProvider
 let startNumberTimeout = 0
 let rewardsRate = 0
 
@@ -80,10 +83,9 @@ export const fetchContractsData = ({
 }) => {
     ethers.then(async (lib) => {
         ethersLib = lib.ethers
-        ethersProvider = new ethersLib.providers.JsonRpcProvider(POLY_RPC)
+        ethersProvider = new ethersLib.JsonRpcProvider(POLY_RPC)
         const UNIContractPoly = new ethersLib.Contract(POLY_UNI_LP_TOKEN, uniPoolPABI, ethersProvider)
         const YUPRewardsPoly = new ethersLib.Contract(POLY_LIQUIDITY_REWARDS, yupRewardsPABI, ethersProvider)
-        const utils = ethersLib.utils
 
         if (!address.value) {
             address.value = await tryToGetAddressWithoutPrompt({ localWeb3Libs: Web3Libs.value }) as string
@@ -104,12 +106,12 @@ export const fetchContractsData = ({
         ]
 
         Promise.all(arrProm).then((res) => {
-            polyUnstaked.value = Number(utils.formatEther(res[0]))
-            polyStaked.value = Number(utils.formatEther(res[1]))
-            rewardsPoly = Number(utils.formatEther(res[2]))
+            polyUnstaked.value = Number(ethersLib.formatEther(res[0]))
+            polyStaked.value = Number(ethersLib.formatEther(res[1]))
+            rewardsPoly = Number(ethersLib.formatEther(res[2]))
             rewards.value = rewardsPoly
-            rewardRatePoly = Number(utils.formatEther(res[3]))
-            totalStakePoly = Number(utils.formatEther(res[4]))
+            rewardRatePoly = Number(ethersLib.formatEther(res[3]))
+            totalStakePoly = Number(ethersLib.formatEther(res[4]))
             rewardsRate = (rewardRatePoly * polyStaked.value) / totalStakePoly
             startNumber({
                 rate: rewardsRate,
@@ -151,7 +153,7 @@ export const onStake = async ({
         return null
     }
     try {
-        const amount = ethersLib.utils.parseEther(inputValue.value.toString())
+        const amount = ethersLib.parseEther(inputValue.value.toString())
 
         await wgamiLib.wgamiCore.writeContract({
             abi: uniPoolPABI,
@@ -217,7 +219,7 @@ export const onUnstake = async ({
             abi: yupRewardsPABI,
             address: POLY_LIQUIDITY_REWARDS as '0x',
             functionName: 'unstake',
-            args: [ethersLib.utils.parseEther(inputValue.value.toString())]
+            args: [ethersLib.parseEther(inputValue.value.toString())]
         })
         if (willSusbstractPoly > 0) {
             polyStaked.value -= willSusbstractPoly

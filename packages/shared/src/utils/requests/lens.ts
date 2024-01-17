@@ -5,7 +5,7 @@ import type { Ref } from 'vue'
 import { walletDisconnect } from 'shared/src/utils/login-signup'
 
 
-const lensGraphQl = 'https://api.lens.dev'
+const lensGraphQl = 'https://api-v2.lens.dev'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -58,8 +58,9 @@ export const authLens = async ({
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       query: `query Challenge {
-challenge(request: { address: "${address}" }) {
+challenge(request: { signedBy: "${address}" }) {
   text
+  id
 }
 }`
     })
@@ -67,10 +68,9 @@ challenge(request: { address: "${address}" }) {
   if (req.ok) {
     const {
       data: {
-        challenge: { text }
+        challenge: { text, id }
       }
     } = await req.json()
-    console.log(text)
     try {
       signature = await wgamiCore.signMessage({ message: text })
     } catch (error) {
@@ -84,7 +84,7 @@ challenge(request: { address: "${address}" }) {
         body: JSON.stringify({
           query: `mutation Authenticate {
 authenticate(request: {
-  address: "${address}",
+  id: "${id}",
   signature: "${signature}"
 }) {
   accessToken
@@ -220,55 +220,14 @@ defaultProfile(request: { ethereumAddress: "${address}"}) {
 const getLensOwnedBy = async (address: string) => {
   const query = `
   query Profiles {
-    profiles(request: { ownedBy: ["${address}"], limit: 10 }) {
+    profiles(request: {where: { ownedBy: ["${address}"] }, limit: Ten })  {
       items {
         id
-        name
-        bio
-        followNftAddress
-        metadata
-        isDefault
-        picture {
-          ... on NftImage {
-            contractAddress
-            tokenId
-            uri
-            verified
-          }
-          ... on MediaSet {
-            original {
-              url
-              mimeType
-            }
-          }
-          __typename
+        handle {
+          fullHandle
         }
-        handle
-        coverPicture {
-          ... on NftImage {
-            contractAddress
-            tokenId
-            uri
-            verified
-          }
-          ... on MediaSet {
-            original {
-              url
-              mimeType
-            }
-          }
-          __typename
-        }
-        ownedBy
-        dispatcher {
-          address
-          canUseRelay
-        }
-      }
-      pageInfo {
-        prev
-        next
-        totalCount
+        signless
+        sponsor
       }
     }
   }
@@ -425,7 +384,6 @@ const cleanDoConnectLens = ({
 };
 
 export const connectLens = async ({
-  setTestDispatcher = false,
   stackAlertWarning,
   stackAlertSuccess,
   stackAlertError,
@@ -437,7 +395,6 @@ export const connectLens = async ({
   resolvePromiseSetDispatcher,
   isConnectedToLens
 }: {
-  setTestDispatcher?: boolean;
   stackAlertWarning: (message: string) => void;
   stackAlertSuccess: (message: string) => void;
   stackAlertError: (message: string) => void;
@@ -479,126 +436,87 @@ export const connectLens = async ({
     );
   }
   const { accessToken: authToken, refreshToken } = auth;
-  if (!setTestDispatcher) {
-    const needToSetDispatcher = !firstOwnedProfile?.dispatcher?.canUseRelay;
-    if (needToSetDispatcher) {
-      settingsModalContent.value = "lens-dispatcher";
-      settingsModal.value = true;
-      const userConfirm = new Promise((resolve) => {
-        resolvePromiseSetDispatcher.value = resolve;
-      });
-      if (!(await userConfirm)) {
-        return cleanDoConnectLens(
-          {
-            error: "User refused to set dispatcher",
-            stackAlertError,
-            isConnectToLens,
-          }
-        );
+
+  const isBanned = !firstOwnedProfile?.sponsor
+
+  if (isBanned) {
+    return cleanDoConnectLens(
+      {
+        error: "You are banned to use lens API you can't connect to lens",
+        stackAlertError,
+        isConnectToLens,
       }
-      const sigDisp = await setDispatcher({
-        profileId,
-        authToken,
-        web3Libs: Web3Libs.value,
-        test: false,
-      });
-      if (sigDisp === -1) {
-        return cleanDoConnectLens(
-          {
-            error: "Error while loading wallet libraries",
-            stackAlertError,
-            isConnectToLens,
-          }
-        );
-      }
-      if (sigDisp === -2) {
-        return cleanDoConnectLens(
-          {
-            error: "Error while interacting with lens API",
-            stackAlertError,
-            isConnectToLens,
-          }
-        );
-      }
-      if (sigDisp === -3) {
-        return cleanDoConnectLens(
-          {
-            error: "Wallet is not on the right network [Polygon] please switch",
-            stackAlertError,
-            isConnectToLens,
-          }
-        );
-      }
-      const sigDispBackend = await setDispatcherWithBackend({
-        dispatcher: sigDisp.dispatcher,
-        profileId,
-        apiBase: API_BASE,
-        store,
-        deadline: sigDisp.deadline,
-        signature: sigDisp.signature,
-      });
-      if (!sigDispBackend) {
-        return cleanDoConnectLens(
-          {
-            error: "Error while signing dispatcher",
-            stackAlertError,
-            isConnectToLens,
-          }
-        );
-      }
-    }
-  } else {
-    const sigDisp = await setDispatcher({
-      profileId,
-      authToken,
-      web3Libs: Web3Libs.value,
-      test: true,
-    });
-    if (sigDisp === -1) {
-      return cleanDoConnectLens(
-        {
-          error: "Error while loading wallet libraries",
-          stackAlertError,
-          isConnectToLens,
-        }
-      );
-    }
-    if (sigDisp === -2) {
-      return cleanDoConnectLens(
-        {
-          error: "Error while interacting with lens API",
-          stackAlertError,
-          isConnectToLens,
-        }
-      );
-    }
-    if (sigDisp === -3) {
-      return cleanDoConnectLens(
-        {
-          error: "Wallet is not on the right network [Polygon] please switch",
-          stackAlertError,
-          isConnectToLens,
-        }
-      );
-    }
-    const sigDispBackend = await setDispatcherWithBackend({
-      dispatcher: sigDisp.dispatcher,
-      profileId,
-      apiBase: API_BASE,
-      store,
-      deadline: sigDisp.deadline,
-      signature: sigDisp.signature,
-    });
-    if (!sigDispBackend) {
-      return cleanDoConnectLens(
-        {
-          error: "Error while signing dispatcher",
-          stackAlertError,
-          isConnectToLens,
-        }
-      );
-    }
+    );
   }
+
+  // TO DO: Not handling non signless profiles for now
+  // const needToSetDispatcher = !firstOwnedProfile?.signless
+  // if (needToSetDispatcher) {
+  //     settingsModalContent.value = "lens-dispatcher";
+  //     settingsModal.value = true;
+  //     const userConfirm = new Promise((resolve) => {
+  //       resolvePromiseSetDispatcher.value = resolve;
+  //     });
+  //     if (!(await userConfirm)) {
+  //       return cleanDoConnectLens(
+  //         {
+  //           error: "User refused to set dispatcher",
+  //           stackAlertError,
+  //           isConnectToLens,
+  //         }
+  //       );
+  //     }
+  //     const sigDisp = await setDispatcher({
+  //       profileId,
+  //       authToken,
+  //       web3Libs: Web3Libs.value,
+  //       test: false,
+  //     });
+  //     if (sigDisp === -1) {
+  //       return cleanDoConnectLens(
+  //         {
+  //           error: "Error while loading wallet libraries",
+  //           stackAlertError,
+  //           isConnectToLens,
+  //         }
+  //       );
+  //     }
+  //     if (sigDisp === -2) {
+  //       return cleanDoConnectLens(
+  //         {
+  //           error: "Error while interacting with lens API",
+  //           stackAlertError,
+  //           isConnectToLens,
+  //         }
+  //       );
+  //     }
+  //     if (sigDisp === -3) {
+  //       return cleanDoConnectLens(
+  //         {
+  //           error: "Wallet is not on the right network [Polygon] please switch",
+  //           stackAlertError,
+  //           isConnectToLens,
+  //         }
+  //       );
+  //     }
+  //     const sigDispBackend = await setDispatcherWithBackend({
+  //       dispatcher: sigDisp.dispatcher,
+  //       profileId,
+  //       apiBase: API_BASE,
+  //       store,
+  //       deadline: sigDisp.deadline,
+  //       signature: sigDisp.signature,
+  //     });
+  //     if (!sigDispBackend) {
+  //       return cleanDoConnectLens(
+  //         {
+  //           error: "Error while signing dispatcher",
+  //           stackAlertError,
+  //           isConnectToLens,
+  //         }
+  //       );
+  //     }
+  // }
   await setAuthLens({
     store,
     apiBase: API_BASE,

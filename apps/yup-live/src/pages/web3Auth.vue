@@ -1,5 +1,5 @@
 <template>
-  <!-- <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
+  <!-- <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto">
     <div class="bg-color table-list w-full mb-4">
       <h2>Web3Auth Demo Vue:</h2>
         <section>

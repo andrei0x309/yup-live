@@ -36,7 +36,7 @@
     <form v-else class="login-view" @submit.prevent>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        class="w-30 mx-auto"
+        class="w-32 mx-auto"
         style="opacity: 0.75"
         viewBox="0 0 366 366"
         fill="none"

@@ -175,7 +175,9 @@ export default defineComponent({
 .noImg {
   width: 35%;
   z-index: 2;
-  padding: 1rem;
+  min-height: 15rem;
+  min-width: 15rem;
+  padding: 1rem 5rem 6rem 5rem;
 
   p {
     z-index: 2;

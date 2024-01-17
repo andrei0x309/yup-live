@@ -8,7 +8,9 @@
         <div
           class="glassCard rounded-lg p-8 flex flex-col md:ml-auto w-full relative mt-0 shadow-md"
         >
-          <h2 class="text-lg mb-1 font-medium title-font">{{ platforms?.length > 1 ? 'Create New Post': 'Reply' }}</h2>
+          <h2 class="text-lg mb-1 font-medium title-font">
+            {{ platforms?.length > 1 ? "Create New Post" : "Reply" }}
+          </h2>
           <div v-if="platforms?.length > 1" class="block my-4">
             <o-checkbox
               v-for="platfrom of userPlatforms"
@@ -28,7 +30,11 @@
               title="Error"
               type="error"
             />
-            <AvatarBtn :useMainStore="useMainStore" class="mr-2" style="width: 2.3rem; height: 2.3rem; margin: auto" />
+            <AvatarBtn
+              :useMainStore="useMainStore"
+              class="mr-2"
+              style="width: 2.3rem; height: 2.3rem; margin: auto"
+            />
             <label
               for="castField"
               class="leading-7 text-sm text-gray-600 dark:text-gray-300"
@@ -40,10 +46,16 @@
               class="txt-box w-full bg-stone-200 text-gray-800 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
             >
             </textarea>
-            <small>Character limit: {{ postContentCharCount }} / {{ maxCharCount }}</small>
+            <small
+              >Character limit: {{ postContentCharCount }} / {{ maxCharCount }}</small
+            >
           </div>
           <div v-if="images.length" class="flex">
-            <div v-for="image of images" :key="image.id" class="flex flex-col items-center">
+            <div
+              v-for="image of images"
+              :key="image.id"
+              class="flex flex-col items-center"
+            >
               <img :src="image.img" class="w-18 h-18 mx-2" />
               <button
                 class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
@@ -57,7 +69,7 @@
             ref="fileInput"
             type="file"
             style="display: none"
-            accept="image/*" 
+            accept="image/*"
             @change="onFileUpload"
           />
           <button
@@ -92,14 +104,12 @@ import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 import ReplyIcon from "icons/src/reply.vue";
 import type { TPlatform, IReplyTo } from "shared/src/types/web3-posting";
 import ImageUploadIcon from "icons/src/imageUpload.vue";
-import { mediaUpload, sendPost, PLATFORMS } from 'shared/src/utils/requests/web3-posting'
+import { mediaUpload, sendPost, PLATFORMS } from "shared/src/utils/requests/web3-posting";
 import DeleteIcon from "icons/src/delete.vue";
 import { getMaxCharCount } from "shared/src/utils/requests/crossPost";
 import AvatarBtn from "components/functional/avatarBtn.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-
-
 
 export default defineComponent({
   name: "CrossPost",
@@ -109,7 +119,7 @@ export default defineComponent({
     ReplyIcon,
     ImageUploadIcon,
     DeleteIcon,
-    AvatarBtn
+    AvatarBtn,
   },
   props: {
     replyTo: {
@@ -151,49 +161,48 @@ export default defineComponent({
     const postErrorKey = ref(0);
     const isSendPost = ref(false);
     const store = useMainStore();
-    const userPlatforms = PLATFORMS.filter((p) =>
-      store.userData?.connected?.[p]
-    );
+    const userPlatforms = PLATFORMS.filter((p) => store.userData?.connected?.[p]);
     const postPlatforms = ref(props.platforms.filter((p) => userPlatforms.includes(p)));
     const isFileUploading = ref(false);
     const fileInput = ref<HTMLInputElement | null>(null);
-    const images = ref<{
-      twiter: string,
-      farcaster: string,
-      lens: string,
-      bsky: string,
-      img : string
-      id: string
-    }[]>([]);
+    const images = ref<
+      {
+        twiter: string;
+        farcaster: string;
+        lens: string;
+        bsky: string;
+        img: string;
+        id: string;
+      }[]
+    >([]);
 
-
-    const maxCharCount = ref(getMaxCharCount(postPlatforms.value))
+    const maxCharCount = ref(getMaxCharCount(postPlatforms.value));
     // const mediaPics = ref<string[]>([]);
 
     watch(
       () => postPlatforms.value,
       (newVal) => {
-        maxCharCount.value = getMaxCharCount(newVal)
+        maxCharCount.value = getMaxCharCount(newVal);
       }
     );
 
-const fileToBase64 = (file: File) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-};
+    const fileToBase64 = (file: File) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+    };
 
     const onFileUpload = async () => {
       const imageFile = fileInput.value?.files?.[0];
       if (!imageFile) return;
       const imageBase64 = await fileToBase64(imageFile);
-      const upload = await mediaUpload(store, API_BASE, postPlatforms.value, imageFile )
-      upload.img = imageBase64 as string
-      upload.id =  Math.random().toString(36).substring(7)
-      images.value.push(upload)
+      const upload = await mediaUpload(store, API_BASE, postPlatforms.value, imageFile);
+      upload.img = imageBase64 as string;
+      upload.id = Math.random().toString(36).substring(7);
+      images.value.push(upload);
       isFileUploading.value = false;
     };
 
@@ -218,6 +227,7 @@ const fileToBase64 = (file: File) => {
     };
 
     const doSendPost = async () => {
+      const media = [...images.value];
       const result = await sendPost({
         store,
         postContent,
@@ -225,18 +235,17 @@ const fileToBase64 = (file: File) => {
         maxCharCount,
         isSendPost,
         replyTo: props.replyTo || undefined,
-        images,
+        media,
         showError,
         stackAlertSuccess,
-        stackAlertWarning
+        stackAlertWarning,
       });
       if (result) {
         ctx.emit("success");
         openCastModal.value = false;
         ctx.emit("update:openModal", false);
       }
-    }
-    
+    };
 
     return {
       openCastModal,
@@ -257,19 +266,19 @@ const fileToBase64 = (file: File) => {
       deleteImage,
       maxCharCount,
       userPlatforms,
-      useMainStore
-      };
+      useMainStore,
+    };
   },
 });
 </script>
 
 <style lang="scss" scoped>
 .txt-box {
-    background-color: #a1a5a952;
-    border: 4px solid #3333339e;
-    border-radius: 0.7rem;
-    color: aliceblue;
-    min-height: 25vh;
-    min-width: 35vw;
+  background-color: #a1a5a952;
+  border: 4px solid #3333339e;
+  border-radius: 0.7rem;
+  color: aliceblue;
+  min-height: 25vh;
+  min-width: 35vw;
 }
 </style>

@@ -1,4 +1,4 @@
-export const reportType = ['post']
+export const reportType = ['post', 'profile']
 export type IReportType = typeof reportType[number]
 export const reasons = ['spam', 'inappropriate', 'other']
 export type IReportReason = typeof reasons[number]

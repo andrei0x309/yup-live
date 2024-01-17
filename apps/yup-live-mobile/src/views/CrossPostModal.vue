@@ -1,13 +1,14 @@
 <template>
-  <button v-if="showReplyButton" class="view-btn block ml-2" @click="openCastModal = true">
+  <div>
+  <button v-if="showReplyButton" class="view-btn block ml-2" @click="openPostModal = true">
     <ReplyIcon class="inline-block w-4" />Reply
   </button>
-  <ion-modal :is-open="openCastModal" @didDismiss="() => { sendClose() }">
+  <ion-modal :is-open="openPostModal" @didDismiss="sendClose">
       <ion-header>
         <ion-toolbar>
           <ion-title>Post</ion-title>
           <ion-buttons slot="end">
-            <ion-button @click="() => { openCastModal = false }">Cancel</ion-button>
+            <ion-button @click="openPostModal = false">Cancel</ion-button>
             <button
             :disabled="isSendPost"
             class="bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
@@ -41,7 +42,8 @@
               :hidden="!postError.length"
               :message="postError"
               title="Error"
-              type="error"
+              :type="postErrorType"
+              class="mb-4"
             />
             <AvatarBtn :useMainStore="useMainStore" class="mr-2" style="width: 2.3rem; height: 2.3rem; margin: auto" />
             <label
@@ -69,12 +71,32 @@
               </button>
             </div>
           </div>
+          <div v-if="videos.length" class="flex">
+            <div v-for="video of videos" :key="video.id" class="flex flex-col items-center">
+              <video class="w-18 h-18 mx-2" controls>
+                <source :src="video.source" :type="video.type">
+              </video>
+              <button
+                class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
+                @click="deleteVideo(video.id)"
+              >
+                <DeleteIcon class="inline w-6" />
+              </button>
+            </div>
+          </div>
           <input
             ref="fileInput"
             type="file"
             style="display: none"
             accept="image/*" 
             @change="onFileUpload"
+          />
+          <input
+            ref="videoFileInput"
+            type="file"
+            style="display: none"
+            accept="video/*" 
+            @change="onVideoFileUpload"
           />
           <button
             class="bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
@@ -85,11 +107,21 @@
             />
             Add Image
           </button>
+          <button
+            class="bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+            @click="triggerVideoFileInput"
+          >
+            <BtnSpinner v-if="isVideoUploading" class="inline mr-2" /><VideoUploadIcon
+              class="inline mr-2 w-8"
+            />
+            Add Video
+          </button>
         </div>
       </div>
     </section>
       </ion-content>
     </ion-modal>
+  </div>
 </template>
 
 <script lang="ts">
@@ -97,10 +129,11 @@ import { defineComponent, onMounted, PropType, ref, computed, watch } from "vue"
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import Alert from "components/functional/alert.vue";
 import { useMainStore } from "@/store/main";
-import { stackAlertSuccess, stackAlertWarning } from "shared/src/store/alertStore";
+import { stackAlertSuccess, stackAlertWarning } from "@/store/alert-store";
 import ReplyIcon from "icons/src/reply.vue";
 import type { TPlatform, IReplyTo } from "shared/src/types/web3-posting";
 import ImageUploadIcon from "icons/src/imageUpload.vue";
+import VideoUploadIcon from "icons/src/videoUpload.vue";
 import { mediaUpload, sendPost, PLATFORMS } from 'shared/src/utils/requests/web3-posting'
 import DeleteIcon from "icons/src/delete.vue";
 import AvatarBtn from "components/functional/avatarBtn.vue";
@@ -125,6 +158,7 @@ export default defineComponent({
     Alert,
     ReplyIcon,
     ImageUploadIcon,
+    VideoUploadIcon,
     DeleteIcon,
     IonModal,
     IonContent,
@@ -170,11 +204,12 @@ export default defineComponent({
   },
   emits: ["success", "update:openModal"],
   setup(props, ctx) {
-    const openCastModal = ref(props.openModal);
+    const openPostModal = ref(props.openModal);
     const postContent = ref(props.shareLink ? ` ${props.shareLink}` : "");
     const postContentCharCount = computed(() => postContent.value.length);
     const postError = ref("");
     const postErrorKey = ref(0);
+    const postErrorType = ref("error");
     const isSendPost = ref(false);
     const store = useMainStore();
     const userPlatforms = PLATFORMS.filter((p) =>
@@ -190,10 +225,20 @@ export default defineComponent({
       img : string
       id: string
     }[]>([]);
+
+    const videoFileInput = ref<HTMLInputElement | null>(null);
+    const isVideoUploading = ref(false);
+    const videos = ref<{
+      twiter: string,
+      farcaster: string,
+      lens: string,
+      source : string
+      id: string
+      type: string
+    }[]>([]);
+
+
     const refTxtEl = ref<HTMLTextAreaElement | null>(null);
-
-
- 
 
     const maxCharCount = ref(getMaxCharCount(postPlatforms.value))
     // const mediaPics = ref<string[]>([]);
@@ -224,6 +269,7 @@ const fileToBase64 = (file: File) => {
       images.value.push(upload)
       isFileUploading.value = false;
     };
+    
 
     const triggerFileInput = () => {
       if (fileInput.value) {
@@ -232,13 +278,43 @@ const fileToBase64 = (file: File) => {
       }
     };
 
-    const showError = (msg: string) => {
+    const triggerVideoFileInput = () => {
+      if (videoFileInput.value) {
+        isVideoUploading.value = true;
+        videoFileInput.value.click();
+      }
+    };
+
+    const onVideoFileUpload = async () => {
+      const videoFile = videoFileInput.value?.files?.[0];
+      if (!videoFile) return;
+
+      const mediaPlatforms = postPlatforms.value
+
+      if(mediaPlatforms.includes('bsky')) {
+        showError("Video upload is not supported on BlueSky, your post will be sent without the video.", true)
+        mediaPlatforms.splice(mediaPlatforms.indexOf('bsky'), 1)
+      }
+      const upload = await mediaUpload(store, API_BASE, mediaPlatforms, videoFile )
+      upload.source =  URL.createObjectURL(videoFile);
+      upload.type = videoFile.type
+      upload.id =  Math.random().toString(36).substring(7)
+      videos.value.push(upload)
+      isVideoUploading.value = false;
+    };
+
+    const deleteVideo = (id: string) => {
+      videos.value = videos.value.filter((video) => video.id !== id);
+    };
+
+    const showError = (msg: string, warn?: boolean) => {
+      postErrorType.value = warn ? "warning" : "error";
       postError.value = msg;
       postErrorKey.value += 1;
     };
 
     const sendClose = () => {
-      ctx.emit("update:openModal", false);
+      ctx.emit("update:openModal", false);      
     };
 
     const deleteImage = (id: string) => {
@@ -246,6 +322,7 @@ const fileToBase64 = (file: File) => {
     };
 
     const doSendPost = async () => {
+      const media = [...images.value, ...videos.value]
       const result = await sendPost({
         store,
         postContent,
@@ -253,15 +330,14 @@ const fileToBase64 = (file: File) => {
         maxCharCount,
         isSendPost,
         replyTo: props.replyTo || undefined,
-        images,
+        media,
         showError,
         stackAlertSuccess,
         stackAlertWarning
       });
       if (result) {
         ctx.emit("success");
-        openCastModal.value = false;
-        ctx.emit("update:openModal", false);
+        openPostModal.value = false;
       }
     }
 
@@ -284,12 +360,13 @@ const fileToBase64 = (file: File) => {
     });
     
     return {
-      openCastModal,
+      openPostModal,
       isSendPost,
       postContent,
       postContentCharCount,
       postError,
       postErrorKey,
+      postErrorType,
       doSendPost,
       sendClose,
       postPlatforms,
@@ -303,7 +380,13 @@ const fileToBase64 = (file: File) => {
       maxCharCount,
       updatePostPlatforms,
       userPlatforms,
-      useMainStore
+      useMainStore,
+      triggerVideoFileInput,
+      onVideoFileUpload,
+      videoFileInput,
+      isVideoUploading,
+      videos,
+      deleteVideo
     };
   },
 });

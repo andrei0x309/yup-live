@@ -180,3 +180,45 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
     postBuilder.threads.parentPostID = fullPost?.web3Preview?.meta?.parentPostId ?? ''
     return postBuilder
 }
+
+export const getBlockedPosts = () => {
+    try {
+        const blockedPosts = localStorage.getItem('blockedPosts')
+        if (blockedPosts) {
+            const parsed = JSON.parse(blockedPosts)
+            const { posts } = parsed ?? {}
+            return posts ?? []
+        }
+        return []
+    } catch (error) {
+        console.error('getBlockedPosts e: ', error)
+        return []
+    }
+}
+
+export const addBlockedPost = (postId: string) => {
+    try {
+        const blockedPosts = getBlockedPosts()
+        blockedPosts.push(postId)
+        localStorage.setItem('blockedPosts', JSON.stringify({ posts: blockedPosts, timestamp: Date.now() }))
+    } catch (error) {
+        console.error('addBlockedPost e: ', error)
+    }
+}
+export const cleanBlockedPosts = () => {
+    try {
+        const blockedPosts = localStorage.getItem('blockedPosts')
+        if (blockedPosts) {
+            const parsed = JSON.parse(blockedPosts)
+            const { timestamp } = parsed ?? {}
+            if (timestamp) {
+                const now = Date.now()
+                if (now - timestamp > 1000 * 60 * 60 * 24 * 3) {
+                    localStorage.removeItem('blockedPosts')
+                }
+            }
+        }
+    } catch (error) {
+        console.error('cleanBlockedPosts e: ', error)
+    }
+}

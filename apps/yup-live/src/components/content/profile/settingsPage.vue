@@ -78,7 +78,7 @@
           <template v-if="!isConnectedToLens">
             <button
               class="mt-4 bg-green-500 border-0 py-2 px-6 focus:outline-none hover:bg-green-600 rounded text-lg"
-              @click="() => doConnectLens(false)"
+              @click="() => doConnectLens()"
             >
               <ProfileLensIcon class="w-6 inline mr-2" />
               <BtnSpinner v-if="isConnectToLens" class="inline mr-2" /> Connect to Lens
@@ -130,7 +130,7 @@
 
             Disconnect from BlueSky
           </button>
-          <template v-if="!isConnectedToThreads">
+          <!-- <template v-if="!isConnectedToThreads">
             <button
               :disabled="isConnectToBsky"
               class="mt-4 bg-gray-600 border-0 py-2 px-6 focus:outline-none hover:bg-gray-900 rounded text-lg"
@@ -157,7 +157,7 @@
             />
 
             Disconnect from Threads
-          </button>
+          </button> -->
         </div>
       </div>
     </section>
@@ -331,7 +331,7 @@
         navTypeClass="boxed"
         class="mb-2"
       >
-        <div class="mb-4">
+        <!-- <div class="mb-4">
           <o-tab-item value="warpcast">
             <template #header>
               <ProfileFarcasterIcon class="w-5 mr-2" /><span> Use Warpcast </span>
@@ -342,7 +342,7 @@
               <WalletIcon class="w-5 mr-2" /><span> Use Wallet </span>
             </template>
           </o-tab-item>
-        </div>
+        </div> -->
         <template v-if="farcasterConnectTabs === 'warpcast'">
           <small class="my-4"
             >By confirming in warpcast you'll enable yup backend to do casts on your
@@ -529,7 +529,7 @@ import { disconnectLens, connectLens } from "shared/src/utils/requests/lens";
 import { getTimeRemaining } from "shared/src/utils/time";
 import "vue-cup-avatar/dist/style.css";
 import QrcodeVue from "qrcode.vue";
-import WalletIcon from "icons/src/walletIcon.vue";
+// import WalletIcon from "icons/src/walletIcon.vue";
 import { CancelablePromise } from "shared/src/utils/misc";
 import ThreadsIcon from "icons/src/threads.vue";
 import { connectToThreads, disconnectThreads } from "shared/src/utils/requests/threads";
@@ -547,7 +547,7 @@ export default defineComponent({
     ProfileLensIcon,
     TwitterIcon,
     QrcodeVue,
-    WalletIcon,
+    // WalletIcon,
     BlueSkyIcon,
     ThreadsIcon,
   },
@@ -634,9 +634,8 @@ export default defineComponent({
       router.push("/");
     };
 
-    const doConnectLens = async (setTestDispatcher: boolean) => {
+    const doConnectLens = async () => {
       const result = await connectLens({
-        setTestDispatcher,
         stackAlertWarning,
         stackAlertSuccess,
         stackAlertError,

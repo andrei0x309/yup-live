@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto mb-8">
+  <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto mb-8">
     <div class="bg-color flex flex-col">
       <template v-if="!apiError">
         <h2 v-if="userData?.evmAddress" class="text-2xl font-bold text-center mt-6 mb-2">
@@ -200,7 +200,7 @@ import {
   defineAsyncComponent,
   shallowRef,
 } from "vue";
-import { useHead, HeadObject } from "@vueuse/head";
+import { useHead } from "unhead";
 import DangLoader from "components/vote-list/loader.vue";
 import ProfileCard from "@/components/content/profile/profileCard.vue";
 import ProfileInfoCard from "@/components/content/profile/infoCard.vue";
@@ -225,7 +225,7 @@ import type { ICollection } from "shared/src/types/store";
 import Web3FollwersPage from "@/components/content/profile/web3FollwersPage.vue";
 import Alert from "components/functional/alert.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
-import { utilsAFGetCreated } from "shared/src/utils/requests/accountFeeds";
+import { getLikesFeed, getWeb3CreatedFeed } from "shared/src/utils/requests/accountFeeds";
 import { truncteEVMAddr } from "shared/src/utils/misc";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
 import type { IPost } from "shared/src/types/post";
@@ -355,12 +355,11 @@ export default defineComponent({
     });
 
     useHead(({
-      title: computed(() => siteData.title),
-      description: computed(() => siteData.description),
+      title: computed(() => siteData.title).value,
       meta: [
         {
           name: "description",
-          content: computed(() => siteData.description),
+          content: computed(() => siteData.description).value,
         },
         {
           name: "og:type",
@@ -368,19 +367,19 @@ export default defineComponent({
         },
         {
           name: "og:title",
-          content: computed(() => siteData.title),
+          content: computed(() => siteData.title).value,
         },
         {
           name: "og:description",
-          content: computed(() => siteData.description),
+          content: computed(() => siteData.description).value,
         },
         {
           name: "og:url",
-          content: computed(() => route.fullPath),
+          content: computed(() => route.fullPath).value,
         },
         {
           name: "og:image",
-          content: `$/share/yup-live-ogs/og-yup-live-web3-profile.png`,
+          content: `share/yup-live-ogs/og-yup-live-web3-profile.png`,
         },
         {
           name: "twitter:card",
@@ -388,22 +387,22 @@ export default defineComponent({
         },
         {
           name: "twitter:url",
-          content: computed(() => route.fullPath),
+          content: computed(() => route.fullPath).value,
         },
         {
           name: "twitter:title",
-          content: computed(() => siteData.title),
+          content: computed(() => siteData.title).value,
         },
         {
           name: "twitter:description",
-          content: computed(() => siteData.description),
+          content: computed(() => siteData.description).value,
         },
         {
           name: "twitter:image",
           content: `/share/yup-live-ogs/og-yup-live-web3-profile.png`,
         },
       ],
-    } as unknown) as Ref<HeadObject>);
+    }));
 
     store.$subscribe(async () => {
       isOwnAccount.value = store?.isLoggedIn && store?.userData.account === userId.value;
@@ -449,18 +448,11 @@ export default defineComponent({
 
     const getHomeFeedPosts = async (start = 0) => {
       if (!userId.value) return [];
-      const res = await fetch(
-        `${API_BASE}/feed/account/${userId.value}?start=${start}&limit=10`
-      );
-      const data = await res.json();
-      return data.posts.sort(
-        (a: {createdAt: string}, b: {createdAt: string}) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+      return (await getLikesFeed(API_BASE, start, userId.value));
     };
 
     const getCreatedFeedPosts = async (start = 0) => {
-      return (await utilsAFGetCreated(API_BASE, start, userData.value?.evmAddress)).posts;
+      return (await getWeb3CreatedFeed(API_BASE, start, userData.value?.evmAddress)).posts;
     };
 
     let getFeedPosts =
@@ -572,16 +564,6 @@ export default defineComponent({
             userData.value.followers = res.totalCount;
           }
         });
-
-        // getUserFollowers(userData.value._id as string).then((r) => {
-        //   if (!r.error) {
-        //     userData.value.followers = r?.data?.length;
-        //     followers.value = r?.data ?? [];
-
-        //   } else {
-        //     console.error(r.msg);
-        //   }
-        // });
 
         if (userId.value !== store.userData.account) {
           collectionsEx.collectionsPromise = getCollections(

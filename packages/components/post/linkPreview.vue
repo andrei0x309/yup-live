@@ -71,9 +71,11 @@ export default defineComponent({
 .linkPreview {
   margin: 0.5rem;
   position: relative;
+  min-width: 16rem;
   .description {
     bottom: 1rem;
     padding: 0.8rem;
+    min-width: 16rem;
     width: 99%;
     color: aliceblue;
     line-height: 1.1rem;

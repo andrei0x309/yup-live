@@ -1,47 +1,65 @@
 import { editProfile } from './requests/accounts'
 import { config } from './config'
+import { web3Libs, metadata } from './evmTxs'
+import { wait } from './time'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
-const w3libsP = Promise.all([
-    import('@web3modal/ethereum'),
-    import('@wagmi/core'),
-    import('@web3modal/html'),
-    import('@wagmi/core/chains'),
-])
+const w3libsP = web3Libs()
 
 export const web3ModalInstantiate = async (
     { loadState = null, setAlert = null }: { loadState: null | Function, setAlert: null | Function }
 ) => {
     try {
-        const [lib1, lib2, lib3, lib4] = await w3libsP
-        const { EthereumClient, w3mConnectors, w3mProvider } = lib1
-        const { configureChains, createConfig, getAccount } = lib2
-        const { Web3Modal } = lib3
-        const { polygon, mainnet } = lib4
+        await wait(1000)
+        const { web3ModalWagmi, wgamiCore, wgamiChains } = w3libsP
+        const [lib1, lib2, lib3] = await Promise.all([web3ModalWagmi, wgamiCore, wgamiChains])
+        const { createWeb3Modal, defaultWagmiConfig } = lib1
+        const { getAccount } = lib2
+        const { polygon, mainnet, polygonMumbai } = lib3
 
-        const chains = [polygon, mainnet]
+        const chains = [polygon, mainnet, polygonMumbai]
 
-        const { publicClient } = configureChains(chains, [w3mProvider({ projectId: config.PROJECT_ID })])
-        const wagmiConfig = createConfig({
-            autoConnect: true,
-            connectors: w3mConnectors({ projectId: config.PROJECT_ID, chains }),
-            publicClient
+        // const { publicClient } = configureChains(chains, [w3mProvider({ projectId: config.PROJECT_ID })])
+        // const wagmiConfig = createConfig({
+        //     autoConnect: true,
+        //     connectors: w3mConnectors({ projectId: config.PROJECT_ID, chains }),
+        //     publicClient
+        // })
+        // const ethereumClient = new EthereumClient(wagmiConfig, chains)
+
+        const wagmiConfig = defaultWagmiConfig({
+            projectId: config.PROJECT_ID,
+            chains,
+            enableCoinbase: false,
+            enableInjected: true,
+            enableWalletConnect: true,
+            enableEIP6963: true,
+            enableEmail: false,
+            metadata
         })
-        const ethereumClient = new EthereumClient(wagmiConfig, chains)
 
+        const web3Modal = createWeb3Modal({
+            wagmiConfig,
+            projectId: config.PROJECT_ID,
+            chains,
+            themeMode: 'dark',
+        })
 
-
-        const web3Modal = new Web3Modal({ projectId: config.PROJECT_ID }, ethereumClient)
+        console.log(web3Modal, 'web3Modal')
 
         if (web3Modal) {
             let conn = await getAccount()
             if (!conn?.isConnected) {
-                await web3Modal.openModal()
+                await web3Modal.open()
                 const modalStateProm = new Promise((resolve) => {
-                    const unsub = web3Modal.subscribeModal(async (state) => {
-                        unsub()
-                        resolve(state)
+                    const unsub = web3Modal.subscribeEvents((event: { data: { event: string }, timestamp: number }) => {
+                        console.log(event, 'event')
+                        const eventType = event.data.event
+                        if (eventType === 'CONNECT_SUCCESS' || eventType === 'MODAL_CLOSE') {
+                            resolve(event)
+                            unsub()
+                        }
                     })
                 })
                 await modalStateProm
@@ -81,8 +99,8 @@ export const web3ModalInstantiate = async (
 
 export const walletDisconnect = async () => {
     try {
-    const [, lib2] = await w3libsP
-    const { disconnect } = lib2
+        const wgamiCore = (await w3libsP.wgamiCore)
+        const { disconnect } = wgamiCore
     await disconnect()
     } catch {
         // do nothing
@@ -151,8 +169,8 @@ const signChallenge = async ({
     const challenge = res.data
     let signature: string
     const timeout = new Promise((resolve) => setTimeout(() => resolve(0), 90000))
-    const [, lib2] = await w3libsP
-    const { signMessage, disconnect } = lib2
+    const wgamiCore = (await w3libsP.wgamiCore)
+    const { signMessage, disconnect } = wgamiCore
     try {
         signature = await Promise.race([signMessage({
             message: challenge,
@@ -321,6 +339,7 @@ export const onLogin = async ({
         loadState('start')
     }
     const inst = await web3ModalInstantiate({ loadState, setAlert })
+    console.log(inst, 'iiii')
     if (inst) {
         const address = inst.address ?? ""
         const account = await getYupAccount({ address, type: 'login', loadState, setAlert })

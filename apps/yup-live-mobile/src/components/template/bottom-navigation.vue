@@ -21,7 +21,7 @@
 
           <ion-tab-button
             tab="account"
-            href="/tabs/account"
+            :href="`/tabs/account/${store?.userData?.account ?? ''}`"
           >
             <AvatarBtn
               :key="avatar"
@@ -35,10 +35,7 @@
             <ion-label>Account</ion-label>
           </ion-tab-button>
 
-          <ion-tab-button
-            tab="feed"
-            href="/tabs/feeds"
-          >
+          <ion-tab-button tab="feed" href="/tabs/feeds">
             <ion-icon style="font-size: 2.3rem" :icon="filterCircle"></ion-icon>
             <ion-label>Feeds</ion-label>
           </ion-tab-button>
@@ -79,14 +76,13 @@
               <ConnectPlatformIcon class="inline w-6 mr-1 mt-1" />Link Social
             </router-link>
             -->
-      <CrossPost
-        :key="`${openPostModal}k`"
+    </ion-content>
+    <CrossPost
+        :key="`${openPostModal}k${emitKey}`"
         :openModal="openPostModal"
         :platforms="PLATFORMS"
-        @update:open-modal="(v: boolean) => (openPostModal = v)"
-        @success="postSent"
+        @update:open-modal="(v: boolean) => setModalState(v)"
       />
-    </ion-content>
   </ion-page>
 </template>
 
@@ -178,6 +174,7 @@ export default defineComponent({
         follow: "",
       },
     }) as unknown) as Ref<Awaited<ReturnType<typeof createUserData>>["data"]["userData"]>;
+    const emitKey = ref(0);
 
     store.$subscribe(() => {
       canDoPost.value = canPost(store);
@@ -236,8 +233,10 @@ export default defineComponent({
       return false;
     };
 
-    const postSent = () => {
-      openPostModal.value = false;
+    const setModalState = (v: boolean) => {
+      emitKey.value += 1;
+      console.log("setModalState", v, emitKey.value)
+      openPostModal.value = v;
     };
 
     const clearNot = () => {
@@ -247,7 +246,6 @@ export default defineComponent({
         clearNotifications(store);
       }
     };
-
 
     return {
       notificationsCircle,
@@ -259,13 +257,14 @@ export default defineComponent({
       notDisplay,
       hasNewNot,
       openPostModal,
-      postSent,
+      setModalState,
       canDoPost,
       openSettings,
       clearNot,
       userData,
       PLATFORMS,
       store,
+      emitKey
     };
   },
 });

@@ -5,7 +5,7 @@
     <router-view :key="route.path" />
   </main>
   <FooterCom />
-  
+
   <AlertStack :useAlertStack="useAlertStack" :setAlertStack="setAlertStack" />
 </template>
 
@@ -18,9 +18,10 @@ import { useMainStore } from "@/store/main";
 import { useCollectionStore, getCollections } from "./store/collections";
 import type { ICollection } from "shared/src/types/store";
 import { useRoute } from "vue-router";
-import { setAlertStack, useAlertStack } from "@/store/alertStore";
+import { useAlertStack, setAlertStack } from "@/store/alertStore";
 import AlertStack from "components/functional/alertStack.vue";
 import { getConnected } from "shared/src/utils/requests/accounts";
+import { checkAccess } from "shared/src/utils/get-access";
 
 // const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -45,6 +46,12 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       try {
+          const access = await checkAccess();
+          if (access !== 1) {
+            if (access === 0) window.location.replace('/login.html')
+            else  window.location.replace(`/login.html?e=${access}`)
+            return;
+          }
         if (((window as unknown) as { __TAURI__: boolean }).__TAURI__) {
           headBar.value = (
             await import("@/components/content/desktop/head-bar.vue")
@@ -71,7 +78,6 @@ export default defineComponent({
             }
           });
         }
-
         if (localStorage.getItem("address")) {
           mainStore.userData.address = localStorage.getItem("address") as string;
           mainStore.userData.account = localStorage.getItem("account") || "";
@@ -79,7 +85,7 @@ export default defineComponent({
           mainStore.userData.avatar = localStorage.getItem("avatar") || "";
           mainStore.userData.weight = Number(localStorage.getItem("weight")) || 1;
           mainStore.userData.authToken = localStorage.getItem("authToken") || "";
-          getConnected(mainStore, mainStore.userData.account)
+          getConnected(mainStore, mainStore.userData.account);
           mainStore.isLoggedIn = true;
           collectionStore.collectionsPromise = getCollections(
             collectionStore,
@@ -93,9 +99,9 @@ export default defineComponent({
 
     return {
       route,
-      setAlertStack,
-      useAlertStack,
       headBar,
+      useAlertStack,
+      setAlertStack,
     };
   },
 });
@@ -201,6 +207,16 @@ html[class="dark"] {
   --color-text-faded: #b5b5b5;
   --color-text-faded2: #8a8a8a;
   --stake-counter: #b6b326a1;
+}
+
+html[class="dark"] .table-list,
+html[class="dark"] .bg-color {
+  color: #d9d9d9;
+  box-shadow: 0.2rem 0.5rem 0rem #1b1b1b;
+
+  .o-table__wrapper--mobile tr:not(.o-table__tr--selected) {
+    background-color: #1b1b1b;
+  }
 }
 
 #app {

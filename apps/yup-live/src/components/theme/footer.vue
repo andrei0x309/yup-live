@@ -147,7 +147,7 @@
         <p class="inline"><router-link to="/change-log"> <ClockIcon class="inline w-4 -mt-1 mx-1" />Change Log </router-link></p>
         <p class="inline">
         <a title="Install yup live mobile" href="https://play.google.com/store/apps/details?id=gf.info.yup&hl=en&gl=US" _target="blank">
-        <PlayStoreIcon class="w-38 mx-auto p-4" /></a></p>
+        <PlayStoreIcon class="w-36 mx-auto p-4" /></a></p>
         <p class="inline">
           <a target="_blank" href="https://www.coingecko.com/en/coins/yup" rel="nofollow"><CoinGeckoIcon class="-mt-1 mx-1" />YUP on CoinGecko </a>
         </p>

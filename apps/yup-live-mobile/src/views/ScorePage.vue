@@ -196,7 +196,7 @@ import {
 import HeaderBar from "@/components/template/header-bar.vue";
 import {
   stackAlertWarning,
-} from "shared/src/store/alertStore";
+} from "@/store/alert-store";
 import {
   onMounted,
   defineComponent,

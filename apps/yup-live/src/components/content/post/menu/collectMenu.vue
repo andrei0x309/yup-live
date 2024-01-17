@@ -8,7 +8,7 @@
     @click="showAddCollections"
   >
     <template #content>
-      <ul class="w-30 text-justify collectMenu">
+      <ul class="w-32 text-justify collectMenu">
         <li class="pt-1 cursor-pointer" @click="onNewCollection"><AddIcon class="inline w-5 mr-2 text-[0.9rem]" />New Folder</li>
         <li class="w-55 border-b-1 h-1 mt-1 mb-1">&nbsp;</li>
         <li
@@ -41,7 +41,7 @@ import { useMainStore, openConnectModal } from '@/store/main'
 import { getCollections, useCollectionStore } from '@/store/collections'
 import AddIcon from 'icons/src/add.vue'
 import { fetchWAuth } from 'shared/src/utils/auth'
-import { stackAlertError, stackAlertSuccess } from 'shared/src/store/alertStore'
+import { stackAlertError, stackAlertSuccess } from '@/store/alertStore'
 import CustomButton from 'components/functional/customButton.vue'
 import Alert from 'components/functional/alert.vue'
 import { OTooltip } from '@oruga-ui/oruga-next'

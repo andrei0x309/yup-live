@@ -1,19 +1,5 @@
-import { SplashScreen } from '@capacitor/splash-screen';
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router';
-import { createPinia } from 'pinia';
-import { IonicVue } from '@ionic/vue';
-import { Buffer } from 'buffer'
+import '@/assets/twind.css'
 
-globalThis.Buffer = Buffer
-
-if (window) {
-    (<any>window).global = globalThis
-        ; (<any>globalThis).globalThis = globalThis
-}
-
-import 'virtual:windi.css'
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
 
@@ -33,15 +19,36 @@ import '@ionic/vue/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
-import 'windi.css'
 
-const app = createApp(App).use(IonicVue).use(router).use(createPinia());
+import { Buffer } from 'buffer'
+import { SplashScreen } from '@capacitor/splash-screen';
+import { IonicRouter } from '@/router'
+import { createApp } from 'vue'
+import { IonicVue } from '@ionic/vue';
+import { createPinia } from 'pinia';
+import App from './App.vue'
 
 
-router.isReady().then(() => {
+const app = createApp(App)
+    // .use(router)
+    .use(IonicRouter)
+    .use(IonicVue)
+    .use(createPinia())
+
+
+IonicRouter.isReady().then(() => {
     app.mount('#app');
     setTimeout(() => {
         SplashScreen.hide();
     }, 200)
 });
+
+
+globalThis.Buffer = Buffer
+
+if (window) {
+    (<any>window).global = globalThis
+        ; (<any>globalThis).globalThis = globalThis
+}
+
 

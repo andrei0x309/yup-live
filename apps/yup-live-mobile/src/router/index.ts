@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory } from '@ionic/vue-router';
-import { RouteRecordRaw } from 'vue-router';
+import { createRouter as crateIonicRouter, createWebHistory } from '@ionic/vue-router';
+import type { RouteRecordRaw } from 'vue-router';
 import ConnectPage from '@/views/ConnectPage.vue'
 import BottomNavigation from '@/components/template/bottom-navigation.vue'
 
@@ -115,31 +115,12 @@ const routes: Array<RouteRecordRaw> = [
       }
     ],
   },
-  // {
-  //   path: '/settings',
-  //   component: () => import('../views/SettingsPage.vue')
-  // },
-  // {
-  //   path: '/stake',
-  //   component: () => import('../views/StakingPage.vue')
-  // },
-  // {
-  //   path: '/latest-votes',
-  //   component: () => import('../views/ProfilePage.vue')
-  // },
 
 ]
 
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+export const IonicRouter = crateIonicRouter({
+  history: createWebHistory('/'),
   routes
 })
 
-// useBackButton(99, () => {
-//   if (router.can === '/') {
-//     CapApp.minimizeApp()
-//   }
-// })
 
-
-export default router

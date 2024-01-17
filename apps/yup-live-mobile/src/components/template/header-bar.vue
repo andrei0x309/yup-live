@@ -7,7 +7,7 @@
            <ion-icon :icon="MenuIcon" ></ion-icon>
           </ion-button>
         </ion-menu-toggle>
-        <ion-button v-show="route.fullPath && !route.fullPath.includes('/tabs/feeds')" @click="goBack">
+        <ion-button v-show="route?.fullPath && !route?.fullPath?.includes('/tabs/feeds')" @click="goBack">
            <ion-icon :icon="arrowBack" ></ion-icon>
           </ion-button>
         </ion-buttons>
@@ -51,13 +51,13 @@
         {{text}}
         </span>
       </div>
-      <span v-show="route.fullPath === '/' && version" class="mx-1 text-[0.95rem]"><span class="ml-4 text-[0.75rem]">v</span>{{ version  }}</span>
+      <span v-show="route?.fullPath === '/' && version" class="mx-1 text-[0.95rem]"><span class="ml-4 text-[0.75rem]">v</span>{{ version  }}</span>
     </ion-toolbar>
   </ion-header>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+import { defineComponent, ref } from "vue";
 import {
   IonHeader,
   IonToolbar,

@@ -1,5 +1,5 @@
 <template>
-  <div class="page lg:max-width-90 md:max-width-60 py-2 mx-auto">
+  <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto">
     <div class="bg-color page-stake w-full mb-4 flex flex-col">
       <h2 class="text-[1.3rem] p-6 tracking-wide uppercase mt-2">Search & Filters</h2>
       <template v-if="loading">
@@ -230,7 +230,7 @@ import {
   shallowRef,
   watch
 } from "vue";
-import { useHead, HeadObject } from "@vueuse/head";
+import { useHead } from "unhead";
 import DangLoader from "components/vote-list/loader.vue";
 // import { useRoute } from 'vue-router'
 import SearchIcon from "icons/src/search.vue";
@@ -255,7 +255,7 @@ import Post from "components/post/post.vue";
 import PostInfo from "@/components/content/post/postInfo.vue";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 import LineLoader from "components/functional/lineLoader.vue";
-import { stackAlertError, stackAlertSuccess, stackAlertWarning } from 'shared/src/store/alertStore'
+import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
 import { useMainStore, openConnectModal } from '@/store/main'
 import { IPostDeps } from 'shared/src/types/post'
 import type { IPost } from 'shared/src/types/post'
@@ -490,9 +490,8 @@ export default defineComponent({
       // do nothing
     });
 
-    useHead(({
+    useHead({
       title: 'Search | Yup Live',
-      description: 'Search web3 data or use advanced filters to find content you might be interested in.',
       meta: [
         {
           name: 'description',
@@ -503,7 +502,7 @@ export default defineComponent({
           content: `/share/yup-live-ogs/og-yup-live-search.png`
         },
       ]
-    } as unknown) as Ref<HeadObject>);
+    });
  
    
     const changeSearchSort = (sort: string) => {

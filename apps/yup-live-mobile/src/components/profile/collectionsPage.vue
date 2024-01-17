@@ -32,7 +32,7 @@ import DangLoader from 'components/vote-list/loader.vue'
 import CustomButton from 'components/functional/customButton.vue'
 import GoToIcon from 'icons/src/goTo.vue'
 import { fetchWAuth } from 'shared/src/utils/auth'
-import { stackAlertError, stackAlertSuccess } from 'shared/src/store/alertStore'
+import { stackAlertError, stackAlertSuccess } from '@/store/alert-store'
 import { getCollections, useCollectionStore } from '@/store/collections'
 import { useMainStore } from '@/store/main'
 const refGoTo = GoToIcon

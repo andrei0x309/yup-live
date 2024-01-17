@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'url'
 // import eslintPlugin from 'vite-plugin-eslint'
-import WindiCSS from 'vite-plugin-windicss'
 // import nodePolyfills from 'vite-plugin-node-stdlib-browser'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 
@@ -30,7 +29,6 @@ export default defineConfig({
         // nodePolyfills(),
         vue(),
         // eslintPlugin(),
-        WindiCSS(),
         basicSsl()
     ],
     build: {
@@ -45,6 +43,6 @@ export default defineConfig({
     server: {
         port: 4875,
         host: true,
-        https: true,
+        https: {}
     }
 })
