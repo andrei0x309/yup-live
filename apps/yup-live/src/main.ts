@@ -5,6 +5,7 @@ import App from '@/app.vue'
 import { routes, router } from '@/router'
 import { createHead } from 'unhead'
 
+import '@/assets/twind.css'
 import '@/assets/oruga-patched.scss'
 import '@/assets/app.scss'
 

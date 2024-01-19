@@ -6,6 +6,7 @@ import { routes, router } from '@/router/router-access'
 
 const pinia = createPinia()
 
+import '@/assets/twind.css'
 import '@/assets/oruga-patched.scss'
 import '@/assets/app.scss'
 

@@ -94,20 +94,15 @@ const routes = [
     component: () => import('@/pages/search.vue')
   },
   // {
-  //   path: '/web3',
-  //   name: 'Web3Auth',
-  //   component: () => import('@/pages/web3Auth.vue')
+  //   path: '/web3-social',
+  //   name: 'Web3Social',
+  //   component: () => import('@/pages/web3Social.vue')
   // },
-  {
-    path: '/web3-social',
-    name: 'Web3Social',
-    component: () => import('@/pages/web3Social.vue')
-  },
-  {
-    path: '/web3-social/:addr',
-    name: 'Web3SocialWithAddr',
-    component: () => import('@/pages/web3Social.vue')
-  },
+  // {
+  //   path: '/web3-social/:addr',
+  //   name: 'Web3SocialWithAddr',
+  //   component: () => import('@/pages/web3Social.vue')
+  // },
   {
     path: '/post/:postId',
     name: 'PostDetail',

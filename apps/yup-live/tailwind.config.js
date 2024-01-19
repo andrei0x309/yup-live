@@ -21,6 +21,6 @@ export default {
       ...defaultTheme.screens
     }
   },
-  content: ['index.html', 'src/**/*.{vue,html}', '../../packages/**/*.{vue,html}'],
+  content: ['index.html', 'login.html', 'src/**/*.{vue,html}', '../../packages/**/*.{vue,html}'],
   plugins: []
 }

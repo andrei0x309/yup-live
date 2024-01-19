@@ -73,7 +73,9 @@
           <template v-if="mirrorAccount?.data?.userProfile?.displayName">
             <div class="grid-missing flex flex-col p-4 glassCard">
               <h2>Mirror Account</h2>
-              <p class="p-3">Username: {{ mirrorAccount?.data?.userProfile?.displayName }}</p>
+              <p class="p-3">
+                Username: {{ mirrorAccount?.data?.userProfile?.displayName }}
+              </p>
               <AvatarBtn
                 :key="mirrorAccount.data.userProfile.avatarURL"
                 class="w-9 h-9 mx-auto"
@@ -85,9 +87,14 @@
               />
               <p class="p-3">ENS: {{ mirrorAccount.data.userProfile.ens }}</p>
               <p v-if="mirrorAccount.data.userProfile.theme" class="p-3">
-                Theme: [{{ mirrorAccount.data.userProfile.theme.accent }}, {{ mirrorAccount.data.userProfile.theme.colorMode }}]
+                Theme: [{{ mirrorAccount.data.userProfile.theme.accent }},
+                {{ mirrorAccount.data.userProfile.theme.colorMode }}]
               </p>
-              <a :href="`https://mirror.xyz/${addr}`" _target="_blank" rel="noopener noreferrer nofollow">
+              <a
+                :href="`https://mirror.xyz/${addr}`"
+                _target="_blank"
+                rel="noopener noreferrer nofollow"
+              >
                 <CustomButton class="mx-auto" :icon="refRadarIcon" text="View Profile" />
               </a>
             </div>
@@ -96,34 +103,54 @@
             <div class="grid-missing flex flex-col p-4 glassCard">
               <h2>Mirror Account</h2>
               <p class="p-3">Not found for address {{ truncteEVMAddr(addr) }}</p>
-              <a :href="`https://mirror.xyz/`" _target="_blank" rel="noopener noreferrer nofollow">
-                <CustomButton class="mx-auto" :icon="refGoToIcon" text="Create on Mirror" />
+              <a
+                :href="`https://mirror.xyz/`"
+                _target="_blank"
+                rel="noopener noreferrer nofollow"
+              >
+                <CustomButton
+                  class="mx-auto"
+                  :icon="refGoToIcon"
+                  text="Create on Mirror"
+                />
               </a>
             </div>
           </template>
 
-          <template v-if="lensAccount?.data?.defaultProfile?.handle || lensAccount?.data?.fallback">
+          <template
+            v-if="
+              lensAccount?.data?.defaultProfile?.handle || lensAccount?.data?.fallback
+            "
+          >
             <div class="grid-missing flex flex-col p-4 glassCard">
               <h2>LENS Account</h2>
               <template v-if="lensAccount?.data?.defaultProfile?.handle">
-              <p class="p-3">Handle: {{ lensAccount?.data?.defaultProfile?.handle }}</p>
-              <AvatarBtn
-                :key="lensAccount.data.defaultProfile.picture.original.url"
-                class="w-9 h-9 mx-auto"
-                imgClass="w-9 h-9"
-                :pSource="parseIpfs(lensAccount.data.defaultProfile.picture.original.url)"
-                :isSelf="false"
-                :isTwitter="true"
-                :pAccount="lensAccount.data.defaultProfile.handle"
-              />
-              <p v-if="lensAccount.data.defaultProfile.name" class="p-3">Lens Name: {{ lensAccount.data.defaultProfile.name }}</p>
-              <p class="p-3">Lens Id: {{ lensAccount.data.defaultProfile.id }}</p>
-              <p>Stats</p>
-              <ul>
-              <li>Followers: {{ lensAccount.data.defaultProfile.stats.totalFollowers }}</li>
-              <li>Following: {{ lensAccount.data.defaultProfile.stats.totalFollowing }}</li>
-              <li>Posts: {{ lensAccount.data.defaultProfile.stats.totalPosts }}</li>
-              </ul>
+                <p class="p-3">Handle: {{ lensAccount?.data?.defaultProfile?.handle }}</p>
+                <AvatarBtn
+                  :key="lensAccount.data.defaultProfile.picture.original.url"
+                  class="w-9 h-9 mx-auto"
+                  imgClass="w-9 h-9"
+                  :pSource="
+                    parseIpfs(lensAccount.data.defaultProfile.picture.original.url)
+                  "
+                  :isSelf="false"
+                  :isTwitter="true"
+                  :pAccount="lensAccount.data.defaultProfile.handle"
+                />
+                <p v-if="lensAccount.data.defaultProfile.name" class="p-3">
+                  Lens Name: {{ lensAccount.data.defaultProfile.name }}
+                </p>
+                <p class="p-3">Lens Id: {{ lensAccount.data.defaultProfile.id }}</p>
+                <p>Stats</p>
+                <ul>
+                  <li>
+                    Followers: {{ lensAccount.data.defaultProfile.stats.totalFollowers }}
+                  </li>
+                  <li>
+                    Following: {{ lensAccount.data.defaultProfile.stats.totalFollowing }}
+                  </li>
+                  <li>Posts: {{ lensAccount.data.defaultProfile.stats.totalPosts }}</li>
+                </ul>
               </template>
               <template v-else>
                 <p class="p-3">Handle: {{ lensAccount.data.fallback }}</p>
@@ -140,7 +167,11 @@
             <div class="grid-missing flex flex-col p-4 glassCard">
               <h2>LENS Account</h2>
               <p class="p-3">Not found for address {{ truncteEVMAddr(addr) }}</p>
-              <a :href="`https://claim.lens.xyz`" _target="_blank" rel="noopener noreferrer nofollow">
+              <a
+                :href="`https://claim.lens.xyz`"
+                _target="_blank"
+                rel="noopener noreferrer nofollow"
+              >
                 <CustomButton class="mx-auto" :icon="refGoToIcon" text="Go To claim" />
               </a>
             </div>
@@ -152,47 +183,60 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref, ref } from 'vue'
-import { useHead } from 'unhead'
-import DangLoader from 'components/vote-list/loader.vue'
-import { useMainStore } from '@/store/main'
-import { useRoute } from 'vue-router'
-import { isValidAddress, formatNumber, truncteEVMAddr } from 'shared/src/utils/misc'
-import { parseIpfs } from 'shared/src/utils/web3/ipfs'
-import { stackAlertWarning } from '@/store/alertStore'
-import AvatarBtn from 'components/functional/avatarBtn.vue'
-import type { MirrorAccountResponse, YUPAccountResponse, FarcasterAccountResponse, LensAccountResponse } from 'shared/src/types/web3/web3Socials'
-import RadarIcon from 'icons/src/radar.vue'
-import GoToIcon from 'icons/src/goTo.vue'
-import LensIcon from 'icons/src/lens.vue'
-import CustomButton from 'components/functional/customButton.vue'
-import { getLensUserData } from 'shared/src/utils/requests/lens'
+import {
+  onMounted,
+  defineComponent,
+  reactive,
+  computed,
+  onUnmounted,
+  Ref,
+  ref,
+} from "vue";
+import { useHead } from "unhead";
+import DangLoader from "components/vote-list/loader.vue";
+import { useMainStore } from "@/store/main";
+import { useRoute } from "vue-router";
+import { isValidAddress, formatNumber, truncteEVMAddr } from "shared/src/utils/misc";
+import { parseIpfs } from "shared/src/utils/web3/ipfs";
+import { stackAlertWarning } from "@/store/alertStore";
+import AvatarBtn from "components/functional/avatarBtn.vue";
+import type {
+  MirrorAccountResponse,
+  YUPAccountResponse,
+  FarcasterAccountResponse,
+  LensAccountResponse,
+} from "shared/src/types/web3/web3Socials";
+import RadarIcon from "icons/src/radar.vue";
+import GoToIcon from "icons/src/goTo.vue";
+import LensIcon from "icons/src/lens.vue";
+import CustomButton from "components/functional/customButton.vue";
+import { getLensUserData } from "shared/src/utils/requests/lens";
 
-const refRadarIcon = RadarIcon
-const refGoToIcon = GoToIcon
-const refLensIcon = LensIcon
+const refRadarIcon = RadarIcon;
+const refGoToIcon = GoToIcon;
+const refLensIcon = LensIcon;
 
-const API_BASE = import.meta.env.VITE_YUP_API_BASE
-const mirrorEndpoint = 'https://mirror-endpoint.deno.dev'
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+const mirrorEndpoint = "https://mirror-endpoint.deno.dev";
 
 export default defineComponent({
-  name: 'SearchWeb3User',
+  name: "SearchWeb3User",
   components: {
     DangLoader,
     AvatarBtn,
-    CustomButton
+    CustomButton,
   },
   setup() {
-    const route = useRoute()
-    const addr = ref((route.params.addr as string) ?? '')
-    const search = ref((route.params.addr as string) ?? '')
-    const yupAccount = ref(null) as unknown as Ref<YUPAccountResponse>
-    const lensAccount = ref(null) as unknown as Ref<LensAccountResponse>
-    const farcasterAccount = ref(null) as unknown as Ref<FarcasterAccountResponse>
-    const mirrorAccount = ref(null) as unknown as Ref<MirrorAccountResponse>
-    const isDataLoading = ref(false)
-    const store = useMainStore()
-    const isLoggedIn = ref(store.isLoggedIn)
+    const route = useRoute();
+    const addr = ref((route.params.addr as string) ?? "");
+    const search = ref((route.params.addr as string) ?? "");
+    const yupAccount = (ref(null) as unknown) as Ref<YUPAccountResponse>;
+    const lensAccount = (ref(null) as unknown) as Ref<LensAccountResponse>;
+    const farcasterAccount = (ref(null) as unknown) as Ref<FarcasterAccountResponse>;
+    const mirrorAccount = (ref(null) as unknown) as Ref<MirrorAccountResponse>;
+    const isDataLoading = ref(false);
+    const store = useMainStore();
+    const isLoggedIn = ref(store.isLoggedIn);
     // // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // let ethersLib: any
     // // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -201,102 +245,98 @@ export default defineComponent({
     // let w3Modal: any
 
     store.$subscribe(() => {
-      isLoggedIn.value = store.isLoggedIn
-    })
+      isLoggedIn.value = store.isLoggedIn;
+    });
 
     const siteData = reactive({
       title: `YUP Live - Search Web3 Socials`,
-      description: `Find if evm address has web3 accounts...`
-    })
+      description: `Find if evm address has web3 accounts...`,
+    });
 
     useHead({
       title: computed(() => siteData.title).value,
       meta: [
         {
-          name: 'og:image',
-          content: `/share/yup-live-ogs/og-yup-live-default.png`
+          name: "og:image",
+          content: `/share/yup-live-ogs/og-yup-live-default.png`,
         },
         {
-          name: 'description',
-          content: computed(() => siteData.description).value
+          name: "description",
+          content: computed(() => siteData.description).value,
         },
         {
-          name: 'og:type',
-          content: 'website'
+          name: "og:type",
+          content: "website",
         },
         {
-          name: 'og:title',
-          content: computed(() => siteData.title).value
+          name: "og:title",
+          content: computed(() => siteData.title).value,
         },
         {
-          name: 'og:description',
-          content: computed(() => siteData.description).value
+          name: "og:description",
+          content: computed(() => siteData.description).value,
         },
         {
-          name: 'og:url',
-          content: computed(() => route.fullPath).value
+          name: "og:url",
+          content: computed(() => route.fullPath).value,
         },
         {
-          name: 'twitter:card',
-          content: 'summary_large_image'
+          name: "twitter:card",
+          content: "summary_large_image",
         },
         {
-          name: 'twitter:url',
-          content: computed(() => route.fullPath).value
+          name: "twitter:url",
+          content: computed(() => route.fullPath).value,
         },
         {
-          name: 'twitter:title',
-          content: computed(() => siteData.title).value
+          name: "twitter:title",
+          content: computed(() => siteData.title).value,
         },
         {
-          name: 'twitter:description',
-          content: computed(() => siteData.description).value
-        }
-      ]
-    })
-
+          name: "twitter:description",
+          content: computed(() => siteData.description).value,
+        },
+      ],
+    });
 
     onUnmounted(() => {
       // do nothing
-    })
-
-    
+    });
 
     const getYupData = async (address: string) => {
       try {
-        const req = await fetch(`${API_BASE}/accounts/eth?address=${address}`)
+        const req = await fetch(`${API_BASE}/accounts/eth?address=${address}`);
         if (req.ok) {
-          return await req.json()
+          return await req.json();
         }
       } catch {
         // ignore
       }
-      return null
-    }
+      return null;
+    };
 
     const getFarcasterData = async (address: string) => {
       try {
-        const req = await fetch(`${API_BASE}/profile/farcaster/${address}`)
+        const req = await fetch(`${API_BASE}/profile/farcaster/${address}`);
         if (req.ok) {
-          const farcaster = await req.json()
-          if ('farcaster' in farcaster) {
-              return farcaster
-            }
-          else {
-            return null
+          const farcaster = await req.json();
+          if ("farcaster" in farcaster) {
+            return farcaster;
+          } else {
+            return null;
           }
         }
       } catch {
         // ignore
       }
-      return null
-    }
+      return null;
+    };
 
     const getMirrorAccount = async (address: string) => {
       try {
         const req = await fetch(mirrorEndpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             query: `{
 	userProfile(address: "${address}"){
@@ -310,62 +350,65 @@ export default defineComponent({
 			colorMode
 		}
 	}
-}`
-          })
-        })
+}`,
+          }),
+        });
         if (req.ok) {
-          const data = await req.json()
-          if ('errors' in data) {
-            return null
+          const data = await req.json();
+          if ("errors" in data) {
+            return null;
           }
-          return data
+          return data;
         }
       } catch {
         // ignore
       }
-      return null
-    }
+      return null;
+    };
 
     const resetAccValue = () => {
-      lensAccount.value = null as unknown as LensAccountResponse
-      yupAccount.value = null as unknown as YUPAccountResponse
-      farcasterAccount.value = null as unknown as FarcasterAccountResponse
-      mirrorAccount.value = null as unknown as MirrorAccountResponse
-    }
+      lensAccount.value = (null as unknown) as LensAccountResponse;
+      yupAccount.value = (null as unknown) as YUPAccountResponse;
+      farcasterAccount.value = (null as unknown) as FarcasterAccountResponse;
+      mirrorAccount.value = (null as unknown) as MirrorAccountResponse;
+    };
 
     const getAccounsData = async (address: string) => {
-      address = address.trim()
-      await Promise.all([getYupData(address), getFarcasterData(address), getMirrorAccount(address), getLensUserData(address)]).then(
-        ([yupData, farcasterData, mirrorData, lensData]) => {
-          resetAccValue()
-          if (yupData?.web3Handles?.lens || lensData?.data?.defaultProfile?.handle) {
-            const lensResp = {...{data: {}}, ...(lensData ?? {})}
-            console.log(lensResp)
-            lensResp.data.fallback = yupData?.web3Handles?.lens
-            lensAccount.value = lensResp
-          }
-          if (yupData) {
-            yupAccount.value = yupData
-          }
-          if (farcasterData) {
-            farcasterAccount.value = farcasterData
-          }
-          if (mirrorData) {
-            mirrorAccount.value = mirrorData
-          }
+      address = address.trim();
+      await Promise.all([
+        getYupData(address),
+        getFarcasterData(address),
+        getMirrorAccount(address),
+        getLensUserData(address),
+      ]).then(([yupData, farcasterData, mirrorData, lensData]) => {
+        resetAccValue();
+        if (yupData?.web3Handles?.lens || lensData?.data?.defaultProfile?.handle) {
+          const lensResp = { ...{ data: {} }, ...(lensData ?? {}) };
+          console.log(lensResp);
+          lensResp.data.fallback = yupData?.web3Handles?.lens;
+          lensAccount.value = lensResp;
         }
-      )
-    }
+        if (yupData) {
+          yupAccount.value = yupData;
+        }
+        if (farcasterData) {
+          farcasterAccount.value = farcasterData;
+        }
+        if (mirrorData) {
+          mirrorAccount.value = mirrorData;
+        }
+      });
+    };
 
     const searchUser = async () => {
       if (!isValidAddress(search.value)) {
-        stackAlertWarning('Invalid EVM address!')
-        return
+        stackAlertWarning("Invalid EVM address!");
+        return;
       }
-      isDataLoading.value = true
-      await getAccounsData(search.value)
-      isDataLoading.value = false
-    }
+      isDataLoading.value = true;
+      await getAccounsData(search.value);
+      isDataLoading.value = false;
+    };
 
     // const prepareForTransaction = async () => {
     //   if (!userProvider) {
@@ -436,12 +479,12 @@ export default defineComponent({
       //   })
       // })
 
-      isDataLoading.value = true
+      isDataLoading.value = true;
       if (addr.value) {
-        await getAccounsData(addr.value)
+        await getAccounsData(addr.value);
       }
-      isDataLoading.value = false
-    })
+      isDataLoading.value = false;
+    });
 
     return {
       lensAccount,
@@ -459,10 +502,10 @@ export default defineComponent({
       truncteEVMAddr,
       parseIpfs,
       // lensFollow,
-      refLensIcon
-    }
-  }
-})
+      refLensIcon,
+    };
+  },
+});
 </script>
 
 <style lang="scss">

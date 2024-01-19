@@ -36,7 +36,7 @@
     </div>
     <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
       <div :class="`indent ${isReply ? 'reply-line' : ''}`"></div>
-      <div class="pl-1">
+      <div class="pl-1 w-full">
         <p v-html="mainPost.body"></p>
         <template
           v-for="media of mainPost.mediaEntities?.filter((e) => e.type === 'video')"

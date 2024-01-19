@@ -20,16 +20,6 @@ export const getRandomDispatcherAddress = () => {
   return LENS_DISPATCHER_ADDRESSES[Math.floor(Math.random() * LENS_DISPATCHER_ADDRESSES.length)]
 }
 
-export const setLocalLensAuth = async ({ accessToken, refreshToken }: { accessToken: string, refreshToken: string }) => {
-  localStorage.setItem('lensAuthToken', accessToken)
-  localStorage.setItem('lensRefreshToken', refreshToken)
-}
-
-export const removeLocalLensAuth = () => {
-  localStorage.removeItem('lensAuthToken')
-  localStorage.removeItem('lensRefreshToken')
-}
-
 export const authLens = async ({
   web3Libs,
   stackAlertWarning,
@@ -105,7 +95,6 @@ authenticate(request: {
             authenticate: { accessToken, refreshToken }
           }
         } = respData
-        setLocalLensAuth({ accessToken, refreshToken })
         return { accessToken, refreshToken }
       }
     }
@@ -362,7 +351,6 @@ export const disconnectLens = async ({ store, apiBase = API_BASE }: { store: IMa
       platforms: ['lens']
     })
   })
-  removeLocalLensAuth()
   if (store.userData.connected) store.userData.connected.lens = false
   return req.ok
 }
@@ -378,7 +366,6 @@ const cleanDoConnectLens = ({
 }) => {
   if (error) stackAlertError(error);
   isConnectToLens.value = false;
-  removeLocalLensAuth();
   walletDisconnect();
   return null;
 };

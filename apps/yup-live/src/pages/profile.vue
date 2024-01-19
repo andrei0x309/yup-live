@@ -52,18 +52,19 @@
     </div>
     <div v-if="!apiError" class="bg-color table-list profile w-full mb-4 flex flex-col">
       <button
-          v-if="hasAtLeastOnePConnected"
-          class="asocLink"
-          @click="openPostModal = true"
-        >
-          New Post
-        </button>
-        <router-link 
-          v-else
-          class="asocLink"
-          :to="`/profile/${(userData._id) as string}/settings`">
-          Connect socials to post
-          </router-link>
+        v-if="hasAtLeastOnePConnected"
+        class="asocLink"
+        @click="openPostModal = true"
+      >
+        New Post
+      </button>
+      <router-link
+        v-else
+        class="asocLink"
+        :to="`/profile/${(userData._id) as string}/settings`"
+      >
+        Connect socials to post
+      </router-link>
       <router-link class="asocLink" :to="`/web3-profile/${userData.evmAddress}`"
         >View Associated web3 profile</router-link
       >
@@ -245,7 +246,6 @@ import {
 import { OTooltip } from "@oruga-ui/oruga-next";
 import { PLATFORMS } from "shared/src/utils/requests/web3-posting";
 
-
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 const postDeps: IPostDeps = {
@@ -354,7 +354,7 @@ export default defineComponent({
       description: `Check my web3 YUP social profile - yup.info.gf`,
     });
 
-    useHead(({
+    useHead({
       title: computed(() => siteData.title).value,
       meta: [
         {
@@ -402,7 +402,7 @@ export default defineComponent({
           content: `/share/yup-live-ogs/og-yup-live-web3-profile.png`,
         },
       ],
-    }));
+    });
 
     store.$subscribe(async () => {
       isOwnAccount.value = store?.isLoggedIn && store?.userData.account === userId.value;
@@ -447,12 +447,14 @@ export default defineComponent({
     };
 
     const getHomeFeedPosts = async (start = 0) => {
+      console.log("getHomeFeedPosts", userId.value);
       if (!userId.value) return [];
-      return (await getLikesFeed(API_BASE, start, userId.value));
+      return await getLikesFeed(API_BASE, start, userId.value);
     };
 
     const getCreatedFeedPosts = async (start = 0) => {
-      return (await getWeb3CreatedFeed(API_BASE, start, userData.value?.evmAddress)).posts;
+      return (await getWeb3CreatedFeed(API_BASE, start, userData.value?.evmAddress))
+        .posts;
     };
 
     let getFeedPosts =
@@ -641,7 +643,7 @@ export default defineComponent({
       defaultAccountFeed,
       postDeps,
       hasAtLeastOnePConnected,
-      PLATFORMS
+      PLATFORMS,
     };
   },
 });
@@ -703,6 +705,8 @@ export default defineComponent({
   opacity: 0.8;
   box-shadow: -1px 2px 1px var(--profile-av-holder-sh2);
   transition: all 0.3s ease-in-out;
+  max-width: 16rem;
+  margin: 0rem auto 0.3rem auto;
 }
 
 .asocLink:hover {

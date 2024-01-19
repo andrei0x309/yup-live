@@ -16,7 +16,7 @@ export const getWeb3CreatedFeed = async (apiBase = API_BASE, start = 0, evmAddre
 
 
 export const getLikesFeed = async (apiBase = API_BASE, start = 0, userId: string) => {
-    if (userId) return [];
+    if (!userId) return [];
     const res = await fetch(
         `${apiBase}/feed/account/${userId}?start=${start}&limit=10`
     );

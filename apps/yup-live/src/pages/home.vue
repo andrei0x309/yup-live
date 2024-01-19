@@ -168,30 +168,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.table-list {
-  padding: 1rem;
-  margin-top: 0.2rem;
-  min-height: 18rem;
-  color: #1b1b1b;
-  font-size: 0.96rem;
-  font-weight: 200;
-  text-align: center;
-  display: grid;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border-radius: 0.5rem;
-  box-shadow: 0.2rem 0.5rem 0rem;
-  grid-template-columns: 1fr;
-
-  table tr td {
-    padding-bottom: 0.7rem;
-    padding-top: 0.7rem;
-    padding-left: 0.2rem;
-    padding-right: 0.2rem;
-  }
-}
-
 .tableLoading {
   opacity: 0.4;
 }
