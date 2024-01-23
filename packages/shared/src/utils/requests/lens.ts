@@ -23,11 +23,11 @@ export const getRandomDispatcherAddress = () => {
 export const authLens = async ({
   web3Libs,
   stackAlertWarning,
-  stackAlertSuccess
+  profileId
 }: {
     web3Libs: TWeb3Libs,
     stackAlertWarning?: (msg: string) => void,
-  stackAlertSuccess?: (msg: string) => void
+    profileId: string
 }
 
 ) => {
@@ -48,7 +48,7 @@ export const authLens = async ({
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       query: `query Challenge {
-challenge(request: { signedBy: "${address}" }) {
+challenge(request: { signedBy: "${address}", for: "${profileId}" }) {
   text
   id
 }
@@ -326,12 +326,14 @@ export const setDispatcherWithBackend = async ({ profileId, dispatcher, deadline
   return req.ok
 }
 
-export const setAuthLens = async ({ store, apiBase = API_BASE, profileId, refreshToken }: { store: IMainStore, apiBase: string, profileId: string, refreshToken: string }) => {
+export const setAuthLens = async ({ store, apiBase = API_BASE, profileId, refreshToken, accessToken }:
+  { store: IMainStore, apiBase: string, profileId: string, refreshToken: string, accessToken: string }) => {
   const data = {
     auth: {
       lens: {
         profileId,
-        refreshToken
+        refreshToken,
+        accessToken
       }
     }
   }
@@ -369,6 +371,46 @@ const cleanDoConnectLens = ({
   walletDisconnect();
   return null;
 };
+
+const enableSignless = async ({ web3Libs, store, apiBase = API_BASE, }:
+  { web3Libs: TWeb3Libs, store: IMainStore, apiBase: string }) => {
+  try {
+    const wgamiLib = (await prepareForTransaction({
+      localWeb3Libs: web3Libs,
+    }))
+    if (!(wgamiLib)) {
+      return -1
+    }
+    const typeForSignless = await fetchWAuth(store, `${apiBase}/lens/enable-profile-manager-typed-data`, {
+      method: 'POST',
+    })
+    const { id, typedData } = await typeForSignless.json()
+
+    const signature = await signedTypeData({
+      domain: typedData.domain,
+      types: typedData.types,
+      value: typedData.value,
+      signTypedData: wgamiLib.wgamiCore.signTypedData,
+      primaryType: 'ChangeDelegatedExecutorsConfig'
+    })
+
+    if (!signature) {
+      return -3
+    }
+
+    await fetchWAuth(store, `${apiBase}/lens/enable-profile-manager`, {
+      method: 'POST',
+      body: JSON.stringify({
+        id,
+        signature
+      })
+    })
+
+  } catch {
+    // ignore
+  }
+}
+
 
 export const connectLens = async ({
   stackAlertWarning,
@@ -410,8 +452,8 @@ export const connectLens = async ({
   const profileId = firstOwnedProfile.id;
   const auth = await authLens({
     web3Libs: Web3Libs.value,
-    stackAlertWarning,
-    stackAlertSuccess,
+    profileId,
+    stackAlertWarning
   });
   if (!auth) {
     return cleanDoConnectLens(
@@ -422,7 +464,7 @@ export const connectLens = async ({
       }
     );
   }
-  const { accessToken: authToken, refreshToken } = auth;
+  const { accessToken, refreshToken } = auth;
 
   const isBanned = !firstOwnedProfile?.sponsor
 
@@ -436,8 +478,12 @@ export const connectLens = async ({
     );
   }
 
-  // TO DO: Not handling non signless profiles for now
-  // const needToSetDispatcher = !firstOwnedProfile?.signless
+  const needToSetDispatcher = !firstOwnedProfile?.signless
+  if (needToSetDispatcher) {
+    await enableSignless({ web3Libs: Web3Libs.value, store, apiBase: API_BASE })
+  }
+
+  // TODO: old setup might be usseful for allowing user to choose lens profile
   // if (needToSetDispatcher) {
   //     settingsModalContent.value = "lens-dispatcher";
   //     settingsModal.value = true;
@@ -509,6 +555,7 @@ export const connectLens = async ({
     apiBase: API_BASE,
     profileId,
     refreshToken,
+    accessToken
   });
   isConnectedToLens.value = true;
   isConnectToLens.value = false;

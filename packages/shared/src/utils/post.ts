@@ -116,9 +116,6 @@ const parseEmbeds = (content: string) => {
         })
     }
 
-    content = content.replace(regexYoutube, '')
-    content = content.replace(regexSpotify, '')
-
     return { embeds, content }
 }
 
@@ -149,10 +146,37 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
             ) ?? []) as linkPreviewTypeEx[]
 
     postBuilder.linkPreviews = (postBuilder.linkPreviews ?? []).filter((e) => !emebeds.embeds.some((el) => el.url === e.url))
+
     const parseTheMedia = parseMedia(fullPost?.web3Preview?.attachments ?? [], postBuilder.linkPreviews ?? [], emebeds.embeds)
 
     postBuilder.mediaEntities = parseTheMedia.retArr
     postBuilder.linkPreviews = parseTheMedia.linkPreviews
+
+    const fresPreviews = [] as linkPreviewTypeEx[]
+    postBuilder.linkPreviews.forEach((e) => {
+        if (e?.url.startsWith('https://t.co/') || e?.url.startsWith('https://twitter.com/') || e?.url.startsWith('https://x.com/')) {
+            emebeds.embeds.push({
+                type: 'twitter',
+                url: e.url,
+                linkPreview: e
+            })
+        } else if (e?.url.startsWith('https://warpcast.com/')) {
+            emebeds.embeds.push({
+                type: 'farcaster',
+                url: e.url,
+                linkPreview: e
+            })
+        } else if (e?.url.startsWith('https://hey.xyz/')) {
+            emebeds.embeds.push({
+                type: 'lens',
+                url: e.url,
+                linkPreview: e
+            })
+        } else {
+            fresPreviews.push(e)
+        }
+    })
+    postBuilder.linkPreviews = fresPreviews
 
     postBuilder.embeds = emebeds.embeds
 
@@ -178,6 +202,8 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
         parentPostID: '',
     }
     postBuilder.threads.parentPostID = fullPost?.web3Preview?.meta?.parentPostId ?? ''
+    postBuilder.crossPostGroup = fullPost?.crossPostGroup ?? {}
+
     return postBuilder
 }
 

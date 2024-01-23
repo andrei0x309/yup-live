@@ -20,7 +20,8 @@ import {
   Switch,
   Radio,
   Checkbox,
-  Tooltip
+  Tooltip,
+  Input
 } from '@oruga-ui/oruga-next'
 import { Buffer } from 'buffer'
 
@@ -80,6 +81,7 @@ createApp(App)
   .use(Table)
   .use(Tooltip)
   .use(Checkbox)
+  .use(Input)
   .use(createPinia())
   .provide('routes', routes)
   .mount('#app')

@@ -40,7 +40,10 @@
           /> --></span>
         </div>
       </div>
-      <span class="flex mfavIco ml-auto">
+      <span v-if="Object.keys(mainPost.crossPostGroup ?? {})?.length > 1" class="mCrossIcon">
+        <CrossIconGroup :post="mainPost" />
+      </span>
+      <span v-else class="flex mfavIco ml-auto">
         <BskyIcon class="w-5 h-5" />
       </span>
     </div>
@@ -85,7 +88,7 @@ import VerifiedIcon from 'icons/src/verified.vue'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
 import type { PostBodyProcessed } from 'shared/src/types/post'
 import ExternalEmbeds from "components/post/post-external/external-embeds.vue"
-
+import CrossIconGroup from "components/post-types/misc/crossicon-group.vue"
 
 export default defineComponent({
   name: 'PostLensBody',
@@ -97,7 +100,8 @@ export default defineComponent({
     VerifiedIcon,
     BskyIcon,
     LinkPreview,
-    ExternalEmbeds
+    ExternalEmbeds,
+    CrossIconGroup
   },
   props: {
     mainPost: {

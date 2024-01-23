@@ -110,30 +110,26 @@ const retryPost = async ({ taskId, store,
     }
 }
 
-
-export const sendPost = async ({
-    replyTo,
-    postContent,
-    maxCharCount,
-    isSendPost,
-    postPlatforms,
-    media,
-    store,
-    stackAlertSuccess,
-    stackAlertWarning,
-    showError
-}: {
+export const makeSendData = (
+    {
+        replyTo,
+        postContent,
+        postPlatforms,
+        media,
+        showError,
+        maxCharCount,
+        time
+    }: {
         replyTo?: IReplyTo
-    postContent: Ref<string>
-    maxCharCount: Ref<number>
-    isSendPost: Ref<boolean>
-    postPlatforms: Ref<TPlatform[]>
-        media: Record<string, unknown>[]
-        store: IMainStore
-    stackAlertSuccess?: (message: string) => void,
-    stackAlertWarning?: (message: string) => void,
-    showError?: (message: string) => void
-}) => {
+            postContent: Ref<string>
+            postPlatforms: Ref<TPlatform[]>
+            media: Record<string, unknown>[]
+            showError?: (message: string) => void
+        maxCharCount: Ref<number>
+        time?: Date
+    }
+) => {
+
     if (!postContent.value) {
         showError && showError("Post must have some content");
         return;
@@ -141,7 +137,6 @@ export const sendPost = async ({
         showError && showError(`Post cannot be longer than ${maxCharCount.value} characters`);
         return;
     }
-    isSendPost.value = true;
 
     const sendData = {
         content: postContent.value,
@@ -161,10 +156,53 @@ export const sendPost = async ({
         sendData.replyTo = replyTo
     }
 
+    if (time) {
+        sendData.time = time.getTime()
+    }
+
+    return sendData
+}
+
+export const sendPost = async ({
+    replyTo,
+    postContent,
+    isSendPost,
+    postPlatforms,
+    media,
+    store,
+    stackAlertSuccess,
+    stackAlertWarning,
+    showError,
+    maxCharCount
+}: {
+    replyTo?: IReplyTo
+    postContent: Ref<string>
+    maxCharCount: Ref<number>
+    isSendPost: Ref<boolean>
+    postPlatforms: Ref<TPlatform[]>
+    media: Record<string, unknown>[]
+    store: IMainStore
+    stackAlertSuccess?: (message: string) => void,
+    stackAlertWarning?: (message: string) => void,
+    showError?: (message: string) => void
+}) => {
+    isSendPost.value = true;
+
+    const sendData = makeSendData({
+        replyTo,
+        postContent,
+        postPlatforms,
+        media,
+        showError,
+        maxCharCount
+    })
+
+    if (!sendData) return
+
     const result = await submitPost({
         store,
         apiBase: API_BASE,
-        sendData,
+        sendData
     });
 
     isSendPost.value = false;
@@ -181,3 +219,57 @@ export const sendPost = async ({
     }
     return true
 };
+
+export const getScheduledPosts = async ({ store, apiBase }: { store: IMainStore, apiBase: string }) => {
+    try {
+        const req = await fetchWAuth(store, `${apiBase}/web3-post/schedule?accountId=${store.userData.account}`)
+        if (!req.ok) throw new Error('Error getting scheduled posts' + req.statusText)
+        return (await req.json()).scheduledPosts
+    } catch (e) {
+        console.error('Get Scheduled Posts: ', e)
+        return []
+    }
+}
+
+export const getScheduledThreads = async ({ store, apiBase }: { store: IMainStore, apiBase: string }) => {
+    try {
+        const req = await fetchWAuth(store, `${apiBase}/web3-post/schedule/thread?accountId=${store.userData.account}`)
+        if (!req.ok) throw new Error('Error getting scheduled threads' + req.statusText)
+        return (await req.json()).scheduledThreads
+    } catch (e) {
+        console.error('Get Scheduled Threads: ', e)
+        return []
+    }
+}
+
+export const deleteScheduledTask = async ({ store, apiBase, taskId, isTread }: { store: IMainStore, apiBase: string, taskId: string, isTread: boolean }) => {
+    try {
+        console.log('deleteScheduledTask: ', taskId, isTread, apiBase)
+        const thread = isTread ? '/thread' : ''
+        const req = await fetchWAuth(store, `${apiBase}/web3-post/schedule${thread}`, {
+            body: JSON.stringify({ taskId }),
+            method: 'DELETE'
+        })
+        if (!req.ok) throw new Error('Error deleting scheduled task' + req.statusText)
+        return await req.json()
+    } catch (e) {
+        console.error('Delete Scheduled task: ', e)
+        return null
+    }
+}
+
+export const schedulePost = async (
+    { store, apiBase, sendData }:
+        { store: IMainStore, apiBase: string, sendData: ISendPostData }) => {
+    try {
+        const req = await fetchWAuth(store, `${apiBase}/web3-post/schedule`, {
+            body: JSON.stringify(sendData),
+            method: 'POST'
+        })
+        if (!req.ok) throw new Error('Error scheduling post' + req.statusText)
+        return await req.json()
+    } catch (e) {
+        console.error('Schedule Post: ', e)
+        return null
+    }
+}

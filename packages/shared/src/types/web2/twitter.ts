@@ -7,6 +7,7 @@ export interface TweetData {
   body: string
   verified: boolean
   mediaEntities: mediaType[]
+  crossPostGroup?: Object
 }
 
 export interface TweetRaw {
@@ -23,6 +24,7 @@ export interface TweetRaw {
     screen_name?: string
     profile_image_url?: string
     verified?: boolean
+    username?: string
   }
   extended_entities?: {
     media: Array<{

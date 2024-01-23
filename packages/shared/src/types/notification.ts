@@ -18,4 +18,5 @@ export interface NotifType {
         handle: string
         avatar: string
     }[]
+    yupPostId: string
 }

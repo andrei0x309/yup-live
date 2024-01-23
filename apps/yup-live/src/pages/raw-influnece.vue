@@ -12,7 +12,7 @@
 
         <button
           type="button"
-          class="m-2 rounded px-4 px-4 py-2 font-semibold text-gray-100"
+          class="m-2 rounded px-4 py-2 font-semibold text-gray-100"
           :class="search.length > 0 ? 'bg-purple-500' : 'bg-gray-500 cursor-not-allowed'"
           :disabled="search.length == 0"
           @click="getUserData"
@@ -83,7 +83,7 @@
 
         <button
           type="button"
-          class="m-2 rounded px-4 px-4 py-2 font-semibold text-gray-100"
+          class="m-2 rounded px-4 py-2 font-semibold text-gray-100"
           :class="search.length > 0 ? 'bg-purple-500' : 'bg-gray-500 cursor-not-allowed'"
           :disabled="search.length == 0"
           @click="calcDerived"

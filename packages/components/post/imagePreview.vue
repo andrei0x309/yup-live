@@ -1,8 +1,8 @@
 <template>
-  <div class="imgPreview flex flex-col content-center justify-center items-center" :id="`${hashId(refSources?.[0] ?? '')}-img`">
-    <BtnSpinner v-if="isLoading" :key="`loading-${isLoading}`" />
+  <div  :class="`imgPreview flex flex-col content-center justify-center items-center ${ !isLoading && !isError && !noBorder ? 'imgPreviewBorder': ''}`" :id="`${hashId(refSources?.[0] ?? '')}-img`">
+    <BtnSpinner v-if="isLoading" class="imagePreviewSpiner" :key="`loading-${isLoading}`" />
     <div :class="`grid grid-cols-${refSources?.length > 1 ? 2 : 1} gap-4`">
-      <div v-for="(source, i) in refSources" :key="source">
+      <div v-for="(source, i) of refSources" :key="source">
         <div v-if="!isError">
           <button @click="openImg(source)" >
             <img
@@ -91,6 +91,11 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    noBorder: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props) {
     const isError = ref(false);
@@ -172,12 +177,22 @@ export default defineComponent({
   max-height: 20rem;
   border-radius: 0.9rem;
 }
+
+.imgPreviewBorder {
+  border: 2px solid #4f4f4fad;
+}
+
+.imagePreviewSpiner {
+    margin-bottom: -11rem;
+    margin-top: 2rem;
+}
 .noImg {
-  width: 35%;
-  z-index: 2;
-  min-height: 15rem;
-  min-width: 15rem;
-  padding: 1rem 5rem 6rem 5rem;
+    width: 35%;
+    z-index: 2;
+    min-height: 15rem;
+    min-width: 15rem;
+    padding: 1rem 4rem 1rem 5rem;
+    position: absolute;
 
   p {
     z-index: 2;
@@ -195,8 +210,14 @@ export default defineComponent({
 }
 
 .postBkImg {
-  position: absolute;
-  opacity: 0.4;
+    opacity: 0.42;
+    max-height: 15rem;
+    max-width: -moz-fit-content;
+    max-width: 100%;
+    -o-object-fit: cover;
+    object-fit: cover;
+    margin-bottom: -8rem;
+    width: 100rem;
 }
 
 .lightbox {

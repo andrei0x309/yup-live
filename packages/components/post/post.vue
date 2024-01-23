@@ -187,6 +187,7 @@ export default defineComponent({
       tweetInfo: {},
       web3Preview: {},
       web3CreatorProfile: null,
+      crossPostGroup: {},
       //   isMirror: false,
       //   isWeb3: false,
       //   isTwitter: false,
@@ -320,6 +321,8 @@ export default defineComponent({
             }
           }
           processedPost.web3CreatorProfile = props.post?.web3CreatorProfile ?? null;
+          processedPost.crossPostGroup = props.post?.crossPostGroup ?? {};
+
           postTypeLoading.value = false;
         }
       );
@@ -410,6 +413,17 @@ export default defineComponent({
   img {
     filter: brightness(0) invert(1);
   }
+}
+
+.mCrossIcon {
+  position: relative;
+  top: -0.3rem;
+  opacity: 0.8;
+  display: grid;
+  place-items: center;
+  grid-template-columns: repeat(2, 1fr);
+  margin-left: auto;
+  grid-gap: 0.2rem;
 }
 
 .mtime {

@@ -10,6 +10,7 @@
         :previewClass="`max-h-8 max-w-8 imgNotRadius`"
         :noPreviewClass="`max-h-8 max-w-8 min-h-8 min-max-w-8 imgNotRadius`"
         :noLightbox="true"
+        :noBorder="true"
       />
     </div>
     <div class="flex flex-col w-full">

@@ -47,7 +47,7 @@
         @click="share(meeting)"
       >
         <ShareIcon class="m-1 w-4 inline" />
-        <span class="font-medium font-bold">Share this</span>
+        <span class="font-bold">Share this</span>
       </button>
       <button
         type="button"
@@ -55,7 +55,7 @@
         @click="modalOpen(meeting)"
       >
         <RadarIcon class="m-1 w-4 inline" />
-        <span class="font-medium font-bold">Open in modal</span>
+        <span class="font-bold">Open in modal</span>
       </button>
     </div>
             </div>

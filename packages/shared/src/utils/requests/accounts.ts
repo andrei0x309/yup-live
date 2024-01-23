@@ -111,7 +111,7 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
     },
     {
       name: 'Total Rewards Claimed',
-      value: formatNumber(total_claimed_rewards)
+      value: formatNumber(isNaN(total_claimed_rewards) ? 0 : total_claimed_rewards)
     },
     {
       name: 'Total Vote Value',

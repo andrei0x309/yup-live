@@ -2,7 +2,7 @@
   <div :class="`notBLine inline-block p-1 mr-3`"></div>
   <div class="flex w-full">
     <div class="flex flex-col">
-      <p class="ml-4 mt-1 pb-4 flex items-center">
+      <p class="ml-3 mr-1 mt-1 pb-4 flex items-center">
       <LikesIcon  class="w-6 opacity-70" :isSolid="true"/>
       </p>
       <div class="text-center">on: 
@@ -51,14 +51,10 @@
        </template>
       </div>
       <p class="ml-3 mt-3 flex items-center w-full">
-        <b
-          class="mr-2 opacity-60"
-          style="writing-mode: vertical-rl; text-orientation: upright"
-          >URL</b
-        ><span style="font-size: 0.78rem"
-          ><router-link :to="`/post/${notification?.meta?.postId}`">{{
-            notification?.meta?.url
-          }}</router-link></span
+        <span style="font-size: 0.78rem"
+          ><router-link :to="`/post/${notification?.meta?.postId ?? notification?.yupPostId}`">
+          Liked this post
+          </router-link></span
         >
       </p>
       <p class="ml-3 flex items-center mt-4 self-end">

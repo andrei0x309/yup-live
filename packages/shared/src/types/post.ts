@@ -192,12 +192,16 @@ export interface PostBodyProcessed {
   threads?: {
     parentPostID: string
   }
+  crossPostGroup?: {
+    [key: string]: string
+  }
 
 }
 
 export type Embed = {
   type: string
   url: string
+  linkPreview?: linkPreviewTypeEx
 }
 
 // export interface Web3PostFarcaster {

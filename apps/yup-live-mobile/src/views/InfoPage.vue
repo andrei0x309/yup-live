@@ -209,6 +209,7 @@ import { ref, onMounted } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 import { recentChanges } from "shared/src/utils/changeLog"
 import { useMainStore } from "@/store/main";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
   name: "InfoPage",
@@ -247,9 +248,12 @@ export default defineComponent({
     const loading = ref(false);
     const toastState = ref(false);
     const tostMsg = ref("");
-    const changesModalOpen = ref(false);
     const guideModalOpen = ref(false);
     const appVersion = ref(store?.version ?? "");
+    const route = useRoute();
+    const openChanges = route?.params?.openChanges
+    const changesModalOpen = ref(!!openChanges);
+
 
     const segmentChange = (value: any) => {
       currentSegment.value = value.detail.value;
@@ -273,7 +277,8 @@ export default defineComponent({
       changesModalOpen,
       guideModalOpen,
       appVersion,
-      recentChanges
+      recentChanges,
+      openChanges
     };
   },
 });

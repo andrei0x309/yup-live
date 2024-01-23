@@ -70,7 +70,7 @@ export default defineComponent({
         fid: 0,
         hash: '',
         parentHash: '',
-      },
+      }
     } as PostBodyProcessed
 
     const mainPost = ref(userObject) as Ref<PostBodyProcessed>

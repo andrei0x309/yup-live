@@ -1,5 +1,11 @@
 <template>
-  <div v-if="!hiddenLocal" class="shadow-md p-3 flex flex-row rounded-lg relative alertCmp">
+  <div v-if="!hiddenLocal" 
+  :class="`shadow-md p-3 flex flex-row rounded-lg relative alertCmp ${ isUpdateNotification ? 'cursor-pointer' : '' }`"
+  @click="() => {
+    if(isUpdateNotification) {
+      router?.push('/change-log')
+    }
+  }">
     <div
       :class="`${
         typeLocal === 'warning' ? 'yellow' : typeLocal === 'error' ? 'red' : 'green'
@@ -67,6 +73,16 @@ export default defineComponent({
       required: false,
       default: false
     },
+    router: {
+      type: Object,
+      required: false,
+      default: null
+    },
+    isUpdateNotification: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
   },
   setup(props, ctx) {
     const hiddenLocal = ref(props.hidden)
@@ -74,6 +90,8 @@ export default defineComponent({
     const messageLocal = ref(props.message)
     const typeLocal = ref(props.type)
     const timeoutLocal = ref(props.timeout)
+
+    console.log('Alert', props)
  
     const close = () => {
       ctx.emit('close', props.id)

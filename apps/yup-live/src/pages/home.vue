@@ -7,7 +7,7 @@
     <Sellers v-if="pages.topSellers === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />
     <GiniWeeks v-if="pages.gini === pageActive" :key="`gini-${pageActive}`" />
     <GiniTrend v-if="pages.giniTrend === pageActive" :key="`gini-trend-${pageActive}`" />
-    <!-- <VoteList v-if="pages.voteList === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" /> -->
+    <VoteList v-if="pages.voteList === pageActive" :key="`vote-list-${pageActive}`" :pageNum="pageNum" />
   </div>
 </template>
 
@@ -30,7 +30,7 @@ export default defineComponent({
     Sellers: defineAsyncComponent(() => import('@/components/content/top-sellers.vue')),
     GiniWeeks: defineAsyncComponent(() => import('@/components/content/gini-weeks.vue')),
     GiniTrend: defineAsyncComponent(() => import('@/components/content/gini-trend.vue')),
-    // VoteList: defineAsyncComponent(() => import('@/components/content/vote-list.vue'))
+    VoteList: defineAsyncComponent(() => import('@/components/content/vote-list.vue'))
   },
   setup() {
     const route = useRoute()
@@ -44,13 +44,12 @@ export default defineComponent({
       topSellers: 'Top Sellers',
       gini: 'Rewards Gini Index',
       giniTrend: 'Recent Gini Trend',
-      // voteList: 'Vote List',
+      voteList: 'Vote List',
       default: 'Yup Social'
     }
 
     const getPageActive = (path: string) => {
       path = `/${path.split('/')[1]}`
-      console.log(path)
       switch (path) {
         case '/rewards':
           return pages.rewards
@@ -60,8 +59,8 @@ export default defineComponent({
           return pages.gini
         case '/gini-trend':
           return pages.giniTrend
-        // case '/vote-list':
-        //   return pages.voteList
+        case '/vote-list':
+          return pages.voteList
         case '/login': {
           setTimeout(() => {
             openConnectModal(store)

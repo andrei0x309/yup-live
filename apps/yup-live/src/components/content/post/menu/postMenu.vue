@@ -252,7 +252,7 @@ export default defineComponent({
           }
           delLoadingPost.value = false
         } catch (error) {
-          console.log('error', error)
+          console.error('error', error)
           stackAlertError('The post could not be deleted!')
         }
 

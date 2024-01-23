@@ -21,7 +21,7 @@
         <div
           v-for="notification of notifications"
           :key="notification._id"
-          class="shadow-md p-4 flex flex-row rounded-lg relative notComp"
+          class="shadow-md p-2 flex flex-row rounded-lg relative notComp"
         >
           <template v-if="notification.eventType === 'vote'">
             <VoteNotification :notification="notification" />

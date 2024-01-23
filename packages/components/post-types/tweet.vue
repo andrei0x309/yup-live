@@ -15,7 +15,12 @@
         <span>{{ mainTweet.userName }}</span>
         <span class="opacity-70">@{{ mainTweet.userHandle }} <VerifiedIcon v-if="mainTweet.verified" class="verIcon" /></span>
       </div>
-      <span class="flex mfavIco ml-auto"><TwitterIcon class="w-5 h-5 tIcon" /></span>
+      <span v-if="Object.keys(post.crossPostGroup ?? {})?.length > 1" class="mCrossIcon">
+        <CrossIconGroup :post="(post as any)" />
+      </span>
+      <span v-else class="flex mfavIco ml-auto">
+        <TwitterIcon cclass="w-5 h-5 tIcon" />
+      </span>
     </div>
     <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
       <div class="indent"></div>
@@ -196,6 +201,7 @@ import ImagePreview from 'components/post/imagePreview.vue'
 import VerifiedIcon from 'icons/src/verified.vue'
 import type { mediaType } from 'shared/src/types/post'
 import type { TweetData, TweetRaw } from 'shared/src/types/web2/twitter'
+import CrossIconGroup from 'components/post-types/misc/crossicon-group.vue'
 
 const refGoTo = GoTo
 const refBtnSpinner = BtnSpinner
@@ -210,7 +216,8 @@ export default defineComponent({
     WarningIcon,
     CustomButton,
     ImagePreview,
-    VerifiedIcon
+    VerifiedIcon,
+    CrossIconGroup
   },
   props: {
     post: {
@@ -233,7 +240,8 @@ export default defineComponent({
       userAvatar: '',
       body: '',
       verified: false,
-      mediaEntities: [] as mediaType[]
+      mediaEntities: [] as mediaType[],
+      crossPostGroup: {}
     }) as Ref<TweetData>
 
     const replyOrQuote = ref({
@@ -340,46 +348,47 @@ export default defineComponent({
         .replace(/@(.*?)($|\s|\t|\n)/g, "<a href='https://twitter.com/$1' rel='noFollow' target='_blank'>@$1</a>$2")
     }
 
-    const fillTweet = (filler: TweetRaw, tweet: Ref<TweetData>) => {
+    const fillTweet = (filler: TweetRaw, tweet: Ref<TweetData>, avatar?: string) => {
       const tweetBuilder = {} as TweetData
-      tweetBuilder.userAvatar = filler?.author?.profile_image_url ?? filler?.user?.profile_image_url_https ?? '' as string
-      tweetBuilder.userHandle = filler?.author?.screen_name ?? filler?.user?.screen_name ?? '...' as string
+      tweetBuilder.userAvatar = avatar ?? filler?.author?.profile_image_url ?? filler?.user?.profile_image_url_https ?? '' as string
+      tweetBuilder.userHandle = filler?.author?.username ?? filler?.author?.screen_name ?? filler?.user?.screen_name ?? '...' as string
       tweetBuilder.userName = filler?.author?.name ??  filler?.user?.name ?? 'Anon' as string
       tweetBuilder.verified = filler?.author?.verified ?? filler?.user?.verified ?? false as boolean
       tweetBuilder.body = parseBody(filler?.full_text ?? (filler?.text as string)) ?? ''
       tweetBuilder.mediaEntities = checkMedia(filler)
+
       tweet.value = tweetBuilder
     }
 
     onMounted(() => {
       tweetType.value = getTweetType()
-      console.log('............', tweetType.value, props.post?.tweetInfo)
       switch (tweetType.value) {
         case 'missing': {
           missingTweetId.value = extractTweetIdFromUrl(props.post.url)
           break
         }
         case 'original': {
-          fillTweet(props.post.tweetInfo, mainTweet)
+          fillTweet(props.post.tweetInfo, mainTweet, props?.post?.web3CreatorProfile?.avatar)
           break
         }
         case 'retweet':
         case 'quoted': {
-          fillTweet(props.post.tweetInfo, mainTweet)
+          fillTweet(props.post.tweetInfo, mainTweet, props?.post?.web3CreatorProfile?.avatar)
           if (tweetType.value === 'quoted') {
-            fillTweet(props.post.tweetInfo.quoted_status, replyOrQuote)
+            fillTweet(props.post.tweetInfo.quoted_status, replyOrQuote, props?.post?.web3CreatorProfile?.avatar)
           } else {
-            fillTweet(props.post.tweetInfo.retweeted_status, replyOrQuote)
+            fillTweet(props.post.tweetInfo.retweeted_status, replyOrQuote, props?.post?.web3CreatorProfile?.avatar)
           }
           break
         }
         case 'reply': {
-          fillTweet(props.post.tweetInfo.reply_status, mainTweet)
-          fillTweet(props.post.tweetInfo, replyOrQuote)
+          fillTweet(props.post.tweetInfo.reply_status, mainTweet, props?.post?.web3CreatorProfile?.avatar)
+          fillTweet(props.post.tweetInfo, replyOrQuote, props?.post?.web3CreatorProfile?.avatar)
           break
         }
       }
-      console.log(tweetType.value, mainTweet)
+      mainTweet.value.crossPostGroup = props.post?.crossPostGroup ?? {}
+
     })
 
     return {

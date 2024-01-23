@@ -22,4 +22,47 @@ export interface ISendPostData {
     platforms: TPlatform[]
     media: TMedia[]
     replyTo?: IReplyTo
+    time?: number
+}
+
+export interface IWeb3ThreadTask {
+    _id: string
+    platforms: string[]
+    posts: Array<{
+        crossPostGroupId?: string,
+        postIds: Record<TPlatform, any>[] | undefined | {},
+        media: Record<TPlatform, any>[] | undefined,
+        content: string | {
+            [key: string]: string
+        }
+        replyTo: Record<TPlatform, any> | undefined | {},
+        status: { ok: boolean, message?: string, retryable?: boolean } | {}
+    }>
+    threadIndex: number,
+    accountId: string,
+    scheduledUnixTime?: number,
+    postedFromScheduler: boolean,
+    address: string,
+    createdAt: Date
+    updatedAt: Date
+}
+
+export interface IWeb3PostTask {
+    _id: string
+    platforms: string[]
+    media: Record<TPlatform, any>[] | undefined,
+    content: string | {
+        [key: string]: string
+    }
+    replyTo: Record<TPlatform, any> | undefined,
+    accountId: string
+    status: { ok: boolean, message?: string, retryable?: boolean }
+    crossPostGroupId?: string,
+    scheduledUnixTime?: number,
+    postedFromScheduler: boolean,
+    address: string,
+    taskId: string,
+    threadId: string,
+    createdAt: Date
+    updatedAt: Date
 }

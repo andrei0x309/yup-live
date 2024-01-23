@@ -13,15 +13,22 @@ type AlertStorType = ReturnType<typeof useAlertStack>
 
 let alertStack: AlertStorType
 
-const stackAlert = ({ message, type }: { message: string; type: string }) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const stackAlert = ({ message, type, update, router }: { message: string; type: string, update?: boolean, router?: any }) => {
+  console.log('stackAlert', { message, type, update })
   if (alertStack && alertStack.alertStack.length < 4) {
     const id = crypto.randomUUID()
-    alertStack.alertStack.push({ message, type, id })
+    if (update && router) {
+      alertStack.alertStack.push({ message, type, id, update: true, router })
+    } else {
+      alertStack.alertStack.push({ message, type, id, update: false })
+    }
   }
 }
 
-const stackAlertSuccess = (message: string) => {
-  stackAlert({ message, type: 'success' })
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const stackAlertSuccess = (message: string, update = false, router: any = null) => {
+  stackAlert({ message, type: 'success', update, router })
 }
 
 const stackAlertError = (message: string) => {

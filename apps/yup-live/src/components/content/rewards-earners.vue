@@ -82,8 +82,8 @@
           @click="calculateGiniIndex()"
         >
           <BtnSpinner v-if="btnLoaders.gini" />
-          <span v-if="giniIndex === 0" class="font-medium font-bold">Get Gini for this period for top 100 users</span>
-          <span v-else class="font-medium font-bold">Gini Index: {{ giniIndex }}</span>
+          <span v-if="giniIndex === 0" class="font-bold">Get Gini for this period for top 100 users</span>
+          <span v-else class="font-bold">Gini Index: {{ giniIndex }}</span>
         </button>
         <button
           type="button"
@@ -92,7 +92,7 @@
           @click="openGiniDialog()"
         >
           <BtnSpinner v-if="btnLoaders.plotPop" />
-          <span class="font-medium font-bold">🗠 Plot population using python</span>
+          <span class="font-bold">🗠 Plot population using python</span>
         </button>
         <button
           type="button"
@@ -102,7 +102,7 @@
         >
           <BtnSpinner v-if="btnLoaders.exportJson" />
           <FileDownloadIcon class="m-1" />
-          <span class="font-medium font-bold">Download JSON for this period for top 100 users</span>
+          <span class="font-bold">Download JSON for this period for top 100 users</span>
         </button>
         <button
           type="button"
@@ -112,7 +112,7 @@
         >
           <BtnSpinner v-if="btnLoaders.exportCSV" />
           <FileDownloadIcon class="m-1" />
-          <span class="font-medium font-bold">Download CSV for this period for top 100 users</span>
+          <span class="font-bold">Download CSV for this period for top 100 users</span>
         </button>
       </div>
     </template>
