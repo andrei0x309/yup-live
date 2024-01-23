@@ -112,7 +112,7 @@
                   :color="accountPages[0] === currentAccountPage ? 'success' : 'primary'"
                   @click="accountPageChange(accountPages[0])"
                 >
-                  Created Content
+                  Posts
                 </ion-chip>
                 <ion-chip
                   :key="accountPages[1]"
@@ -125,6 +125,13 @@
                   :key="accountPages[2]"
                   :color="accountPages[2] === currentAccountPage ? 'success' : 'primary'"
                   @click="accountPageChange(accountPages[2])"
+                >
+                  Schedule
+                </ion-chip>
+                <ion-chip
+                  :key="accountPages[3]"
+                  :color="accountPages[3] === currentAccountPage ? 'success' : 'primary'"
+                  @click="accountPageChange(accountPages[3])"
                 >
                   Wallet
                 </ion-chip>
@@ -179,8 +186,9 @@
               </div>
             </template>
           </InfScroll>
+          <SchedulePage v-else-if="accountPages[2] === currentAccountPage" />
           <WalletPage
-            v-else-if="accountPages[2] === currentAccountPage"
+            v-else-if="accountPages[3] === currentAccountPage"
             :key="`${userData.evmAddress}${walletKeyRefresh}`"
             :accountId="userId"
             :accountEVMAddr="userData.evmAddress"
@@ -212,7 +220,6 @@ import HeaderBar from "@/components/template/header-bar.vue";
 import { defineComponent, onUnmounted, Ref, ref, shallowRef, ShallowRef } from "vue";
 import DangLoader from "components/vote-list/loader.vue";
 import ProfileCard from "@/components/profile/profileCard.vue";
-// import ProfileInfoCard from '@/components/content/profile/infoCard.vue'
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 import { useMainStore } from "@/store/main";
 import { useRoute } from "vue-router";
@@ -238,6 +245,7 @@ import HorizontalChips from "@/components/misc/horizontal-chips.vue";
 import BlockedProfile from "components/profile/blockedProfile.vue";
 import { addBlock, removeBlock, isBlocked } from "shared/src/utils/requests/accounts";
 import ReportUserModal from "@/components/profile/reportUser.vue";
+import SchedulePage from "@/components/profile/schedulePage.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -272,6 +280,7 @@ export default defineComponent({
     HorizontalChips,
     BlockedProfile,
     ReportUserModal,
+    SchedulePage
   },
   setup() {
     const route = useRoute();
@@ -279,7 +288,7 @@ export default defineComponent({
     const userId = ref("");
     // const accountRoute = route.params.accountRoute as string
 
-    const accountPages = ["created", "feed", "wallet"];
+    const accountPages = ["created", "feed", 'schedule', "wallet"];
 
     const search = ref("");
     const apiError = ref(false);
@@ -476,7 +485,6 @@ export default defineComponent({
 
     onIonViewDidEnter(async () => {
       userLoad();
-      console.log(store?.isLoggedIn, store?.userData.account, userId.value);
     });
 
     // onIonViewWillLeave( () => clearTimeout(LoadTimeout))

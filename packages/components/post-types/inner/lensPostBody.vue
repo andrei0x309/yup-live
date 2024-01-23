@@ -18,7 +18,10 @@
         <span class="mainPost-70">@{{ mainPost.userHandle }} <VerifiedIcon v-if="mainPost.verified" class="verIcon" /></span>
       </div>
       </router-link>
-      <span class="flex mfavIco ml-auto">
+      <span v-if="Object.keys(mainPost.crossPostGroup ?? {})?.length > 1" class="mCrossIcon">
+        <CrossIconGroup :post="mainPost" />
+      </span>
+      <span v-else class="flex mfavIco ml-auto">
         <LensIcon class="w-5 h-5 lensIcon" />
       </span>
     </div>
@@ -63,6 +66,7 @@ import LinkPreview from 'components/post/linkPreview.vue'
 import VerifiedIcon from 'icons/src/verified.vue'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
 import ExternalEmbeds from "components/post/post-external/external-embeds.vue"
+import CrossIconGroup from "components/post-types/misc/crossicon-group.vue"
 
 import type { PostBodyProcessed } from 'shared/src/types/post'
 
@@ -76,7 +80,8 @@ export default defineComponent({
     VerifiedIcon,
     LensIcon,
     LinkPreview,
-    ExternalEmbeds
+    ExternalEmbeds,
+    CrossIconGroup
   },
   props: {
     mainPost: {

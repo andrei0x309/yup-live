@@ -28,15 +28,19 @@
       </o-table-column>
 
       <o-table-column v-slot="props" field="url" label="CONTENT">
-          <p>
+        <p>
           {{ limitUrlSize(props.row.url) }}
           <a :href="props.row.url" rel="nofollow" target="_blank">
-        <LinkIcon  :key="iconsColor"  class="w-3 inline-block mx-2" :color="iconsColor" />
-      </a>
-      <router-link :to="`/post/${props.row.postId}`">
-        <RadarIcon class="w-3 inline-block mx-2" />
-      </router-link>
-      </p>
+            <LinkIcon
+              :key="iconsColor"
+              class="w-3 inline-block mx-2"
+              :color="iconsColor"
+            />
+          </a>
+          <router-link :to="`/post/${props.row.postId}`">
+            <RadarIcon class="w-3 inline-block mx-2" />
+          </router-link>
+        </p>
       </o-table-column>
 
       <o-table-column v-slot="props" field="rating" label="SENTIMENT">
@@ -62,21 +66,21 @@
     </o-table>
     <hr class="hr" />
     <div class="pag">
-      <router-link :to="`/page/${curPage - 1 > 0 ? curPage - 1 : 1}`">
+      <router-link :to="`/vote-list/${curPage - 1 > 0 ? curPage - 1 : 1}`">
         <o-button
           :class="`btn`"
           @click="curPage - 1 > 0 ? setCurentPage(curPage - 1) : null"
           >⏴</o-button
         >
       </router-link>
-      <router-link v-for="i in 5" :key="i" :to="`/page/${i}`">
+      <router-link v-for="i in 5" :key="i" :to="`/vote-list/${i}`">
         <o-button
           :class="`btn ${i === curPage ? 'active' : ''}`"
           @click="setCurentPage(i)"
           >{{ i }}</o-button
         >
       </router-link>
-      <router-link :to="`/page/${curPage + 1 > 4 ? 5 : curPage + 1}`">
+      <router-link :to="`/vote-list/${curPage + 1 > 4 ? 5 : curPage + 1}`">
         <o-button
           :class="`btn`"
           @click="curPage + 1 > 5 ? null : setCurentPage(curPage + 1)"
@@ -96,8 +100,7 @@ import UserIcon from "icons/src/user.vue";
 import DateIcon from "icons/src/date.vue";
 import LinkIcon from "icons/src/link.vue";
 import { useMainStore } from "@/store/main";
-import RadarIcon from 'icons/src/radar.vue'
-
+import RadarIcon from "icons/src/radar.vue";
 
 import {
   onMounted,
@@ -147,7 +150,7 @@ export default defineComponent({
           category: "popularity",
           like: true,
           tag: "loading...",
-          postId: ''
+          postId: "",
         });
       }
       return data;

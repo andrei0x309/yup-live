@@ -1,5 +1,29 @@
 export const recentChanges = [
     {
+        date: "21 January - 2024",
+        title: "Changes",
+        changes: [
+            'added support for copy paste image when creating a post on yup live web',
+            'added list of scheduled posts on yup live web',
+            'added support for scheduling posts on yup live web',
+            'added support for canceling scheduled posts on yup live web',
+            'improved lens connection without using lens client',
+            'improved tweet display',
+            'added crosspost icons to posts that are crossposted',
+            'restyled general link preview',
+            'added additional external embeds',
+            'added scheduled support for yup live mobile',
+            'added notification when app is updated',
+        ]
+    },
+    {
+        date: "18 January - 2024",
+        title: "Changes",
+        changes: [
+            'removed dayjs in favor of native implementation',
+        ]
+    },
+    {
         date: "16 January - 2024",
         title: "Changes",
         changes: [
@@ -156,6 +180,10 @@ export const recentChanges = [
             'released new web, desktop and mobile version'
         ],
     },
+]
+
+
+export const oldChanges = [
     {
         date: "14 July - 2023",
         title: "Changes",
@@ -349,11 +377,6 @@ export const recentChanges = [
             "submited mobile android yup live version 1.0.9",
         ],
     },
-]
-
-
-export const oldChanges = [
-
     {
         date: "23 FEB - 2023",
         title: "Changes",
@@ -699,3 +722,21 @@ export const oldChanges = [
 ];
 
 export const changes = [...recentChanges, ...oldChanges];
+
+export const updateNotify = ({
+    stackAlertSuccess,
+    router
+}:
+    {
+        stackAlertSuccess?: (message: string, update?: boolean, router?: any) => void
+        router?: any
+    }
+) => {
+    const lastUpdate = localStorage.getItem('lastUpdate')
+    const sendUpdate = lastUpdate !== recentChanges[0].date
+    if (sendUpdate) {
+        stackAlertSuccess && stackAlertSuccess('App Updated, click to check update!', true, router)
+        localStorage.setItem('lastUpdate', recentChanges[0].date)
+    }
+
+}

@@ -235,7 +235,6 @@ export default defineComponent({
       async () => {
         loading.value = true;
         await getByActiveTab();
-        console.log(notifications.value);
         loading.value = false;
       }
     );

@@ -220,7 +220,6 @@ export default defineComponent({
     onMounted(async () => {
       if (!props?.post?._id?.postid) {
         processedPost.value = await getPostbyId(postId.value);
-        console.log(processedPost.value);
         postId.value = processedPost.value._id.postid;
         isDataLoading.value = false;
       } else {

@@ -1,11 +1,16 @@
 <template>
   <div :key="alertStore.alertStack.length" :class="`alert-stack ${mobile ? 'mobile': ''}`">
-    <Alert :mobile="mobile" v-for="alert of alertStore.alertStack" :key="alert.id" :id="alert.id" :type="alert.type" :message="alert.message" :hidden="false" class="" @close="alertClose" />
+    <Alert :mobile="mobile" v-for="alert of alertStore.alertStack" 
+    :key="alert.id" :id="alert.id" 
+    :type="alert.type" :message="alert.message" :hidden="false" 
+    :isUpdateNotification="alert?.update"
+    :router="alert?.router"
+    class="" @close="alertClose" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue'
+import { defineComponent } from 'vue'
 import Alert from './alert.vue'
 import type { AlertInfo } from 'shared/src/types/common'
 
@@ -31,7 +36,6 @@ export default defineComponent({
   setup(props) {
     const alertStore = props.useAlertStack()
     props.setAlertStack(alertStore)
-
 
     const alertClose = (id: string) => {
       alertStore.alertStack = alertStore.alertStack.filter((alert: AlertInfo) => alert.id !== id)

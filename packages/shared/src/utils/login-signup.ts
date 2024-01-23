@@ -11,7 +11,7 @@ export const web3ModalInstantiate = async (
     { loadState = null, setAlert = null }: { loadState: null | Function, setAlert: null | Function }
 ) => {
     try {
-        await wait(1000)
+        await wait(500)
         const { web3ModalWagmi, wgamiCore, wgamiChains } = w3libsP
         const [lib1, lib2, lib3] = await Promise.all([web3ModalWagmi, wgamiCore, wgamiChains])
         const { createWeb3Modal, defaultWagmiConfig } = lib1
@@ -19,14 +19,6 @@ export const web3ModalInstantiate = async (
         const { polygon, mainnet, polygonMumbai } = lib3
 
         const chains = [polygon, mainnet, polygonMumbai]
-
-        // const { publicClient } = configureChains(chains, [w3mProvider({ projectId: config.PROJECT_ID })])
-        // const wagmiConfig = createConfig({
-        //     autoConnect: true,
-        //     connectors: w3mConnectors({ projectId: config.PROJECT_ID, chains }),
-        //     publicClient
-        // })
-        // const ethereumClient = new EthereumClient(wagmiConfig, chains)
 
         const wagmiConfig = defaultWagmiConfig({
             projectId: config.PROJECT_ID,
@@ -45,8 +37,6 @@ export const web3ModalInstantiate = async (
             chains,
             themeMode: 'dark',
         })
-
-        console.log(web3Modal, 'web3Modal')
 
         if (web3Modal) {
             let conn = await getAccount()
@@ -339,7 +329,6 @@ export const onLogin = async ({
         loadState('start')
     }
     const inst = await web3ModalInstantiate({ loadState, setAlert })
-    console.log(inst, 'iiii')
     if (inst) {
         const address = inst.address ?? ""
         const account = await getYupAccount({ address, type: 'login', loadState, setAlert })

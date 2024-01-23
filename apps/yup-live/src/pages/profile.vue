@@ -51,23 +51,6 @@
       </div>
     </div>
     <div v-if="!apiError" class="bg-color table-list profile w-full mb-4 flex flex-col">
-      <button
-        v-if="hasAtLeastOnePConnected"
-        class="asocLink"
-        @click="openPostModal = true"
-      >
-        New Post
-      </button>
-      <router-link
-        v-else
-        class="asocLink"
-        :to="`/profile/${(userData._id) as string}/settings`"
-      >
-        Connect socials to post
-      </router-link>
-      <router-link class="asocLink" :to="`/web3-profile/${userData.evmAddress}`"
-        >View Associated web3 profile</router-link
-      >
       <template v-if="currentMenuTab === MENU_BUTTONS.feed">
         <o-tabs
           v-model="feedTab"
@@ -79,37 +62,62 @@
           navTypeClass="boxed"
         >
           <template v-if="defaultAccountFeed === 'content'">
-            <o-tab-item value="content">
+            <o-tab-item  value="content">
               <template #header>
+                <span class="text-[0.94rem]"> 
                 <ContentIcon class="w-5 mr-2 inline-block" />
-                <span> Created Content </span>
+                Posts </span>
               </template>
             </o-tab-item>
             <o-tab-item value="likes">
               <template #header>
+                <span class="text-[0.94rem]"> 
                 <LikesIcon class="w-5 mr-2 inline-block" />
-                <span> Likes </span>
+                Likes </span>
+              </template>
+            </o-tab-item>
+
+            <o-tab-item v-if="isOwnAccount" value="scheduled">
+              <template #header>
+                <span class="text-[0.94rem]"> 
+                <ClockIcon class="w-5 mr-2 inline-block" />
+                Schedule </span>
               </template>
             </o-tab-item>
           </template>
           <template v-else>
             <o-tab-item value="likes">
               <template #header>
+                <span class="text-[0.94rem]"> 
                 <LikesIcon class="w-5 mr-2 inline-block" />
-                <span> Likes </span>
+                Likes</span>
               </template>
             </o-tab-item>
 
             <o-tab-item value="content">
               <template #header>
-                <ContentIcon class="w-5 mr-2 inline-block" />
-                <span> Created Content </span>
+              <span class="text-[0.94rem]"> 
+              <ContentIcon class="w-5 mr-2 inline-block" />
+                Posts </span>
+              </template>
+            </o-tab-item>
+
+            <o-tab-item v-if="isOwnAccount" value="scheduled">
+              <template #header>
+                <span class="text-[0.94rem]"> 
+                <ClockIcon class="w-5 mr-2 inline-block" />
+                Schedule </span>
               </template>
             </o-tab-item>
           </template>
         </o-tabs>
 
-        <InfScroll :key="`${postLoaded}-loaded`" :postLoaded="postLoaded" @hit="onHit">
+        <InfScroll
+          v-if="postPageContent === 'posts'"
+          :key="`${postLoaded}-loaded`"
+          :postLoaded="postLoaded"
+          @hit="onHit"
+        >
           <template #content>
             <div v-if="posts.length > 0" class="flex flex-row mx-auto">
               <div class="flex flex-col">
@@ -150,6 +158,52 @@
             </div>
           </template>
         </InfScroll>
+        <template v-else>
+          <o-table
+            v-if="scheduledPosts.length > 0 || isScheduledLoading"
+            :data="scheduledPosts"
+            :tableClass="`${isScheduledLoading ? 'tableLoading' : ''}`"
+            :loading="isScheduledLoading"
+          >
+            <o-table-column v-slot="props" field="createdAt" label="Created at">
+              <div class="inline">
+                <DateIcon />
+                {{ new Date(props.row.createdAt).toLocaleDateString() }} -
+                {{ new Date(props.row.createdAt).toLocaleTimeString() }}
+              </div>
+            </o-table-column>
+
+            <o-table-column v-slot="props" field="scheduledUnixTime" label="Posting at">
+              <div class="inline">
+                <DateIcon />
+                {{ new Date(props.row.scheduledUnixTime).toLocaleDateString() }} -
+                {{ new Date(props.row.scheduledUnixTime).toLocaleTimeString() }}
+              </div>
+            </o-table-column>
+
+            <o-table-column v-slot="props" field="type" label="Post type">
+              <div class="inline">
+                {{ props.row?.type }}
+              </div>
+            </o-table-column>
+
+            <o-table-column v-slot="props" field="platforms" label="Platforms">
+              <div class="inline">
+                {{ props.row.platforms?.join(", ") }}
+              </div>
+            </o-table-column>
+
+            <o-table-column  v-slot="props" field="actions" label="Actions">
+               <button
+                class="btn asocLink"
+                @click="cancelScheduledPost(props.row._id, props.row.type)"
+                >Cancel</button>
+            </o-table-column>
+
+            <template v-if="isScheduledLoading" #loading>Loading....</template>
+          </o-table>
+          <p v-else class="mt-4">You have no scheduled posts</p>
+        </template>
       </template>
       <CollectionsPage
         v-if="currentMenuTab === MENU_BUTTONS.collections"
@@ -232,19 +286,27 @@ import { getFollowers } from "shared/src/utils/requests/web3Follows";
 import type { IPost } from "shared/src/types/post";
 import ContentIcon from "icons/src/content.vue";
 import LikesIcon from "icons/src/likes.vue";
+import ClockIcon from "icons/src/clock.vue";
+import DateIcon from "icons/src/date.vue";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import Post from "components/post/post.vue";
 import PostMenu from "@/components/content/post/menu/postMenu.vue";
 import CollectMenu from "@/components/content/post/menu/collectMenu.vue";
 import type { IPostDeps } from "shared/src/types/post";
 import type { IMainStore } from "shared/src/types/store";
+import type { IWeb3PostTask, IWeb3ThreadTask } from "shared/src/types/web3-posting";
 import {
   stackAlertError,
   stackAlertSuccess,
   stackAlertWarning,
 } from "@/store/alertStore";
 import { OTooltip } from "@oruga-ui/oruga-next";
-import { PLATFORMS } from "shared/src/utils/requests/web3-posting";
+import {
+  PLATFORMS,
+  getScheduledPosts,
+  getScheduledThreads,
+  deleteScheduledTask
+} from "shared/src/utils/requests/web3-posting";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -277,6 +339,8 @@ export default defineComponent({
     BtnSpinner,
     ContentIcon,
     LikesIcon,
+    ClockIcon,
+    DateIcon,
     ProfileFarcasterIcon,
     CrossPost: defineAsyncComponent(
       () => import("@/components/content/post/crossPost.vue")
@@ -296,9 +360,9 @@ export default defineComponent({
     const apiErrorMsg = ref("");
     const isLoadingUser = ref(true);
     const influence: Ref<null | string> = ref(null);
-    const historicInfluence: Ref<Array<Record<string, string | number>>> = ref([]);
     const userFields = ref([]) as Ref<Array<NameValue>>;
     const posts = ref([]) as Ref<Array<IPost>>;
+    const scheduledPosts = ref([]) as Ref<Array<IWeb3PostTask | IWeb3ThreadTask>>;
     const postsIndex = ref(0);
     const postLoaded = ref(false);
     const feedLoading = ref(false);
@@ -325,6 +389,8 @@ export default defineComponent({
     const isAuth = ref(store.isLoggedIn);
     const openPostModal = ref(false);
     const isFollowing = ref(true);
+    const postPageContent = ref("posts");
+    const isScheduledLoading = ref(false);
 
     const userData = (ref({
       _id: "",
@@ -447,7 +513,6 @@ export default defineComponent({
     };
 
     const getHomeFeedPosts = async (start = 0) => {
-      console.log("getHomeFeedPosts", userId.value);
       if (!userId.value) return [];
       return await getLikesFeed(API_BASE, start, userId.value);
     };
@@ -547,6 +612,18 @@ export default defineComponent({
       }
     });
 
+    const cancelScheduledPost = async (taskId: string, type: string) => {
+      if(isScheduledLoading.value) return
+      isScheduledLoading.value = true
+      try {
+          await deleteScheduledTask({ store, apiBase: API_BASE, taskId, isTread: type !== "single post" })
+        scheduledPosts.value = scheduledPosts.value.filter((p) => p._id !== taskId)
+      } catch (error) {
+        console.error(error)
+      }
+      isScheduledLoading.value = false
+    };
+
     onMounted(async () => {
       createUserData(userId.value, true).then((uD) => {
         if (uD.error) {
@@ -556,7 +633,9 @@ export default defineComponent({
           userData.value = Object.assign(userData.value, uD.data?.userData);
           userId.value = userData.value._id as string;
           userFields.value = uD.data?.userFields ?? [];
-          console.log("asdadsa", userData.value._id);
+          if(userFields.value?.[1]) {
+            userFields.value[1].value = userData.value.evmAddress;
+          }
           getActionUsage(userData.value._id as string);
         }
 
@@ -592,8 +671,33 @@ export default defineComponent({
         getFeedPosts = getHomeFeedPosts;
       } else if (feedTab.value === "content") {
         getFeedPosts = getCreatedFeedPosts;
+      } else if (feedTab.value === "scheduled") {
+        postPageContent.value = "scheduled";
+        isScheduledLoading.value = true;
+        try {
+          const res = await Promise.all([
+            getScheduledPosts({ store, apiBase: API_BASE }),
+            getScheduledThreads({ store, apiBase: API_BASE }),
+          ]);
+          scheduledPosts.value = [
+            ...res[0].map((p: Record<string, string>) => {
+              p.type = "single post";
+              return p;
+            }),
+            ...res[1].map((p: Record<string, string>) => {
+              p.type = "thread";
+              return p;
+            }),
+          ];
+        } catch (error) {
+          scheduledPosts.value = [];
+          console.error(error);
+        }
+        isScheduledLoading.value = false;
+        return;
       }
       resetPosts();
+      postPageContent.value = "posts";
     };
 
     watch(
@@ -614,7 +718,6 @@ export default defineComponent({
       userData,
       userId,
       influence,
-      historicInfluence,
       isLoadingUser,
       userFields,
       posts,
@@ -644,6 +747,10 @@ export default defineComponent({
       postDeps,
       hasAtLeastOnePConnected,
       PLATFORMS,
+      postPageContent,
+      scheduledPosts,
+      isScheduledLoading,
+      cancelScheduledPost
     };
   },
 });
@@ -655,6 +762,24 @@ export default defineComponent({
 
   .o-tabs__nav {
     overflow-y: hidden;
+  }
+
+  
+  table {
+    margin-top: 2rem;
+  }
+
+  table tr {
+    border-bottom: #a85d4e89 2px solid;
+  }
+ 
+  table tr td {
+    padding-bottom: 1.3rem;
+    padding-top: 0.7rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-bottom: #a3a3a32d 1px solid;
+    
   }
 
   .o-tabs__nav-item-default {

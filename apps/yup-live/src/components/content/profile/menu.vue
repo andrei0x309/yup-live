@@ -180,7 +180,7 @@ export default defineComponent({
   transform: translateY(-50%);
   width: calc(var(--active-indicator-width) + var(--active-indicator-extra-length) * 2);
   background: radial-gradient(ellipse at right, rgb(62 62 62 / 18%) 0%, rgb(60 60 60 / 16%) 100%);
-  z-index: 10;
+  z-index: 3;
   border-radius: 1rem;
   height: 2.5rem;
   transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);

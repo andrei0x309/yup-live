@@ -47,7 +47,7 @@
             d="m 22.175171,9.0041491 h -3.703125 v -6.203125 h 3.609375 v 1 h -2.421875 v 1.484375 h 1.859375 l 0.171875,1 h -2.03125 v 1.71875 h 2.515625 z m 0,0"
           />
         </svg>
-        <span v-if="text" style="position: absolute;right: 2rem;top: 1.2rem;">
+        <span v-if="text" style="position: absolute;right: 2rem;top: 1.2rem; font-size: 0.9rem;">
         {{text}}
         </span>
       </div>

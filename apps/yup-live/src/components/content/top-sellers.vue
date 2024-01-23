@@ -168,7 +168,7 @@
       >
         <BtnSpinner v-if="btnLoaders.exportJson" />
         <FileDownloadIcon class="m-1" />
-        <span class="font-medium font-bold"
+        <span class="font-bold"
           >Download JSON for this period for top 100 users</span
         >
       </button>
@@ -180,7 +180,7 @@
       >
         <BtnSpinner v-if="btnLoaders.exportCSV" />
         <FileDownloadIcon class="m-1" />
-        <span class="font-medium font-bold"
+        <span class="font-bold"
           >Download CSV for this period for top 100 users</span
         >
       </button>

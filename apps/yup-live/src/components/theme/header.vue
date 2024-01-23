@@ -57,6 +57,26 @@
     <h3 class="menu-title">Main Pages</h3>
     <ul>
       <li>
+        <p
+              v-if="canDoPost"
+              :key="`l${isLoggedIn}`"
+              class="post-btn cursor-pointer menu-pill w-full"
+              @click="openPostModal = true; toggleSidebar()"
+            >
+              <CrossPostIcon class="inline w-3 mr-2" />New Post
+       </p>
+       <router-link
+              v-else-if="isLoggedIn"
+              class="post-btn menu-pill w-full"
+              style="display: flex; line-height: 2rem"
+              :to="{
+                path: `/profile/${store.userData.account}/settings?show-connect=true`,
+                query: { showConnect: 'true' },
+              }"
+            >
+              <ConnectPlatformIcon class="inline w-3 mr-1 mt-1" />Link Social
+        </router-link>
+
         <router-link class="menu-pill" to="/feeds" @click="toggleSidebar()">
           <FeedsIcon class="inline w-3 mr-2" /> Feeds
         </router-link>
@@ -155,7 +175,7 @@
                   >{{ menuDropDownLinks.text }}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 text-yellow-200 text-yellow-400"
+                    class="h-5 w-5 text-yellow-400"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                     style="display: inline"
@@ -281,10 +301,6 @@ export default defineComponent({
       {
         text: "Yup Social Posts",
         path: "/",
-      },
-      {
-        text: "Check web3 Social",
-        path: "/web3-social",
       },
       {
         text: "Yup Raw Influence",

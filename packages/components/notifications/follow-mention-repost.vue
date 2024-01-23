@@ -34,10 +34,10 @@
           <template v-else-if="type === 'repost'">
             reposted your post
           </template>
-          <span v-if="notificationPlatforms.includes(notification?.platform as typeof notificationPlatforms[number] )">&nbsp;&nbsp;on
+          <span v-if="notificationPlatforms.includes(notification?.platform as typeof notificationPlatforms[number] )">&nbsp;on
           <component
             :is="icons[notification.platform as typeof notificationPlatforms[number]]"
-            class="inline-block w-4 ml-2" /> 
+            class="inline-block w-4" /> 
           </span>
         </p>
       </div>

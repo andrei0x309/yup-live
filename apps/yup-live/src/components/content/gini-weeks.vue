@@ -30,7 +30,7 @@
           @click="dwJson()"
         >
           <FileDownloadIcon class="m-1" />
-          <span class="font-medium font-bold"
+          <span class="font-bold"
             >Download JSON for this period for top 100 users</span
           >
         </button>

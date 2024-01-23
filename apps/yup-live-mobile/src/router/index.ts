@@ -45,6 +45,12 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
+    path: '/change-log',
+    redirect () {
+      return `/tabs/info/true`
+    },
+  },
+  {
     path: '/tabs/',
     component: BottomNavigation,
     children: [
@@ -99,6 +105,10 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'info',
+        component: () => import('@/views/InfoPage.vue')
+      },
+      {
+        path: 'info/:openChanges',
         component: () => import('@/views/InfoPage.vue')
       },
       {

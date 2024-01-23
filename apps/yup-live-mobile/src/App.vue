@@ -57,12 +57,13 @@ import { wait } from "shared/src/utils/time";
 import { getConnected, clearProfileBlocks } from "shared/src/utils/requests/accounts";
 import { cleanBlockedPosts } from "shared/src/utils/post";
 import AlertStack from "components/functional/alertStack.vue";
-import { setAlertStack, useAlertStack } from "@/store/alert-store";
+import { setAlertStack, useAlertStack, stackAlertSuccess } from "@/store/alert-store";
 import { getExpoPushTokenAndRegister } from "@/utils/expo-push-not-re";
 import { checkForUpdateAndNotify, getVersion } from "@/utils/update-version";
 import UpdateModal from "@/views/UpdateModal.vue";
 import { getPushSettings } from "@/utils/expo-push-not-re";
 import { PLATFORMS } from "shared/src/utils/requests/web3-posting";
+import { updateNotify } from "shared/src/utils/changeLog";
 
 const CrossPost = defineAsyncComponent(() => import("@/views/CrossPostModal.vue"));
 
@@ -70,7 +71,6 @@ const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 const store = useMainStore();
 const router = useRouter();
-console.info("Router: ", router);
 const toastState = ref(false);
 const toastMsg = ref("");
 const loading = ref(false);
@@ -257,6 +257,12 @@ onBeforeMount(async () => {
                 url: res.url,
               });
             }
+                setTimeout(() => {
+              updateNotify({
+            stackAlertSuccess,
+            router
+            });
+            }, 1000);
             import("@capacitor/app").then((lib) => {
               if (res?.update && res?.forced) {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars

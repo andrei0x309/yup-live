@@ -141,6 +141,19 @@ export const checkAccess = async () => {
     }
 }
 
+export const isOnLocalhost = (): boolean => {
+    const hostname = window.location.hostname;
+    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('::1');
+};
+
+export const isBot = (): boolean => {
+    if (window.navigator.userAgent) {
+        return /bot|google|baidu|bing|msn|teoma|slurp|yandex/i
+            .test(navigator.userAgent)
+    }
+    return false
+}
+
 export const setAccess = ({
     email,
     password

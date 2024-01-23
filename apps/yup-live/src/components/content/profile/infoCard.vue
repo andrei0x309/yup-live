@@ -8,6 +8,8 @@
         </header>
 
         <div class="px-3 overflow-x-hidden">
+
+
           <table class="table-auto w-full">
             <thead class="text-xs font-semibold uppercase text-gray-400">
               <tr>
@@ -28,8 +30,13 @@
                   </div>
                 </td>
                 <td class="pt-2">
-                  <div class="text-left font-medium font-semibold">
-                    {{ field.value }}
+                  <div class="text-left font-semibold">
+                    <template v-if="field.name !== 'Linked ETH Address'">
+                      {{ field.value }}
+                      </template>
+                    <router-link v-else class="asocLink" :to="`/web3-profile/${fields[1].value}`"
+                    >View Associated web3 profile</router-link
+                  >
                   </div>
                 </td>
               </tr>

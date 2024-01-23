@@ -7,6 +7,7 @@
       :noPreviewParagraph="false"
       imgClass="w-36 h-36 object-cover"
       :noLightbox="true"
+      :noBorder="true"
     />
     <div id="body" class="flex flex-col ml-5 w-full">
       <h4 id="name" class="text-xl font-semibold mb-2">{{ collectionInfo?.name }}</h4>
