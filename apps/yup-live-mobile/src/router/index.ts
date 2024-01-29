@@ -23,7 +23,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/profile/:userId',
     redirect (to) {
-      return `/tabs/account/${to.params.userId}`
+      return `/tabs/profile/${to.params.userId}`
     },
   },
   {
@@ -73,6 +73,14 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'account',
+        component: () => import('@/views/AccountPage.vue')
+      },
+      {
+        path: 'profile',
+        component: () => import('@/views/AccountPage.vue')
+      },
+      {
+        path: 'profile/:userId',
         component: () => import('@/views/AccountPage.vue')
       },
       {

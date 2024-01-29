@@ -1,108 +1,115 @@
 <template>
   <div>
-  <div v-if="postType === 'single' || full" ref="postWrap" class="p-2">
-    <FarcasterPostBody :replyComp="replyComp" :mainPost="mainPost" :postId="post.id"/>
+    <div v-if="postType === 'single' || full" ref="postWrap" class="p-2">
+      <FarcasterPostBody :replyComp="replyComp" :mainPost="mainPost" :postId="post.id" />
+    </div>
+    <div v-else ref="postWrap" class="p-2">
+      <FarcasterPostBody
+        v-if="!isComment"
+        :replyComp="replyComp"
+        :mainPost="mainPost"
+        :postId="post.id"
+        :isReply="true"
+        :fetchComments="true"
+      />
+      <FarcasterPostBody :replyComp="replyComp" :mainPost="replyPost" :postId="post.id" />
+    </div>
   </div>
-  <div v-else ref="postWrap" class="p-2">
-    <FarcasterPostBody v-if="!isComment" :replyComp="replyComp" :mainPost="mainPost" :postId="post.id" :isReply="true" :fetchComments="true" />
-    <FarcasterPostBody :replyComp="replyComp" :mainPost="replyPost" :postId="post.id" />
-  </div>
-</div>
 </template>
 <script lang="ts">
-
-import { onMounted, defineComponent, ref, Ref, PropType } from 'vue'
-import { getPostType } from 'shared/src/utils/misc'
-import type { Embed, mediaType } from 'shared/src/types/post'
-import { normalizePost } from 'shared/src/utils/post'
-import FarcasterPostBody from './inner/farcasterPostBody.vue'
-import type { IPost, PostBodyProcessed, linkPreviewTypeEx } from 'shared/src/types/post'
+import { onMounted, defineComponent, ref, Ref, PropType } from "vue";
+import { getPostType } from "shared/src/utils/misc";
+import type { Embed, mediaType } from "shared/src/types/post";
+import { normalizePost } from "shared/src/utils/post";
+import FarcasterPostBody from "./inner/farcasterPostBody.vue";
+import type { IPost, PostBodyProcessed, linkPreviewTypeEx } from "shared/src/types/post";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
-  name: 'PostFarcaster',
+  name: "PostFarcaster",
   components: {
-    FarcasterPostBody
+    FarcasterPostBody,
   },
   props: {
     post: {
       required: false,
       type: Object as PropType<IPost>,
-      default: () => ({})
+      default: () => ({}),
     },
     full: {
       type: Boolean,
-      default: false
+      default: false,
     },
     replyComp: {
-      type: Object as PropType<null | ReturnType<typeof defineComponent> >,
-      default: null
+      type: Object as PropType<null | ReturnType<typeof defineComponent>>,
+      default: null,
     },
     apiBase: {
       type: String,
-      default: API_BASE
+      default: API_BASE,
     },
     isComment: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup(props) {
     // const store = useMainStore()
 
-    const postWrap = ref(null)
-    const postType = ref('single')
+    const postWrap = ref(null);
+    const postType = ref("single");
 
     const userObject = {
-      userName: '',
-      userHandle: '',
-      userAvatar: '',
-      userAddress: '',
-      body: '',
-      postId: '',
+      userName: "",
+      userHandle: "",
+      userAvatar: "",
+      userAddress: "",
+      body: "",
+      postId: "",
       isVerified: false,
       mediaEntities: [] as mediaType[],
-      lensId: '',
+      lensId: "",
       linkPreviews: [] as linkPreviewTypeEx[],
       embeds: [] as Embed[],
       farcaster: {
         fid: 0,
-        hash: '',
-        parentHash: '',
-      }
-    } as PostBodyProcessed
+        hash: "",
+        parentHash: "",
+      },
+    } as PostBodyProcessed;
 
-    const mainPost = ref(userObject) as Ref<PostBodyProcessed>
-    const replyPost = ref(userObject) as Ref<PostBodyProcessed>
-
+    const mainPost = ref(userObject) as Ref<PostBodyProcessed>;
+    const replyPost = ref(userObject) as Ref<PostBodyProcessed>;
 
     onMounted(() => {
-      postType.value = getPostType(props.post)
+      postType.value = getPostType(props.post);
       switch (postType.value) {
-        case 'single': {
-          mainPost.value = normalizePost(props.post)
-          break
+        case "single": {
+          mainPost.value = normalizePost(props.post);
+          break;
         }
-        case 'reply': {
+        case "reply": {
           if (props.full) {
-            mainPost.value = normalizePost(props.post)
+            mainPost.value = normalizePost(props.post);
           } else {
-            mainPost.value = normalizePost(props.post?.web3Preview?.meta?.parentPost as IPost)
-            replyPost.value = normalizePost(props.post)
+            mainPost.value = normalizePost(
+              props.post?.web3Preview?.meta?.parentPost as IPost
+            );
+            replyPost.value = normalizePost(props.post);
           }
-          break
+          break;
         }
       }
-    })
+    });
     return {
       postWrap,
       mainPost,
       replyPost,
-      postType
-    }
-  }
-})
+      postType,
+    };
+  },
+});
 </script>
 
 <style scoped lang="scss">
@@ -123,5 +130,4 @@ export default defineComponent({
     background-color: #583bf6a8;
   }
 }
-
 </style>

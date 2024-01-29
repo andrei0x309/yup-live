@@ -29,9 +29,10 @@ export interface IMainStore {
     personalizedFeeds: boolean
     accountTracking: boolean
     lastCheckForUpdate?: number
-    forcedVersion?: number
+    forcedVersion?: string
     updateMessage?: string
     updateUrl?: string
+    updatePaused?: boolean
   }
   pushNotifications?: string[]
   version?: string

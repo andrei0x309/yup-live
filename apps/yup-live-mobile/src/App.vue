@@ -214,20 +214,23 @@ if (isAndroid()) {
 }
 
 const openUpdateModal = async ({
-  foreced,
+  forced,
   message,
   url,
+  paused,
 }: {
-  foreced: boolean;
+  forced: boolean;
   message: string;
   url: string;
+  paused: boolean;
 }) => {
   const modal = await modalController.create({
     component: UpdateModal,
     componentProps: {
-      forced: foreced,
+      forced,
       message: message,
       url: url,
+      paused
     },
   });
   modal.present();
@@ -249,10 +252,11 @@ onBeforeMount(async () => {
       .then((vinfo) => {
         store.version = vinfo.versionString;
         if (authInfoVal) {
-          checkForUpdateAndNotify(store, vinfo.versionNumber).then((res) => {
+          checkForUpdateAndNotify(store, vinfo.versionString).then((res) => {
             if (res?.update) {
               openUpdateModal({
-                foreced: res.forced,
+                forced: res.forced,
+                paused: !!res.paused,
                 message: res.updateMessage,
                 url: res.url,
               });

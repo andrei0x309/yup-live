@@ -21,7 +21,7 @@
               </h2>
               <h3 class="text-[0.95rem] text-center">{{ message }}</h3>
               <button
-                v-if="!forced"
+                v-if="!forced && !paused"
                 class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg"
                 @click="close"
               >
@@ -35,6 +35,7 @@
                 Quit App
               </button>
               <button
+                v-if="!paused"
                 class="bg-green-500 border-0 py-2 px-6 focus:outline-none hover:bg-green-600 rounded text-lg mt-4"
                 @click="goToUpdateApp"
               >
@@ -92,6 +93,10 @@ export default defineComponent({
     url: {
       type: String,
       default: "",
+    },
+    paused: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props) {

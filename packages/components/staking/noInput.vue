@@ -91,7 +91,8 @@ export default defineComponent({
   border-radius: 0.2rem;
   font-size: 2rem;
   padding: 0.6rem;
-  margin: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 1.6rem;
 
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
@@ -104,7 +105,7 @@ export default defineComponent({
   }
 }
 .ctrl__counter {
-  width: 14rem;
+  max-width: 14rem;
   height: 8rem;
 }
 .ctrl__counter-num {
@@ -119,7 +120,8 @@ export default defineComponent({
 }
 
 .ctrl__button {
-  width: 5rem;
+  max-width: 5rem;
+  min-width: 2.5rem;
   line-height: 7rem;
   text-align: center;
   cursor: pointer;

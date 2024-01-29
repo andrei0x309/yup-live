@@ -31,7 +31,7 @@
             loading="lazy"
           />
           <NoImg class="noImg opacity-70" />
-          <p v-if="noPreviewParagraph" class="-mt-7 mb-7 text-lg">
+          <p v-if="noPreviewParagraph" class="my-2 text-lg">
             No image preview available
           </p>
         </div>
@@ -187,10 +187,10 @@ export default defineComponent({
     margin-top: 2rem;
 }
 .noImg {
-    width: 35%;
+    width: 29%;
     z-index: 2;
-    min-height: 15rem;
-    min-width: 15rem;
+    min-height: 1rem;
+    min-width: 12rem;
     padding: 1rem 4rem 1rem 5rem;
     position: absolute;
 

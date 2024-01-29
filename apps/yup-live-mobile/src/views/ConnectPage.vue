@@ -2,7 +2,11 @@
   <ion-page>
     <HeaderBar :key="mainStore.version" />
 
-    <ion-content v-if="!enterLoading" class="connect-page ion-text-center" :fullscreen="false">
+    <ion-content
+      v-if="!enterLoading"
+      class="connect-page ion-text-center"
+      :fullscreen="false"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         style="
@@ -56,7 +60,12 @@
 
           <ion-card-content class="ion-justify-content-center">
             <p class="ion-padding">Action requires an <b>Ethereum</b> mobile wallet.</p>
-            <CustomButton :disabled="loading"  class="ion-margin" text="Login" @click="onLoginLocal" />
+            <CustomButton
+              :disabled="loading"
+              class="ion-margin"
+              text="Login"
+              @click="onLoginLocal"
+            />
           </ion-card-content>
         </ion-card>
       </div>
@@ -67,10 +76,10 @@
           </ion-card-header>
 
           <ion-card-content class="ion-justify-content-center">
-        <ion-item mode="ios">
-          <ion-label>Username</ion-label>
-          <ion-input v-model="username" placeholder="yupster1337"></ion-input>
-        </ion-item>
+            <ion-item mode="ios">
+              <ion-label>Username</ion-label>
+              <ion-input v-model="username" placeholder="yupster1337"></ion-input>
+            </ion-item>
             <ion-accordion-group>
               <ion-accordion>
                 <ion-item slot="header" color="light">
@@ -89,19 +98,28 @@
               </ion-accordion>
             </ion-accordion-group>
             <p class="ion-padding">Action requires an <b>EVM</b> mobile wallet.</p>
-            <CustomButton :disabled="loading" class="ion-margin" text="SignUp" @click="onSignupLocal"  />
+            <CustomButton
+              :disabled="loading"
+              class="ion-margin"
+              text="SignUp"
+              @click="onSignupLocal"
+            />
             <ion-item mode="ios" class="text-[0.85rem] opacity-80">
-          Sign Up is gated check conditions by tapping the "INFO - YUP" button.
-        </ion-item>
+              Sign-up is gated check conditions by tapping the "INFO - YUP" button.
+            </ion-item>
           </ion-card-content>
         </ion-card>
       </div>
       <div class="mt-20 mb-4">
-        <ion-button class="info-btn" fill="clear" @click="(infoModalOpen = true)" >INFO - YUP</ion-button>
+        <ion-button class="info-btn" fill="clear" @click="infoModalOpen = true"
+          >INFO - YUP</ion-button
+        >
       </div>
 
       <div class="mt-2 mb-6">
-        <ion-button class="info-btn" fill="clear" @click="(reviewModalLogin = true)" >Review Login</ion-button>
+        <ion-button class="info-btn" fill="clear" @click="reviewModalLogin = true"
+          >Review Login</ion-button
+        >
       </div>
     </ion-content>
 
@@ -110,14 +128,15 @@
         <ion-toolbar>
           <ion-title>INFO - YUP</ion-title>
           <ion-buttons slot="end">
-            <ion-button @click="(infoModalOpen = false)">Close</ion-button>
+            <ion-button @click="infoModalOpen = false">Close</ion-button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding pb-10">
         <h3 class="text-center mb-4">TLDR</h3>
         <p>
-          This application provides access to certain features of the YUP social network.
+          This application is an alternative light client for Yup.io, it's open-source and
+          available on multiple platforms.
         </p>
 
         <h3 class="mt-4 text-center mb-4">FAQ:</h3>
@@ -125,27 +144,52 @@
           <li>
             <ul class="mb-4">
               <li class="mb-2">Q: Why do I need a wallet installed on my device?</li>
-              <li class="mb-2">A: Sign in to an Ethereum DAPP is usually made by signing a message thus you need a wallet. In theory, you can sign in / sign-up even on a desktop if you copy the link from the QR modal and input it in any wallet.</li>
+              <li class="mb-2">
+                A: Sign in to an Ethereum DAPP is usually made by signing a message thus
+                you need a wallet. In theory, you can sign in / sign-up even on a desktop
+                if you copy the link from the QR modal and input it in any wallet.
+              </li>
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: What wallets have been tested?</li>
-              <li class="mb-2">A: <pre class="inline">TrustWallet</pre>, and  <pre class="inline">Metamask</pre>, Rainbow does not wotk well with walletConnect V2 currently.</li>
+              <li class="mb-2">
+                A: Many wallets but connection library has changed many tiems but
+                Metamask, TrustWallet, and Rainbow have been tested most often.
+              </li>
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: Is the signup open?</li>
-              <li class="mb-2">A: No, is currently gated by requiring to meet one of 3 conditions: 1 Yup Score of 25, 2 Be on Allow List, 3 Yup Balance of 25k.</li>
+              <li class="mb-2">
+                A: No, is currently gated by requiring to meet one of 3 conditions: (1)
+                Yup Score of 25, (2) Be on Allow List. There are many whitelisted address
+                so you can try to sign-up
+              </li>
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: What I can do on YUP?</li>
-              <li class="mb-2">A: Browse content, and like, post on multiple other soical media platforms, connect accounts and receive aggregated notifications from platforms that you have connected.</li>
+              <li class="mb-2">
+                A: Browse content, and like, post on multiple other soical media
+                platforms, connect accounts and receive aggregated notifications from
+                platforms that you have connected.
+              </li>
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: Is this app open-source?</li>
-              <li class="mb-2">A: Yes, alongside the web-app application and desktop bundle, you can finde the code on <pre class="inline">yup-live</pre> repo on my GitHub account <pre class="inline">andrei0x309</pre>.</li>
+              <li class="mb-2">
+                A: Yes, alongside the web-app application and desktop bundle, you can
+                finde the code on
+                <pre class="inline">yup-live</pre>
+                repo on my GitHub account
+                <pre class="inline">andrei0x309</pre>
+                .
+              </li>
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: Is this app available on IOS?</li>
-              <li class="mb-2">A: No, it's available on these platforms: Android, Web, Win, Linux, Mac, but never on IOS.</li>
+              <li class="mb-2">
+                A: No, it's available on these platforms: Android, Web, Win, Linux, Mac,
+                but not IOS as it requires some costs that I don't want to cover.
+              </li>
             </ul>
           </li>
         </ul>
@@ -157,28 +201,31 @@
         <ion-toolbar>
           <ion-title>Review Login</ion-title>
           <ion-buttons slot="end">
-            <ion-button @click="(infoModalOpen = false)">Close</ion-button>
+            <ion-button @click="infoModalOpen = false">Close</ion-button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding">
         <h3 class="text-center mb-4">AppStore Review Login</h3>
-         
+
         <ion-card-content class="ion-justify-content-center">
-        <ion-item mode="ios">
-          <ion-label>Username</ion-label>
-          <ion-input v-model="reviewUsername" placeholder=""></ion-input>
-        </ion-item>
- 
-        <ion-item mode="ios">
-          <ion-label>Password</ion-label>
-          <ion-input v-model="reviewPassword" placeholder=""></ion-input>
-        </ion-item>
+          <ion-item mode="ios">
+            <ion-label>Username</ion-label>
+            <ion-input v-model="reviewUsername" placeholder=""></ion-input>
+          </ion-item>
 
-        <CustomButton :disabled="loading" class="ion-margin" text="Log in" @click="reviewLogin"  />
-      </ion-card-content>
+          <ion-item mode="ios">
+            <ion-label>Password</ion-label>
+            <ion-input v-model="reviewPassword" placeholder=""></ion-input>
+          </ion-item>
 
-       
+          <CustomButton
+            :disabled="loading"
+            class="ion-margin"
+            text="Log in"
+            @click="reviewLogin"
+          />
+        </ion-card-content>
       </ion-content>
     </ion-modal>
 
@@ -232,154 +279,150 @@ import CustomButton from "@/components/misc/button-connect-page.vue";
 import { useRouter } from "vue-router";
 import HeaderBar from "@/components/template/header-bar.vue";
 import { getConnected } from "shared/src/utils/requests/accounts";
- 
-    const currentSegment = ref("login");
-    const username = ref("");
-    const bio = ref("");
-    const fullName = ref("");
-    const loading = ref(false);
-    const enterLoading = ref(true);
-    const mainStore = useMainStore();
-    const toastState = ref(false);
-    const tostMsg = ref("");
-    const router = useRouter();
-    const infoModalOpen = ref(false);
-    const reviewModalLogin = ref(false);
-    const reviewUsername = ref("");
-    const reviewPassword = ref("");
 
-    const segmentChange = (value: any) => {
-      currentSegment.value = value.detail.value;
-    };
+const currentSegment = ref("login");
+const username = ref("");
+const bio = ref("");
+const fullName = ref("");
+const loading = ref(false);
+const enterLoading = ref(true);
+const mainStore = useMainStore();
+const toastState = ref(false);
+const tostMsg = ref("");
+const router = useRouter();
+const infoModalOpen = ref(false);
+const reviewModalLogin = ref(false);
+const reviewUsername = ref("");
+const reviewPassword = ref("");
 
-    const loadState = (value: string) => {
-      if (value === "start") {
-        loading.value = true;
-      } else if (value === "end") {
-        loading.value = false;
-      } else if (value === "close") {
-        loading.value = false;
-      }
-    };
+const segmentChange = (value: any) => {
+  currentSegment.value = value.detail.value;
+};
 
-    const setAlert = (value: { message: string }) => {
-      const msg = value?.message ?? "";
-      if (msg) {
-        tostMsg.value = msg;
-        toastState.value = true;
-      }
-    };
+const loadState = (value: string) => {
+  if (value === "start") {
+    loading.value = true;
+  } else if (value === "end") {
+    loading.value = false;
+  } else if (value === "close") {
+    loading.value = false;
+  }
+};
 
-    const reviewLogin = async () => {
-      reviewModalLogin.value = false;
-      loading.value = true;
-      try {
-      const req = await fetch('https://api.yup.io/accounts/log-in/demo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          username: reviewUsername.value,
-          password: reviewPassword.value
-        })
-      })
-      if(!req.ok) {
-        loading.value = false;
-        toastState.value = true;
-        if(reviewUsername.value.toLocaleLowerCase() === 'test200') {
-          tostMsg.value = 'API is down, please try again later';
-          return;
-        }
-        tostMsg.value = 'Invalid username or password';
+const setAlert = (value: { message: string }) => {
+  const msg = value?.message ?? "";
+  if (msg) {
+    tostMsg.value = msg;
+    toastState.value = true;
+  }
+};
+
+const reviewLogin = async () => {
+  reviewModalLogin.value = false;
+  loading.value = true;
+  try {
+    const req = await fetch("https://api.yup.io/accounts/log-in/demo", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: reviewUsername.value,
+        password: reviewPassword.value,
+      }),
+    });
+    if (!req.ok) {
+      loading.value = false;
+      toastState.value = true;
+      if (reviewUsername.value.toLocaleLowerCase() === "test200") {
+        tostMsg.value = "API is down, please try again later";
         return;
       }
-
-      const res = await req.json()
-
-      const loginRes = {
-            address:res?.address ?? "",
-            _id: res?.accountId ?? "",
-            avatar: res?.avatar ?? "",
-            weight: 1,
-            signature: '',
-            authToken: res?.jwt ?? "",
-            username: res?.username ?? "",
-        }
-      await doLogin(loginRes)
-      loading.value = false;
-    } catch {
-      loading.value = false;
-    }
+      tostMsg.value = "Invalid username or password";
+      return;
     }
 
+    const res = await req.json();
 
-    const doLogin = (params: Awaited<ReturnType<typeof onSignup>>) => {
-      if (params) {
-        try {
-          const userAuth = {
-            address: params?.address ?? "",
-            account: params?._id ?? "",
-            signature: params?.signature ?? "",
-            avatar: params?.avatar ?? "",
-            authToken: params?.authToken ?? "",
-            weight: params?.weight ?? "1",
-          };
-          storage.set("authInfo", JSON.stringify(userAuth));
-          mainStore.userData = userAuth;
-          mainStore.isLoggedIn = true;
-          getConnected(mainStore, params?._id ?? "").catch((err) => {
-          console.error("Failed to get connected", err);
-        });
-          router.replace("/tabs/feeds");
-        } catch (error) {
-          console.error("Failed to set auth data", error);
-          console.log(router)
-        }
-      } else {
-        window?.localStorage?.clear()
-      }
+    const loginRes = {
+      address: res?.address ?? "",
+      _id: res?.accountId ?? "",
+      avatar: res?.avatar ?? "",
+      weight: 1,
+      signature: "",
+      authToken: res?.jwt ?? "",
+      username: res?.username ?? "",
     };
+    await doLogin(loginRes);
+    loading.value = false;
+  } catch {
+    loading.value = false;
+  }
+};
 
- 
-    const onSignupLocal = async () => {
-      loadState('start')
-      const signupResult = await onSignup({
-        loadState: loadState,
-        setAlert: setAlert,
-        username: username.value,
-        bio: bio.value,
-        fullname: fullName.value,
+const doLogin = (params: Awaited<ReturnType<typeof onSignup>>) => {
+  if (params) {
+    try {
+      const userAuth = {
+        address: params?.address ?? "",
+        account: params?._id ?? "",
+        signature: params?.signature ?? "",
+        avatar: params?.avatar ?? "",
+        authToken: params?.authToken ?? "",
+        weight: params?.weight ?? "1",
+      };
+      storage.set("authInfo", JSON.stringify(userAuth));
+      mainStore.userData = userAuth;
+      mainStore.isLoggedIn = true;
+      getConnected(mainStore, params?._id ?? "").catch((err) => {
+        console.error("Failed to get connected", err);
       });
-      doLogin(signupResult);
-      loading.value = false
-    };
+      router.replace("/tabs/feeds");
+    } catch (error) {
+      console.error("Failed to set auth data", error);
+      console.log(router);
+    }
+  } else {
+    window?.localStorage?.clear();
+  }
+};
 
-    const onLoginLocal = async () => {
-      loadState('start')
-      const loginResult = await onLogin({
-        loadState,
-        setAlert,
-      });
-      doLogin(loginResult);
-      loading.value = false
-    };
+const onSignupLocal = async () => {
+  loadState("start");
+  const signupResult = await onSignup({
+    loadState: loadState,
+    setAlert: setAlert,
+    username: username.value,
+    bio: bio.value,
+    fullname: fullName.value,
+  });
+  doLogin(signupResult);
+  loading.value = false;
+};
 
-    onMounted(async () => {
-      const authInfo = await storage.get("authInfo");
-      if (authInfo) {
-        // await router.push("/tabs/feeds");
-        // await router.removeRoute("/")
-      }
-      loading.value = false;
-      enterLoading.value = false;
-    });
- 
+const onLoginLocal = async () => {
+  loadState("start");
+  const loginResult = await onLogin({
+    loadState,
+    setAlert,
+  });
+  doLogin(loginResult);
+  loading.value = false;
+};
+
+onMounted(async () => {
+  const authInfo = await storage.get("authInfo");
+  if (authInfo) {
+    // await router.push("/tabs/feeds");
+    // await router.removeRoute("/")
+  }
+  loading.value = false;
+  enterLoading.value = false;
+});
 </script>
 
-
 <style lang="scss">
- #walletconnect-wrapper {
+#walletconnect-wrapper {
   .walletconnect-modal__base {
     background: #ffffff;
   }
@@ -388,17 +431,17 @@ import { getConnected } from "shared/src/utils/requests/accounts";
   }
 
   .walletconnect-connect__button {
-    background-color: var(--ion-color-tertiary-shade)!important;
+    background-color: var(--ion-color-tertiary-shade) !important;
     box-shadow: 3px 3px 9px 4px #0000005e;
   }
 
   .walletconnect-modal__mobile__toggle a {
-      color: black;
+    color: black;
   }
- }
+}
 
- .info-btn {
+.info-btn {
   color: rgba(240, 248, 255, 0.829);
   background-color: rgba(240, 248, 255, 0.021);
- }
+}
 </style>

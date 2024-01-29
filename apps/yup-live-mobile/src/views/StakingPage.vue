@@ -4,89 +4,108 @@
     <HeaderBar text="Staking" :menu="true" />
 
     <ion-content :fullscreen="false" class="mt-2">
-    <div class="text-center">
-      <h2 class="text-[1.2rem] p-6 tracking-wide uppercase">Staking</h2>
-      <template v-if="loading">
-        <p class="p-4">Loading staking data</p>
-        <DangLoader :unset="true" />
-      </template>
-      <template v-if="!loading">
-        <div class="my-4">
-          <p>
-            Connected Address: <b>{{ address }}</b>
-          </p>
-          <p v-if="poolShare > 0">
-            Your current pool share: <b>{{ `${poolShare.toFixed(4)}%` }}</b>
-          </p>
-        </div>
+      <div class="text-center">
+        <h2 class="text-[1.2rem] p-6 tracking-wide uppercase">Staking</h2>
+        <template v-if="loading">
+          <p class="p-4">Loading staking data</p>
+          <DangLoader :unset="true" />
+        </template>
+        <template v-if="!loading">
+          <div class="my-4">
+            <p>
+              Connected Address: 
+            </p>
+            <p class="p-2 text-[0.8rem] mt-2">{{ address }}</p>
+            <p v-if="poolShare > 0">
+              Your current pool share: <b>{{ `${poolShare.toFixed(4)}%` }}</b>
+            </p>
+          </div>
 
-        <PolyIcon class="w-6 inline mr-2" />
-        <span> Polygon Chain </span>
+          <PolyIcon class="w-6 inline mr-2" />
+          <span> Polygon Chain </span>
 
-        <div class="flex flex-col p-4 thinSBox text-center">
-          <div class="flex row mx-auto">
-            <div class="flex flex-col">
-              <YUPPOLY class="w-32 mt-5" />
+          <div class="flex flex-col p-4 thinSBox text-center">
+            <div class="flex row mx-auto flex-col xs:flex-row">
+              <div class="flex flex-col items-center">
+                <YUPPOLY class="w-32 mt-5" />
+              </div>
+              <div class="flex flex-col text-[1.2rem] p-6 mb-4">
+                <p class="p-2">Stake YUP-WETH LP Tokens</p>
+                <p class="p-2">Quickswap • Polygon</p>
+                <p class="p-2">
+                  [ APR: <span class="text-[1.3rem]">{{ aprs.poly }}%</span> ]
+                </p>
+              </div>
             </div>
-            <div class="flex flex-col text-[1.2rem] p-6 mb-4">
-              <p class="p-2">Stake YUP-WETH LP Tokens</p>
-              <p class="p-2">Quickswap • Polygon</p>
-              <p class="p-2">
-                [ APR: <span class="text-[1.3rem]">{{ aprs.poly }}%</span> ]
+            <div class="p-2 mr-4">
+              <p class="p-2 text-left flex items-center justify-center">
+                <span class="w-40 inline-block tracking-wide uppercase"
+                  >Staked<br />amount</span
+                ><span class="text-[1.2rem]" v-html="polyStaked.toFixed(4)" />
+              </p>
+              <p class="p-2 text-left flex items-center justify-center">
+                <span class="w-40 inline-block tracking-wide uppercase"
+                  >Unstaked<br />amount</span
+                ><span class="text-[1.2rem]" v-html="polyUnstaked.toFixed(4)" />
               </p>
             </div>
-          </div>
-          <div class="p-2 mr-4">
-            <p class="p-2 text-left flex items-center justify-center">
-              <span class="w-40 inline-block tracking-wide uppercase"
-                >Staked<br />amount</span
-              ><span class="text-[1.2rem]" v-html="polyStaked.toFixed(4)" />
-            </p>
-            <p class="p-2 text-left flex items-center justify-center">
-              <span class="w-40 inline-block tracking-wide uppercase"
-                >Unstaked<br />amount</span
-              ><span class="text-[1.2rem]" v-html="polyUnstaked.toFixed(4)" />
-            </p>
-          </div>
 
-          <ion-segment
-            style="width: auto"
-            class=""
-            :value="activeTabStake"
-            mode="ios"
-            @ion-change="activeTabStakeChange"
-          >
-            <ion-segment-button value="0">
-              <StakeIcon class="w-6 inline mr-1" /> <ion-label>Stake</ion-label>
-            </ion-segment-button>
-            <ion-segment-button value="1">
-              <NoStakeIcon class="w-6 inline mr-1" />
-              <ion-label>Unstake</ion-label>
-            </ion-segment-button>
-          </ion-segment>
+            <ion-segment
+              style="width: auto"
+              class=""
+              :value="activeTabStake"
+              mode="ios"
+              @ion-change="activeTabStakeChange"
+            >
+              <ion-segment-button value="0">
+                <StakeIcon class="w-6 inline mr-1" /> <ion-label>Stake</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="1">
+                <NoStakeIcon class="w-6 inline mr-1" />
+                <ion-label>Unstake</ion-label>
+              </ion-segment-button>
+            </ion-segment>
 
-          <template v-if="activeTabStake === '0'">
-            <NoInput v-model:input="inputValue" :max="polyUnstaked - 0.001" class="max-w-[22rem] mx-auto" />
-            <CustomButton class="max-w-[12rem] mx-auto" :icon="refStakeIcon" text="Stake" @click="doStake()" />
-          </template>
-          <template v-else>
-            <NoInput v-model:input="inputValue" :max="polyStaked - 0.001" class="max-w-[22rem] mx-auto" />
-            <CustomButton class="max-w-[12rem] mx-auto" :icon="refUnStakeIcon" text="Unstake" @click="doUnstake()" />
-          </template>
-        </div>
-        <div v-if="rewards > 0" class="p-4 thinSBox">
-          <h2 class="text-[1.4rem] uppercase">Rewards to collect</h2>
-          <span class="rewardsNumber">{{ rewards }}</span>
-          <CustomButton
-            :icon="refYupRewardsIcon"
-            text="Collect"
-            size="large"
-            class="m-auto my-4"
-            @click="doReward"
-          />
-        </div>
-      </template>
-    </div>
+            <template v-if="activeTabStake === '0'">
+              <NoInput
+                v-model:input="inputValue"
+                :max="polyUnstaked - 0.001"
+                class="max-w-[22rem] mx-auto"
+              />
+              <CustomButton
+                class="max-w-[12rem] mx-auto"
+                :icon="refStakeIcon"
+                text="Stake"
+                @click="doStake()"
+              />
+            </template>
+            <template v-else>
+              <NoInput
+                v-model:input="inputValue"
+                :max="polyStaked - 0.001"
+                class="max-w-[22rem] mx-auto"
+              />
+              <CustomButton
+                class="max-w-[12rem] mx-auto"
+                :icon="refUnStakeIcon"
+                text="Unstake"
+                @click="doUnstake()"
+              />
+            </template>
+          </div>
+          <div v-if="rewards > 0" class="p-4 thinSBox">
+            <h2 class="text-[1.4rem] uppercase">Rewards to collect</h2>
+            <span class="rewardsNumber">{{ rewards }}</span>
+            <CustomButton
+              :icon="refYupRewardsIcon"
+              text="Collect"
+              size="large"
+              class="m-auto my-4"
+              @click="doReward"
+            />
+          </div>
+        </template>
+      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -99,22 +118,27 @@ import StakeIcon from "icons/src/stake.vue";
 import NoStakeIcon from "icons/src/noStake.vue";
 import YUPPOLY from "icons/src/yup-poly.vue";
 import PolyIcon from "icons/src/poly.vue";
-import NoInput from 'components/staking/noInput.vue';
+import NoInput from "components/staking/noInput.vue";
 import CustomButton from "components/functional/customButton.vue";
 import { useMainStore } from "@/store/main";
 import YUPCollectIcon from "icons/src/yup-collect.vue";
 import { stackAlertSuccess, stackAlertWarning } from "@/store/alert-store";
 import WalletIcon from "icons/src/walletIcon.vue";
 import HeaderBar from "@/components/template/header-bar.vue";
-import { connect, getAprs, onStake, onUnstake, fetchContractsData, onReward  } from 'shared/src/utils/stake'
-import {TWeb3Libs, web3Libs } from 'shared/src/utils/evmTxs'
+import {
+  connect,
+  getAprs,
+  onStake,
+  onUnstake,
+  fetchContractsData,
+  onReward,
+} from "shared/src/utils/stake";
+import { TWeb3Libs, web3Libs } from "shared/src/utils/evmTxs";
 
 const refStakeIcon = StakeIcon;
 const refUnStakeIcon = NoStakeIcon;
 const refYupRewardsIcon = YUPCollectIcon;
 const refWalletIcon = WalletIcon;
-
- 
 
 // import { useMainStore } from '@/store/main'
 export default defineComponent({
@@ -137,20 +161,19 @@ export default defineComponent({
   setup() {
     const loading = ref(true);
     const activeTabStake = ref("0") as Ref<string>;
-      const aprs = ref({
+    const aprs = ref({
       poly: 0,
-      eth: 0
-    }) as Ref<Record<string, number>>
-    const rewards = ref(0)
-    const polyStaked = ref(0)
-    const polyUnstaked = ref(0)
-    const store = useMainStore()
-    const inputValue = ref('0')
-    const poolShare = ref(0)
-    const address = ref(localStorage.getItem('address'))
+      eth: 0,
+    }) as Ref<Record<string, number>>;
+    const rewards = ref(0);
+    const polyStaked = ref(0);
+    const polyUnstaked = ref(0);
+    const store = useMainStore();
+    const inputValue = ref("0");
+    const poolShare = ref(0);
+    const address = ref(localStorage.getItem("address"));
 
-
-    const Web3Libs = ref(null) as unknown as Ref<TWeb3Libs>;
+    const Web3Libs = (ref(null) as unknown) as Ref<TWeb3Libs>;
 
     store.$subscribe(() => {
       address.value = store.userData.address;
@@ -163,7 +186,7 @@ export default defineComponent({
     onUnmounted(() => {
       // do nothing
     });
-    const doConnect = async() => {
+    const doConnect = async () => {
       await connect({
         address: address as Ref<string>,
         loading,
@@ -173,10 +196,10 @@ export default defineComponent({
         rewards,
         Web3Libs,
         stackAlertWarning,
-      })
-    }
+      });
+    };
 
-    const doStake = async() => {
+    const doStake = async () => {
       await onStake({
         address: address as Ref<string>,
         inputValue,
@@ -186,11 +209,11 @@ export default defineComponent({
         rewards,
         Web3Libs,
         stackAlertWarning,
-        stackAlertSuccess
-      })
-    }
+        stackAlertSuccess,
+      });
+    };
 
-    const doUnstake = async() => {
+    const doUnstake = async () => {
       await onUnstake({
         address: address as Ref<string>,
         inputValue,
@@ -200,11 +223,11 @@ export default defineComponent({
         rewards,
         Web3Libs,
         stackAlertWarning,
-        stackAlertSuccess
-      })
-    }
+        stackAlertSuccess,
+      });
+    };
 
-    const doReward = async() => {
+    const doReward = async () => {
       await onReward({
         address: address as Ref<string>,
         polyStaked,
@@ -213,19 +236,18 @@ export default defineComponent({
         rewards,
         Web3Libs,
         stackAlertWarning,
-        stackAlertSuccess
-      })
-    }
-
+        stackAlertSuccess,
+      });
+    };
 
     onMounted(async () => {
       getAprs({
         stackAlertWarning,
       }).then(async (res) => {
-        aprs.value.eth = Number(res.eth)
-        aprs.value.poly = Number(res.poly)
-        loading.value = false
-      })
+        aprs.value.eth = Number(res.eth);
+        aprs.value.poly = Number(res.poly);
+        loading.value = false;
+      });
       Web3Libs.value = web3Libs();
       fetchContractsData({
         address: address as Ref<string>,
@@ -233,9 +255,9 @@ export default defineComponent({
         polyUnstaked,
         poolShare,
         rewards,
-        Web3Libs
-      })
-    })
+        Web3Libs,
+      });
+    });
 
     return {
       loading,
@@ -255,8 +277,8 @@ export default defineComponent({
       doConnect,
       doStake,
       doUnstake,
-      doReward
-    }
+      doReward,
+    };
   },
 });
 </script>

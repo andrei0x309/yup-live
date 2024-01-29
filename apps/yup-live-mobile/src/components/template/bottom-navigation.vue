@@ -78,11 +78,11 @@
             -->
     </ion-content>
     <CrossPost
-        :key="`${openPostModal}k${emitKey}`"
-        :openModal="openPostModal"
-        :platforms="PLATFORMS"
-        @update:open-modal="(v: boolean) => setModalState(v)"
-      />
+      :key="`${openPostModal}k${emitKey}`"
+      :openModal="openPostModal"
+      :platforms="PLATFORMS"
+      @update:open-modal="(v: boolean) => setModalState(v)"
+    />
   </ion-page>
 </template>
 
@@ -235,7 +235,7 @@ export default defineComponent({
 
     const setModalState = (v: boolean) => {
       emitKey.value += 1;
-      console.log("setModalState", v, emitKey.value)
+      console.log("setModalState", v, emitKey.value);
       openPostModal.value = v;
     };
 
@@ -264,7 +264,7 @@ export default defineComponent({
       userData,
       PLATFORMS,
       store,
-      emitKey
+      emitKey,
     };
   },
 });

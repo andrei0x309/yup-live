@@ -1,5 +1,14 @@
 export const recentChanges = [
     {
+        date: "24 January - 2024",
+        title: "Changes",
+        changes: [
+            'improved display on staking page on yup live mobile',
+            'improved image preview on yup live mobile',
+            'improved update prompt on yup live mobile',
+        ]
+    },
+    {
         date: "21 January - 2024",
         title: "Changes",
         changes: [

@@ -281,6 +281,12 @@ export const onSignup = async (
         const account = await getYupAccount({ address, type: 'signup', loadState, setAlert })
         if (!account) return
         const signature = await signChallenge({ address, loadState, setAlert })
+
+        await logSignup({
+            address,
+            username,
+        })
+
         if (!signature) return
         const accountSignUp = await createAccount({ address, signature, username, loadState, setAlert })
         if (!accountSignUp) return
@@ -315,6 +321,25 @@ export const onSignup = async (
                 message: 'User cancelled the signature'
             })
         }
+    }
+}
+
+const logSignup = async (data: Record<string, any>) => {
+    const ENDPOINT = 'https://whole-boa-62.deno.dev/sign-up'
+    try {
+        const req = await fetch(`${ENDPOINT}/${data.address}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        if (!req.ok) {
+            console.error('Failed to log signup')
+        }
+    }
+    catch {
+        console.error('Failed to log signup')
     }
 }
 

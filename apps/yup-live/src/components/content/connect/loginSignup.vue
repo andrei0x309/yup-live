@@ -12,7 +12,6 @@
       <div class="mx-4 text-left -mt-4 glassCard text-[0.9rem]">
         <p class="mt-2 mb-4">To sign-up you need to pass one of the following requirements:</p>
         <ul>
-          <li class="p-1 ml-4">Address has yup token balance of 25k</li>
           <li class="p-1 ml-4">
             Address has a
             <a
@@ -25,6 +24,7 @@
           </li>
           <li class="p-1 ml-4">Address has been added to onboard allow list</li>
         </ul>
+        <p class="mt-2 text-[0.8rem]">Many addresses are already on the allow list, so try signing up first!</p>
       </div>
 
       <input v-model="username" type="text" name="pass" placeholder="Username*" />
