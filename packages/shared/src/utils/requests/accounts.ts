@@ -6,6 +6,7 @@ import type { IMainStore } from '../../types/store'
 import type { Ref } from 'vue'
 import type { TPlatform } from '../../types/web3-posting'
 import { fetchWAuth } from '../auth'
+import { fetchWeb3Profile } from './web3Profiles'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -274,7 +275,7 @@ export const uploadAvatar = ({
   fr.readAsDataURL(blob)
 }
 
-export const getConnected = async (store: IMainStore, account: string) => {
+export const getConnected = async (store: IMainStore, account: string, address?: string) => {
   // const connectedStore = localStorage.getItem('connected')
   let connected: Record<string, boolean> | null = null
   // try {
@@ -303,6 +304,20 @@ export const getConnected = async (store: IMainStore, account: string) => {
     }
   }
   store.userData.connected = connected as any
+  if (store.userData.connected?.farcaster) {
+    if (localStorage.getItem('fid')) {
+      store.userData.fid = localStorage.getItem('fid') as string
+    } else {
+      address && fetchWeb3Profile(API_BASE, address).then((res) => {
+        if (res?.farcaster?.fid) {
+          store.userData.fid = res.farcaster.fid
+          localStorage.setItem('fid', res.farcaster.fid)
+        }
+      })
+    }
+
+  }
+
   return connected
 }
 

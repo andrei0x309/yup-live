@@ -59,6 +59,7 @@ import type { Web3PostPOAP, Web3POAPRaw } from 'shared/src/types/web3/poap'
 
 export default defineComponent({
   name: 'PostPOAP',
+  inheritAttrs: false,
   components: {
     ClockIcon,
     ImagePreview,

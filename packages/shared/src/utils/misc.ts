@@ -106,6 +106,28 @@ export const isImage = (url: string) => {
   return /^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(url)
 }
 
+export const isVideo = (url: string) => {
+  return /^https?:\/\/.+\.(mp4|webm|ogg|avi|mov|m3u8|mkv)$/.test(url)
+}
+
+export const getVideoTypeFromUrl = (url: string) => {
+  if (url.endsWith('.mp4')) return 'video/mp4'
+  if (url.endsWith('.webm')) return 'video/webm'
+  if (url.endsWith('.ogg')) return 'video/ogg'
+  if (url.endsWith('.avi')) return 'video/avi'
+  if (url.endsWith('.mov')) return 'video/mov'
+  if (url.endsWith('.m3u8')) return 'application/x-mpegURL'
+  if (url.endsWith('.mkv')) return 'video/x-matroska'
+  return 'video/mp4'
+}
+
+export const isProbablyPage = (url: string) => {
+  const splists = url.split('/')
+  const last = splists[splists.length - 1]
+  const isPageExtension = last.includes('html') || last.includes('htm') || last.includes('#')
+  return (!last.includes('.') && last.length > 1) || isPageExtension
+}
+
 export const digestSha256 = async (message: string) => {
   const msgUint8 = new TextEncoder().encode(message);
   const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
@@ -143,6 +165,11 @@ export const getPostType = (post: any) => {
 export const validateEmail = (email: string) => {
   const re = /\S+@\S+\.\S+/;
   return re.test(email);
+}
+
+export const corsify = (url: string) => {
+  // return 'https://corsproxy.io/?' + encodeURIComponent(url)
+  return `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
 }
 
 // export const decodeJWT = (jwt: string) => {

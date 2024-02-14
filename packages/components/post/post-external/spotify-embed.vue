@@ -33,7 +33,6 @@ export default defineComponent({
         isLoading.value = true
         await getEmbed()
         isLoading.value = false
-        console.log(html.value ,'gval')
     })
 
  

@@ -177,6 +177,7 @@ export default defineComponent({
           avatar: account.avatar,
           weight: account.weight as number,
           authToken,
+          fid: ''
         };
         getConnected(mainStore, mainStore.userData.account)
         mainStore.isLoggedIn = true;

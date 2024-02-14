@@ -3,7 +3,7 @@ import { createPinia } from 'pinia'
 // import { ViteSSG } from 'vite-ssg'
 import App from '@/app.vue'
 import { routes, router } from '@/router'
-import { createHead } from 'unhead'
+import { createHead } from '@unhead/vue'
 
 import '@/assets/twind.css'
 import '@/assets/oruga-patched.scss'
@@ -26,7 +26,7 @@ import {
 import { Buffer } from 'buffer'
 
 globalThis.Buffer = Buffer
-createHead()
+
 
 // export const createApp = ViteSSG(
 //   // the root component
@@ -83,5 +83,6 @@ createApp(App)
   .use(Checkbox)
   .use(Input)
   .use(createPinia())
+  .use(createHead())
   .provide('routes', routes)
   .mount('#app')

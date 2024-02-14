@@ -230,7 +230,7 @@ const openUpdateModal = async ({
       forced,
       message: message,
       url: url,
-      paused
+      paused,
     },
   });
   modal.present();
@@ -261,21 +261,33 @@ onBeforeMount(async () => {
                 url: res.url,
               });
             }
-                setTimeout(() => {
+            setTimeout(() => {
               updateNotify({
-            stackAlertSuccess,
-            router
-            });
+                stackAlertSuccess,
+                router,
+              });
             }, 1000);
             import("@capacitor/app").then((lib) => {
               if (res?.update && res?.forced) {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 lib.App.addListener("backButton", (_r) => {
+                  if ((window as any)?.closeLightbox) {
+                    const source = (window as any)?.closeLightboxSource;
+                    (window as any)?.closeLightbox?.(source);
+                    (window as any).closeLightbox = null;
+                    return;
+                  }
                   lib.App.minimizeApp();
                 });
               } else {
                 lib.App.addListener("backButton", (r) => {
                   if (!r.canGoBack) {
+                    if ((window as any)?.closeLightbox) {
+                      const source = (window as any)?.closeLightboxSource;
+                      (window as any)?.closeLightbox?.(source);
+                      (window as any).closeLightbox = null;
+                      return;
+                    }
                     lib.App.minimizeApp();
                   } else if (
                     router.currentRoute.value.path === "/" &&
@@ -300,7 +312,7 @@ onBeforeMount(async () => {
         getExpoPushTokenAndRegister({ store });
       }, 2000);
       store.userData = JSON.parse(authInfoVal);
-      getConnected(store, store.userData.account);
+      getConnected(store, store.userData.account, store.userData.address);
       store.isLoggedIn = true;
       getPushSettings({ store }).then((res) => {
         if (res) {

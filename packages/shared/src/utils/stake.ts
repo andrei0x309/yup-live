@@ -179,7 +179,7 @@ export const onStake = async ({
             Web3Libs
         })
     } catch (e) {
-        console.log(e)
+        console.error(e)
         stackAlertWarning && stackAlertWarning('User rejected or tx failed')
     }
 }

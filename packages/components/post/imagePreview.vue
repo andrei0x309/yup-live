@@ -95,7 +95,7 @@ export default defineComponent({
       required: false,
       type: Boolean,
       default: false,
-    },
+    }
   },
   setup(props) {
     const isError = ref(false);
@@ -120,6 +120,10 @@ export default defineComponent({
       return hash;
     };
 
+    const lightBoxListner = (refSource: string) => {
+      closeImage(refSource)
+    };
+
     const onError = () => {
       isError.value = true;
       isLoading.value = false;
@@ -129,14 +133,18 @@ export default defineComponent({
       isLoading.value = false;
     };
 
-    const openImg = (refSource: string) => {
+    const openImg = async (refSource: string) => {
       const getImg = document.getElementById(`id${hashId(refSource)}`);
       if (getImg) {
         getImg.style.display = "flex";
       }
+      if((window as any)?.Ionic) {
+        (window as any).closeLightboxSource = refSource;
+        (window as any).closeLightbox = lightBoxListner
+      }
     }
 
-    const closeImage = (refSource: string) => {
+    const closeImage = async (refSource: string) => {
       const getImg = document.getElementById(`id${hashId(refSource)}`);
       if (getImg) {
         getImg.style.display = "none";
@@ -188,7 +196,6 @@ export default defineComponent({
 }
 .noImg {
     width: 29%;
-    z-index: 2;
     min-height: 1rem;
     min-width: 12rem;
     padding: 1rem 4rem 1rem 5rem;

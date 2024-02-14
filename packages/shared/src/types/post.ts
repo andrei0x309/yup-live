@@ -1,5 +1,6 @@
 import type { reactive, defineComponent } from 'vue'
 import type { IVotingDeps } from 'shared/src/types/vote'
+import { IMainStore } from './store'
 export interface IPost {
   _id: {
     postid: string
@@ -195,7 +196,7 @@ export interface PostBodyProcessed {
   crossPostGroup?: {
     [key: string]: string
   }
-
+  frames: string[]
 }
 
 export type Embed = {

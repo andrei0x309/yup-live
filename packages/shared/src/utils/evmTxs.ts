@@ -88,12 +88,13 @@ export const tryToGetAddressWithoutPrompt = async ({
     // })
     // const ethereumClient = new EthereumClient(wagmiConfig, chains)
 
+    const enableCoinbase = !(window as any)?.Ionic
 
 
     const wagmiConfig = defaultWagmiConfig({
         projectId: config.PROJECT_ID,
         chains,
-        enableCoinbase: false,
+        enableCoinbase,
         enableInjected: true,
         enableWalletConnect: true,
         enableEIP6963: true,
@@ -143,10 +144,12 @@ export const prepareForTransaction = async ({
         icons: ['https://avatars.githubusercontent.com/u/37784886']
     }
 
+    const enableCoinbase = !(window as any)?.Ionic
+
     const wagmiConfig = defaultWagmiConfig({
         projectId: config.PROJECT_ID,
         chains,
-        enableCoinbase: false,
+        enableCoinbase,
         enableInjected: true,
         enableWalletConnect: true,
         enableEIP6963: true,

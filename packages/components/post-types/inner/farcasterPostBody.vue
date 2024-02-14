@@ -70,6 +70,8 @@
         />
 
         <ExternalEmbeds v-if="mainPost?.embeds?.length" :embeds="mainPost.embeds" />
+
+        <Frame v-for="frameUrl of mainPost?.frames ?? []" :url="frameUrl" :deps="deps" :castDep="castDep" />
       </div>
     </div>
     <span
@@ -117,6 +119,7 @@ import LinkPreview from "components/post/linkPreview.vue";
 import type { IPostDeps } from "shared/src/types/post";
 import { useRouter } from "vue-router";
 import CrossIconGroup from "components/post-types/misc/crossicon-group.vue";
+import Frame from "components/post/frame.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE as string;
 
@@ -133,6 +136,7 @@ export default defineComponent({
     ExternalEmbeds,
     LinkPreview,
     CrossIconGroup,
+    Frame
   },
   props: {
     mainPost: {
@@ -153,7 +157,7 @@ export default defineComponent({
     },
     deps: {
       type: Object as PropType<IPostDeps>,
-      default: null,
+      default: () => ({}),
     },
     fetchComments: {
       type: Boolean,
@@ -163,6 +167,7 @@ export default defineComponent({
   setup(props) {
     const numComments = ref(0);
     const router = useRouter();
+    const castDep = props.mainPost?.farcaster as unknown as { hash: string; fid: string };
 
     const goToCreator = () => {
       if (props.mainPost.userAddress) {
@@ -188,6 +193,7 @@ export default defineComponent({
     return {
       numComments,
       goToCreator,
+      castDep
     };
   },
 });

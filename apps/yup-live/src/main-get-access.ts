@@ -10,7 +10,7 @@ import '@/assets/twind.css'
 import '@/assets/oruga-patched.scss'
 import '@/assets/app.scss'
 
-import { createHead } from 'unhead'
+import { createHead } from '@unhead/vue'
 import {
     Dropdown,
     Button,
@@ -26,7 +26,7 @@ import {
 import { Buffer } from 'buffer'
 
 globalThis.Buffer = Buffer
-createHead()
+
 
 
 // export const createApp = ViteSSG(
@@ -82,6 +82,7 @@ createApp(App)
     .use(Radio)
     .use(Table)
     .use(Checkbox)
+    .use(createHead())
     // .use(Tooltip)
     .use(pinia)
     .provide('routes', routes)

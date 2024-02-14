@@ -106,7 +106,7 @@ export const getAccess = async ({
         return true
 
     } catch (e) {
-        console.log(e)
+        console.error(e)
         stackAlertWarning && stackAlertWarning('User rejected or tx failed')
         return false
     }

@@ -31,6 +31,7 @@ import YoutubeEmbed from 'components/post/post-external/youtube-embed.vue'
 
 export default defineComponent({
   name: 'PostYoutube',
+  inheritAttrs: false,
   components: {
     YoutubeIcon,
     ClockIcon,

@@ -12,6 +12,7 @@
         :key="`post-loaded-${postTypeLoading}`"
         :full="full"
         :post="processedPost"
+        :deps="deps"
         :replyComp="replyComp ? replyComp : undefined"
         :isComment="isComment"
       />
@@ -98,7 +99,6 @@ import {
   shallowRef,
   watch,
   PropType,
-  computed,
 } from "vue";
 import Voting from "components/post/voting.vue";
 import FavIco from "components/post/favIco.vue";
@@ -193,7 +193,7 @@ export default defineComponent({
       //   isTwitter: false,
     }) as unknown) as IProcessedPost;
 
-    const store = props?.deps?.useMainStore();
+    const store = props?.deps?.useMainStore?.();
     const postTypeLoading = ref(true);
     const postShareInfo = (reactive({}) as unknown) as {
       url: string;

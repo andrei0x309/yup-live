@@ -301,7 +301,6 @@ export default defineComponent({
     };
 
     const doReport = () => {
-      console.log("doReport", reportModal?.value);
       reportModal?.value?.toggleModal();
     };
 

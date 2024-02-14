@@ -266,10 +266,187 @@ export const schedulePost = async (
             body: JSON.stringify(sendData),
             method: 'POST'
         })
-        if (!req.ok) throw new Error('Error scheduling post' + req.statusText)
-        return await req.json()
+        if (!req.ok) {
+            const data = await req.json()
+            if (data?.message.toLowerCase().includes('balance') || data?.message.toLowerCase().includes('insufficient')) {
+                return { ok: false, error: 'insufficient' }
+            }
+            return { ok: false, error: 'other' }
+        } else {
+            console.error('Error scheduling post' + req.statusText)
+            return { ok: true }
+        }
     } catch (e) {
         console.error('Schedule Post: ', e)
         return null
+    }
+}
+
+export const postFrameAction = async (
+    { store, apiBase, sendData }: {
+        store: IMainStore, apiBase: string, sendData: {
+            url: string
+            castFid: number
+            castHash: string
+            inputText?: string
+            buttonIndex?: number
+        }
+    }) => {
+    try {
+
+        const req = await fetchWAuth(store, `${apiBase}/farcaster/frame-packet-action`, {
+            body: JSON.stringify(sendData),
+            method: 'POST'
+        })
+
+        if (!req.ok) {
+            console.error('Error postFrameAction: ', req.statusText)
+            return null
+        }
+        const json = await req.json();
+        console.info('json', JSON.stringify(json));
+        return json
+    } catch (e) {
+        console.error('postFrameAction: ', e)
+        return null
+    }
+}
+
+export const searchChannel = async (term: string) => {
+    try {
+        const req = await fetch(`${API_BASE.replace('api.', 'dev.api.')}/farcaster/channels/search?q=${term}`)
+        if (!req.ok) {
+            console.error('Error searchChannel: ', req.statusText)
+            return []
+        }
+        return await req.json()
+    } catch (e) {
+        console.error('Search Channel: ', e)
+        return []
+    }
+}
+
+export const getReposts = async ({
+    store,
+    postId
+}: {
+    store: IMainStore
+    postId: string
+}) => {
+    try {
+        const req = await fetchWAuth(store, `${API_BASE}/web3-repost/${postId}`)
+        if (!req.ok) {
+            console.error('Error getReposts: ', req.statusText)
+            return []
+        }
+        return await req.json()
+    } catch (e) {
+        console.error('Get Reposts: ', e)
+        return []
+    }
+}
+
+export const sendRepost = async ({
+    store,
+    postId
+}: {
+    store: IMainStore
+    postId: string
+}) => {
+    try {
+        const req = await fetchWAuth(store, `${API_BASE}/web3-repost/${postId}`, {
+            method: 'POST'
+        })
+        if (!req.ok) {
+            console.error('Error sentRepost: ', req.statusText)
+            return false
+        }
+        return true
+    } catch (e) {
+        console.error('Sent Repost: ', e)
+        return false
+    }
+}
+
+export const deleteRepost = async ({
+    store,
+    postId
+}: {
+    store: IMainStore
+    postId: string
+}) => {
+    try {
+        const req = await fetchWAuth(store, `${API_BASE}/web3-repost/${postId}`, {
+            method: 'DELETE'
+        })
+        if (!req.ok) {
+            console.error('Error deleteRepost: ', req.statusText)
+            return false
+        }
+        return true
+    } catch (e) {
+        console.error('Delete Repost: ', e)
+        return false
+    }
+}
+
+export const getInitialFrame = async (url: string) => {
+    const metas = await fetch(`${API_BASE}/posts/website-meta?url=${url}`)
+    let metaTags = [] as any[]
+    try {
+        metaTags = (await metas.json())?.metaTags ?? []
+    } catch (e) {
+        console.error('Error getting initial frame: ', e)
+    }
+    const frameRes: any = {}
+    const buttons: any = []
+    metaTags.map((metaTag: any) => {
+        const property = metaTag.property ?? metaTag.name
+        if (property === 'fc:frame') {
+            frameRes.version = metaTag.content
+        } else if (property === 'fc:frame:image') {
+            frameRes.imageUrl = metaTag.content
+        } else if (property === 'fc:frame:post_url') {
+            frameRes.postUrl = metaTag.content
+        } else if (property === 'og:image' && !frameRes.imageUrl) {
+            frameRes.imageUrl = metaTag.content
+        } else if (property === 'fc:frame:input:text') {
+            frameRes.inputText = metaTag.content
+        } else if (property?.startsWith('fc:frame:button')) {
+            const tokens = property.split(':')
+            const index = Number(tokens?.[3])
+            const forthToken = tokens?.[4]?.trim()
+            if (tokens?.length === 4) {
+                if (!buttons?.find((b: any) => b?.index === index)) {
+                    buttons[index] = { index, title: metaTag.content, type: 'post' }
+                } else {
+                    if (forthToken === 'target') {
+                        buttons[index] = { ...buttons[index], index: (index || undefined), target: metaTag.content }
+                    } else if (forthToken === 'action') {
+                        buttons[index] = { ...buttons[index], index: (index || undefined), type: metaTag.content }
+                    }
+                }
+            }
+        } else if (property?.startsWith('redirectUrl')) {
+            frameRes.redirectUrl = metaTag.content
+        }
+    })
+
+    metaTags.map((metaTag: any) => {
+        const property = metaTag.property ?? metaTag.name
+        if (property?.startsWith('fc:frame:button')) {
+            const tokens = property.split(':')
+            const index = tokens[3]
+            if (tokens.length > 4) {
+                if (buttons[index]) {
+                    buttons[index].type = metaTag.content
+                }
+            }
+        }
+    })
+
+    return {
+        ...frameRes,
+        buttons: buttons.filter((b: any) => b)
     }
 }

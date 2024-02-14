@@ -242,12 +242,14 @@ export default defineComponent({
   position: absolute;
   bottom: 60%;
   left: 50%;
-  max-width: 100px;
   opacity: 1;
-  box-shadow: 3px 3px 20px rgb(0 0 0 / 50%);
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  -webkit-transform: translate(-50%, 0%);
-  transform: translate(-50%, 0%);
+  box-shadow: 3px 3px 20px #00000080;
+  border: 2px solid rgba(255,255,255,.5);
+  transform: translate(-50%);
+  background-color: #4d2e19a6;
+  height: 7rem;
+  width: 7rem;
+  object-fit: contain;
 }
 .snip1344 h3 {
   margin: 0 0 5px;

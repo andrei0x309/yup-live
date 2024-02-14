@@ -60,26 +60,38 @@
         class="opacity-80 ml-2 mr-2 text-[0.95rem]"
         v-html="formatNumber(refNumLikes, 2)"
       ></span>
+      <RepostIcon
+        :key="`${refHasRepost}`"
+        :class="`opacity-80 w-5 cursor-pointer inline-block mr-1 ml-8 like-vote ${
+          doingLike ? 'blinkAndPump' : ''
+        }`"
+        :isSolid="refHasRepost"
+        @click="doRepost"
+      />
+      <span
+        v-if="refNumReposts"
+        class="opacity-80 ml-2 mr-2 text-[0.95rem]"
+        v-html="formatNumber(refNumReposts, 2)"
+      ></span>
     </div>
     </div>
 </template>
 
 <script lang="ts">
 import { onMounted, defineComponent, ref, Ref, PropType } from "vue";
-import ThumbsUp from "icons/src/thumbsUp.vue";
-import ThumbsDown from "icons/src/thumbsDown.vue";
 import { formatNumber } from "shared/src/utils/misc";
 import { fetchWAuth } from "shared/src/utils/auth";
 import type { Vote } from "shared/src/types/vote";
 import type { IVotingDeps } from "shared/src/types/vote";
 import LikesIcon from "icons/src/likes.vue";
+import RepostIcon from "icons/src/repost.vue";
+import { sendRepost } from 'shared/src/utils/requests/web3-posting'
 
 export default defineComponent({
   name: "Voting",
   components: {
-    ThumbsUp,
-    ThumbsDown,
     LikesIcon,
+    RepostIcon
   },
   props: {
     postId: {
@@ -132,10 +144,12 @@ export default defineComponent({
     const doingLike = ref(false) as Ref<boolean>;
     const vote = (ref({}) as unknown) as Ref<Vote>;
     const refHasVote = ref(false) as Ref<boolean>;
+    const refHasRepost = ref(false) as Ref<boolean>;
     const lastVote = ref(false) as Ref<boolean>;
     const showUp = ref(false) as Ref<boolean>;
     const showDown = ref(false) as Ref<boolean>;
     const refNumLikes = ref(props.numLikes);
+    const refNumReposts = ref(0)
 
     store.$subscribe(() => {
       isAuth.value = store.isLoggedIn;
@@ -352,6 +366,30 @@ export default defineComponent({
       }
     };
 
+    const doRepost = async () => {
+      if (!isAuth.value) {
+        props.deps.openConnectModal && props.deps.openConnectModal(store);
+        return;
+      }
+      if (refHasRepost.value) {
+        try {
+          refHasRepost.value = false
+        } catch (error) {
+          console.log('error', error)
+        }
+      } else {
+        try {
+          await sendRepost({
+            store,
+            postId: props.postId
+          })
+          refHasRepost.value = true
+        } catch (error) {
+          console.log('error', error)
+        }
+      }
+    }
+
     onMounted(() => {
       if (props.postId) {
         props.hasVote.then((res) => {
@@ -380,7 +418,10 @@ export default defineComponent({
       deleteVote,
       onLike,
       refNumLikes,
-      doingLike
+      doingLike,
+      doRepost,
+      refHasRepost,
+      refNumReposts
     };
   },
 });

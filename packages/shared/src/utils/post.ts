@@ -1,6 +1,6 @@
 import type { IPost, IProcessedPost, IRPostShareInfo, PostBodyProcessed, linkPreviewTypeEx, mediaType, Embed } from 'shared/src/types/post'
 import type { Web3Media } from 'shared/src/types/web3/media'
-import { isImage } from 'shared/src/utils/misc'
+import { isImage, isVideo, isProbablyPage } from 'shared/src/utils/misc'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
 // import MD from 'markdown-it'
 
@@ -26,8 +26,7 @@ export const processPost = (post: IPost, processedPost: IProcessedPost,
     }
     processedPost.image = image ?? ''
     if (processedPost.image) {
-        const videoExt = ['.mp4', '.webm', '.ogg', '.avi']
-        processedPost.isVideo = videoExt.some((ext) => processedPost.image.includes(ext))
+        processedPost.isVideo = isVideo(processedPost.image)
     }
     processedPost.createdAt = timeAgo(post.createdAt ?? post?.web3Preview?.createdAt ?? `${new Date().getTime() - 3e6 * Math.random()}`)
     processedPost.url = post.url
@@ -54,10 +53,15 @@ const parseBody = (text: string, linkPreviews: linkPreviewTypeEx[]) => {
     return text
 }
 
-const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], embeds: Embed[]) => {
+const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], embeds: Embed[], postTag?: string) => {
     const retArr = [] as mediaType[]
+    const frames = [] as string[]
     mediaObject.forEach((e) => {
         if (e.url) {
+            if (isProbablyPage(e.url) && postTag === 'farcaster') {
+                frames.push(e.url)
+                return
+            }
             if (e.url.includes('youtube.com')) return
             if (linkPreviews.some((el) => el.img === e.url)) return
             if (embeds.some((el) => el.url === e.url)) return
@@ -74,7 +78,11 @@ const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], e
             if (isImage(e.url)) {
                 retArr.push({ type: 'image', url: parseIpfs(e.url) })
                 return
+            } else if (isVideo(e.url)) {
+                retArr.push({ type: 'video', url: e.url })
+                return
             }
+
         }
         if (e.images) {
             e.images.forEach((el) => {
@@ -91,7 +99,7 @@ const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], e
             })
         }
     })
-    return { retArr, linkPreviews }
+    return { retArr, linkPreviews, frames }
 }
 
 const parseEmbeds = (content: string) => {
@@ -146,11 +154,11 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
             ) ?? []) as linkPreviewTypeEx[]
 
     postBuilder.linkPreviews = (postBuilder.linkPreviews ?? []).filter((e) => !emebeds.embeds.some((el) => el.url === e.url))
-
-    const parseTheMedia = parseMedia(fullPost?.web3Preview?.attachments ?? [], postBuilder.linkPreviews ?? [], emebeds.embeds)
+    const parseTheMedia = parseMedia(fullPost?.web3Preview?.attachments ?? [], postBuilder.linkPreviews ?? [], emebeds.embeds, fullPost?.tag ?? fullPost?.web3Preview?.protocol ?? '')
 
     postBuilder.mediaEntities = parseTheMedia.retArr
     postBuilder.linkPreviews = parseTheMedia.linkPreviews
+    postBuilder.frames = parseTheMedia.frames
 
     const fresPreviews = [] as linkPreviewTypeEx[]
     postBuilder.linkPreviews.forEach((e) => {

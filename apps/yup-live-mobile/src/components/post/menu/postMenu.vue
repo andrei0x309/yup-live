@@ -221,7 +221,6 @@ export default defineComponent({
 
     const onLoad = () => {
       isLoading.value = false;
-      console.log("onload", isLoading.value);
     };
 
     const sharePost = () => {

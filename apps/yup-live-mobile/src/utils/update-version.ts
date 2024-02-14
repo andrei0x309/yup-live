@@ -112,7 +112,7 @@ const checkIsForcedUpdate = ({
         currentVersion: string | null
 }) => {
     if (!currentVersion) return false;
-    return currentVersion === settingsStorage?.forcedVersion ?? ''
+    return currentVersion === (settingsStorage?.forcedVersion ?? '')
 }
 
 const checkIsPause = (settingsStorage: IMainStore['settings']) => {

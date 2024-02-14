@@ -20,10 +20,12 @@ export const web3ModalInstantiate = async (
 
         const chains = [polygon, mainnet, polygonMumbai]
 
+        const enableCoinbase = !(window as any)?.Ionic
+
         const wagmiConfig = defaultWagmiConfig({
             projectId: config.PROJECT_ID,
             chains,
-            enableCoinbase: false,
+            enableCoinbase,
             enableInjected: true,
             enableWalletConnect: true,
             enableEIP6963: true,

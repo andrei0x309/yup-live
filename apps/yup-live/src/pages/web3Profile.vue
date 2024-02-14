@@ -356,7 +356,6 @@ export default defineComponent({
 
     const scrollIntoView = (id: string) => {
       const el = document.getElementById(id);
-      console.log(el);
       if (el) {
         setTimeout(() => {
           el.scrollIntoView({ behavior: "smooth" });

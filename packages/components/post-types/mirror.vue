@@ -73,6 +73,7 @@ import AvatarBtn from 'components/functional/avatarBtn.vue'
 
 export default defineComponent({
   name: 'PostMirror',
+  inheritAttrs: false,
   components: {
     ClockIcon,
     MirrorIcon,

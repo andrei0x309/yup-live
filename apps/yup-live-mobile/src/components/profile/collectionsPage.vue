@@ -71,8 +71,6 @@ export default defineComponent({
     })
 
     onMounted(async () => {
-      console.log(props.collections)
-      console.log(props.collectionPromise)
       if (!props.collections) {
         const coll = await props.collectionPromise
         if (coll) {

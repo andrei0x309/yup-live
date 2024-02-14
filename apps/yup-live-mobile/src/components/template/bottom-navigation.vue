@@ -235,7 +235,6 @@ export default defineComponent({
 
     const setModalState = (v: boolean) => {
       emitKey.value += 1;
-      console.log("setModalState", v, emitKey.value);
       openPostModal.value = v;
     };
 

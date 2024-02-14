@@ -208,6 +208,7 @@ const refBtnSpinner = BtnSpinner
 
 export default defineComponent({
   name: 'PostTweet',
+  inheritAttrs: false,
   components: {
     AvatarBtn,
     TwitterIcon,
@@ -280,7 +281,6 @@ export default defineComponent({
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ;(window as unknown as {twttr: Record<string, any>}).twttr.ready(() => {
-            console.log('ready', id, tweet)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ;(window as unknown as {twttr: Record<string, any>}).twttr.widgets.createTweet(
               id,

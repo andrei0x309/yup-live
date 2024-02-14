@@ -457,10 +457,10 @@ html[class='dark'] {
 }
 
 .scoreLink {
-     display: block;
-    border: 1px solid #39527c;
+    display: block;
+    border: 1px solid #541aa1a8;
     border-radius: 100%;
-    width: 1.5rem;
+    width: 1.3rem;
     margin: auto;
     font-size: 12px;
 }

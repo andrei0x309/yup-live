@@ -20,7 +20,18 @@
               "
               icon-left="times"
               label="X"
-              @click="sendClose"
+              @click="
+                () => {
+                  if (
+                    modalContent === 'scheduling' ||
+                    modalContent === 'selectFatscasterChannel'
+                  ) {
+                    modalContent = 'posting';
+                  } else {
+                    sendClose();
+                  }
+                }
+              "
             />
           </div>
 
@@ -111,8 +122,35 @@
                 />Schedule
               </button>
               <button
-                :disabled="isSendPost"
+                v-show="!replyTo && showFcChannel"
                 class="w-1/3 ml-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                @click="
+                  () => {
+                    if (farcasterChannel) {
+                      farcasterChannel = undefined;
+                    } else {
+                      modalContent = 'selectFatscasterChannel';
+                    }
+                  }
+                "
+              >
+                <img
+                  v-if="farcasterChannel"
+                  :src="
+                    typeof farcasterChannel === 'object'
+                      ? farcasterChannel.image_url
+                      : undefined
+                  "
+                  class="w-5 inline mr-2"
+                />
+                <ProfileFarcasterIcon v-else class="w-5 inline mr-2" />
+                {{
+                  farcasterChannel ? "Remove farcaster channel" : "Add farcaster channel"
+                }}
+              </button>
+              <button
+                :disabled="isSendPost"
+                class="w-1/3 ml-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mt-4"
                 @click="doSendPost"
               >
                 <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SendIcon
@@ -168,6 +206,47 @@
               </button>
             </div>
           </template>
+          <template v-else-if="modalContent == 'selectFatscasterChannel'">
+            <div class="add-channel">
+              <h2 class="text-lg mb-1 font-medium title-font">
+                Select Farcaster Channel
+              </h2>
+              <p>Search</p>
+              <input
+                id="farcasterChannelSearch"
+                type="text"
+                placeholder="channel name"
+                class="mb-4 rounded p-2 text-[#e0e0e0] bg-stone-800 border-purple-800 border-2"
+                @input="(e) => {
+                searchChannels((e?.target as any)?.value)
+            }"
+              />
+              <div v-if="channels?.length === 0">
+                <p>No channels found</p>
+              </div>
+              <div v-else class="flex flex-col">
+                <o-radio
+                  v-for="channel of channels"
+                  :key="channel.id"
+                  v-model="farcasterChannel"
+                  :native-value="channel.id"
+                >
+                  <div class="flex flex-wrap-reverse">
+                    <div class="w-max-[28%]">
+                      <img
+                        class="w-8 h-8 inline rounded-lg mx-4 my-1"
+                        :src="channel.image_url"
+                      />
+                    </div>
+                    <div class="flex flex-col text-left w-[70%]">
+                      <p>{{ channel.name }}</p>
+                      <p class="text-xs">{{ channel.description }}</p>
+                    </div>
+                  </div>
+                </o-radio>
+              </div>
+            </div>
+          </template>
         </div>
       </div>
     </section>
@@ -183,13 +262,14 @@ import {
   computed,
   watch,
   onUnmounted,
+  Ref,
 } from "vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import Alert from "components/functional/alert.vue";
 import { useMainStore } from "@/store/main";
 import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 import ReplyIcon from "icons/src/reply.vue";
-import type { TPlatform, IReplyTo } from "shared/src/types/web3-posting";
+import type { TPlatform, IReplyTo, TChannel } from "shared/src/types/web3-posting";
 import ImageUploadIcon from "icons/src/imageUpload.vue";
 import SendIcon from "icons/src/send.vue";
 import ClockIcon from "icons/src/clock.vue";
@@ -199,6 +279,7 @@ import {
   PLATFORMS,
   schedulePost,
   makeSendData,
+  searchChannel,
 } from "shared/src/utils/requests/web3-posting";
 import DeleteIcon from "icons/src/delete.vue";
 import { getMaxCharCount } from "shared/src/utils/requests/crossPost";
@@ -206,6 +287,8 @@ import AvatarBtn from "components/functional/avatarBtn.vue";
 import { ODatetimepicker } from "@oruga-ui/oruga-next";
 import DateIcon from "icons/src/date.vue";
 import GoToIcon from "icons/src/goTo.vue";
+import { wait } from "shared/src";
+import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -223,6 +306,7 @@ export default defineComponent({
     ODatetimepicker,
     DateIcon,
     GoToIcon,
+    ProfileFarcasterIcon,
   },
   props: {
     replyTo: {
@@ -285,11 +369,44 @@ export default defineComponent({
     const maximumDate = new Date(Date.now() + 1000 * 3570 * 24 * 7);
     const minimumDate = new Date(Date.now() + 1000 * 60 * 2);
     const isSheduling = ref(false);
+    const channels = ref([]) as Ref<TChannel[]>;
+    const farcasterChannel = ref(undefined) as Ref<TChannel | undefined | string>;
+    const isChannelSearching = ref(false);
+    const showFcChannel = ref(!!postPlatforms?.value?.includes("farcaster"));
+    let searchString = "";
+
+    const searchChannels = async (value: string) => {
+      searchString = value;
+      if (!value) return;
+      if (isChannelSearching.value) return;
+      await wait(300);
+      if (isChannelSearching.value) return;
+      isChannelSearching.value = true;
+      let result: TChannel[];
+      let searchTerm = "";
+      do {
+        searchTerm = searchString;
+        result = await searchChannel(searchString);
+      } while (searchTerm !== searchString);
+      channels.value = result;
+      isChannelSearching.value = false;
+    };
 
     watch(
       () => postPlatforms.value,
       (newVal) => {
         maxCharCount.value = getMaxCharCount(newVal);
+        showFcChannel.value = !!newVal?.includes("farcaster");
+      }
+    );
+
+    watch(
+      () => farcasterChannel.value,
+      (newVal) => {
+        if (newVal !== undefined && newVal !== "" && !(newVal as TChannel)?.id) {
+          farcasterChannel.value = channels.value.find((c) => c.id === newVal);
+          modalContent.value = "posting";
+        }
       }
     );
 
@@ -335,13 +452,23 @@ export default defineComponent({
 
     const doSendPost = async () => {
       const media = [...images.value];
+      let replyTo: IReplyTo | undefined = undefined;
+      if (props.replyTo) {
+        replyTo = props.replyTo;
+      }
+      if ((farcasterChannel.value as TChannel)?.parent_url) {
+        replyTo = {
+          farcaster: (farcasterChannel.value as TChannel).parent_url,
+        };
+      }
+
       const result = await sendPost({
         store,
         postContent,
         postPlatforms,
         maxCharCount,
         isSendPost,
-        replyTo: props.replyTo || undefined,
+        replyTo,
         media,
         showError,
         stackAlertSuccess,
@@ -359,13 +486,24 @@ export default defineComponent({
       isSheduling.value = true;
       const media = [...images.value];
 
+      let replyTo: IReplyTo | undefined = undefined;
+      if (props.replyTo) {
+        replyTo = props.replyTo;
+      }
+      if ((farcasterChannel.value as TChannel)?.parent_url) {
+        replyTo = {
+          farcaster: (farcasterChannel.value as TChannel).parent_url,
+        };
+      }
+
       const sendData = makeSendData({
         postContent,
         postPlatforms,
         maxCharCount,
         media,
+        replyTo,
         showError,
-        time: dateTime.value
+        time: dateTime.value,
       });
 
       if (!sendData) {
@@ -378,13 +516,19 @@ export default defineComponent({
         store,
         sendData,
       });
-      if (result) {
+      if (result?.ok) {
         ctx.emit("success");
         openCastModal.value = false;
         ctx.emit("update:openModal", false);
         stackAlertSuccess("Post scheduled successfully.");
       } else {
-        stackAlertWarning("Something went wrong, please try again later.");
+        if (result?.error === "insufficient") {
+          stackAlertWarning(
+            "This feature requires you to have at least 1000 YUP tokens."
+          );
+        } else {
+          stackAlertWarning("Something went wrong, please try again later.");
+        }
       }
       isSheduling.value = false;
     };
@@ -432,6 +576,11 @@ export default defineComponent({
       minimumDate,
       doSchedulePost,
       isSheduling,
+      channels,
+      isChannelSearching,
+      searchChannels,
+      farcasterChannel,
+      showFcChannel,
     };
   },
 });
@@ -445,6 +594,15 @@ export default defineComponent({
   color: aliceblue;
   min-height: 25vh;
   min-width: 35vw;
+}
+
+.add-channel {
+  display: flex;
+  height: 90%;
+  flex-direction: column;
+  .o-radio input[type="radio"] {
+    display: none;
+  }
 }
 
 .o-dpck {

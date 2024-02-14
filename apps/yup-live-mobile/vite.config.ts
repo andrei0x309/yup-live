@@ -34,6 +34,7 @@ export default defineConfig({
     build: {
         rollupOptions: {
             // plugins: [nodePolyfills()]
+            external: ['ionic/vue']
         },
         commonjsOptions: {
             transformMixedEsModules: true

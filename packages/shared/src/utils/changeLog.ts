@@ -1,5 +1,19 @@
 export const recentChanges = [
     {
+        date: "10 Feb - 2024",
+        title: "Changes",
+        changes: [
+            'updated deps',
+            'improved error handling',
+            'updated android native deps',
+            'added basic frames',
+            'added basic reposts',
+            'added post to fc channels',
+            'added support for HW back button to close lightbox',
+            'enabled coinbase wallet only for yup live web app'
+        ],
+    },
+    {
         date: "24 January - 2024",
         title: "Changes",
         changes: [

@@ -29,8 +29,8 @@ export default defineComponent({
       localStorage.removeItem('address')
       localStorage.removeItem('account')
       localStorage.removeItem('authToken')
-      localStorage.removeItem('farcaster')
-      localStorage.removeItem('fid')
+      localStorage.removeItem('connected')
+      localStorage.removeItem('weight')
       store.userData = {
         avatar: '',
         account: '',

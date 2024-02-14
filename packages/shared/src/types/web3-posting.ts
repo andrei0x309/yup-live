@@ -13,10 +13,18 @@ export interface IReplyTo {
     farcaster?: {
         fid: string
         hash: string
-    }
-    threads: string
+    } | string
+    threads?: string
 }
 
+export type TChannel = {
+    _id: string
+    id: string
+    name: string
+    image_url: string
+    parent_url: string
+    description: string
+}
 export interface ISendPostData {
     content: string
     platforms: TPlatform[]

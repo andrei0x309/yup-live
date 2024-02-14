@@ -42,6 +42,7 @@ import ClockIcon from 'icons/src/clock.vue'
 
 export default defineComponent({
   name: 'PostERC721',
+  inheritAttrs: false,
   components: {
     VideoPlayer,
     ImagePreview,
@@ -61,7 +62,7 @@ export default defineComponent({
   },
   setup(props) {
     onMounted(() => {
-        console.log(props.post)
+        // console.log(props.post)
     })
 
     return {

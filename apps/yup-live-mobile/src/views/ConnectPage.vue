@@ -370,17 +370,17 @@ const doLogin = (params: Awaited<ReturnType<typeof onSignup>>) => {
         avatar: params?.avatar ?? "",
         authToken: params?.authToken ?? "",
         weight: params?.weight ?? "1",
+        fid: ''
       };
       storage.set("authInfo", JSON.stringify(userAuth));
       mainStore.userData = userAuth;
       mainStore.isLoggedIn = true;
-      getConnected(mainStore, params?._id ?? "").catch((err) => {
+      getConnected(mainStore, userAuth.account,  userAuth.address).catch((err) => {
         console.error("Failed to get connected", err);
       });
       router.replace("/tabs/feeds");
     } catch (error) {
       console.error("Failed to set auth data", error);
-      console.log(router);
     }
   } else {
     window?.localStorage?.clear();

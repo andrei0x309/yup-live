@@ -31,7 +31,6 @@ async function generateUUIDFromString (inputString: string) {
 
 const genInstallationId = async () => {
     const id = await generateUUIDFromString((await Device.getId()).identifier)
-    console.log(id, 'id')
     await storage.set('installationId', id)
     return id
 }

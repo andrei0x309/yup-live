@@ -28,6 +28,7 @@ const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   name: "PostThreads",
+  inheritAttrs: false,
   components: {
     ThreadsPostBody,
   },
@@ -72,6 +73,7 @@ export default defineComponent({
       lensId: "",
       linkPreviews: [] as linkPreviewTypeEx[],
       embeds: [] as Embed[],
+      frames: [] as string[],
       threads: {
         parentPostID: "",
       }

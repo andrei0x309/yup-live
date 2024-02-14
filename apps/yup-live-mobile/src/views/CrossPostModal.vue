@@ -118,6 +118,29 @@
             />
             Add Video
           </button>
+          <button
+                v-show="!replyTo && showFcChannel"
+                class="dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mb-4"
+                @click="
+                  () => {
+                    if (farcasterChannel) {
+                      farcasterChannel = undefined;
+                    } else {
+                      modalContent = 'selectFatscasterChannel';
+                    }
+                  }
+                "
+              >
+                <img
+                  v-if="farcasterChannel"
+                  :src="(typeof farcasterChannel === 'object') ? farcasterChannel.image_url : undefined"
+                  class="w-5 inline mr-2"
+                />
+                <ProfileFarcasterIcon v-else class="w-5 inline mr-2" />
+                {{
+                  farcasterChannel ? "Remove farcaster channel" : "Add farcaster channel"
+                }}
+              </button>
           <div class="flex justify-between">
               <button
                 :disabled="isSendPost"
@@ -159,6 +182,29 @@
               <ion-datetime @ionChange="changeDate" :min="minimumDate.toISOString()" :max="maximumDate.toISOString()" 
               :value="dateTime.toISOString()" display-format="MMM DD, YYYY HH:mm" picker-format="MMM DD, YYYY HH:mm" />
             </section>
+            <button
+                :v-if="!replyTo && showFcChannel"
+                class="w-1/3 ml-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                @click="
+                  () => {
+                    if (farcasterChannel) {
+                      farcasterChannel = undefined;
+                    } else {
+                      modalContent = 'selectFatscasterChannel';
+                    }
+                  }
+                "
+              >
+                <img
+                  v-if="farcasterChannel"
+                  :src="(typeof farcasterChannel === 'object') ? farcasterChannel.image_url : undefined"
+                  class="w-5 inline mr-2"
+                />
+                <ProfileFarcasterIcon v-else class="w-5 inline mr-2" />
+                {{
+                  farcasterChannel ? "Remove farcaster channel" : "Add farcaster channel"
+                }}
+              </button>
             <div class="flex justify-between">
               <button
                 :disabled="isSheduling"
@@ -180,6 +226,40 @@
               </button>
             </div>
           </template>
+          <template v-else-if="modalContent == 'selectFatscasterChannel'">
+            <div class="add-channel">
+            <h2 class="text-lg mb-1 font-medium title-font">Select Farcaster Channel</h2>
+            <p>Search</p>
+            <input
+              id="farcasterChannelSearch"
+              type="text"
+              placeholder="channel name"
+              class="mb-4 rounded p-2 text-[#e0e0e0] bg-stone-800 border-purple-800 border-2 w-full"
+              @input="(e) => {
+                searchChannels((e?.target as any)?.value)
+            }"
+            />
+            <div v-if="channels?.length === 0">
+              <p>No channels found</p>
+            </div>
+            <ion-list v-else class="flex flex-col">
+              <ion-item
+                v-for="channel of channels"
+                :key="channel.id"
+                :native-value="channel.id"
+                @click="farcasterChannel = channel.id"
+              >
+               <div class="flex flex-wrap-reverse w-full">
+                  <div class="w-max-[28%]">
+                    <img class="w-8 h-8 inline rounded-lg mx-4 my-1" :src="channel.image_url" />
+                  </div>
+                    <div class="flex flex-col text-left w-[65%]"><p>{{ channel.name }} </p> 
+                  <p class="text-xs">{{ channel.description }}</p></div>
+                  </div>
+                </ion-item> 
+            </ion-list>
+            </div>
+          </template>
         </div>
       </div>
     </section>
@@ -189,16 +269,24 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref, computed, watch } from "vue";
+import { defineComponent, onMounted, PropType, ref, computed, watch, Ref } from "vue";
+
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import Alert from "components/functional/alert.vue";
 import { useMainStore } from "@/store/main";
 import { stackAlertSuccess, stackAlertWarning } from "@/store/alert-store";
 import ReplyIcon from "icons/src/reply.vue";
-import type { TPlatform, IReplyTo } from "shared/src/types/web3-posting";
+import type { TPlatform, IReplyTo, TChannel } from "shared/src/types/web3-posting";
 import ImageUploadIcon from "icons/src/imageUpload.vue";
 import VideoUploadIcon from "icons/src/videoUpload.vue";
-import { mediaUpload, sendPost, PLATFORMS, schedulePost, makeSendData } from 'shared/src/utils/requests/web3-posting'
+import { 
+  mediaUpload,
+  sendPost,
+  PLATFORMS,
+  schedulePost,
+  makeSendData,
+  searchChannel
+} from 'shared/src/utils/requests/web3-posting'
 import DeleteIcon from "icons/src/delete.vue";
 import AvatarBtn from "components/functional/avatarBtn.vue";
 import { 
@@ -210,14 +298,17 @@ import {
   IonButtons,
   IonButton,
   IonCheckbox,
-  IonDatetime
+  IonDatetime,
+  IonItem,
+  IonList
  } from "@ionic/vue";
  import { getMaxCharCount } from "shared/src/utils/requests/crossPost";
 import DateIcon from "icons/src/date.vue";
 import GoToIcon from "icons/src/goTo.vue";
 import ClockIcon from "icons/src/clock.vue";
 import SendIcon from "icons/src/send.vue";
-
+import { wait } from "shared/src";
+import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -243,7 +334,10 @@ export default defineComponent({
   GoToIcon,
   ClockIcon,
   SendIcon,
-  IonDatetime
+  IonDatetime,
+  ProfileFarcasterIcon,
+  IonItem,
+  IonList
   },
   props: {
     replyTo: {
@@ -321,12 +415,44 @@ export default defineComponent({
     const minimumDate = new Date(Date.now() + 1000 * 60 * 2);
     const isSheduling = ref(false);
     const dateTime = ref(new Date(Date.now() + 1000 * 60 * 5));
+    const channels = ref([]) as Ref<TChannel[]>;
+    const farcasterChannel = ref(undefined) as Ref<TChannel | undefined | string>;
+    const isChannelSearching = ref(false);
+    const showFcChannel = ref(!!postPlatforms?.value?.includes("farcaster"));
+    let searchString = "";
 
+    const searchChannels = async (value: string) => {
+      searchString = value;
+      if (!value) return;
+      if (isChannelSearching.value) return;
+      await wait(300);
+      if (isChannelSearching.value) return;
+      isChannelSearching.value = true;
+      let result: TChannel[]
+      let searchTerm = "";
+      do {
+        searchTerm = searchString;
+        result = await searchChannel(searchString)
+      } while (searchTerm !== searchString);
+      channels.value = result;
+      isChannelSearching.value = false;
+    };
 
     watch(
       () => postPlatforms.value,
       (newVal) => {
-        maxCharCount.value = getMaxCharCount(newVal)
+        maxCharCount.value = getMaxCharCount(newVal);
+        showFcChannel.value = !!newVal?.includes("farcaster");
+      }
+    );
+
+    watch(
+      () => farcasterChannel.value,
+      (newVal) => {
+        if (newVal !== undefined && newVal !== "" && !(newVal as TChannel)?.id) {
+          farcasterChannel.value = channels.value.find((c) => c.id === newVal);
+          modalContent.value = "posting";
+        }
       }
     );
 
@@ -402,6 +528,16 @@ const fileToBase64 = (file: File) => {
     };
 
     const doSendPost = async () => {
+      let replyTo: IReplyTo | undefined = undefined;
+      if (props.replyTo) {
+        replyTo = props.replyTo;
+      }
+      if ((farcasterChannel.value as TChannel)?.parent_url) {
+        replyTo = {
+          farcaster: (farcasterChannel.value as TChannel).parent_url
+        }
+      }
+
       const media = [...images.value, ...videos.value]
       const result = await sendPost({
         store,
@@ -409,7 +545,7 @@ const fileToBase64 = (file: File) => {
         postPlatforms,
         maxCharCount,
         isSendPost,
-        replyTo: props.replyTo || undefined,
+        replyTo,
         media,
         showError,
         stackAlertSuccess,
@@ -426,11 +562,22 @@ const fileToBase64 = (file: File) => {
       isSheduling.value = true;
       const media = [...images.value];
 
+      let replyTo: IReplyTo | undefined = undefined;
+      if (props.replyTo) {
+        replyTo = props.replyTo;
+      }
+      if ((farcasterChannel.value as TChannel)?.parent_url) {
+        replyTo = {
+          farcaster: (farcasterChannel.value as TChannel).parent_url
+        }
+      }
+
       const sendData = makeSendData({
         postContent,
         postPlatforms,
         maxCharCount,
         media,
+        replyTo,
         showError,
         time: dateTime.value
       });
@@ -445,12 +592,16 @@ const fileToBase64 = (file: File) => {
         store,
         sendData,
       });
-      if (result) {
+      if (result?.ok) {
         ctx.emit("success");
         openPostModal.value = false;
         stackAlertSuccess("Post scheduled successfully.");
       } else {
-        stackAlertWarning("Something went wrong, please try again later.");
+        if(result?.error === 'insufficient') {
+          stackAlertWarning("This feature requires you to have at least 1000 YUP tokens.");
+        } else {
+          stackAlertWarning("Something went wrong, please try again later.");
+        }
       }
       isSheduling.value = false;
     };
@@ -467,7 +618,6 @@ const fileToBase64 = (file: File) => {
       } else {
         postPlatforms.value = postPlatforms.value.filter((p) => p !== platform)
       }
-      console.log(postPlatforms.value)
     };
 
     onMounted(() => {
@@ -511,7 +661,11 @@ const fileToBase64 = (file: File) => {
       isSheduling,
       dateTime,
       doSchedulePost,
-      changeDate
+      changeDate,
+      searchChannels,
+      channels,
+      farcasterChannel,
+      showFcChannel
     };
   },
 });

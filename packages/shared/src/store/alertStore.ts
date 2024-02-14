@@ -15,7 +15,6 @@ let alertStack: AlertStorType
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const stackAlert = ({ message, type, update, router }: { message: string; type: string, update?: boolean, router?: any }) => {
-  console.log('stackAlert', { message, type, update })
   if (alertStack && alertStack.alertStack.length < 4) {
     const id = crypto.randomUUID()
     if (update && router) {

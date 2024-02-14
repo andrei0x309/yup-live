@@ -5,6 +5,7 @@ export interface IStoreUserData {
   authToken: string
   avatar: string
   weight: number
+  fid: string
   connected?: {
     farcaster: boolean
     twitter: boolean

@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div v-if="processed">
     <div v-if="postType === 'single' || full" ref="postWrap" class="p-2">
-      <FarcasterPostBody :replyComp="replyComp" :mainPost="mainPost" :postId="post.id" />
+      <FarcasterPostBody :replyComp="replyComp" :mainPost="mainPost" :postId="post.id"  :deps="deps" />
     </div>
     <div v-else ref="postWrap" class="p-2">
       <FarcasterPostBody
@@ -11,8 +11,9 @@
         :postId="post.id"
         :isReply="true"
         :fetchComments="true"
+        :deps="deps"
       />
-      <FarcasterPostBody :replyComp="replyComp" :mainPost="replyPost" :postId="post.id" />
+      <FarcasterPostBody :replyComp="replyComp" :mainPost="replyPost" :postId="post.id"  :deps="deps" />
     </div>
   </div>
 </template>
@@ -22,12 +23,13 @@ import { getPostType } from "shared/src/utils/misc";
 import type { Embed, mediaType } from "shared/src/types/post";
 import { normalizePost } from "shared/src/utils/post";
 import FarcasterPostBody from "./inner/farcasterPostBody.vue";
-import type { IPost, PostBodyProcessed, linkPreviewTypeEx } from "shared/src/types/post";
+import type { IPost, PostBodyProcessed, linkPreviewTypeEx, IPostDeps } from "shared/src/types/post";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   name: "PostFarcaster",
+  inheritAttrs: false,
   components: {
     FarcasterPostBody,
   },
@@ -53,11 +55,16 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    deps: {
+      type: Object as PropType<IPostDeps>,
+      default: () => ({}),
+    },
   },
   setup(props) {
     // const store = useMainStore()
 
     const postWrap = ref(null);
+    const processed = ref(false);
     const postType = ref("single");
 
     const userObject = {
@@ -72,6 +79,7 @@ export default defineComponent({
       lensId: "",
       linkPreviews: [] as linkPreviewTypeEx[],
       embeds: [] as Embed[],
+      frames: [],
       farcaster: {
         fid: 0,
         hash: "",
@@ -101,12 +109,14 @@ export default defineComponent({
           break;
         }
       }
+      processed.value = true;
     });
     return {
       postWrap,
       mainPost,
       replyPost,
       postType,
+      processed
     };
   },
 });

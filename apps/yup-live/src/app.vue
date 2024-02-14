@@ -50,9 +50,9 @@ export default defineComponent({
       try {
         setTimeout(() => {
           updateNotify({
-        stackAlertSuccess,
-        router
-        });
+            stackAlertSuccess,
+            router,
+          });
         }, 1000);
         if (!isBot && !isOnLocalhost) {
           const access = await checkAccess();
@@ -95,7 +95,7 @@ export default defineComponent({
           mainStore.userData.avatar = localStorage.getItem("avatar") || "";
           mainStore.userData.weight = Number(localStorage.getItem("weight")) || 1;
           mainStore.userData.authToken = localStorage.getItem("authToken") || "";
-          getConnected(mainStore, mainStore.userData.account);
+          getConnected(mainStore, mainStore.userData.account, mainStore.userData.address);
           mainStore.isLoggedIn = true;
           collectionStore.collectionsPromise = getCollections(
             collectionStore,

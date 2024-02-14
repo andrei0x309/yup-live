@@ -35,6 +35,7 @@ import VideoPlayer from 'components/post/videoPlayer.vue'
 
 export default defineComponent({
   name: 'PostGeneral',
+  inheritAttrs: false,
   components: {
     VideoPlayer,
     ImagePreview,

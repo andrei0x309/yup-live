@@ -90,8 +90,6 @@ export default defineComponent({
     const messageLocal = ref(props.message)
     const typeLocal = ref(props.type)
     const timeoutLocal = ref(props.timeout)
-
-    console.log('Alert', props)
  
     const close = () => {
       ctx.emit('close', props.id)

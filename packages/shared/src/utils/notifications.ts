@@ -56,6 +56,7 @@ export const getNotifications = async (
 
 export const getNotificationsCount = async (address: string) => {
     try {
+        if (!address) return { notNum: 0, hasNewNot: false, notDisplay: '0' }
     const req = await fetch(`${API_BASE}/web3-notifications/${address}`)
 
     if (req.status === 200) {

@@ -38,6 +38,7 @@ const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 export default defineComponent({
   name: "PostBsky",
   components: { BskyPostBody },
+  inheritAttrs: false,
   props: {
     post: {
       required: false,
@@ -78,6 +79,7 @@ export default defineComponent({
       lensId: "",
       linkPreviews: [] as linkPreviewTypeEx[],
       embeds: [] as Embed[],
+      frames: [],
       bsky: {
         uri: "",
       }
