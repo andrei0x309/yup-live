@@ -1,5 +1,14 @@
 export const recentChanges = [
     {
+        date: "17 Feb - 2024",
+        title: "Changes",
+        changes: [
+            'minor frame changes',
+            'minor design changes',
+            'linkify URLs in posts',
+        ],
+    },
+    {
         date: "10 Feb - 2024",
         title: "Changes",
         changes: [

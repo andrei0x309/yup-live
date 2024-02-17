@@ -124,7 +124,11 @@ export const getVideoTypeFromUrl = (url: string) => {
 export const isProbablyPage = (url: string) => {
   const splists = url.split('/')
   const last = splists[splists.length - 1]
+  if (url.startsWith('chain:')) return true
   const isPageExtension = last.includes('html') || last.includes('htm') || last.includes('#')
+  const dotCount = (url.match(/\./g) || []).length;
+  if (dotCount === 1) return true
+  if (last.includes('.eth')) return true
   return (!last.includes('.') && last.length > 1) || isPageExtension
 }
 
@@ -135,6 +139,10 @@ export const digestSha256 = async (message: string) => {
   const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   return hashHex;
 };
+
+export const linkify = (text: string) => {
+  return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+}
 
 export const deRef = <T> (ref: Ref<T>): T => {
   return (ref as any)._rawValue

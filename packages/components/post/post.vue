@@ -463,7 +463,7 @@ div.w3TweetTypeBody {
   }
 
   a {
-    border-bottom: 1px solid rgba(184, 184, 184, 0.096);
+    border-bottom: 1px solid rgb(255 208 68 / 40%);
   }
   a:hover {
     filter: brightness(1.1);

@@ -1,6 +1,6 @@
 import type { IPost, IProcessedPost, IRPostShareInfo, PostBodyProcessed, linkPreviewTypeEx, mediaType, Embed } from 'shared/src/types/post'
 import type { Web3Media } from 'shared/src/types/web3/media'
-import { isImage, isVideo, isProbablyPage } from 'shared/src/utils/misc'
+import { isImage, isVideo, isProbablyPage, linkify } from 'shared/src/utils/misc'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
 // import MD from 'markdown-it'
 
@@ -50,7 +50,7 @@ const parseBody = (text: string, linkPreviews: linkPreviewTypeEx[]) => {
     linkPreviews.forEach((e) => {
         text = text.replace(e.url, '')
     })
-    return text
+    return linkify(text)
 }
 
 const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], embeds: Embed[], postTag?: string) => {
@@ -107,6 +107,18 @@ const parseEmbeds = (content: string) => {
     const regexYoutube = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+?)( |\n|\t|$)/g
     const regexSpotify = /(?:https?:\/\/)?(?:www\.)?(?:open\.spotify\.com)\/(?:track)\/(.+)/g
 
+    // const regexWarpcast = /(?:https?:\/\/)?(?:www\.)?(?:warpcast\.com)\/(.?)/g
+
+    // const regexLens = /(?:https?:\/\/)?(?:www\.)?(?:hey\.xyz)\/(.?)/g
+
+    // const regexTwitter = /(?:https?:\/\/)?(?:www\.)?(?:twitter\.com)\/(.?)/g
+
+    // const regexX = /(?:https?:\/\/)?(?:www\.)?(?:x\.com)\/(.?)/g
+
+    // const regexTco = /(?:https?:\/\/)?(?:www\.)?(?:t\.co)\/(.?)/g
+
+
+
     const youtubeMatch = content.match(regexYoutube)
     const spotifyMatch = content.match(regexSpotify)
 
@@ -123,6 +135,47 @@ const parseEmbeds = (content: string) => {
             url: spotifyMatch[0]?.trim()
         })
     }
+
+    // const warpcastMatch = content.match(regexWarpcast)
+    // if (warpcastMatch) {
+    //     embeds.push({
+    //         type: 'farcaster',
+    //         url: warpcastMatch[0]
+    //     })
+    // }
+
+    // const lensMatch = content.match(regexLens)
+    // if (lensMatch) {
+    //     embeds.push({
+    //         type: 'lens',
+    //         url: lensMatch[0]
+    //     })
+    // }
+
+    // const twitterMatch = content.match(regexTwitter)
+    // if (twitterMatch) {
+    //     embeds.push({
+    //         type: 'twitter',
+    //         url: twitterMatch[0]
+    //     })
+    // }
+
+    // const xMatch = content.match(regexX)
+    // if (xMatch) {
+    //     embeds.push({
+    //         type: 'twitter',
+    //         url: xMatch[0]
+    //     })
+    // }
+
+    // const tcoMatch = content.match(regexTco)
+    // if (tcoMatch) {
+    //     embeds.push({
+    //         type: 'twitter',
+    //         url: tcoMatch[0]
+    //     })
+    // }
+
 
     return { embeds, content }
 }

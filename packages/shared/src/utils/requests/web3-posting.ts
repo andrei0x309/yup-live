@@ -294,7 +294,7 @@ export const postFrameAction = async (
     }) => {
     try {
 
-        const req = await fetchWAuth(store, `${apiBase}/farcaster/frame-packet-action`, {
+        const req = await fetchWAuth(store, `${'https://fstun.flashsoft.eu'}/farcaster/frame-packet-action`, {
             body: JSON.stringify(sendData),
             method: 'POST'
         })
@@ -402,46 +402,32 @@ export const getInitialFrame = async (url: string) => {
     const buttons: any = []
     metaTags.map((metaTag: any) => {
         const property = metaTag.property ?? metaTag.name
+        const content = metaTag.content
         if (property === 'fc:frame') {
-            frameRes.version = metaTag.content
+            frameRes.version = content
         } else if (property === 'fc:frame:image') {
-            frameRes.imageUrl = metaTag.content
+            frameRes.imageUrl = content
         } else if (property === 'fc:frame:post_url') {
-            frameRes.postUrl = metaTag.content
+            frameRes.postUrl = content
         } else if (property === 'og:image' && !frameRes.imageUrl) {
-            frameRes.imageUrl = metaTag.content
+            frameRes.imageUrl = content
         } else if (property === 'fc:frame:input:text') {
-            frameRes.inputText = metaTag.content
+            frameRes.inputText = content
         } else if (property?.startsWith('fc:frame:button')) {
             const tokens = property.split(':')
             const index = Number(tokens?.[3])
             const forthToken = tokens?.[4]?.trim()
-            if (tokens?.length === 4) {
-                if (!buttons?.find((b: any) => b?.index === index)) {
-                    buttons[index] = { index, title: metaTag.content, type: 'post' }
-                } else {
-                    if (forthToken === 'target') {
-                        buttons[index] = { ...buttons[index], index: (index || undefined), target: metaTag.content }
-                    } else if (forthToken === 'action') {
-                        buttons[index] = { ...buttons[index], index: (index || undefined), type: metaTag.content }
-                    }
+            if (!buttons?.find((b: any) => b?.index === index)) {
+                buttons[index] = { index, title: content, type: forthToken ?? 'post' }
+            } else {
+                if (forthToken === 'target') {
+                    buttons[index] = { ...buttons[index], index: (index || undefined), target: content }
+                } else if (forthToken === 'action') {
+                    buttons[index] = { ...buttons[index], index: (index || undefined), type: content }
                 }
             }
         } else if (property?.startsWith('redirectUrl')) {
-            frameRes.redirectUrl = metaTag.content
-        }
-    })
-
-    metaTags.map((metaTag: any) => {
-        const property = metaTag.property ?? metaTag.name
-        if (property?.startsWith('fc:frame:button')) {
-            const tokens = property.split(':')
-            const index = tokens[3]
-            if (tokens.length > 4) {
-                if (buttons[index]) {
-                    buttons[index].type = metaTag.content
-                }
-            }
+            frameRes.redirectUrl = content
         }
     })
 

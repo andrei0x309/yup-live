@@ -3,7 +3,7 @@
     v-if="!isError"
     ref="videoPlayer"
     :key="videoSource"
-    class="w-full rounded-t-lg md:min-w-[24rem] video-js"
+    class="w-full rounded-t-lg md:min-w-[24rem] max-h-[24rem] video-js"
     controls
     playsinline
     preload="auto"

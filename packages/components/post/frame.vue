@@ -7,6 +7,7 @@
     <div class="flex flex-col">
       <ImagePreview
         :source="[frameImage]"
+        :key="frameImage"
         imgClass="min-h-[14rem] rounded-lg"
         :noPreviewParagraph="true"
         :noLightbox="true"
@@ -111,8 +112,8 @@ export default defineComponent({
     const inputText = ref("") as Ref<string>;
     const secondLoading = ref(false) as Ref<boolean>;
     const sendData = {
-      castFid: 0,
-      castHash: '',
+      castFid: Number(props.castDep.fid),
+      castHash: props.castDep.hash,
       inputText: undefined,
     } as {
       url: string;
@@ -125,14 +126,14 @@ export default defineComponent({
     const loadFrame = async (url: string, secLoad = false, frame?: any ) => {
       if (!secLoad) {
         frame = await getInitialFrame(url);
+        console.log(frame, 'frame')
       }
       canInteractWithFrame.value = store?.userData?.connected?.farcaster || false;
       frameImage.value = sanitizeFrameImage(frame?.imageUrl)
       textInput.value = !!frame?.textInput;
       textPlaceholder.value = frame?.inputText || "";
-      sendData.url = frame?.postUrl || "";
+      sendData.url = frame?.postUrl || url || "";
       buttons.value = frame?.buttons || [];
-      sendData.castFid = Number(store?.userData?.fid || 0)
       if (frame?.imageUrl && sendData.url) isLoadedFrame.value = true;
     };
 
@@ -148,6 +149,7 @@ export default defineComponent({
 
       if(isRedirectBtn(button) && button?.target) {
         window.open(button.target, "_blank");
+        secondLoading.value = false;
         return;
       }
 
@@ -165,6 +167,7 @@ export default defineComponent({
 
       if(isRedirectBtn(button) && frame?.redirectUrl) {
         window.open(frame?.redirectUrl, "_blank");
+        secondLoading.value = false;
         return;
       }
       await loadFrame(''
@@ -181,6 +184,7 @@ export default defineComponent({
     onMounted(() => {
       store = props?.deps?.useMainStore?.();
       sendData.castHash = props.castDep.hash;
+      sendData.castFid = Number(props.castDep.fid);
       loadFrame(props.url);
     });
 
