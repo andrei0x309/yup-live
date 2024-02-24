@@ -264,6 +264,7 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
     }
     postBuilder.threads.parentPostID = fullPost?.web3Preview?.meta?.parentPostId ?? ''
     postBuilder.crossPostGroup = fullPost?.crossPostGroup ?? {}
+    postBuilder.qoutedPost = fullPost?.web3Preview?.meta?.quotedPost ?? null
 
     return postBuilder
 }

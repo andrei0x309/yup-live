@@ -69,6 +69,56 @@ export const submitPost = async ({
     }
 }
 
+export const submitThread = async ({
+    store,
+    apiBase,
+    sendData
+}: {
+    store: IMainStore
+    apiBase: string
+    sendData: {
+        posts: ISendPostData[]
+        platforms: TPlatform[]
+    }
+}
+) => {
+    try {
+        const req = await fetchWAuth(store, `${apiBase}/web3-post/thread`, {
+            method: 'POST',
+            body: JSON.stringify(sendData)
+        })
+        const data = await req.json()
+        if (!req.ok) {
+            if (data?.message.toLowerCase().includes('balance') || data?.message.toLowerCase().includes('insufficient')) {
+                return { error: true, insufficientError: true }
+            }
+            console.error('Error submitting post: ', req.statusText)
+            const status = data?.status
+            if (!status) return null
+            const failed = [] as string[]
+            const statusPlatforms = Object.entries(status)
+            for (const [key, value] of statusPlatforms) {
+                if (!(value as { ok: boolean })?.ok) {
+                    failed.push(key)
+                }
+            }
+
+            if (failed.length === statusPlatforms.length) return null
+
+            retryPost({ taskId: data.taskId, store, apiBase })
+            return {
+                error: true,
+                partial: true,
+                platforms: failed
+            }
+        }
+        return data
+    } catch (e) {
+        console.error('Submit Post: ', e)
+        return null
+    }
+}
+
 export const deletePost = async ({
     store,
     apiBase,
@@ -121,26 +171,26 @@ export const makeSendData = (
         time
     }: {
         replyTo?: IReplyTo
-            postContent: Ref<string>
-            postPlatforms: Ref<TPlatform[]>
+            postContent: string,
+            postPlatforms?: TPlatform[]
             media: Record<string, unknown>[]
             showError?: (message: string) => void
-        maxCharCount: Ref<number>
+            maxCharCount: number
         time?: Date
     }
 ) => {
 
-    if (!postContent.value) {
+    if (!postContent) {
         showError && showError("Post must have some content");
         return;
-    } else if (postContent.value.length > maxCharCount.value) {
-        showError && showError(`Post cannot be longer than ${maxCharCount.value} characters`);
+    } else if (postContent.length > maxCharCount) {
+        showError && showError(`Post cannot be longer than ${maxCharCount} characters`);
         return;
     }
 
     const sendData = {
-        content: postContent.value,
-        platforms: postPlatforms.value,
+        content: postContent,
+        platforms: postPlatforms ? postPlatforms : undefined,
         media: media.map((media: Record<string, unknown>) => {
             const ret = {} as Record<string, unknown>
             if (media.farcaster) ret['farcaster'] = media.farcaster
@@ -176,10 +226,10 @@ export const sendPost = async ({
     maxCharCount
 }: {
     replyTo?: IReplyTo
-    postContent: Ref<string>
-    maxCharCount: Ref<number>
+        postContent: string
+        maxCharCount: number
     isSendPost: Ref<boolean>
-    postPlatforms: Ref<TPlatform[]>
+        postPlatforms: TPlatform[]
     media: Record<string, unknown>[]
     store: IMainStore
     stackAlertSuccess?: (message: string) => void,
@@ -259,10 +309,10 @@ export const deleteScheduledTask = async ({ store, apiBase, taskId, isTread }: {
 }
 
 export const schedulePost = async (
-    { store, apiBase, sendData }:
-        { store: IMainStore, apiBase: string, sendData: ISendPostData }) => {
+    { store, apiBase, sendData, isThread = false }:
+        { store: IMainStore, apiBase: string, sendData: ISendPostData | { posts: (ISendPostData | undefined)[]; platforms: TPlatform[]; time: number; replyTo?: IReplyTo } | undefined, isThread: boolean }) => {
     try {
-        const req = await fetchWAuth(store, `${apiBase}/web3-post/schedule`, {
+        const req = await fetchWAuth(store, `${apiBase}/web3-post/schedule${isThread ? '/thread' : ''}`, {
             body: JSON.stringify(sendData),
             method: 'POST'
         })
@@ -294,7 +344,7 @@ export const postFrameAction = async (
     }) => {
     try {
 
-        const req = await fetchWAuth(store, `${'https://fstun.flashsoft.eu'}/farcaster/frame-packet-action`, {
+        const req = await fetchWAuth(store, `${apiBase}/farcaster/frame-packet-action`, {
             body: JSON.stringify(sendData),
             method: 'POST'
         })
@@ -436,3 +486,70 @@ export const getInitialFrame = async (url: string) => {
         buttons: buttons.filter((b: any) => b)
     }
 }
+
+export const sendThread = async ({
+    replyTo,
+    isSendPost,
+    store,
+    stackAlertSuccess,
+    stackAlertWarning,
+    showError,
+    posts,
+}: {
+    replyTo?: IReplyTo
+    isSendPost: Ref<boolean>
+    store: IMainStore
+    stackAlertSuccess?: (message: string) => void,
+    stackAlertWarning?: (message: string) => void,
+    showError?: (message: string) => void
+    posts: {
+        postContent: string
+        maxCharCount: number
+        media: Record<string, unknown>[]
+        postPlatforms: TPlatform[]
+    }[]
+}) => {
+    isSendPost.value = true;
+
+    let index = 0;
+    const sendDataPosts = posts.map((post) => {
+        index++;
+        return makeSendData({
+            replyTo: index === 1 ? replyTo : undefined,
+            postContent: post.postContent,
+            media: post.media,
+            showError,
+            maxCharCount: post.maxCharCount
+        })
+    }) as ISendPostData[]
+
+
+    if (!sendDataPosts || !sendDataPosts.length) return
+    const sendData = {
+        posts: sendDataPosts,
+        platforms: posts?.[0]?.postPlatforms
+    }
+
+    const result = await submitThread({
+        store,
+        apiBase: API_BASE,
+        sendData
+    });
+
+    isSendPost.value = false;
+
+    if (result && !result.error) {
+        stackAlertSuccess && stackAlertSuccess("Thread sent!");
+    } else if (result.error && result.insufficientError) {
+        showError && showError("Insufficient yup balance to access sending threads feature");
+        return false
+    }
+    else if (result && result.partial) {
+        const failed = result.platforms.join(", ");
+        stackAlertWarning && stackAlertWarning("Thread sent to all platforms except " + failed + "One retry will be attempted automatically.");
+    } else {
+        showError && showError("Thread failed to send to all platforms");
+        return false;
+    }
+    return true
+};

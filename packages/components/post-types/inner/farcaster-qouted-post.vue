@@ -29,7 +29,10 @@
           <VerifiedIcon v-if="mainPost.verified" class="verIcon"
         /></span>
       </div>
-      <span v-if="Object.keys(mainPost.crossPostGroup ?? {})?.length > 1" class="mCrossIcon">
+      <span
+        v-if="Object.keys(mainPost.crossPostGroup ?? {})?.length > 1"
+        class="mCrossIcon"
+      >
         <CrossIconGroup :post="mainPost" />
       </span>
       <span v-else class="flex mfavIco ml-auto">
@@ -71,10 +74,12 @@
 
         <ExternalEmbeds v-if="mainPost?.embeds?.length" :embeds="mainPost.embeds" />
 
-        <Frame v-for="frameUrl of mainPost?.frames ?? []" :url="frameUrl" :deps="deps" :castDep="castDep" />
-
-        <FarcasterQoutedPost v-if="mainPost?.qoutedPost" :mainPost="(localQoutedPost as PostBodyProcessed)" :postId="(localQoutedPost as PostBodyProcessed)?.postId"  :deps="deps" />
-
+        <Frame
+          v-for="frameUrl of mainPost?.frames ?? []"
+          :url="frameUrl"
+          :deps="deps"
+          :castDep="castDep"
+        />
       </div>
     </div>
     <span
@@ -85,22 +90,6 @@
         {{ mainPost.createdAt }}
       </p>
     </span>
-    <div class="flex">
-      <!-- <router-link v-if="(numComments ?? 0) > 1" :to="`/post/${mainPost?.postId}`">
-    <ComentsIcon class="inline-block w-5 mr-2" />{{ numComments - 1 }}</router-link> -->
-      <component
-        v-if="replyComp"
-        :platforms="['farcaster']"
-        :is="replyComp"
-        :showReplyButton="true"
-        :replyTo="{
-          farcaster: {
-            fid: String(mainPost.farcaster?.fid),
-            hash: mainPost.farcaster?.hash,
-          },
-        }"
-      />
-    </div>
   </div>
 </template>
 
@@ -123,8 +112,6 @@ import type { IPostDeps } from "shared/src/types/post";
 import { useRouter } from "vue-router";
 import CrossIconGroup from "components/post-types/misc/crossicon-group.vue";
 import Frame from "components/post/frame.vue";
-import FarcasterQoutedPost from "components/post-types/inner/farcaster-qouted-post.vue";
-import { normalizePost } from "shared/src/utils/post";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE as string;
 
@@ -142,7 +129,6 @@ export default defineComponent({
     LinkPreview,
     CrossIconGroup,
     Frame,
-    FarcasterQoutedPost
   },
   props: {
     mainPost: {
@@ -173,8 +159,10 @@ export default defineComponent({
   setup(props) {
     const numComments = ref(0);
     const router = useRouter();
-    const castDep = props.mainPost?.farcaster as unknown as { hash: string; fid: string };
-    const localQoutedPost = ref(props.mainPost?.qoutedPost ? normalizePost(props.mainPost?.qoutedPost) : null);
+    const castDep = (props.mainPost?.farcaster as unknown) as {
+      hash: string;
+      fid: string;
+    };
 
     const goToCreator = () => {
       if (props.mainPost.userAddress) {
@@ -201,7 +189,6 @@ export default defineComponent({
       numComments,
       goToCreator,
       castDep,
-      localQoutedPost
     };
   },
 });

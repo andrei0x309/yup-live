@@ -41,6 +41,10 @@ export default defineComponent({
     const isMobile = false
 
     const internalErrors: { [key: string]: { code: string; message: string } } = {
+      '403': {
+        code: '403',
+        message: 'forbidden'
+      },
       '404': {
         code: '404',
         message: 'page not found'
@@ -56,8 +60,8 @@ export default defineComponent({
     const message = internalErrors[code] ? internalErrors[code].message : 'Unknown error'
 
     const siteData = reactive({
-      title: `YUP Live - Error Code - ${internalErrors[code].code}`,
-      description: `Live voting data for YUP DApp...`
+      title: `YUP Live - Error Code - ${code}`,
+      description: `YUP Live - Error Code - ${code}`,
     })
 
     const goHome = () => {

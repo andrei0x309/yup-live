@@ -197,6 +197,7 @@ export interface PostBodyProcessed {
     [key: string]: string
   }
   frames: string[]
+  qoutedPost?: IPost
 }
 
 export type Embed = {

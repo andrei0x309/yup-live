@@ -217,4 +217,23 @@ const router = createRouter({
   routes
 })
 
+const allowedFids = [1791]
+
+router.beforeEach((to, from, next) => {
+  if (to.path.startsWith('/raw-influence') || to.path.startsWith('/rewards')) {
+    try {
+      const conected = JSON.parse(localStorage.getItem('connected') || '{}')
+      if (!conected.farcaster) {
+        next({ path: '/error/code/403' })
+      }
+    } catch {
+      next({ path: '/error/code/403' })
+    }
+    if (Number(localStorage.getItem('fid')) && !allowedFids.includes(Number(localStorage.getItem('fid')))) {
+      next({ path: '/error/code/403' })
+    }
+  }
+  next()
+})
+
 export { routes, router }

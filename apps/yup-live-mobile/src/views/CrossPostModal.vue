@@ -46,7 +46,8 @@
               title="Error"
               :type="postErrorType"
               class="mb-4"
-            />
+            /></div>
+            <div v-for="(post, index) in posts" :key="index">
             <AvatarBtn :useMainStore="useMainStore" class="mr-2" style="width: 2.3rem; height: 2.3rem; margin: auto" />
             <label
               for="castField"
@@ -56,31 +57,33 @@
             <textarea
               ref="txtEl"
               id="castField"
-              v-model="postContent"
+              v-model="post.postContent"
               class="txt-box w-full bg-stone-200 text-gray-800 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
+              @input="() => {
+                postContentCharCount[index] = post.postContent.length;
+              }"
             >
             </textarea>
-            <small>Character limit: {{ postContentCharCount }} / {{ maxCharCount }}</small>
-          </div>
-          <div v-if="images.length" class="flex">
-            <div v-for="image of images" :key="image.id" class="flex flex-col items-center">
+            <small>Character limit: {{ postContentCharCount[index] }} / {{ maxCharCount }}</small>
+          <div v-if="post.images.length" class="flex">
+            <div v-for="image of post.images" :key="image.id" class="flex flex-col items-center">
               <img :src="image.img" class="w-18 h-18 mx-2" />
               <button
                 class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
-                @click="deleteImage(image.id)"
+                @click="deleteImage(image.id, index)"
               >
                 <DeleteIcon class="inline w-6" />
               </button>
             </div>
           </div>
-          <div v-if="videos.length" class="flex">
-            <div v-for="video of videos" :key="video.id" class="flex flex-col items-center">
+          <div v-if="post.videos.length" class="flex">
+            <div v-for="video of post.videos" :key="video.id" class="flex flex-col items-center">
               <video class="w-18 h-18 mx-2" controls>
                 <source :src="video.source" :type="video.type">
               </video>
               <button
                 class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
-                @click="deleteVideo(video.id)"
+                @click="deleteVideo(video.id, index)"
               >
                 <DeleteIcon class="inline w-6" />
               </button>
@@ -91,33 +94,57 @@
             type="file"
             style="display: none"
             accept="image/*" 
-            @change="onFileUpload"
+            @change="(f) => onFileUpload(f, index)"
           />
           <input
             ref="videoFileInput"
             type="file"
             style="display: none"
             accept="video/*" 
-            @change="onVideoFileUpload"
+            @change="(f) => onVideoFileUpload(f, index)"
           />
+          <div class="flex justify-between">
           <button
-            class="bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-            @click="triggerFileInput"
+            class="w-1/2 mr-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+            @click="triggerFileInput(index)"
           >
-            <BtnSpinner v-if="isFileUploading" class="inline mr-2" /><ImageUploadIcon
-              class="inline mr-2"
+            <BtnSpinner v-if="isFileUploading" class="inline mr-2 w-4" /><ImageUploadIcon
+              class="inline mr-2 w-4"
             />
             Add Image
           </button>
           <button
-            class="bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-            @click="triggerVideoFileInput"
+            class="w-1/2 ml-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+            @click="triggerVideoFileInput(index)"
           >
-            <BtnSpinner v-if="isVideoUploading" class="inline mr-2" /><VideoUploadIcon
-              class="inline mr-2 w-8"
+            <BtnSpinner v-if="isVideoUploading" class="inline mr-2 w-4" /><VideoUploadIcon
+              class="inline mr-2 w-4"
             />
             Add Video
           </button>
+          </div>
+        </div>
+        <div class="flex justify-between mb-4">
+        <button
+                :disabled="isSendPost"
+                class="w-1/2 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+                @click="addToThread"
+              >
+                <BtnSpinner v-if="isSendPost" class="inline w-4 mr-2" /><AddIcon
+                  class="w-4 inline mr-2"
+                /> {{  posts.length > 1 ? 'Add new post to Thread' : 'Create Thread' }}
+              </button>
+              <button
+                v-if="posts.length > 1"
+                :disabled="isSendPost"
+                class="w-1/2 ml-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+                @click="substractFromThread"
+              >
+                <BtnSpinner v-if="isSendPost" class="inline w-4 mr-2" /><SubstractIcon
+                  class="w-4 inline mr-2"
+                /> {{  posts.length  === 2 ? 'Convert To single Post' : 'Remove post from Thread' }}
+              </button>
+          </div>
           <button
                 v-show="!replyTo && showFcChannel"
                 class="dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mb-4"
@@ -144,20 +171,20 @@
           <div class="flex justify-between">
               <button
                 :disabled="isSendPost"
-                class="text-[0.9rem] w-1/2 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                class="text-[0.85rem] w-1/2 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
                 @click="modalContent = 'scheduling'"
               >
-                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><ClockIcon
-                  class="w-3 inline mr-2"
+                <BtnSpinner v-if="isSendPost" class="inline w-4 mr-2" /><ClockIcon
+                  class="w-4 inline mr-2"
                 />Schedule
               </button>
               <button
                 :disabled="isSendPost"
-                class="text-[0.9rem] w-1/2 ml-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                class="text-[0.85rem] w-1/2 ml-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
                 @click="doSendPost"
               >
-                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SendIcon
-                  class="w-3 inline mr-2"
+                <BtnSpinner v-if="isSendPost" class="w-4 inline mr-2" /><SendIcon
+                  class="w-4 inline mr-2"
                 />Send
               </button>
             </div>
@@ -269,14 +296,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref, computed, watch, Ref } from "vue";
+import { defineComponent, onMounted, PropType, ref, reactive, watch, Ref } from "vue";
 
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import Alert from "components/functional/alert.vue";
 import { useMainStore } from "@/store/main";
 import { stackAlertSuccess, stackAlertWarning } from "@/store/alert-store";
 import ReplyIcon from "icons/src/reply.vue";
-import type { TPlatform, IReplyTo, TChannel } from "shared/src/types/web3-posting";
+import type { TPlatform, IReplyTo, TChannel, ISendPostData } from "shared/src/types/web3-posting";
 import ImageUploadIcon from "icons/src/imageUpload.vue";
 import VideoUploadIcon from "icons/src/videoUpload.vue";
 import { 
@@ -285,7 +312,8 @@ import {
   PLATFORMS,
   schedulePost,
   makeSendData,
-  searchChannel
+  searchChannel,
+  sendThread
 } from 'shared/src/utils/requests/web3-posting'
 import DeleteIcon from "icons/src/delete.vue";
 import AvatarBtn from "components/functional/avatarBtn.vue";
@@ -309,6 +337,8 @@ import ClockIcon from "icons/src/clock.vue";
 import SendIcon from "icons/src/send.vue";
 import { wait } from "shared/src";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
+import AddIcon from "icons/src/add.vue";
+import SubstractIcon from "icons/src/substract.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -337,7 +367,9 @@ export default defineComponent({
   IonDatetime,
   ProfileFarcasterIcon,
   IonItem,
-  IonList
+  IonList,
+  AddIcon,
+  SubstractIcon
   },
   props: {
     replyTo: {
@@ -374,8 +406,6 @@ export default defineComponent({
   emits: ["success", "update:openModal"],
   setup(props, ctx) {
     const openPostModal = ref(props.openModal);
-    const postContent = ref(props.shareLink ? ` ${props.shareLink}` : "");
-    const postContentCharCount = computed(() => postContent.value.length);
     const postError = ref("");
     const postErrorKey = ref(0);
     const postErrorType = ref("error");
@@ -386,25 +416,34 @@ export default defineComponent({
     );
     const postPlatforms = ref(props.platforms.filter((p) => userPlatforms.includes(p)));
     const isFileUploading = ref(false);
-    const fileInput = ref<HTMLInputElement | null>(null);
-    const images = ref<{
-      twiter: string,
-      farcaster: string,
-      lens: string,
-      img : string
-      id: string
-    }[]>([]);
 
-    const videoFileInput = ref<HTMLInputElement | null>(null);
     const isVideoUploading = ref(false);
-    const videos = ref<{
-      twiter: string,
-      farcaster: string,
-      lens: string,
-      source : string
-      id: string
-      type: string
-    }[]>([]);
+ 
+    const posts = reactive([{
+      images: [] as {
+        twiter: string;
+        farcaster: string;
+        lens: string;
+        bsky: string;
+        img: string;
+        id: string;
+      }[],
+      videos: [] as {
+        twiter: string;
+        farcaster: string;
+        lens: string;
+        bsky: string;
+        source: string;
+        id: string;
+        type: string;
+      }[],
+      fileInput: null as HTMLInputElement | null,
+      videoFileInput: null as HTMLInputElement | null,
+      postContent: "",
+    }]);
+
+    const postContentCharCount = reactive(posts.map((p) => p.postContent.length));
+
 
 
     const refTxtEl = ref<HTMLTextAreaElement | null>(null);
@@ -420,6 +459,30 @@ export default defineComponent({
     const isChannelSearching = ref(false);
     const showFcChannel = ref(!!postPlatforms?.value?.includes("farcaster"));
     let searchString = "";
+
+
+    const addToThread = () => {
+      if(posts.length > 30) {
+        stackAlertWarning('This thread is too long, please limit it to 30 posts');
+        return;
+      }
+      posts.push({
+        images: [],
+        fileInput: null,
+        postContent: "",
+        videos: [],
+        videoFileInput: null
+      });
+      postContentCharCount.push(0);
+    };
+
+    const substractFromThread = () => {
+      if (posts.length > 1) {
+        posts.pop();
+        postContentCharCount.pop();
+      }
+    };
+
 
     const searchChannels = async (value: string) => {
       searchString = value;
@@ -465,34 +528,33 @@ const fileToBase64 = (file: File) => {
   });
 };
 
-    const onFileUpload = async () => {
-      const imageFile = fileInput.value?.files?.[0];
+const onFileUpload = async (f: File | Event, index: number) => {
+      const imageFile = (posts?.[index]?.fileInput?.files?.[0] ?? f) as File;
       if (!imageFile) return;
+      isFileUploading.value = true;
       const imageBase64 = await fileToBase64(imageFile);
-      const upload = await mediaUpload(store, API_BASE, postPlatforms.value, imageFile )
-      upload.img = imageBase64 as string
-      upload.id =  Math.random().toString(36).substring(7)
-      images.value.push(upload)
+      const upload = await mediaUpload(store, API_BASE, postPlatforms.value, imageFile);
+      upload.img = imageBase64 as string;
+      upload.id = Math.random().toString(36).substring(7);
+      posts[index].images.push(upload);
       isFileUploading.value = false;
     };
-    
 
-    const triggerFileInput = () => {
-      if (fileInput.value) {
-        isFileUploading.value = true;
-        fileInput.value.click();
+    const triggerFileInput = (index: number) => {
+      if (posts?.[index]?.fileInput) {
+        posts?.[index]?.fileInput?.click();
       }
     };
 
-    const triggerVideoFileInput = () => {
-      if (videoFileInput.value) {
+    const triggerVideoFileInput = (index: number) => {
+      if (posts?.[index]?.videoFileInput) {
         isVideoUploading.value = true;
-        videoFileInput.value.click();
+        posts?.[index]?.videoFileInput?.click();
       }
     };
 
-    const onVideoFileUpload = async () => {
-      const videoFile = videoFileInput.value?.files?.[0];
+    const onVideoFileUpload = async (f: File | Event, index: number) => {
+      const videoFile = (posts?.[index]?.videoFileInput?.files?.[0] ?? f) as File;
       if (!videoFile) return;
 
       const mediaPlatforms = postPlatforms.value
@@ -505,12 +567,12 @@ const fileToBase64 = (file: File) => {
       upload.source =  URL.createObjectURL(videoFile);
       upload.type = videoFile.type
       upload.id =  Math.random().toString(36).substring(7)
-      videos.value.push(upload)
+      posts[index].videos.push(upload);
       isVideoUploading.value = false;
     };
 
-    const deleteVideo = (id: string) => {
-      videos.value = videos.value.filter((video) => video.id !== id);
+    const deleteVideo = (id: string, index: number) => {
+      posts[index].videos =  posts?.[index]?.videos.filter((video) => video.id !== id);
     };
 
     const showError = (msg: string, warn?: boolean) => {
@@ -523,8 +585,8 @@ const fileToBase64 = (file: File) => {
       ctx.emit("update:openModal", false);      
     };
 
-    const deleteImage = (id: string) => {
-      images.value = images.value.filter((image) => image.id !== id);
+    const deleteImage = (id: string, index: number) => {
+      posts[index].images =  posts?.[index]?.images.filter((image) => image.id !== id);
     };
 
     const doSendPost = async () => {
@@ -537,20 +599,40 @@ const fileToBase64 = (file: File) => {
           farcaster: (farcasterChannel.value as TChannel).parent_url
         }
       }
+      let result 
+      if (posts.length > 1) {
+          result = await sendThread({
+          store,
+          posts: posts.map((p) =>  {
+            return {
+              postContent: p.postContent,
+              media: [...p.images ?? [], ...p.videos ?? []],
+              maxCharCount: maxCharCount.value,
+              postPlatforms: postPlatforms.value,
+            };
+          }),
+          isSendPost,
+          replyTo,
+          showError,
+          stackAlertSuccess,
+          stackAlertWarning,
+        });
+      } else {
+        const media = [...posts?.[0]?.images ?? [], ...posts?.[0]?.videos ?? []]
 
-      const media = [...images.value, ...videos.value]
-      const result = await sendPost({
+        result = await sendPost({
         store,
-        postContent,
-        postPlatforms,
-        maxCharCount,
+        postContent: posts?.[0]?.postContent,
+        postPlatforms: postPlatforms.value,
+        maxCharCount: maxCharCount.value,
         isSendPost,
         replyTo,
         media,
         showError,
         stackAlertSuccess,
-        stackAlertWarning
+        stackAlertWarning,
       });
+    }
       if (result) {
         ctx.emit("success");
         openPostModal.value = false;
@@ -560,27 +642,44 @@ const fileToBase64 = (file: File) => {
     const doSchedulePost = async () => {
       if (isSheduling.value) return;
       isSheduling.value = true;
-      const media = [...images.value];
-
       let replyTo: IReplyTo | undefined = undefined;
       if (props.replyTo) {
         replyTo = props.replyTo;
       }
       if ((farcasterChannel.value as TChannel)?.parent_url) {
         replyTo = {
-          farcaster: (farcasterChannel.value as TChannel).parent_url
-        }
+          farcaster: (farcasterChannel.value as TChannel).parent_url,
+        };
       }
 
-      const sendData = makeSendData({
-        postContent,
-        postPlatforms,
-        maxCharCount,
+      let sendData: ISendPostData | { posts: (ISendPostData | undefined)[]; platforms: TPlatform[]; time: number; replyTo?: IReplyTo } | undefined = undefined;
+      if (posts.length > 1) {
+        sendData = {
+          posts: posts.map((p) => {
+            return makeSendData({
+              postContent: p.postContent,
+              maxCharCount: maxCharCount.value,
+              media: [...p.images ?? [], ...p.videos ?? []],
+            });
+          }) ?? [],
+          platforms: postPlatforms.value,
+          time: dateTime.value.getTime(),
+          replyTo,
+        };
+      } else {
+        const media =  [...posts?.[0]?.images ?? [], ...posts?.[0]?.videos ?? []];
+        sendData =
+      makeSendData({
+
+        postContent: posts?.[0]?.postContent,
+        postPlatforms: postPlatforms.value,
+        maxCharCount: maxCharCount.value,
         media,
         replyTo,
         showError,
-        time: dateTime.value
+        time: dateTime.value,
       });
+    }
 
       if (!sendData) {
         isSheduling.value = false;
@@ -591,20 +690,25 @@ const fileToBase64 = (file: File) => {
         apiBase: API_BASE,
         store,
         sendData,
+        isThread: posts.length > 1,
       });
       if (result?.ok) {
         ctx.emit("success");
         openPostModal.value = false;
+        ctx.emit("update:openModal", false);
         stackAlertSuccess("Post scheduled successfully.");
       } else {
-        if(result?.error === 'insufficient') {
-          stackAlertWarning("This feature requires you to have at least 1000 YUP tokens.");
+        if (result?.error === "insufficient") {
+          stackAlertWarning(
+            "This feature requires you to have at least 1000 YUP tokens."
+          );
         } else {
           stackAlertWarning("Something went wrong, please try again later.");
         }
       }
       isSheduling.value = false;
     };
+
 
     const changeDate = (event: any) => {
       dateTime.value = new Date(event.detail.value)
@@ -630,7 +734,6 @@ const fileToBase64 = (file: File) => {
     return {
       openPostModal,
       isSendPost,
-      postContent,
       postContentCharCount,
       postError,
       postErrorKey,
@@ -640,10 +743,8 @@ const fileToBase64 = (file: File) => {
       postPlatforms,
       PLATFORMS,
       onFileUpload,
-      fileInput,
       triggerFileInput,
       isFileUploading,
-      images,
       deleteImage,
       maxCharCount,
       updatePostPlatforms,
@@ -651,9 +752,7 @@ const fileToBase64 = (file: File) => {
       useMainStore,
       triggerVideoFileInput,
       onVideoFileUpload,
-      videoFileInput,
       isVideoUploading,
-      videos,
       deleteVideo,
       modalContent,
       maximumDate,
@@ -665,7 +764,10 @@ const fileToBase64 = (file: File) => {
       searchChannels,
       channels,
       farcasterChannel,
-      showFcChannel
+      showFcChannel,
+      posts,
+      addToThread,
+      substractFromThread,
     };
   },
 });

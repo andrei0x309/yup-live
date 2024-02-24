@@ -21,11 +21,11 @@
           v-model="inputText"
         />
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div :class="`grid grid-cols-1 ${buttons?.length > 1 ? 'md:grid-cols-2': ''}  auto-cols-auto auto-cols-fr ${buttons?.length > 2 ? 'lg:grid-cols-3': ''}`">
         <button
           v-for="button in buttons"
           :key="button.index"
-          class="text-white p-2 rounded-lg m-2 btn-frame text-[0.9rem] col-span-1"
+          class="text-white p-2 rounded-lg m-2 btn-frame text-[0.9rem] col-auto"
           @click="doFrameAction(button)"
         > <LinkIcon v-if="isRedirectBtn(button)" class="w-4 h-4" />
           {{ button.title }}

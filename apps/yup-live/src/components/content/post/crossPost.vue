@@ -1,8 +1,8 @@
 <template>
-  <button v-if="showReplyButton" class="view-btn flex ml-2" @click="openCastModal = true">
+  <button v-if="showReplyButton" class="view-btn flex ml-2" @click="openPostModal = true">
     <ReplyIcon class="inline-block w-4" />Reply
   </button>
-  <o-modal v-model:active="openCastModal" contentClass="modalDefault" @close="sendClose">
+  <o-modal v-model:active="openPostModal" contentClass="modalDefault" @close="sendClose">
     <section class="body-font relative">
       <div class="container p-1 mx-auto flex">
         <div
@@ -58,6 +58,8 @@
                 title="Error"
                 type="error"
               />
+              </div>
+              <div v-for="(post, index) in posts" :key="index">
               <AvatarBtn
                 :useMainStore="useMainStore"
                 class="mr-2"
@@ -70,25 +72,25 @@
               >
               <textarea
                 id="castField"
-                v-model="postContent"
+                v-model="post.postContent"
                 :disabled="isSendPost"
                 class="txt-box w-full bg-stone-200 text-gray-800 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
               >
               </textarea>
               <small
-                >Character limit: {{ postContentCharCount }} / {{ maxCharCount }}</small
+                >Character limit: {{ postContentCharCount[index] }} / {{ maxCharCount }}</small
               >
-            </div>
-            <div v-if="images.length" class="flex">
+            <div class="flex flex-col">
+            <div v-if="post.images.length" class="flex">
               <div
-                v-for="image of images"
+                v-for="image of post.images"
                 :key="image.id"
                 class="flex flex-col items-center"
               >
                 <img :src="image.img" class="w-20 h-20 mx-2" />
                 <button
                   class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
-                  @click="() => !isSendPost && deleteImage(image.id)"
+                  @click="() => !isSendPost && deleteImage(image.id, index)"
                 >
                   <DeleteIcon class="inline w-6" />
                 </button>
@@ -99,31 +101,45 @@
               type="file"
               style="display: none"
               accept="image/*"
-              @change="onFileUpload"
+              @change="(f) => onFileUpload(f, index)"
             />
             <button
               :disabled="isSendPost"
               class="dark:bg-stone-600 bg-stone-800 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-              @click="triggerFileInput"
+              @click="triggerFileInput(index)"
             >
               <BtnSpinner v-if="isFileUploading" class="inline mr-2" /><ImageUploadIcon
                 class="inline mr-2"
               />
               Add Image
             </button>
+          </div>
+            </div>
             <div>
+              <div class="flex justify-center mb-4">
               <button
                 :disabled="isSendPost"
-                class="w-1/3 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-                @click="modalContent = 'scheduling'"
+                class="w-1/2 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                @click="addToThread"
               >
-                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><ClockIcon
+                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><AddIcon
                   class="w-6 inline mr-2"
-                />Schedule
+                /> {{  posts.length > 1 ? 'Add new post to Thread' : 'Create Thread' }}
               </button>
               <button
+                v-if="posts.length > 1"
+                :disabled="isSendPost"
+                class="w-1/2 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                @click="substractFromThread"
+              >
+                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SubstractIcon
+                  class="w-6 inline mr-2"
+                /> {{  posts.length  === 2 ? 'Convert To single Post' : 'Remove post from Thread' }}
+              </button>
+              </div>
+              <button
                 v-show="!replyTo && showFcChannel"
-                class="w-1/3 ml-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                class=" dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mb-4"
                 @click="
                   () => {
                     if (farcasterChannel) {
@@ -148,15 +164,26 @@
                   farcasterChannel ? "Remove farcaster channel" : "Add farcaster channel"
                 }}
               </button>
+              <div class="flex justify-between mb-4">
               <button
                 :disabled="isSendPost"
-                class="w-1/3 ml-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mt-4"
+                class="w-1/2 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                @click="modalContent = 'scheduling'"
+              >
+                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><ClockIcon
+                  class="w-6 inline mr-2"
+                />Schedule
+              </button>
+              <button
+                :disabled="isSendPost"
+                class="w-1/2 ml-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
                 @click="doSendPost"
               >
                 <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SendIcon
                   class="w-6 inline mr-2"
                 />Send
               </button>
+              </div>
             </div>
           </template>
           <template v-else-if="modalContent == 'scheduling'">
@@ -259,17 +286,17 @@ import {
   onMounted,
   PropType,
   ref,
-  computed,
   watch,
   onUnmounted,
   Ref,
+  reactive
 } from "vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import Alert from "components/functional/alert.vue";
 import { useMainStore } from "@/store/main";
 import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 import ReplyIcon from "icons/src/reply.vue";
-import type { TPlatform, IReplyTo, TChannel } from "shared/src/types/web3-posting";
+import type { TPlatform, IReplyTo, TChannel, ISendPostData } from "shared/src/types/web3-posting";
 import ImageUploadIcon from "icons/src/imageUpload.vue";
 import SendIcon from "icons/src/send.vue";
 import ClockIcon from "icons/src/clock.vue";
@@ -280,6 +307,7 @@ import {
   schedulePost,
   makeSendData,
   searchChannel,
+  sendThread
 } from "shared/src/utils/requests/web3-posting";
 import DeleteIcon from "icons/src/delete.vue";
 import { getMaxCharCount } from "shared/src/utils/requests/crossPost";
@@ -289,6 +317,8 @@ import DateIcon from "icons/src/date.vue";
 import GoToIcon from "icons/src/goTo.vue";
 import { wait } from "shared/src";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
+import AddIcon from "icons/src/add.vue";
+import SubstractIcon from "icons/src/substract.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -307,6 +337,8 @@ export default defineComponent({
     DateIcon,
     GoToIcon,
     ProfileFarcasterIcon,
+    AddIcon,
+    SubstractIcon,
   },
   props: {
     replyTo: {
@@ -337,9 +369,10 @@ export default defineComponent({
   },
   emits: ["success", "update:openModal"],
   setup(props, ctx) {
-    const openCastModal = ref(props.openModal);
-    const postContent = ref("");
-    const postContentCharCount = computed(() => postContent.value.length);
+    const openPostModal = ref(props.openModal);
+
+
+
     const postError = ref("");
     const postErrorKey = ref(0);
     const isSendPost = ref(false);
@@ -347,24 +380,28 @@ export default defineComponent({
     const userPlatforms = PLATFORMS.filter((p) => store.userData?.connected?.[p]);
     const postPlatforms = ref(props.platforms.filter((p) => userPlatforms.includes(p)));
     const isFileUploading = ref(false);
-    const fileInput = ref<HTMLInputElement | null>(null);
-    const images = ref<
-      {
+    const maxCharCount = ref(getMaxCharCount(postPlatforms.value));
+
+    const posts = reactive([{
+      images: [] as {
         twiter: string;
         farcaster: string;
         lens: string;
         bsky: string;
         img: string;
         id: string;
-      }[]
-    >([]);
+      }[],
+      fileInput: null as HTMLInputElement | null,
+      postContent: "",
+    }]);
+    const postContentCharCount = reactive(posts.map((p) => p.postContent.length));
+
     const dateTime = ref(new Date(Date.now() + 1000 * 60 * 5));
     // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
     let pasteListner = async (_e: ClipboardEvent) => {
       // ignore
     };
 
-    const maxCharCount = ref(getMaxCharCount(postPlatforms.value));
     const modalContent = ref("posting");
     const maximumDate = new Date(Date.now() + 1000 * 3570 * 24 * 7);
     const minimumDate = new Date(Date.now() + 1000 * 60 * 2);
@@ -374,6 +411,26 @@ export default defineComponent({
     const isChannelSearching = ref(false);
     const showFcChannel = ref(!!postPlatforms?.value?.includes("farcaster"));
     let searchString = "";
+
+    const addToThread = () => {
+      if(posts.length > 30) {
+        stackAlertWarning('This thread is too long, please limit it to 30 posts');
+        return;
+      }
+      posts.push({
+        images: [],
+        fileInput: null,
+        postContent: "",
+      });
+      postContentCharCount.push(0);
+    };
+
+    const substractFromThread = () => {
+      if (posts.length > 1) {
+        posts.pop();
+        postContentCharCount.pop();
+      }
+    };
 
     const searchChannels = async (value: string) => {
       searchString = value;
@@ -419,21 +476,21 @@ export default defineComponent({
       });
     };
 
-    const onFileUpload = async (f?: File | Event) => {
-      const imageFile = (fileInput.value?.files?.[0] ?? f) as File;
+    const onFileUpload = async (f: File | Event, index: number) => {
+      const imageFile = (posts?.[index]?.fileInput?.files?.[0] ?? f) as File;
       if (!imageFile) return;
       isFileUploading.value = true;
       const imageBase64 = await fileToBase64(imageFile);
       const upload = await mediaUpload(store, API_BASE, postPlatforms.value, imageFile);
       upload.img = imageBase64 as string;
       upload.id = Math.random().toString(36).substring(7);
-      images.value.push(upload);
+      posts[index].images.push(upload);
       isFileUploading.value = false;
     };
 
-    const triggerFileInput = () => {
-      if (fileInput.value) {
-        fileInput.value.click();
+    const triggerFileInput = (index: number) => {
+      if (posts?.[index]?.fileInput) {
+        posts?.[index]?.fileInput?.click();
       }
     };
 
@@ -446,12 +503,11 @@ export default defineComponent({
       ctx.emit("update:openModal", false);
     };
 
-    const deleteImage = (id: string) => {
-      images.value = images.value.filter((image) => image.id !== id);
+    const deleteImage = (id: string, index: number) => {
+      posts[index].images =  posts?.[index]?.images.filter((image) => image.id !== id);
     };
 
     const doSendPost = async () => {
-      const media = [...images.value];
       let replyTo: IReplyTo | undefined = undefined;
       if (props.replyTo) {
         replyTo = props.replyTo;
@@ -461,12 +517,32 @@ export default defineComponent({
           farcaster: (farcasterChannel.value as TChannel).parent_url,
         };
       }
+      let result 
+      if (posts.length > 1) {
+          result = await sendThread({
+          store,
+          posts: posts.map((p) =>  {
+            return {
+              postContent: p.postContent,
+              media: [...p.images ?? []],
+              maxCharCount: maxCharCount.value,
+              postPlatforms: postPlatforms.value,
+            };
+          }),
+          isSendPost,
+          replyTo,
+          showError,
+          stackAlertSuccess,
+          stackAlertWarning,
+        });
+      } else {
+        const media = [...posts?.[0]?.images ?? []];
 
-      const result = await sendPost({
+        result = await sendPost({
         store,
-        postContent,
-        postPlatforms,
-        maxCharCount,
+        postContent: posts?.[0]?.postContent,
+        postPlatforms: postPlatforms.value,
+        maxCharCount: maxCharCount.value,
         isSendPost,
         replyTo,
         media,
@@ -474,9 +550,10 @@ export default defineComponent({
         stackAlertSuccess,
         stackAlertWarning,
       });
+    }
       if (result) {
         ctx.emit("success");
-        openCastModal.value = false;
+        openPostModal.value = false;
         ctx.emit("update:openModal", false);
       }
     };
@@ -484,8 +561,6 @@ export default defineComponent({
     const doSchedulePost = async () => {
       if (isSheduling.value) return;
       isSheduling.value = true;
-      const media = [...images.value];
-
       let replyTo: IReplyTo | undefined = undefined;
       if (props.replyTo) {
         replyTo = props.replyTo;
@@ -496,15 +571,34 @@ export default defineComponent({
         };
       }
 
-      const sendData = makeSendData({
-        postContent,
-        postPlatforms,
-        maxCharCount,
+      let sendData: ISendPostData | { posts: (ISendPostData | undefined)[]; platforms: TPlatform[]; time: number; replyTo?: IReplyTo } | undefined = undefined;
+      if (posts.length > 1) {
+        sendData = {
+          posts: posts.map((p) => {
+            return makeSendData({
+              postContent: p.postContent,
+              maxCharCount: maxCharCount.value,
+              media: [...p.images ?? []],
+            });
+          }) ?? [],
+          platforms: postPlatforms.value,
+          time: dateTime.value.getTime(),
+          replyTo,
+        };
+      } else {
+        const media =  [...posts?.[0]?.images ?? []];
+        sendData =
+      makeSendData({
+
+        postContent: posts?.[0]?.postContent,
+        postPlatforms: postPlatforms.value,
+        maxCharCount: maxCharCount.value,
         media,
         replyTo,
         showError,
         time: dateTime.value,
       });
+    }
 
       if (!sendData) {
         isSheduling.value = false;
@@ -515,10 +609,11 @@ export default defineComponent({
         apiBase: API_BASE,
         store,
         sendData,
+        isThread: posts.length > 1,
       });
       if (result?.ok) {
         ctx.emit("success");
-        openCastModal.value = false;
+        openPostModal.value = false;
         ctx.emit("update:openModal", false);
         stackAlertSuccess("Post scheduled successfully.");
       } else {
@@ -538,7 +633,7 @@ export default defineComponent({
         for (const clipboardItem of (e?.clipboardData?.files ?? []) as File[]) {
           if (clipboardItem.type.startsWith("image/")) {
             e.preventDefault();
-            onFileUpload(clipboardItem);
+            onFileUpload(clipboardItem, posts.length - 1);
           }
         }
       };
@@ -551,9 +646,8 @@ export default defineComponent({
     });
 
     return {
-      openCastModal,
+      openPostModal,
       isSendPost,
-      postContent,
       postContentCharCount,
       postError,
       postErrorKey,
@@ -562,10 +656,8 @@ export default defineComponent({
       postPlatforms,
       PLATFORMS,
       onFileUpload,
-      fileInput,
       triggerFileInput,
       isFileUploading,
-      images,
       deleteImage,
       maxCharCount,
       userPlatforms,
@@ -581,6 +673,9 @@ export default defineComponent({
       searchChannels,
       farcasterChannel,
       showFcChannel,
+      posts,
+      addToThread,
+      substractFromThread,
     };
   },
 });
