@@ -280,7 +280,7 @@ export default defineComponent({
           }
           doingLike.value = false
         } catch (error) {
-          console.log('error', error)
+          console.error('error', error)
           props.deps.stackAlertError('The vote could not be deleted!')
         }
     }
@@ -375,7 +375,7 @@ export default defineComponent({
         try {
           refHasRepost.value = false
         } catch (error) {
-          console.log('error', error)
+          console.error('error', error)
         }
       } else {
         try {
@@ -385,7 +385,7 @@ export default defineComponent({
           })
           refHasRepost.value = true
         } catch (error) {
-          console.log('error', error)
+          console.error('error', error)
         }
       }
     }

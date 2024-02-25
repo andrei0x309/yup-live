@@ -1,5 +1,16 @@
 export const recentChanges = [
     {
+        date: "25 Feb - 2024",
+        title: "Changes",
+        changes: [
+            'new Android version',
+            'other minor crosspost improvements',
+            'added infinite scroll to comments',
+            'display improvements for quoted farcaster and videos',
+            'added breakify on post body',
+        ],
+    },
+    {
         date: "24 Feb - 2024",
         title: "Changes",
         changes: [
@@ -138,6 +149,10 @@ export const recentChanges = [
             'enabled viewing of bsky profiles since backend now supports it'
         ],
     },
+]
+
+
+export const oldChanges = [
     {
         date: "4 August - 2023",
         title: "Changes",
@@ -220,10 +235,6 @@ export const recentChanges = [
             'released new web, desktop and mobile version'
         ],
     },
-]
-
-
-export const oldChanges = [
     {
         date: "14 July - 2023",
         title: "Changes",

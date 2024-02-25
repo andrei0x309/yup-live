@@ -1,5 +1,5 @@
 <template>
-  <div :class="`relative ${isReply ? 'mb-6' : ''}`">
+  <div :class="`relative qouted-border ${isReply ? 'mb-6' : ''}`">
     <div class="flex p-2 overflow-hidden">
       <AvatarBtn
         :key="mainPost.userAvatar"
@@ -195,9 +195,10 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.verIcon {
-  width: 0.8rem;
-  fill: rgb(187 85 255);
-  display: inline;
+.qouted-border {
+    border: 1px solid #776616de;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    margin-top: 0.4rem;
 }
 </style>

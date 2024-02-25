@@ -1,16 +1,12 @@
 import { fetchWAuth } from '../auth'
 import type { IMainStore } from 'shared/src/types/store'
 import { ref, Ref } from 'vue'
-import { prepareForTransaction, signCanonChallenge, TWeb3Libs } from '../evmTxs'
+import { prepareForTransaction, TWeb3Libs } from '../evmTxs'
 import { getFidByToken, getFidByAddress } from 'shared/src/utils/farcaster';
 // import { FCSendCast } from "shared/src/utils/farcaster";
 // import { digestSha256 } from "shared/src/utils/misc";
 import { wait } from '../time'
-import { arrayify } from '@ethersproject/bytes'
 import { walletDisconnect } from '../login-signup'
-
-const buffer = import("buffer/");
-const EIP_191_PREFIX = "eip191:";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -134,79 +130,6 @@ const poolTokenInfo = async ({
         return null
     }
 }
-
-export const generateApiToken = async ({
-    web3Libs,
-    store,
-}: {
-        web3Libs: TWeb3Libs,
-        store: IMainStore
-    apiBase?: string
-}) => {
-    try {
-        const wgamiLib = (await prepareForTransaction({
-            localWeb3Libs: web3Libs,
-        }))
-        if (!(wgamiLib)) {
-            return null
-        }
-        const wgamiCore = wgamiLib.wgamiCore
-        const timestamp = Date.now();
-        const payload = {
-            method: "generateToken",
-            params: {
-                timestamp,
-                expiresAt: timestamp + 1000 * 60 * 10
-            },
-        };
-        const sig = await signCanonChallenge(payload, wgamiCore.signMessage);
-        if (!sig) {
-            return false;
-        }
-
-        const bufferLib = (await buffer).Buffer;
-        const signatureString = bufferLib
-            .from(arrayify(sig)).toString('base64');
-        const cusAuth = EIP_191_PREFIX + signatureString;
-
-        const req = await fetch(`${API_BASE}/proxy/farcaster/v2/auth`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${cusAuth}`,
-            },
-            body: JSON.stringify(payload),
-        });
-        if (req.ok) {
-            const data = await req.json();
-            const token = data?.result?.token?.secret;
-            let fid: Promise<string | null> | null = null;
-            if (token) {
-                const dataTosend = {
-                    auth: {
-                        farcaster: {
-                            appToken: token,
-                        },
-                    },
-                };
-                fid = getFidByToken(token, API_BASE) as Promise<string | null>;
-                fid.then(fid => {
-                    if (fid) {
-                        store.fid = fid as string;
-                        localStorage.setItem("fid", fid as string);
-                    }
-                })
-                return dataTosend;
-            }
-            return null;
-        }
-        return null;
-    } catch (error) {
-        console.error('Failed to generate api token', error)
-        return null
-    }
-}
-
 
 export const connectToFarcaster = async ({
     isConnectToFarcaster,

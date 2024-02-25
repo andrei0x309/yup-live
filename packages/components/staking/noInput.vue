@@ -42,7 +42,6 @@ export default defineComponent({
     const onChange = (e: { target: { value: string } }) => {
       num.value = Number(e?.target?.value)
       emitChange()
-      console.log(num.value)
     }
 
     const decNum = () => {

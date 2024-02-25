@@ -80,6 +80,7 @@
         v-if="full && commentsEnabled && comments?.length"
         :is="commentsComp"
         :key="`${processedPost?.id || ''}-comments-${comments?.length || ''}`"
+        :postId="processedPost?.id"
         :comments="comments"
         :deps="deps"
         :postTypesPromises="postTypesPromises"

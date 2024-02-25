@@ -379,7 +379,7 @@ export default defineComponent({
           ((window as unknown) as { twttr: Record<string, any> }).twttr.error = (
             err: any
           ) => {
-            console.log("error", err);
+            console.error("error", err);
           };
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -404,7 +404,6 @@ export default defineComponent({
             });
           clearInterval(embedInterval);
         }
-        console.log(document.querySelector("#t-script"));
       }, 250);
     };
 

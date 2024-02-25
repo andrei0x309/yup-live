@@ -45,7 +45,6 @@ export default defineComponent({
     onBeforeMount(async () => {
       if (!props.embeds || !Array.isArray(props.embeds)) return;
       const localCompEms = [] as EmbedComp[];
-      console.log("embeds", props.embeds);
 
       for (const em of props.embeds) {
         if (embedsComp[em.type]) {

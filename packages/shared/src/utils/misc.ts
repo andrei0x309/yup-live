@@ -128,7 +128,7 @@ export const isProbablyPage = (url: string) => {
   const isPageExtension = last.includes('html') || last.includes('htm') || last.includes('#')
   const dotCount = (url.match(/\./g) || []).length;
   if (dotCount === 1) return true
-  if (last.includes('.eth')) return true
+  if (['.eth', '.app', '.com', '.net', '.dev', '.yz', '.org', '.io', '.xyz', '.gov', '.edu', '.int', '.mil', '.biz', '.info'].some(ext => last.endsWith(ext))) return true
   return (!last.includes('.') && last.length > 1) || isPageExtension
 }
 
@@ -142,6 +142,10 @@ export const digestSha256 = async (message: string) => {
 
 export const linkify = (text: string) => {
   return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+}
+
+export const breakify = (text: string) => {
+  return text.replace(/(?:\r\n|\r|\n)/g, '<br>')
 }
 
 export const deRef = <T> (ref: Ref<T>): T => {

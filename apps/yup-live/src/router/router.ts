@@ -164,6 +164,11 @@ const routes = [
     component: () => import('@/pages/score.vue')
   },
   {
+    path: '/test',
+    name: 'TestPage',
+    component: () => import('@/pages/test.vue')
+  },
+  {
     path: '/meetings',
     name: 'MeetingsPage',
     component: () =>

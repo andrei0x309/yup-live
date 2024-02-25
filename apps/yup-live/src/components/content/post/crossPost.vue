@@ -75,6 +75,9 @@
                 v-model="post.postContent"
                 :disabled="isSendPost"
                 class="txt-box w-full bg-stone-200 text-gray-800 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
+                @input="() => {
+                  postContentCharCount[index] = post.postContent.length;
+                }"
               >
               </textarea>
               <small

@@ -1,6 +1,6 @@
 import type { IPost, IProcessedPost, IRPostShareInfo, PostBodyProcessed, linkPreviewTypeEx, mediaType, Embed } from 'shared/src/types/post'
 import type { Web3Media } from 'shared/src/types/web3/media'
-import { isImage, isVideo, isProbablyPage, linkify } from 'shared/src/utils/misc'
+import { isImage, isVideo, isProbablyPage, linkify, breakify } from 'shared/src/utils/misc'
 import { parseIpfs } from 'shared/src/utils/web3/ipfs'
 // import MD from 'markdown-it'
 
@@ -50,7 +50,7 @@ const parseBody = (text: string, linkPreviews: linkPreviewTypeEx[]) => {
     linkPreviews.forEach((e) => {
         text = text.replace(e.url, '')
     })
-    return linkify(text)
+    return breakify(linkify(text))
 }
 
 const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], embeds: Embed[], postTag?: string) => {

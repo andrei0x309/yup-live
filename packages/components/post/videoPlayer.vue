@@ -3,7 +3,7 @@
     v-if="!isError"
     ref="videoPlayer"
     :key="videoSource"
-    class="w-full rounded-t-lg md:min-w-[24rem] max-h-[24rem] video-js"
+    class="w-full rounded-t-lg md:min-w-[24rem] max-h-[24rem] video-js mt-2"
     controls
     playsinline
     preload="auto"
@@ -36,6 +36,9 @@ import { wait } from "shared/src/utils/time";
 
 const vCss = "https://unpkg.com/video.js/dist/video-js.min.css";
 const vJs = "https://unpkg.com/video.js/dist/video.min.js";
+
+declare var videojs: Function;
+
 
 export default defineComponent({
   name: "VideoPlayer",
@@ -90,6 +93,7 @@ export default defineComponent({
       do {
         if (videoPlayer.value) {
           await wait(100);
+          videojs?.(videoPlayer.value as any);
           timer += 100;
           (videoPlayer.value as any)?.hook?.("error", function () {
             error();

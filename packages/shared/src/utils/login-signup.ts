@@ -46,7 +46,6 @@ export const web3ModalInstantiate = async (
                 await web3Modal.open()
                 const modalStateProm = new Promise((resolve) => {
                     const unsub = web3Modal.subscribeEvents((event: { data: { event: string }, timestamp: number }) => {
-                        console.log(event, 'event')
                         const eventType = event.data.event
                         if (eventType === 'CONNECT_SUCCESS' || eventType === 'MODAL_CLOSE') {
                             resolve(event)

@@ -126,7 +126,6 @@ export default defineComponent({
     const loadFrame = async (url: string, secLoad = false, frame?: any ) => {
       if (!secLoad) {
         frame = await getInitialFrame(url);
-        console.log(frame, 'frame')
       }
       canInteractWithFrame.value = store?.userData?.connected?.farcaster || false;
       frameImage.value = sanitizeFrameImage(frame?.imageUrl)
@@ -158,14 +157,14 @@ export default defineComponent({
           store: store,
           sendData,
         })
-      
+
         if(!frame) {
           props?.deps?.stackAlertError && props.deps.stackAlertError("Error posting frame action");
           secondLoading.value = false;
           return;
         }
 
-      if(isRedirectBtn(button) && frame?.redirectUrl) {
+      if(frame?.redirectUrl) {
         window.open(frame?.redirectUrl, "_blank");
         secondLoading.value = false;
         return;

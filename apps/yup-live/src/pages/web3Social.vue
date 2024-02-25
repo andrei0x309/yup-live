@@ -384,7 +384,6 @@ export default defineComponent({
         resetAccValue();
         if (yupData?.web3Handles?.lens || lensData?.data?.defaultProfile?.handle) {
           const lensResp = { ...{ data: {} }, ...(lensData ?? {}) };
-          console.log(lensResp);
           lensResp.data.fallback = yupData?.web3Handles?.lens;
           lensAccount.value = lensResp;
         }

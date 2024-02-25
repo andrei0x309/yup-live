@@ -157,7 +157,6 @@ export const getExpoPushTokenAndRegister = async ({ store }: { store: IMainStore
     // const { PushNotifications } = await import('@capacitor/push-notifications');
 
     const deviceId = await getInstallationId()
-    console.log(deviceId, 'deviceId')
     try {
         // const devicePushTokenP = new Promise((resolve, reject) => {
         //     FirebaseMessaging.addListener('registration', (token) => {
@@ -220,7 +219,6 @@ export const getExpoPushTokenAndRegister = async ({ store }: { store: IMainStore
         let body: string | undefined = undefined;
         try {
             body = await response.text();
-            console.log(body)
         } catch {
             // do nothing
         }

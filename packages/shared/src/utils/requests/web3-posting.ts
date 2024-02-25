@@ -294,7 +294,6 @@ export const getScheduledThreads = async ({ store, apiBase }: { store: IMainStor
 
 export const deleteScheduledTask = async ({ store, apiBase, taskId, isTread }: { store: IMainStore, apiBase: string, taskId: string, isTread: boolean }) => {
     try {
-        console.log('deleteScheduledTask: ', taskId, isTread, apiBase)
         const thread = isTread ? '/thread' : ''
         const req = await fetchWAuth(store, `${apiBase}/web3-post/schedule${thread}`, {
             body: JSON.stringify({ taskId }),

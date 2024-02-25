@@ -83,7 +83,6 @@ export default defineComponent({
       loadingFollowers.value = false
         } catch (e) {
             hasMore.value = false
-            console.log(e)
         }
     }
 
