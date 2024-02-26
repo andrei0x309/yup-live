@@ -1,5 +1,5 @@
 <template>
-  <div  :class="`imgPreview flex flex-col content-center justify-center items-center ${ !isLoading && !isError && !noBorder ? 'imgPreviewBorder': ''}`" :id="`${hashId(refSources?.[0] ?? '')}-img`">
+  <div  :class="`imgPreview grid content-center justify-center items-center ${ !isLoading && !isError && !noBorder ? 'imgPreviewBorder': ''}`" :id="`${hashId(refSources?.[0] ?? '')}-img`">
     <BtnSpinner v-if="isLoading" class="imagePreviewSpiner" :key="`loading-${isLoading}`" />
     <div :class="`grid grid-cols-${refSources?.length > 1 ? 2 : 1} gap-4`">
       <div v-for="(source, i) of refSources" :key="source">
@@ -191,8 +191,9 @@ export default defineComponent({
 }
 
 .imagePreviewSpiner {
-    margin-bottom: -11rem;
-    margin-top: 2rem;
+    top: 50%;
+    position: sticky;
+
 }
 .noImg {
     width: 29%;

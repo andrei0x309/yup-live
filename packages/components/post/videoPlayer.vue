@@ -93,7 +93,9 @@ export default defineComponent({
       do {
         if (videoPlayer.value) {
           await wait(100);
-          videojs?.(videoPlayer.value as any);
+          if(videojs) {
+            videojs?.(videoPlayer.value as any);
+          }
           timer += 100;
           (videoPlayer.value as any)?.hook?.("error", function () {
             error();

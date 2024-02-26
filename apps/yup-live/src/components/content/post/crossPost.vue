@@ -100,22 +100,47 @@
               </div>
             </div>
             <input
-              ref="fileInput"
+              :ref="el => {
+                if(el && posts[index]) {
+                  posts[index].fileInput = el as HTMLInputElement;
+                }
+              }"
               type="file"
               style="display: none"
               accept="image/*"
               @change="(f) => onFileUpload(f, index)"
             />
-            <button
-              :disabled="isSendPost"
-              class="dark:bg-stone-600 bg-stone-800 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-              @click="triggerFileInput(index)"
-            >
-              <BtnSpinner v-if="isFileUploading" class="inline mr-2" /><ImageUploadIcon
-                class="inline mr-2"
-              />
-              Add Image
-            </button>
+            <input
+            :ref="e => {
+              if (e && posts[index]) {
+                posts[index].videoFileInput = e as HTMLInputElement;
+              }
+            }"
+            type="file"
+            style="display: none"
+            accept="video/*" 
+            @change="(f) => onVideoFileUpload(f, index)"
+          />
+          <div class="flex justify-between">
+          <button
+            class="w-1/2 mr-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+            @click="triggerFileInput(index)"
+          >
+            <BtnSpinner v-if="isFileUploading" class="inline mr-2 w-4" /><ImageUploadIcon
+              class="inline mr-2 w-4"
+            />
+            Add Image
+          </button>
+          <button
+            class="w-1/2 ml-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+            @click="triggerVideoFileInput(index)"
+          >
+            <BtnSpinner v-if="isVideoUploading" class="inline mr-2 w-4" /><VideoUploadIcon
+              class="inline mr-2 w-4"
+            />
+            Add Video
+          </button>
+          </div>
           </div>
             </div>
             <div>
@@ -322,6 +347,7 @@ import { wait } from "shared/src";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import AddIcon from "icons/src/add.vue";
 import SubstractIcon from "icons/src/substract.vue";
+import VideoUploadIcon from "icons/src/videoUpload.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -342,6 +368,7 @@ export default defineComponent({
     ProfileFarcasterIcon,
     AddIcon,
     SubstractIcon,
+    VideoUploadIcon
   },
   props: {
     replyTo: {
@@ -385,6 +412,8 @@ export default defineComponent({
     const isFileUploading = ref(false);
     const maxCharCount = ref(getMaxCharCount(postPlatforms.value));
 
+    const isVideoUploading = ref(false);
+
     const posts = reactive([{
       images: [] as {
         twiter: string;
@@ -394,9 +423,20 @@ export default defineComponent({
         img: string;
         id: string;
       }[],
+      videos: [] as {
+        twiter: string;
+        farcaster: string;
+        lens: string;
+        bsky: string;
+        source: string;
+        id: string;
+        type: string;
+      }[],
       fileInput: null as HTMLInputElement | null,
+      videoFileInput: null as HTMLInputElement | null,
       postContent: "",
     }]);
+
     const postContentCharCount = reactive(posts.map((p) => p.postContent.length));
 
     const dateTime = ref(new Date(Date.now() + 1000 * 60 * 5));
@@ -424,6 +464,8 @@ export default defineComponent({
         images: [],
         fileInput: null,
         postContent: "",
+        videos: [],
+        videoFileInput: null
       });
       postContentCharCount.push(0);
     };
@@ -497,6 +539,35 @@ export default defineComponent({
       }
     };
 
+    const triggerVideoFileInput = (index: number) => {
+      if (posts?.[index]?.videoFileInput) {
+        isVideoUploading.value = true;
+        posts?.[index]?.videoFileInput?.click();
+      }
+    };
+
+    const onVideoFileUpload = async (f: File | Event, index: number) => {
+      const videoFile = (posts?.[index]?.videoFileInput?.files?.[0] ?? f) as File;
+      if (!videoFile) return;
+
+      const mediaPlatforms = postPlatforms.value
+
+      if(mediaPlatforms.includes('bsky')) {
+        showError("Video upload is not supported on BlueSky, your post will be sent without the video.")
+        mediaPlatforms.splice(mediaPlatforms.indexOf('bsky'), 1)
+      }
+      const upload = await mediaUpload(store, API_BASE, mediaPlatforms, videoFile )
+      upload.source =  URL.createObjectURL(videoFile);
+      upload.type = videoFile.type
+      upload.id =  Math.random().toString(36).substring(7)
+      posts[index].videos.push(upload);
+      isVideoUploading.value = false;
+    };
+
+    const deleteVideo = (id: string, index: number) => {
+      posts[index].videos =  posts?.[index]?.videos.filter((video) => video.id !== id);
+    };
+
     const showError = (msg: string) => {
       postError.value = msg;
       postErrorKey.value += 1;
@@ -527,7 +598,7 @@ export default defineComponent({
           posts: posts.map((p) =>  {
             return {
               postContent: p.postContent,
-              media: [...p.images ?? []],
+              media: [...p.images ?? [], ...p.videos ?? []],
               maxCharCount: maxCharCount.value,
               postPlatforms: postPlatforms.value,
             };
@@ -539,7 +610,7 @@ export default defineComponent({
           stackAlertWarning,
         });
       } else {
-        const media = [...posts?.[0]?.images ?? []];
+        const media = [...posts?.[0]?.images ?? [], ...posts?.[0]?.videos ?? []]
 
         result = await sendPost({
         store,
@@ -581,7 +652,7 @@ export default defineComponent({
             return makeSendData({
               postContent: p.postContent,
               maxCharCount: maxCharCount.value,
-              media: [...p.images ?? []],
+              media: [...p.images ?? [], ...p.videos ?? []],
             });
           }) ?? [],
           platforms: postPlatforms.value,
@@ -589,7 +660,7 @@ export default defineComponent({
           replyTo,
         };
       } else {
-        const media =  [...posts?.[0]?.images ?? []];
+        const media = [...posts?.[0]?.images ?? [], ...posts?.[0]?.videos ?? []]
         sendData =
       makeSendData({
 
@@ -679,6 +750,10 @@ export default defineComponent({
       posts,
       addToThread,
       substractFromThread,
+      triggerVideoFileInput,
+      isVideoUploading,
+      deleteVideo,
+      onVideoFileUpload
     };
   },
 });

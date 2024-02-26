@@ -271,23 +271,17 @@ onBeforeMount(async () => {
               if (res?.update && res?.forced) {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 lib.App.addListener("backButton", (_r) => {
-                  if ((window as any)?.closeLightbox) {
-                    const source = (window as any)?.closeLightboxSource;
-                    (window as any)?.closeLightbox?.(source);
-                    (window as any).closeLightbox = null;
-                    return;
-                  }
                   lib.App.minimizeApp();
                 });
               } else {
                 lib.App.addListener("backButton", (r) => {
-                  if (!r.canGoBack) {
-                    if ((window as any)?.closeLightbox) {
+                  if ((window as any)?.closeLightbox) {
                       const source = (window as any)?.closeLightboxSource;
                       (window as any)?.closeLightbox?.(source);
                       (window as any).closeLightbox = null;
                       return;
                     }
+                  if (!r.canGoBack) {
                     lib.App.minimizeApp();
                   } else if (
                     router.currentRoute.value.path === "/" &&

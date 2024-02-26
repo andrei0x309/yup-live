@@ -90,14 +90,22 @@
             </div>
           </div>
           <input
-            ref="fileInput"
+            :ref="e => {
+              if (e && posts[index]) {
+                posts[index].fileInput = e as HTMLInputElement;
+              }
+            }"
             type="file"
             style="display: none"
             accept="image/*" 
             @change="(f) => onFileUpload(f, index)"
           />
           <input
-            ref="videoFileInput"
+            :ref="e => {
+              if (e && posts[index]) {
+                posts[index].videoFileInput = e as HTMLInputElement;
+              }
+            }"
             type="file"
             style="display: none"
             accept="video/*" 

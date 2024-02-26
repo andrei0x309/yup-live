@@ -1,5 +1,15 @@
 export const recentChanges = [
     {
+        date: "26 Feb - 2024",
+        title: "Changes",
+        changes: [
+            'new Android version',
+            'improved progressive media loading',
+            'added video support for crossposting on web app too',
+            'improved hardware back button handling',
+        ],
+    },
+    {
         date: "25 Feb - 2024",
         title: "Changes",
         changes: [
