@@ -46,6 +46,7 @@
               title="Error"
               :type="postErrorType"
               class="mb-4"
+              :timeout="6000"
             /></div>
             <div v-for="(post, index) in posts" :key="index">
             <AvatarBtn :useMainStore="useMainStore" class="mr-2" style="width: 2.3rem; height: 2.3rem; margin: auto" />
@@ -67,7 +68,7 @@
             <small>Character limit: {{ postContentCharCount[index] }} / {{ maxCharCount }}</small>
           <div v-if="post.images.length" class="flex">
             <div v-for="image of post.images" :key="image.id" class="flex flex-col items-center">
-              <img :src="image.img" class="w-18 h-18 mx-2" />
+              <img :src="image.img" class="max-w-20 max-h-20 mx-2" />
               <button
                 class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
                 @click="deleteImage(image.id, index)"
@@ -78,7 +79,7 @@
           </div>
           <div v-if="post.videos.length" class="flex">
             <div v-for="video of post.videos" :key="video.id" class="flex flex-col items-center">
-              <video class="w-18 h-18 mx-2" controls>
+              <video class="max-w-20 max-h-20 mx-2" controls>
                 <source :src="video.source" :type="video.type">
               </video>
               <button
@@ -440,7 +441,6 @@ export default defineComponent({
         twiter: string;
         farcaster: string;
         lens: string;
-        bsky: string;
         source: string;
         id: string;
         type: string;
@@ -536,17 +536,7 @@ const fileToBase64 = (file: File) => {
   });
 };
 
-const onFileUpload = async (f: File | Event, index: number) => {
-      const imageFile = (posts?.[index]?.fileInput?.files?.[0] ?? f) as File;
-      if (!imageFile) return;
-      isFileUploading.value = true;
-      const imageBase64 = await fileToBase64(imageFile);
-      const upload = await mediaUpload(store, API_BASE, postPlatforms.value, imageFile);
-      upload.img = imageBase64 as string;
-      upload.id = Math.random().toString(36).substring(7);
-      posts[index].images.push(upload);
-      isFileUploading.value = false;
-    };
+ 
 
     const triggerFileInput = (index: number) => {
       if (posts?.[index]?.fileInput) {
@@ -560,22 +550,63 @@ const onFileUpload = async (f: File | Event, index: number) => {
         posts?.[index]?.videoFileInput?.click();
       }
     };
+ 
+    const onFileUpload = async (f: File | Event, index: number) => {
+      const imageFile = (posts?.[index]?.fileInput?.files?.[0] ?? f) as File;
+      if (!imageFile) return;
+      isFileUploading.value = true;
+      const imageBase64 = await fileToBase64(imageFile);
+      const upload = await mediaUpload(store, API_BASE, postPlatforms.value, imageFile);
+
+      if(upload?.errors) {
+        const platforms = [] as TPlatform[];
+        for (const error of upload.errors) {
+          platforms.push(error.platform)
+        }
+        postPlatforms.value = postPlatforms.value.filter(p => !platforms.includes(p));
+        showError(`Error uploading image to ${platforms.join(', ')}, platforms removed from post`, true);
+        if(Object.keys(upload.results).length) {
+          posts[index].images.push(upload.results);
+        }
+      } else {
+        posts[index].images.push(upload);
+      }
+
+      upload.img = imageBase64 as string;
+      upload.id = Math.random().toString(36).substring(7);
+      
+      isFileUploading.value = false;
+    };
 
     const onVideoFileUpload = async (f: File | Event, index: number) => {
       const videoFile = (posts?.[index]?.videoFileInput?.files?.[0] ?? f) as File;
       if (!videoFile) return;
 
-      const mediaPlatforms = postPlatforms.value
-
-      if(mediaPlatforms.includes('bsky')) {
-        showError("Video upload is not supported on BlueSky, your post will be sent without the video.", true)
-        mediaPlatforms.splice(mediaPlatforms.indexOf('bsky'), 1)
+ 
+      if(postPlatforms.value.includes('bsky')) {
+        showError("Video upload is not supported on BlueSky, your Bluesky post will be sent without the video.", true);
+        postPlatforms.value = postPlatforms.value.filter(p => p !== 'bsky');
       }
-      const upload = await mediaUpload(store, API_BASE, mediaPlatforms, videoFile )
-      upload.source =  URL.createObjectURL(videoFile);
-      upload.type = videoFile.type
-      upload.id =  Math.random().toString(36).substring(7)
-      posts[index].videos.push(upload);
+      const upload = await mediaUpload(store, API_BASE, postPlatforms.value , videoFile )
+      if(upload?.errors) {
+        const platforms = [] as TPlatform[];
+        for (const error of upload.errors) {
+          platforms.push(error.platform)
+        }
+        postPlatforms.value = postPlatforms.value.filter(p => !platforms.includes(p));
+        showError(`Error uploading video to ${platforms.join(', ')}, platforms removed from post`, true);
+        if(Object.keys(upload.results).length) {
+          upload.results.source =  URL.createObjectURL(videoFile);
+          upload.results.type = videoFile.type
+          upload.results.id =  Math.random().toString(36).substring(7)
+          posts[index].videos.push(upload.results);
+        }
+      } else {
+        upload.source =  URL.createObjectURL(videoFile);
+        upload.type = videoFile.type
+        upload.id =  Math.random().toString(36).substring(7)
+        posts[index].videos.push(upload);
+      }
       isVideoUploading.value = false;
     };
 

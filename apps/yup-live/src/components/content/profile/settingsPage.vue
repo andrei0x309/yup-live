@@ -192,7 +192,7 @@
             <textarea
               id="bioField"
               v-model="bio"
-              class="w-full dark:bg-stone-800 dark:text-gray-300 dark:text-gray-200 text-gray-600 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-22 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
+              class="w-full dark:bg-stone-800 dark:text-gray-200 text-gray-600 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-22 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
             >
             </textarea>
           </div>
@@ -259,6 +259,7 @@
   <o-modal
     v-model:active="settingsModal"
     contentClass="modal-body grid grid-cols-1 gap-4 content-center settings-modal"
+    :style="`${settingsModal ? '' : 'display: none;'}`"
     @close="
       () => {
         closeSettingsModal();
@@ -318,6 +319,26 @@
           "
         />
       </div>
+    </template>
+    <template v-else-if="settingsModalContent === 'lens-profiles' && settingsModal">
+      <h2 class="mt-2 p-4 text-[1.3rem]">Select Lens Profile</h2>
+      <div class="flex flex-col lens-profiles">
+                <o-radio
+                  v-for="profile of transferData.data"
+                  :key="profile.id"
+                  v-model="lensSelectedProfile"
+                  :native-value="profile.id"
+                >
+                  <div class="flex flex-wrap-reverse justify-end">
+                    <div class="w-max-[28%]">
+                      <ProfileLensIcon class="w-4 inline mr-2" />
+                    </div>
+                    <div class="flex flex-col text-left w-[70%]">
+                      <p>{{ profile.handle.fullHandle }}</p>
+                    </div>
+                  </div>
+                </o-radio>
+              </div>
     </template>
     <template v-else-if="settingsModalContent === 'farcaster-connect'">
       <o-tabs
@@ -493,7 +514,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, PropType, Ref, computed } from "vue";
+import { onMounted, defineComponent, ref, PropType, Ref, computed, watch } from "vue";
 import DangLoader from "components/vote-list/loader.vue";
 import CustomButton from "components/functional/customButton.vue";
 import {
@@ -594,6 +615,11 @@ export default defineComponent({
     const isConnectToLens = ref(false);
     const isConnectToBsky = ref(false);
     const farcasterConnectTabs = ref("warpcast");
+    const resolvePromiseSetProfile = ref(() => 42) as Ref<
+      (a: unknown) => typeof a & void
+    >;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const transferData = ref({} as { type: string; data: any });
 
     const bskyIdent = ref("");
     const bskyPass = ref("");
@@ -609,6 +635,36 @@ export default defineComponent({
     const isConnectedToThreads = ref(store.userData.connected?.threads ?? false);
     const isConnectToThreads = ref(false);
     const isDisconnectFromThreads = ref(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lensSelectedProfile = ref(undefined) as Ref<any | undefined | string>;
+
+      watch(
+      () => lensSelectedProfile.value,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (newVal: any) => {
+        if (newVal) {
+          settingsModal.value = false;
+          transferData.value = {
+            type: "lens",
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            data: transferData.value.data.find((p: any) => p.id === newVal),
+          };
+          resolvePromiseSetProfile.value(true);
+        } else if (newVal === "") {
+          settingsModal.value = false;
+          resolvePromiseSetProfile.value(false);
+        }
+      }
+    );
+
+    watch(
+      () =>  settingsModal.value,
+      (newVal) => {
+        if (newVal === false && !lensSelectedProfile.value) {
+          closeSettingsModal();
+        }
+      }
+    );
 
     const threadsUser = ref("");
     const threadsPass = ref("");
@@ -635,6 +691,7 @@ export default defineComponent({
     };
 
     const doConnectLens = async () => {
+      lensSelectedProfile.value = undefined;
       const result = await connectLens({
         stackAlertWarning,
         stackAlertSuccess,
@@ -646,6 +703,8 @@ export default defineComponent({
         settingsModal,
         resolvePromiseSetDispatcher,
         isConnectedToLens,
+        resolvePromiseSetProfile,
+        transferData,
       });
       if (result) {
         setConnected(store, "lens", true);
@@ -704,6 +763,11 @@ export default defineComponent({
         farcasterConnecWarpCancel.value = true;
         farcasterDeepLink.value = "";
         farcasterTimeout.value = 600000;
+      }
+      if (settingsModalContent.value === "lens-profiles" ) {
+          transferData.value = { type: "lens", data: null };
+          lensSelectedProfile.value = undefined;
+          resolvePromiseSetProfile.value(true);
       }
       settingsModal.value = false;
     };
@@ -947,6 +1011,8 @@ export default defineComponent({
       doDisconnectThreads,
       threadsUser,
       threadsPass,
+      lensSelectedProfile,
+      transferData
     };
   },
 });
@@ -972,4 +1038,11 @@ export default defineComponent({
   //   border: 1px solid rgba(255, 255, 255, 0.18);
   // }
 }
+
+.lens-profiles {
+  .o-radio input[type="radio"] {
+    display: none;
+  }
+}
+
 </style>

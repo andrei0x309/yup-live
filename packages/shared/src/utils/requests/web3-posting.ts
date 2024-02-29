@@ -13,7 +13,7 @@ export const mediaUpload = async (store: IMainStore, apiBase: string, platforms:
         data.append('platforms', JSON.stringify(platforms))
         data.append('data', file)
 
-        const req = await fetchWAuth(store, `${apiBase}/media-upload`, {
+        const req = await fetchWAuth(store, `${`https://dev.api.yup.io`}/media-upload`, {
             method: 'POST',
             body: data
         }, true)

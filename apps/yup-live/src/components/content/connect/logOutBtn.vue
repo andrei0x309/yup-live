@@ -24,20 +24,15 @@ export default defineComponent({
 
     const doLogOut = () => {
       loading.value = true
-      localStorage.removeItem('avatar')
-      localStorage.removeItem('signature')
-      localStorage.removeItem('address')
-      localStorage.removeItem('account')
-      localStorage.removeItem('authToken')
-      localStorage.removeItem('connected')
-      localStorage.removeItem('weight')
+      localStorage.clear()
       store.userData = {
         avatar: '',
         account: '',
         address: '',
         signature: '',
         weight: 1,
-        authToken: ''
+        authToken: '',
+        fid: ''
       }
       store.isLoggedIn = false
       try {

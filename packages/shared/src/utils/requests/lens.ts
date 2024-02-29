@@ -234,7 +234,7 @@ const getLensOwnedBy = async (address: string) => {
       if (!data?.data?.profiles?.items || !data?.data?.profiles?.items.length) {
         return null
       }
-      return data.data.profiles.items[0]
+      return data.data.profiles.items
     }
   } catch {
     // ignore
@@ -422,7 +422,9 @@ export const connectLens = async ({
   settingsModalContent,
   settingsModal,
   resolvePromiseSetDispatcher,
-  isConnectedToLens
+  resolvePromiseSetProfile,
+  isConnectedToLens,
+  transferData
 }: {
   stackAlertWarning: (message: string) => void;
   stackAlertSuccess: (message: string) => void;
@@ -433,23 +435,50 @@ export const connectLens = async ({
   settingsModalContent: Ref<string>;
   settingsModal: Ref<boolean>;
   resolvePromiseSetDispatcher: Ref<(value: unknown) => void | null>;
+    resolvePromiseSetProfile: Ref<(value: unknown) => void | null>;
   isConnectedToLens: Ref<boolean>;
+    transferData: Ref<null | { type: string; data: any }>;
 }) => {
   if (isConnectToLens.value) {
     return;
   }
   isConnectToLens.value = true;
-  const firstOwnedProfile = await getLensOwnedBy(store.userData.address);
-  if (!firstOwnedProfile) {
+  const ownedProfiles = await getLensOwnedBy(store.userData.address);
+  if (ownedProfiles?.length === 0) {
     return cleanDoConnectLens(
       {
-        error: "Error while fetching lens user data",
+        error: "Error no lens fonud for this address",
         stackAlertError,
         isConnectToLens,
       }
     );
   }
-  const profileId = firstOwnedProfile.id;
+  let connectProfile: any;
+
+  if (ownedProfiles?.length === 1) {
+    connectProfile = ownedProfiles[0];
+  } else {
+    transferData.value = { type: "lens-profiles", data: ownedProfiles };
+    settingsModalContent.value = "lens-profiles";
+    settingsModal.value = true;
+    const userConfirm = new Promise((resolve) => {
+      resolvePromiseSetProfile.value = resolve;
+    });
+    await userConfirm;
+    connectProfile = transferData.value?.data;
+  }
+
+  if (!connectProfile) {
+    return cleanDoConnectLens(
+      {
+        error: "Error no profile selected",
+        stackAlertError,
+        isConnectToLens,
+      }
+    );
+  }
+
+  const profileId = connectProfile?.id;
   const auth = await authLens({
     web3Libs: Web3Libs.value,
     profileId,
@@ -466,7 +495,7 @@ export const connectLens = async ({
   }
   const { accessToken, refreshToken } = auth;
 
-  const isBanned = !firstOwnedProfile?.sponsor
+  const isBanned = !connectProfile?.sponsor
 
   if (isBanned) {
     return cleanDoConnectLens(
@@ -478,7 +507,7 @@ export const connectLens = async ({
     );
   }
 
-  const needToSetDispatcher = !firstOwnedProfile?.signless
+  const needToSetDispatcher = !connectProfile?.signless
   if (needToSetDispatcher) {
     await enableSignless({ web3Libs: Web3Libs.value, store, apiBase: API_BASE })
   }

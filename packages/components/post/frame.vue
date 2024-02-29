@@ -35,7 +35,7 @@
         <DangLoader />
       </div>
       <div v-if="!canInteractWithFrame" class="flex justify-center">
-        <p class="text-[0.7rem] text-yellow-300">Only users with a connected Farcaster can interact with this frame.</p>
+        <p class="text-[0.7rem] text-yellow-300 p-2">Only users with a connected Farcaster account can interact with this frame.</p>
         </div>
     </div>
   </div>
@@ -64,6 +64,11 @@ export default defineComponent({
     url: {
       required: true,
       type: String,
+    },
+    postId: {
+      required: false,
+      type: String,
+      default: "",
     },
     castDep: {
       required: true,

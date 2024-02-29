@@ -1,5 +1,12 @@
 export const recentChanges = [
     {
+        date: "29 Feb - 2024",
+        title: "Changes",
+        changes: [
+            'allow lens profile selection',
+        ],
+    },
+    {
         date: "26 Feb - 2024",
         title: "Changes",
         changes: [

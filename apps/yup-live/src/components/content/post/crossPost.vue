@@ -55,8 +55,9 @@
                 :key="postErrorKey"
                 :hidden="!postError.length"
                 :message="postError"
+                :timeout="6000"
                 title="Error"
-                type="error"
+                :type="postErrorType"
               />
               </div>
               <div v-for="(post, index) in posts" :key="index">
@@ -90,7 +91,7 @@
                 :key="image.id"
                 class="flex flex-col items-center"
               >
-                <img :src="image.img" class="w-20 h-20 mx-2" />
+                <img :src="image.img" class="max-w-20 max-h-20 mx-2" />
                 <button
                   class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
                   @click="() => !isSendPost && deleteImage(image.id, index)"
@@ -99,6 +100,19 @@
                 </button>
               </div>
             </div>
+            <div v-if="post.videos.length" class="flex">
+            <div v-for="video of post.videos" :key="video.id" class="flex flex-col items-center">
+              <video class="max-w-20 max-h-20 mx-2" controls>
+                <source :src="video.source" :type="video.type">
+              </video>
+              <button
+                class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
+                @click="deleteVideo(video.id, index)"
+              >
+                <DeleteIcon class="inline w-6" />
+              </button>
+            </div>
+          </div>
             <input
               :ref="el => {
                 if(el && posts[index]) {
@@ -411,6 +425,8 @@ export default defineComponent({
     const postPlatforms = ref(props.platforms.filter((p) => userPlatforms.includes(p)));
     const isFileUploading = ref(false);
     const maxCharCount = ref(getMaxCharCount(postPlatforms.value));
+    const postErrorType = ref("error");
+
 
     const isVideoUploading = ref(false);
 
@@ -427,7 +443,6 @@ export default defineComponent({
         twiter: string;
         farcaster: string;
         lens: string;
-        bsky: string;
         source: string;
         id: string;
         type: string;
@@ -527,9 +542,24 @@ export default defineComponent({
       isFileUploading.value = true;
       const imageBase64 = await fileToBase64(imageFile);
       const upload = await mediaUpload(store, API_BASE, postPlatforms.value, imageFile);
+
+      if(upload?.errors) {
+        const platforms = [] as TPlatform[];
+        for (const error of upload.errors) {
+          platforms.push(error.platform)
+        }
+        postPlatforms.value = postPlatforms.value.filter(p => !platforms.includes(p));
+        showError(`Error uploading image to ${platforms.join(', ')}, platforms removed from post`, true);
+        if(Object.keys(upload.results).length) {
+          posts[index].images.push(upload.results);
+        }
+      } else {
+        posts[index].images.push(upload);
+      }
+
       upload.img = imageBase64 as string;
       upload.id = Math.random().toString(36).substring(7);
-      posts[index].images.push(upload);
+      
       isFileUploading.value = false;
     };
 
@@ -550,17 +580,31 @@ export default defineComponent({
       const videoFile = (posts?.[index]?.videoFileInput?.files?.[0] ?? f) as File;
       if (!videoFile) return;
 
-      const mediaPlatforms = postPlatforms.value
-
-      if(mediaPlatforms.includes('bsky')) {
-        showError("Video upload is not supported on BlueSky, your post will be sent without the video.")
-        mediaPlatforms.splice(mediaPlatforms.indexOf('bsky'), 1)
+ 
+      if(postPlatforms.value.includes('bsky')) {
+        showError("Video upload is not supported on BlueSky, your Bluesky post will be sent without the video.", true);
+        postPlatforms.value = postPlatforms.value.filter(p => p !== 'bsky');
       }
-      const upload = await mediaUpload(store, API_BASE, mediaPlatforms, videoFile )
-      upload.source =  URL.createObjectURL(videoFile);
-      upload.type = videoFile.type
-      upload.id =  Math.random().toString(36).substring(7)
-      posts[index].videos.push(upload);
+      const upload = await mediaUpload(store, API_BASE, postPlatforms.value , videoFile )
+      if(upload?.errors) {
+        const platforms = [] as TPlatform[];
+        for (const error of upload.errors) {
+          platforms.push(error.platform)
+        }
+        postPlatforms.value = postPlatforms.value.filter(p => !platforms.includes(p));
+        showError(`Error uploading video to ${platforms.join(', ')}, platforms removed from post`, true);
+        if(Object.keys(upload.results).length) {
+          upload.results.source =  URL.createObjectURL(videoFile);
+          upload.results.type = videoFile.type
+          upload.results.id =  Math.random().toString(36).substring(7)
+          posts[index].videos.push(upload.results);
+        }
+      } else {
+        upload.source =  URL.createObjectURL(videoFile);
+        upload.type = videoFile.type
+        upload.id =  Math.random().toString(36).substring(7)
+        posts[index].videos.push(upload);
+      }
       isVideoUploading.value = false;
     };
 
@@ -568,7 +612,8 @@ export default defineComponent({
       posts[index].videos =  posts?.[index]?.videos.filter((video) => video.id !== id);
     };
 
-    const showError = (msg: string) => {
+    const showError = (msg: string, warn?: boolean) => {
+      postErrorType.value = warn ? "warning" : "error";
       postError.value = msg;
       postErrorKey.value += 1;
     };
@@ -753,7 +798,8 @@ export default defineComponent({
       triggerVideoFileInput,
       isVideoUploading,
       deleteVideo,
-      onVideoFileUpload
+      onVideoFileUpload,
+      postErrorType
     };
   },
 });
