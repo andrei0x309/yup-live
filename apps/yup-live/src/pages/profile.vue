@@ -60,53 +60,60 @@
           position="centred"
           variant="warning"
           navTypeClass="boxed"
+          class="mt-4"
         >
           <template v-if="defaultAccountFeed === 'content'">
-            <o-tab-item  value="content">
+            <o-tab-item value="content">
               <template #header>
-                <span class="text-[0.94rem]"> 
-                <ContentIcon class="w-5 mr-2 inline-block" />
-                Posts </span>
+                <span class="text-[0.94rem]">
+                  <ContentIcon class="w-5 mr-2 inline-block" />
+                  Posts
+                </span>
               </template>
             </o-tab-item>
             <o-tab-item value="likes">
               <template #header>
-                <span class="text-[0.94rem]"> 
-                <LikesIcon class="w-5 mr-2 inline-block" />
-                Likes </span>
+                <span class="text-[0.94rem]">
+                  <LikesIcon class="w-5 mr-2 inline-block" />
+                  Likes
+                </span>
               </template>
             </o-tab-item>
 
             <o-tab-item v-if="isOwnAccount" value="scheduled">
               <template #header>
-                <span class="text-[0.94rem]"> 
-                <ClockIcon class="w-5 mr-2 inline-block" />
-                Schedule </span>
+                <span class="text-[0.94rem]">
+                  <ClockIcon class="w-5 mr-2 inline-block" />
+                  Schedule
+                </span>
               </template>
             </o-tab-item>
           </template>
           <template v-else>
             <o-tab-item value="likes">
               <template #header>
-                <span class="text-[0.94rem]"> 
-                <LikesIcon class="w-5 mr-2 inline-block" />
-                Likes</span>
+                <span class="text-[0.94rem]">
+                  <LikesIcon class="w-5 mr-2 inline-block" />
+                  Likes</span
+                >
               </template>
             </o-tab-item>
 
             <o-tab-item value="content">
               <template #header>
-              <span class="text-[0.94rem]"> 
-              <ContentIcon class="w-5 mr-2 inline-block" />
-                Posts </span>
+                <span class="text-[0.94rem]">
+                  <ContentIcon class="w-5 mr-2 inline-block" />
+                  Posts
+                </span>
               </template>
             </o-tab-item>
 
             <o-tab-item v-if="isOwnAccount" value="scheduled">
               <template #header>
-                <span class="text-[0.94rem]"> 
-                <ClockIcon class="w-5 mr-2 inline-block" />
-                Schedule </span>
+                <span class="text-[0.94rem]">
+                  <ClockIcon class="w-5 mr-2 inline-block" />
+                  Schedule
+                </span>
               </template>
             </o-tab-item>
           </template>
@@ -129,7 +136,7 @@
                   :postTypesPromises="postTypesPromises"
                   :isHidenInfo="((post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid) || feedTab === 'farcaster'"
                   :deps="postDeps"
-                  :crossPost="() => import('@/components/content/post/crossPost.vue')"
+                  :crossPost="() => import('@/components/content/post/replyButton.vue')"
                   @updatepostinfo="
                   (postid: string) => {
                     postInfo = posts.find((p: any): boolean => postid === p._id.postid)
@@ -193,11 +200,13 @@
               </div>
             </o-table-column>
 
-            <o-table-column  v-slot="props" field="actions" label="Actions">
-               <button
+            <o-table-column v-slot="props" field="actions" label="Actions">
+              <button
                 class="btn asocLink"
                 @click="cancelScheduledPost(props.row._id, props.row.type)"
-                >Cancel</button>
+              >
+                Cancel
+              </button>
             </o-table-column>
 
             <template v-if="isScheduledLoading" #loading>Loading....</template>
@@ -305,7 +314,7 @@ import {
   PLATFORMS,
   getScheduledPosts,
   getScheduledThreads,
-  deleteScheduledTask
+  deleteScheduledTask,
 } from "shared/src/utils/requests/web3-posting";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
@@ -613,15 +622,20 @@ export default defineComponent({
     });
 
     const cancelScheduledPost = async (taskId: string, type: string) => {
-      if(isScheduledLoading.value) return
-      isScheduledLoading.value = true
+      if (isScheduledLoading.value) return;
+      isScheduledLoading.value = true;
       try {
-          await deleteScheduledTask({ store, apiBase: API_BASE, taskId, isTread: type !== "single post" })
-        scheduledPosts.value = scheduledPosts.value.filter((p) => p._id !== taskId)
+        await deleteScheduledTask({
+          store,
+          apiBase: API_BASE,
+          taskId,
+          isTread: type !== "single post",
+        });
+        scheduledPosts.value = scheduledPosts.value.filter((p) => p._id !== taskId);
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
-      isScheduledLoading.value = false
+      isScheduledLoading.value = false;
     };
 
     onMounted(async () => {
@@ -633,7 +647,7 @@ export default defineComponent({
           userData.value = Object.assign(userData.value, uD.data?.userData);
           userId.value = userData.value._id as string;
           userFields.value = uD.data?.userFields ?? [];
-          if(userFields.value?.[1]) {
+          if (userFields.value?.[1]) {
             userFields.value[1].value = userData.value.evmAddress;
           }
           getActionUsage(userData.value._id as string);
@@ -750,7 +764,7 @@ export default defineComponent({
       postPageContent,
       scheduledPosts,
       isScheduledLoading,
-      cancelScheduledPost
+      cancelScheduledPost,
     };
   },
 });
@@ -764,7 +778,6 @@ export default defineComponent({
     overflow-y: hidden;
   }
 
-  
   table {
     margin-top: 2rem;
   }
@@ -772,14 +785,13 @@ export default defineComponent({
   table tr {
     border-bottom: #a85d4e89 2px solid;
   }
- 
+
   table tr td {
     padding-bottom: 1.3rem;
     padding-top: 0.7rem;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
     border-bottom: #a3a3a32d 1px solid;
-    
   }
 
   .o-tabs__nav-item-default {

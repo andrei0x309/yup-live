@@ -1,6 +1,7 @@
 import type { IWeb3Profile } from '../../types/web3Profile'
 import { fetchWAuth } from '../auth'
 import type { IMainStore } from 'shared/src/types/store'
+import { PLATFORMS } from './web3-posting';
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -48,4 +49,20 @@ export const getProfilesData = async (accounts: string[]) => {
             return await fetchWeb3Profile(API_BASE, a)
         })
     )).filter((p) => p) as IWeb3Profile[]
+}
+
+
+export const searchWeb3ProfileByHandle = async (apiBase: string = API_BASE, handle: string, platforms = PLATFORMS): Promise<IWeb3Profile | null> => {
+    try {
+        const res = await fetch(`${apiBase}/web3-profiles/search-by-handle?searchText=${handle}&platforms=${platforms.join(',')}`)
+        const req = await res.json()
+        if (res.ok) {
+            return req
+        } else {
+            return null
+        }
+    } catch (error) {
+        console.error('Failed to fetch web3 profiles', error)
+        return null
+    }
 }

@@ -1,6 +1,6 @@
 <template>
-  <div :class="`relative ${isReply ? 'mb-6' : ''}`">
-    <div class="flex p-2 overflow-hidden">
+  <div :class="`openpost pressable relative pt-2 rounded-lg ${isReply ? 'mb-6' : ''}`" @click="openLocalPost">
+    <div class="flex p-2 overflow-hidden openpost">
       <router-link v-if="mainPost.userAddress" :to="`/web3-profile/${mainPost.userAddress}`">
         <AvatarBtn
           :key="mainPost.userAvatar"
@@ -23,7 +23,7 @@
           :pAccount="mainPost.userHandle"
         />
         <router-link v-if="mainPost.userAddress" :to="`/web3-profile/${mainPost.userAddress}`">
-        <div class="flex flex-col text-justify pl-3">
+        <div class="flex flex-col text-justify pl-3 openpost">
           <span>{{ mainPost.userName }}</span>
           <span class="mainPost-70"
             >@{{ mainPost.userHandle }}
@@ -47,10 +47,10 @@
         <BskyIcon class="w-5 h-5" />
       </span>
     </div>
-    <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
-      <div :class="`indent ${isReply ? 'reply-line' : ''}`"></div>
-      <div class="pl-4 w-full">
-        <p v-html="mainPost.body"></p>
+    <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody openpost">
+      <div :class="`indent openpost ${isReply ? 'reply-line' : ''}`"></div>
+      <div class="pl-4 w-full openpost">
+        <div class="openpost" v-html="mainPost.body"></div>
         <template v-for="media of mainPost.mediaEntities?.filter(e => e.type === 'video')" :key="media.url">
           <VideoPlayer v-if="media.type === 'video'" :videoSource="media.url" class="py-4 rounded-lg" />
         </template>
@@ -60,24 +60,31 @@
           <LinkPreview v-for="(preview, index) in mainPost.linkPreviews" :linkPreview="preview" :key="preview.url" :noImage="index > 0 || mainPost.mediaEntities?.length > 0" />
 
             <ExternalEmbeds v-if="mainPost?.embeds?.length" :embeds="mainPost.embeds" />
+
+
+            <div
+      class="openpost flex opacity-60 h-min space-x-1 items-right justify-end rounded-full text-[0.7rem] mr-2 mt-2 mb-2"
+    >
+    <div class="openpost flex items-left grow mt-2 -ml-2">
+      <component v-if="replyComp" :platforms="['bsky']" :is="replyComp" :showReplyButton="true" :replyTo="{bsky: mainPost?.bsky?.uri}"  />
       </div>
-    </div>
-    <span class="flex opacity-60 h-min space-x-1 items-center rounded-full text-[0.7rem] order-last justify-end mt-4 mr-2">
-      <ClockIcon class="w-4 h-4" />
-      <p class="text-xs">
+    <div class="openpost flex items-end">
+     <div class="openpost flex items-center">
+      <p class="openpost text-xs mr-2 mt-2">
+        <ClockIcon class="w-4 h-4 mr-1 inline-block" />
         {{ mainPost.createdAt }}
       </p>
-    </span>
-    <div class="flex">
-    <!-- <router-link v-if="(numComments ?? 0) > 1" :to="`/post/${mainPost.postId}?nested=1`">
-    <ComentsIcon class="inline-block w-5 mr-2" />{{ numComments - 1 }}</router-link> -->
-    <component v-if="replyComp" :platforms="['bsky']" :is="replyComp" :showReplyButton="true" :replyTo="{bsky: mainPost?.bsky?.uri}"  />
-  </div>
+      </div>
+    </div>
+    </div>
+
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType, ref } from 'vue'
 import AvatarBtn from 'components/functional/avatarBtn.vue'
 import BskyIcon from "icons/src/bsky.vue";
 import VideoPlayer from 'components/post/videoPlayer.vue'
@@ -89,6 +96,8 @@ import { parseIpfs } from 'shared/src/utils/web3/ipfs'
 import type { PostBodyProcessed } from 'shared/src/types/post'
 import ExternalEmbeds from "components/post/post-external/external-embeds.vue"
 import CrossIconGroup from "components/post-types/misc/crossicon-group.vue"
+import { openPost } from 'shared/src/utils/post'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'PostLensBody',
@@ -121,9 +130,21 @@ export default defineComponent({
       default: false,
     },
   },
-  setup() {
+  setup(props) {
+    const router = useRouter()
+
+    const openLocalPost = (e: any) => {
+      if (!e.target.classList.contains('mention-handle')) {
+        if (!e?.target?.classList?.contains('openpost')) return
+        if (!props.mainPost?.postId ) return
+        openPost(router,  props.mainPost?.postId)
+        e.stopPropagation()
+      }
+    }
+
     return {
-      parseIpfs
+      parseIpfs,
+      openLocalPost,
     }
   }
 })

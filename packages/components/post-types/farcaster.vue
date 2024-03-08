@@ -1,6 +1,6 @@
 <template>
   <div v-if="processed">
-    <div v-if="postType === 'single' || full" ref="postWrap" class="p-2">
+    <div v-if="postType === 'single'" ref="postWrap" class="p-2">
       <FarcasterPostBody :replyComp="replyComp" :mainPost="mainPost" :postId="post.id"  :deps="deps" />
     </div>
     <div v-else ref="postWrap" class="p-2">
@@ -98,14 +98,10 @@ export default defineComponent({
           break;
         }
         case "reply": {
-          if (props.full) {
-            mainPost.value = normalizePost(props.post);
-          } else {
             mainPost.value = normalizePost(
               props.post?.web3Preview?.meta?.parentPost as IPost
             );
             replyPost.value = normalizePost(props.post);
-          }
           break;
         }
       }

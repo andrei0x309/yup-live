@@ -6,15 +6,19 @@
     </div>
   </button>
   <button v-else class="logo loggedBtn">
-    <router-link :to="`/profile/${mainStore.userData.account}`">
+    <router-link :to="`/profile/${mainStore.userData.account}`" aria-label="profile" >
       <AvatarBtn
+        :key="avatarKey"
         :useMainStore="useMainStore"
         class="mr-2"
         style="width: 2.3rem; height: 2.3rem"
       />
     </router-link>
-    <NotifBtn class="mr-2" />
-    <LogOutBtn class="mr-2" />
+    <NotifBtn class="mr-2" aria-label="notifications" />
+    <router-link :to="`/profile/${mainStore.userData.account}/settings`" aria-label="profile settings" >
+    <SettingsIcon class="w-6 h-6 mr-2 connectBtnBar" aria-label="settings" />
+    </router-link>
+    <LogOutBtn class="mr-2" aria-label="logout"  />
   </button>
   <o-modal
     v-model:active="refConnectMod"
@@ -43,6 +47,8 @@ import { useMainStore } from "@/store/main";
 import AvatarBtn from "components/functional/avatarBtn.vue";
 import NotifBtn from "./notifBtn.vue";
 import LogOutBtn from "./logOutBtn.vue";
+import SettingsIcon from 'icons/src/settings.vue'
+
 
 export default defineComponent({
   name: "ConnectButton",
@@ -52,6 +58,7 @@ export default defineComponent({
     AvatarBtn,
     NotifBtn,
     LogOutBtn,
+    SettingsIcon
   },
   setup() {
     const mainStore = useMainStore();
@@ -67,11 +74,17 @@ export default defineComponent({
     };
     const isAuth = ref(mainStore.isLoggedIn);
     const loadingMessage = ref("");
+    const avatarKey = ref(0);
+    const userAvatar = ref(mainStore.userData.avatar);
 
     mainStore.$subscribe(() => {
       isAuth.value = mainStore.isLoggedIn;
       if (mainStore.openConnectModal) {
         connectModal();
+      }
+      if (mainStore.userData.avatar !== userAvatar.value) {
+        avatarKey.value++;
+        userAvatar.value = mainStore.userData.avatar;
       }
     });
 
@@ -126,6 +139,7 @@ export default defineComponent({
       refLoginState,
       useMainStore,
       mainStore,
+      avatarKey
     };
   },
 });
@@ -210,4 +224,9 @@ header .loggedBtn {
 .login-form textarea {
   margin: 0rem 2rem;
 }
+
+.connectBtnBar:hover {
+  transform: scale(1.1);
+}
+
 </style>

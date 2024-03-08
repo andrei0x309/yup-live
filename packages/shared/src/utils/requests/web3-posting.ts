@@ -13,7 +13,7 @@ export const mediaUpload = async (store: IMainStore, apiBase: string, platforms:
         data.append('platforms', JSON.stringify(platforms))
         data.append('data', file)
 
-        const req = await fetchWAuth(store, `${`https://dev.api.yup.io`}/media-upload`, {
+        const req = await fetchWAuth(store, `${apiBase}/media-upload`, {
             method: 'POST',
             body: data
         }, true)
@@ -338,7 +338,8 @@ export const postFrameAction = async (
             castFid: number
             castHash: string
             inputText?: string
-            buttonIndex?: number
+            buttonIndex?: number,
+            state?: string
         }
     }) => {
     try {
@@ -363,7 +364,7 @@ export const postFrameAction = async (
 
 export const searchChannel = async (term: string) => {
     try {
-        const req = await fetch(`${API_BASE.replace('api.', 'dev.api.')}/farcaster/channels/search?q=${term}`)
+        const req = await fetch(`${API_BASE}/farcaster/channels/search?q=${term}`)
         if (!req.ok) {
             console.error('Error searchChannel: ', req.statusText)
             return []
@@ -440,6 +441,7 @@ export const deleteRepost = async ({
 }
 
 export const getInitialFrame = async (url: string) => {
+    //API_BASE
     const metas = await fetch(`${API_BASE}/posts/website-meta?url=${url}`)
     let metaTags = [] as any[]
     try {
@@ -462,6 +464,8 @@ export const getInitialFrame = async (url: string) => {
             frameRes.imageUrl = content
         } else if (property === 'fc:frame:input:text') {
             frameRes.inputText = content
+        } else if (property === 'fc:frame:state') {
+            frameRes.state = content
         } else if (property?.startsWith('fc:frame:button')) {
             const tokens = property.split(':')
             const index = Number(tokens?.[3])

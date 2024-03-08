@@ -85,6 +85,8 @@ export const formatNumber = (num: number, digits = 0) => {
 
 export const truncteEVMAddr = (addr: string) => ((addr ?? '').length > 4 ? addr.substring(0, 5) + '...' + addr.substring(addr.length - 3) : '')
 
+export const truncateSocialHandle = (handle: string) => ((handle ?? '').length > 18 ? handle.substring(0, 9) + '..' + handle.substring(handle.length - 9) : handle)
+
 export const truncateText = (text: string, maxLength: number): string => {
   if ((text ?? "").length <= maxLength) {
     return text;
@@ -122,14 +124,11 @@ export const getVideoTypeFromUrl = (url: string) => {
 }
 
 export const isProbablyPage = (url: string) => {
-  const splists = url.split('/')
-  const last = splists[splists.length - 1]
-  if (url.startsWith('chain:')) return true
-  const isPageExtension = last.includes('html') || last.includes('htm') || last.includes('#')
-  const dotCount = (url.match(/\./g) || []).length;
-  if (dotCount === 1) return true
-  if (['.eth', '.app', '.com', '.net', '.dev', '.yz', '.org', '.io', '.xyz', '.gov', '.edu', '.int', '.mil', '.biz', '.info'].some(ext => last.endsWith(ext))) return true
-  return (!last.includes('.') && last.length > 1) || isPageExtension
+  const imageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif', 'svg']
+  const videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov', 'm3u8', 'mkv']
+  let extension = url.split('.').pop()?.trim()?.toLowerCase()
+  if (extension?.includes('?')) extension = extension.split('?')[0].trim()
+  return ![...imageExtensions, ...videoExtensions].some(e => e === extension)
 }
 
 export const digestSha256 = async (message: string) => {

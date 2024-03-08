@@ -55,7 +55,7 @@ export default defineComponent({
       }
     }
 
-    let code = route.params.code as string
+    let code = route.params?.pathMatch?.[2] ?? '404'
     if (!code) code = '404'
     const message = internalErrors[code] ? internalErrors[code].message : 'Unknown error'
 

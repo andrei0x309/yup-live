@@ -1,6 +1,6 @@
 <template>
-  <div :class="`relative qouted-border ${isReply ? 'mb-6' : ''}`">
-    <div class="flex p-2 overflow-hidden">
+  <div :class="`pressable openpost relative qouted-border ${isReply ? 'mb-6' : ''}`" @click="openLocalPost">
+    <div class="flex p-2 overflow-hidden openpost">
       <AvatarBtn
         :key="mainPost.userAvatar"
         class="w-9 h-9 cursor-pointer"
@@ -39,10 +39,10 @@
         <FarcasterIcon class="w-4 h-4" />
       </span>
     </div>
-    <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
-      <div :class="`indent ${isReply ? 'reply-line' : ''}`"></div>
-      <div class="pl-1 w-full">
-        <p v-html="mainPost.body"></p>
+    <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody openpost">
+      <div class="qoute-indent openpost"></div>
+      <div class="pl-1 w-full openpost">
+        <div class="openpost" v-html="mainPost.body"></div>
         <template
           v-for="media of mainPost.mediaEntities?.filter((e) => e.type === 'video')"
           :key="media.url"
@@ -83,7 +83,7 @@
       </div>
     </div>
     <span
-      class="flex opacity-60 h-min space-x-1 items-center rounded-full text-[0.7rem] order-last justify-end mt-4 mr-2"
+      class="openpost flex opacity-60 h-min space-x-1 items-center rounded-full text-[0.7rem] order-last justify-end mt-4 mr-2"
     >
       <ClockIcon class="w-4 h-4" />
       <p class="text-xs">
@@ -112,11 +112,13 @@ import type { IPostDeps } from "shared/src/types/post";
 import { useRouter } from "vue-router";
 import CrossIconGroup from "components/post-types/misc/crossicon-group.vue";
 import Frame from "components/post/frame.vue";
+import { openPost } from 'shared/src/utils/post'
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE as string;
 
 export default defineComponent({
-  name: "PostFarcasterBody",
+  name: "QoutedPost",
   components: {
     AvatarBtn,
     VideoPlayer,
@@ -164,6 +166,15 @@ export default defineComponent({
       fid: string;
     };
 
+    const openLocalPost = (e: any) => {
+    if (!e.target.classList.contains('mention-handle')) {
+      if (!e?.target?.classList?.contains('openpost')) return
+      if (! props.mainPost?.postId) return
+      openPost(router,   props.mainPost.postId || "")
+      e.stopPropagation()
+     }
+    }
+ 
     const goToCreator = () => {
       if (props.mainPost.userAddress) {
         router.push(`/web3-profile/${props.mainPost.userAddress}`);
@@ -173,6 +184,7 @@ export default defineComponent({
       }
     };
 
+ 
     onMounted(() => {
       // if(props.fetchComments) {
       //   getComments({
@@ -189,6 +201,7 @@ export default defineComponent({
       numComments,
       goToCreator,
       castDep,
+      openLocalPost
     };
   },
 });
@@ -200,5 +213,13 @@ export default defineComponent({
     padding: 0.5rem;
     border-radius: 1rem;
     margin-top: 0.4rem;
+    max-width: 91vw;
 }
+
+.qoute-indent {
+    width: 0.2rem;
+    margin-left: 0.6rem;
+    margin-right: 0.4rem;
+}
+
 </style>

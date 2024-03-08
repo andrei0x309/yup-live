@@ -3,8 +3,8 @@
     <div class="bg-color table-list w-full mb-4 min-h-[75vh] flex justify-start">
       <div class="flex flex-col lg:flex-row">
         <div>
-          <h2 class="mt-12 mb-4 text-[1.2rem]">
-            Post UUIDv4: <span class="opacity-80 text-[1.1rem]">{{ postId }}</span>
+          <h2 class="mt-1 mb-4 text-[1.2rem]">
+           <component :is="icons?.[processedPost?.tag ?? '']" v-if="icons?.[processedPost?.tag ?? '']" class="w-6 h-6 inline-block" /> Post <span class="opacity-80 text-[0.95rem]">ID: {{ postId }}</span>
           </h2>
           <DangLoader v-if="isDataLoading" />
           <Post
@@ -15,7 +15,7 @@
             :postTypesPromises="postTypesPromises"
             class="w-full max-w-[60rem]"
             :deps="postDeps"
-            :crossPost="() => import('@/components/content/post/crossPost.vue')"
+            :crossPost="() => import('@/components/content/post/replyButton.vue')"
             @updatepostinfo="openInfoModal"
           />
         </div>
@@ -26,7 +26,7 @@
           "
           class="min-w-[30vw]"
         >
-          <h2 class="mb-4">Post Creator</h2>
+          <h2 class="mt-1 mb-4">Post Creator</h2>
           <Web3ProfileCard
             class="mx-auto"
             :web3Profile="(processedPost?.web3CreatorProfile as IWeb3Profile) ?? null"
@@ -103,6 +103,10 @@ import PostMenu from '@/components/content/post/menu/postMenu.vue'
 import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
 import { IWeb3Profile } from 'shared/src/types/web3Profile'
 import { OTooltip } from '@oruga-ui/oruga-next'
+import TwitterIcon from "icons/src/twitter.vue";
+import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
+import ProfileLensIcon from "icons/src/profileLens.vue";
+import BlueSkyIcon from "icons/src/bsky.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -149,6 +153,14 @@ export default defineComponent({
     const processedPost = ref(props.post as ExIPost);
     const infoModalOpen = ref(false);
     const followersCount = ref(0);
+
+    const icons = {
+      twitter: TwitterIcon,
+      farcaster: ProfileFarcasterIcon,
+      lens: ProfileLensIcon,
+      bsky: BlueSkyIcon,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
 
     const openInfoModal = () => {
       infoModalOpen.value = true;
@@ -218,6 +230,7 @@ export default defineComponent({
     };
 
     onMounted(async () => {
+
       if (!props?.post?._id?.postid) {
         processedPost.value = await getPostbyId(postId.value);
         postId.value = processedPost.value._id.postid;
@@ -235,6 +248,7 @@ export default defineComponent({
           }
         });
       }
+ 
       siteData.description =
         processedPost.value.previewData?.description ?? "Atricle on YUP";
       siteData.title = `YUP LIVE - ${processedPost.value.previewData?.title}`;
@@ -253,7 +267,8 @@ export default defineComponent({
       web3Deps,
       followersCount,
       infoModalOpen,
-      postDeps
+      postDeps,
+      icons
     };
   },
 });

@@ -164,7 +164,7 @@
                 :post="(post)"
                 :postTypesPromises="postTypesPromises"
                 :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
-                :crossPost="() => import('@/components/content/post/crossPost.vue')"
+                :crossPost="() => import('@/components/content/post/replyButton.vue')"
                 :deps="postDeps"
                 @updatepostinfo="
                   (postid: string) => {

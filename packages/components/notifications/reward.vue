@@ -6,9 +6,9 @@
       <ImagePreview
         :source="['/res/reward_optimized.png']"
         :noPreviewParagraph="false"
-        :imgClass="`max-h-8 max-w-8 imgNotRadius`"
-        :previewClass="`max-h-8 max-w-8 imgNotRadius`"
-        :noPreviewClass="`max-h-8 max-w-8 min-h-8 min-max-w-8 imgNotRadius`"
+        :imgClass="`max-h-8 max-w-8 imgNotRadius aspect-square`"
+        :previewClass="`max-h-8 max-w-8 imgNotRadius aspect-square`"
+        :noPreviewClass="`max-h-8 max-w-8 min-h-8 min-max-w-8 imgNotRadius *:aspect-square`"
         :noLightbox="true"
         :noBorder="true"
       />

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { IMainStore } from 'shared/src/types/store'
+import { PLATFORMS } from 'shared/src/utils/requests/web3-posting'
 
 const useMainStore = defineStore('main', {
   state: () => {
@@ -24,7 +25,10 @@ const useMainStore = defineStore('main', {
       deletePost: '',
       isLoggedIn: false,
       openConnectModal: false,
-      modalLoginState: true   
+      modalLoginState: true,
+      openPostModal: false,
+      openPostModalReply: null,
+      openPostPlatforms: PLATFORMS,
     }
   }
 }) as unknown as () => IMainStore
@@ -39,6 +43,7 @@ const useGraphStore = defineStore('graph', {
   }
 })
 
+
 const openConnectModal = (state: IMainStore, modalLoginState = true) => {
   state.openConnectModal = true
   state.modalLoginState = modalLoginState
@@ -49,4 +54,17 @@ const closeConnectModal = (state: IMainStore) => {
   state.modalLoginState = true
 }
 
-export { useMainStore, useGraphStore, openConnectModal, closeConnectModal }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const openPostModal = (state: IMainStore, reply: any | null, platforms = PLATFORMS) => {
+  state.openPostModalReply = reply
+  state.openPostPlatforms = platforms
+  state.openPostModal = true
+}
+
+const closePostModal = (state: IMainStore) => {
+  state.openPostModalReply = null
+  state.openPostPlatforms = PLATFORMS
+  state.openPostModal = false
+}
+
+export { useMainStore, useGraphStore, openConnectModal, closeConnectModal, openPostModal, closePostModal }

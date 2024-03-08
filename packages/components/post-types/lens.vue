@@ -1,10 +1,10 @@
 <template>
-  <div v-if="postType === 'single' || full" ref="postWrap" class="p-2">
+  <div v-if="postType === 'single'" ref="postWrap" class="p-2">
     <LensPostBody :replyComp="replyComp" :mainPost="mainPost" :postId="post.id" />
   </div>
   <div v-else ref="postWrap" class="p-2">
     <LensPostBody
-      v-if="!isComment"
+      v-if="!isComment && mainPost.postId"
       :replyComp="replyComp"
       :mainPost="mainPost"
       :postId="post.id"
@@ -93,14 +93,10 @@ export default defineComponent({
           break;
         }
         case "reply": {
-          if (props.full) {
-            mainPost.value = normalizePost(props.post);
-          } else {
             mainPost.value = normalizePost(
               props.post?.web3Preview?.meta?.parentPost as IPost
             );
             replyPost.value = normalizePost(props.post);
-          }
           break;
         }
       }

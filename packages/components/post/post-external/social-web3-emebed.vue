@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col content-center justify-center items-center linkPreview" style="margin-top: 1.5rem;"
+    class="flex flex-col content-center justify-center items-center linkPreview"
     @click="openLink(linkPreview.url)"
   >
     <div class="text-[0.8rem] description">
@@ -64,12 +64,11 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .linkPreview {
-  margin: 0.5rem;
+  margin-top: 2rem;
+  margin-right: 1rem;
   position: relative;
-  min-width: 16rem;
   .description {
     padding: 0.8rem;
-    min-width: 16rem;
     width: 100%;
     color: aliceblue;
     line-height: 1.1rem;

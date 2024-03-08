@@ -53,16 +53,57 @@ const parseBody = (text: string, linkPreviews: linkPreviewTypeEx[]) => {
     return breakify(linkify(text))
 }
 
+const parseBodyMentions = (text: string, platform: string) => {
+    const defaultRegex = /(?!.*?<.*?>)(@.*?)(:|’|\/|!|\*|"|'|`|\||\\|\&|\|\^|\%|\$|\#|\@|\(|\)|\[|\]| |,|\n|\t|\r|$)+?/gms
+    const lensRegex = /(?!.*?<.*?>)(@.*?)(:|’|!|\*|"|'|`|\||\\|\&|\|\^|\%|\$|\#|\@|\(|\)|\[|\]| |,|\n|\t|\r|$)+?/gms
+
+    const handle = text.matchAll(platform === 'lens' ? lensRegex : defaultRegex)
+
+    if (platform === 'lens') {
+        for (const match of handle) {
+            if (match[1]) {
+                const e = match[1]
+                const lensHandle = `<span style="color:#2d7726d8" class="mention-handle">@${e?.includes('/')
+                    ? e?.split('/')[1].replace('@', '')
+                    : e?.replace('@', '').replace('.lens', '')}</span>`
+                text = text.replace(e, lensHandle)
+        }
+    }
+    } else {
+        for (const match of handle) {
+            if (match[1]) {
+                const e = match[1]
+                const mentionHandle = `<span style="color:#2d7726d8" class="mention-handle">@${e?.replace('@', '')}</span>`
+                text = text.replace(e, mentionHandle)
+            }
+        }
+    }
+
+    return text
+}
+
+
 const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], embeds: Embed[], postTag?: string) => {
     const retArr = [] as mediaType[]
     const frames = [] as string[]
+    const nfts = [] as string[]
     mediaObject.forEach((e) => {
+        let url
         if (e.url) {
+            if (e.url.includes('chain:')) {
+                nfts.push(e.url)
+                return
+            }
+
+            if (e.url.includes('youtube.com') || e.url.includes('youtu.be')) return
+
             if (isProbablyPage(e.url) && postTag === 'farcaster') {
+                url = e.url
                 frames.push(e.url)
                 return
             }
-            if (e.url.includes('youtube.com')) return
+
+
             if (linkPreviews.some((el) => el.img === e.url)) return
             if (embeds.some((el) => el.url === e.url)) return
             if (e.url && (e.title || e.description)) {
@@ -84,14 +125,14 @@ const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], e
             }
 
         }
-        if (e.images) {
+        if (e.images && !url) {
             e.images.forEach((el) => {
                 if (el) {
                     retArr.push({ type: 'image', url: parseIpfs(el) })
                 }
             })
         }
-        if (e.videos) {
+        if (e.videos && !url) {
             e.videos.forEach((el) => {
                 if (el) {
                     retArr.push({ type: 'video', url: parseIpfs(el) })
@@ -99,7 +140,7 @@ const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], e
             })
         }
     })
-    return { retArr, linkPreviews, frames }
+    return { retArr, linkPreviews, frames, nfts }
 }
 
 const parseEmbeds = (content: string) => {
@@ -181,12 +222,18 @@ const parseEmbeds = (content: string) => {
 }
 
 
+export const openPost = (router = { push: (e: string) => { } }, postId: string) => {
+    router.push(`/post/${postId}`)
+}
+
 export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
     const postBuilder = {} as PostBodyProcessed
     postBuilder.userAvatar = fullPost?.web3CreatorProfile?.avatar ?? fullPost?.web3Preview?.creator?.avatarUrl ?? ''
     postBuilder.userHandle = fullPost?.web3CreatorProfile?.handle ?? fullPost?.web3Preview?.creator?.handle ?? 'Anon'
     postBuilder.userName = fullPost?.web3CreatorProfile?.fullname ?? fullPost?.web3Preview?.creator?.fullname ?? 'Anon'
     postBuilder.userAddress = fullPost?.web3CreatorProfile?._id ?? fullPost?.web3Preview?.creator?.address ?? fullPost?.previewData?.creator ?? ''
+
+    const postTag = fullPost?.tag || fullPost?.web3Preview?.protocol || ''
 
     // if (!postBuilder.userAddress.startsWith('0x')) {
     //     postBuilder.userAddress = fullPost?.web3Preview?.creator?.address ?? fullPost?.previewData?.creator ?? ''
@@ -207,7 +254,7 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
             ) ?? []) as linkPreviewTypeEx[]
 
     postBuilder.linkPreviews = (postBuilder.linkPreviews ?? []).filter((e) => !emebeds.embeds.some((el) => el.url === e.url))
-    const parseTheMedia = parseMedia(fullPost?.web3Preview?.attachments ?? [], postBuilder.linkPreviews ?? [], emebeds.embeds, fullPost?.tag ?? fullPost?.web3Preview?.protocol ?? '')
+    const parseTheMedia = parseMedia(fullPost?.web3Preview?.attachments ?? [], postBuilder.linkPreviews ?? [], emebeds.embeds, postTag)
 
     postBuilder.mediaEntities = parseTheMedia.retArr
     postBuilder.linkPreviews = parseTheMedia.linkPreviews
@@ -241,12 +288,14 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
 
     postBuilder.embeds = emebeds.embeds
 
-    postBuilder.body = parseBody(emebeds.content ?? 'N/A', postBuilder.linkPreviews ?? [])
+    postBuilder.body = parseBodyMentions(parseBody(emebeds.content ?? 'N/A', postBuilder.linkPreviews ?? []), postTag)
     postBuilder.createdAt = timeAgo(fullPost?.web3Preview?.createdAt ?? fullPost?.createdAt ?? new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString())
     postBuilder.lens = {
-        pubId: ''
+        pubId: '',
+        profileId: ''
     }
     postBuilder.lens.pubId = fullPost?.lensId ?? fullPost?.web3Preview?.id?.replace('lens://', '') ?? ''
+    postBuilder.lens.profileId = fullPost?.web3CreatorProfile?.lens?.profileId
     postBuilder.farcaster = {
         hash: '',
         fid: 0,
@@ -265,6 +314,7 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
     postBuilder.threads.parentPostID = fullPost?.web3Preview?.meta?.parentPostId ?? ''
     postBuilder.crossPostGroup = fullPost?.crossPostGroup ?? {}
     postBuilder.qoutedPost = fullPost?.web3Preview?.meta?.quotedPost ?? null
+    postBuilder.channel = fullPost?.channel ?? null
 
     return postBuilder
 }

@@ -1,8 +1,8 @@
 <template>
-  <div v-if="postType === 'single' || full" ref="postWrap" class="p-2">
+  <div v-if="postType === 'single'" class="p-2">
     <BskyPostBody :replyComp="replyComp" :mainPost="mainPost" />
   </div>
-  <div v-else ref="postWrap" class="p-2">
+  <div v-else class="p-2">
     <BskyPostBody
       v-if="!isComment"
       :replyComp="replyComp"
@@ -16,7 +16,7 @@
   <div></div>
 </template>
 
-<script lang="ts">
+<script lang="ts">getPostType
 // import { useMainStore } from '@/store/main'
 import { onMounted, defineComponent, ref, Ref, PropType } from "vue";
 import BskyPostBody from "./inner/bskyPostBody.vue";
@@ -65,7 +65,6 @@ export default defineComponent({
   setup(props) {
     // const store = useMainStore()
     const postType = ref("single");
-    const postWrap = ref(null);
 
     const userObject = {
       userName: "",
@@ -82,7 +81,7 @@ export default defineComponent({
       frames: [],
       bsky: {
         uri: "",
-      }
+      },
     } as PostBodyProcessed;
 
     const mainPost = ref(userObject) as Ref<PostBodyProcessed>;
@@ -98,21 +97,16 @@ export default defineComponent({
           break;
         }
         case "reply": {
-          if (props.full) {
-            mainPost.value = normalizePost(props.post);
-          } else {
             mainPost.value = normalizePost(
               props.post?.web3Preview?.meta?.parentPost as IPost
             );
             replyPost.value = normalizePost(props.post);
-          }
           break;
         }
       }
     });
 
     return {
-      postWrap,
       mainPost,
       postType,
       replyPost,

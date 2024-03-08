@@ -1,8 +1,5 @@
 <template>
   <div>
-  <button v-if="showReplyButton" class="view-btn block ml-2" @click="openPostModal = true">
-    <ReplyIcon class="inline-block w-4" />Reply
-  </button>
   <ion-modal :is-open="openPostModal" @didDismiss="sendClose">
       <ion-header>
         <ion-toolbar>
@@ -27,7 +24,7 @@
         >
         <template v-if="modalContent == 'posting'">
 
-          <div v-if="platforms?.length > 1" class="block my-4">
+          <div v-if="intialPlatforms?.length > 1" class="block my-4">
             <ion-checkbox
             v-for="platfrom of userPlatforms"
             :key="platfrom"
@@ -134,7 +131,8 @@
           </div>
         </div>
         <div class="flex justify-between mb-4">
-        <button
+        <button 
+                v-if="intialPlatforms?.length > 1"
                 :disabled="isSendPost"
                 class="w-1/2 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
                 @click="addToThread"
@@ -155,7 +153,7 @@
               </button>
           </div>
           <button
-                v-show="!replyTo && showFcChannel"
+                v-show="!localReplyTo && showFcChannel"
                 class="dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mb-4"
                 @click="
                   () => {
@@ -168,7 +166,7 @@
                 "
               >
                 <img
-                  v-if="farcasterChannel"
+                  v-if="farcasterChannel && intialPlatforms?.length > 1"
                   :src="(typeof farcasterChannel === 'object') ? farcasterChannel.image_url : undefined"
                   class="w-5 inline mr-2"
                 />
@@ -179,6 +177,7 @@
               </button>
           <div class="flex justify-between">
               <button
+                v-if="intialPlatforms?.length > 1 && localReplyTo"
                 :disabled="isSendPost"
                 class="text-[0.85rem] w-1/2 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
                 @click="modalContent = 'scheduling'"
@@ -219,7 +218,7 @@
               :value="dateTime.toISOString()" display-format="MMM DD, YYYY HH:mm" picker-format="MMM DD, YYYY HH:mm" />
             </section>
             <button
-                :v-if="!replyTo && showFcChannel"
+                :v-if="intialPlatforms?.length > 1 && showFcChannel"
                 class="w-1/3 ml-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
                 @click="
                   () => {
@@ -381,25 +380,10 @@ export default defineComponent({
   SubstractIcon
   },
   props: {
-    replyTo: {
-      type: Object as PropType<IReplyTo | null>,
-      required: false,
-      default: null,
-    },
-    showReplyButton: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
     crossPost: {
       type: Boolean,
       required: false,
       default: false,
-    },
-    platforms: {
-      type: Array as PropType<TPlatform[]>,
-      required: false,
-      default: () => PLATFORMS,
     },
     openModal: {
       type: Boolean,
@@ -410,6 +394,11 @@ export default defineComponent({
       type: String,
       required: false,
       default: "",
+    },
+    crossPostShare: {
+      type: Boolean,
+      required: false,
+      default: false,
     }
   },
   emits: ["success", "update:openModal"],
@@ -420,14 +409,14 @@ export default defineComponent({
     const postErrorType = ref("error");
     const isSendPost = ref(false);
     const store = useMainStore();
-    const userPlatforms = PLATFORMS.filter((p) =>
-      store.userData?.connected?.[p]
-    );
-    const postPlatforms = ref(props.platforms.filter((p) => userPlatforms.includes(p)));
+    const intialPlatforms = ref(store.openPostPlatforms ?? PLATFORMS);
+    const userPlatforms = ref(PLATFORMS.filter((p) => store.userData?.connected?.[p]))
+    const postPlatforms = ref((intialPlatforms.value ?? PLATFORMS).filter((p) => userPlatforms.value.includes(p)));
+    const localReplyTo = ref(store.openPostModalReply);
     const isFileUploading = ref(false);
 
     const isVideoUploading = ref(false);
- 
+
     const posts = reactive([{
       images: [] as {
         twiter: string;
@@ -527,6 +516,35 @@ export default defineComponent({
       }
     );
 
+    const resetModalState = () => {
+         localReplyTo.value = null;
+         posts.forEach((p) => {
+           p.images = [];
+           p.videos = [];
+           p.postContent = "";
+         });
+         store.openPostModalReply = null;
+         store.openPostPlatforms = PLATFORMS;
+         openPostModal.value = false
+    }
+
+    watch( () => store.openPostModal , (newVal) => {
+       if(props.crossPostShare) {
+          return
+       }
+       
+       if (newVal) {
+ 
+         localReplyTo.value = store.openPostModalReply;
+         intialPlatforms.value = store.openPostPlatforms ?? PLATFORMS;
+         userPlatforms.value = PLATFORMS.filter((p) => store.userData?.connected?.[p]);
+         postPlatforms.value = (intialPlatforms.value ?? PLATFORMS).filter((p) => userPlatforms.value.includes(p));
+         openPostModal.value = newVal;
+       } else {
+        resetModalState()
+       }
+    });
+
 const fileToBase64 = (file: File) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -621,7 +639,10 @@ const fileToBase64 = (file: File) => {
     };
 
     const sendClose = () => {
-      ctx.emit("update:openModal", false);      
+      ctx.emit("update:openModal", false);
+      resetModalState()
+      store.openPostModal = false;
+      openPostModal.value = false;
     };
 
     const deleteImage = (id: string, index: number) => {
@@ -630,8 +651,8 @@ const fileToBase64 = (file: File) => {
 
     const doSendPost = async () => {
       let replyTo: IReplyTo | undefined = undefined;
-      if (props.replyTo) {
-        replyTo = props.replyTo;
+      if (localReplyTo.value) {
+        replyTo = localReplyTo.value;
       }
       if ((farcasterChannel.value as TChannel)?.parent_url) {
         replyTo = {
@@ -674,7 +695,7 @@ const fileToBase64 = (file: File) => {
     }
       if (result) {
         ctx.emit("success");
-        openPostModal.value = false;
+        sendClose();
       }
     }
 
@@ -682,8 +703,8 @@ const fileToBase64 = (file: File) => {
       if (isSheduling.value) return;
       isSheduling.value = true;
       let replyTo: IReplyTo | undefined = undefined;
-      if (props.replyTo) {
-        replyTo = props.replyTo;
+      if (localReplyTo.value) {
+        replyTo = localReplyTo.value;
       }
       if ((farcasterChannel.value as TChannel)?.parent_url) {
         replyTo = {
@@ -733,9 +754,8 @@ const fileToBase64 = (file: File) => {
       });
       if (result?.ok) {
         ctx.emit("success");
-        openPostModal.value = false;
-        ctx.emit("update:openModal", false);
         stackAlertSuccess("Post scheduled successfully.");
+        sendClose();
       } else {
         if (result?.error === "insufficient") {
           stackAlertWarning(
@@ -807,6 +827,8 @@ const fileToBase64 = (file: File) => {
       posts,
       addToThread,
       substractFromThread,
+      localReplyTo,
+      intialPlatforms
     };
   },
 });

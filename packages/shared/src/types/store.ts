@@ -1,3 +1,5 @@
+import { TPlatform } from "./web3-posting"
+
 export interface IStoreUserData {
   account: string
   signature: string
@@ -36,7 +38,11 @@ export interface IMainStore {
     updatePaused?: boolean
   }
   pushNotifications?: string[]
-  version?: string
+  version?: string,
+  openPostModalReply?: any
+  openPostModal?: boolean
+  openPostPlatforms?: TPlatform[]
+
 }
 
 export interface ICollection {

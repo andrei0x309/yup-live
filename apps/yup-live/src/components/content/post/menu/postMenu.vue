@@ -13,7 +13,7 @@
           <li v-if="refHasVote" class="pt-1 cursor-pointer" @click="deleteVote">
             <DeleteIcon :class="`w-5 inline -mt-1 mr-1 ${delLoading ? 'rotate' : ''}`" />Delete Vote
           </li>
-          <li v-if="isOwner"  class="pt-1 cursor-pointer"  @click="delPost" > <DeleteIcon :class="`w-5 inline -mt-1 mr-1 ${delLoadingPost ? 'rotate' : ''}`" />Delete Post</li>
+          <li v-if="isOwner" class="pt-1 cursor-pointer" @click="delPost" > <DeleteIcon :class="`w-5 inline -mt-1 mr-1 ${delLoadingPost ? 'rotate' : ''}`" />Delete Post</li>
           <li class="pt-1 cursor-pointer" @click="sharePost"><ShareIcon class="w-5 inline -mt-1 mr-1" />Share Post</li>
           <li class="pt-1 cursor-pointer" @click="goToPost"><GoToIcon class="w-5 inline -mt-1 mr-1" />Post Details</li>
           <li class="pt-1 cursor-pointer" @click="refreshPreview"><RetryIcon class="w-6 -ml-1 inline -mt-1 mr-1" />Refresh Data</li>

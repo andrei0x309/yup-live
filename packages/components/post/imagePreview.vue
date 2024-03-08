@@ -1,13 +1,22 @@
 <template>
-  <div  :class="`imgPreview grid content-center justify-center items-center ${ !isLoading && !isError && !noBorder ? 'imgPreviewBorder': ''}`" :id="`${hashId(refSources?.[0] ?? '')}-img`">
-    <BtnSpinner v-if="isLoading" class="imagePreviewSpiner" :key="`loading-${isLoading}`" />
+  <div
+    :class="`imgPreview grid content-center justify-center items-center ${
+      !isLoading && !isError && !noBorder ? 'imgPreviewBorder' : ''
+    }`"
+    :id="`${hashId(refSources?.[0] ?? '')}-img`"
+  >
+    <BtnSpinner
+      v-if="isLoading"
+      class="imagePreviewSpiner"
+      :key="`loading-${isLoading}`"
+    />
     <div :class="`grid grid-cols-${refSources?.length > 1 ? 2 : 1} gap-4`">
       <div v-for="(source, i) of refSources" :key="source">
         <div v-if="!isError">
-          <button @click="openImg(source)" >
+          <button @click="openImg(source)">
             <img
               :key="source"
-              :class="`imagePreview ${imgClass}`"
+              :class="`imagePreview aspect-video ${imgClass}`"
               :src="source"
               :alt="alt"
               loading="lazy"
@@ -15,10 +24,14 @@
               @load="onLoad"
             />
           </button>
-          <button v-if="!noLightbox" @click="closeImage(source)" class="lightbox" :id="`id${hashId(source)}`">
-              <span :style="`background-image: url('${source}')`">
-              </span>
-              </button>
+          <button
+            v-if="!noLightbox"
+            @click="closeImage(source)"
+            class="lightbox"
+            :id="`id${hashId(source)}`"
+          >
+            <span :style="`background-image: url('${source}')`"> </span>
+          </button>
         </div>
         <div
           v-else-if="!isLoading && showPlaceholder"
@@ -31,9 +44,7 @@
             loading="lazy"
           />
           <NoImg class="noImg opacity-70" />
-          <p v-if="noPreviewParagraph" class="my-2 text-lg">
-            No image preview available
-          </p>
+          <p v-if="noPreviewParagraph" class="my-2 text-lg">No image preview available</p>
         </div>
       </div>
     </div>
@@ -50,11 +61,11 @@ export default defineComponent({
   name: "ImagePreview",
   components: {
     NoImg,
-    BtnSpinner
+    BtnSpinner,
   },
   props: {
     source: {
-      type:  [String, Array] as PropType<string | string[]>,
+      type: [String, Array] as PropType<string | string[]>,
     },
     alt: {
       required: false,
@@ -95,7 +106,7 @@ export default defineComponent({
       required: false,
       type: Boolean,
       default: false,
-    }
+    },
   },
   setup(props) {
     const isError = ref(false);
@@ -121,7 +132,7 @@ export default defineComponent({
     };
 
     const lightBoxListner = (refSource: string) => {
-      closeImage(refSource)
+      closeImage(refSource);
     };
 
     const onError = () => {
@@ -138,18 +149,18 @@ export default defineComponent({
       if (getImg) {
         getImg.style.display = "flex";
       }
-      if((window as any)?.Ionic) {
+      if ((window as any)?.Ionic) {
         (window as any).closeLightboxSource = refSource;
-        (window as any).closeLightbox = lightBoxListner
+        (window as any).closeLightbox = lightBoxListner;
       }
-    }
+    };
 
     const closeImage = async (refSource: string) => {
       const getImg = document.getElementById(`id${hashId(refSource)}`);
       if (getImg) {
         getImg.style.display = "none";
       }
-    }
+    };
 
     onMounted(() => {
       // nothing
@@ -170,7 +181,7 @@ export default defineComponent({
       refSources,
       hashId,
       openImg,
-      closeImage
+      closeImage,
     };
   },
 });
@@ -180,10 +191,11 @@ export default defineComponent({
 .imagePreview {
   width: 100%;
   height: 100%;
-  object-fit: fill;
+  object-fit: contain;
   object-position: center;
   max-height: 20rem;
   border-radius: 0.9rem;
+  margin-bottom: 0.5rem;
 }
 
 .imgPreviewBorder {
@@ -191,16 +203,15 @@ export default defineComponent({
 }
 
 .imagePreviewSpiner {
-    top: 50%;
-    position: sticky;
-
+  top: 50%;
+  position: sticky;
 }
 .noImg {
-    width: 29%;
-    min-height: 1rem;
-    min-width: 12rem;
-    padding: 1rem 4rem 1rem 5rem;
-    position: absolute;
+  width: 29%;
+  min-height: 1rem;
+  min-width: 12rem;
+  padding: 1rem 4rem 1rem 5rem;
+  position: absolute;
 
   p {
     z-index: 2;
@@ -218,36 +229,37 @@ export default defineComponent({
 }
 
 .postBkImg {
-    opacity: 0.42;
-    max-height: 15rem;
-    max-width: -moz-fit-content;
-    max-width: 100%;
-    -o-object-fit: cover;
-    object-fit: cover;
-    margin-bottom: -8rem;
-    width: 100rem;
+  opacity: 0.42;
+  max-height: 15rem;
+  max-width: -moz-fit-content;
+  max-width: 100%;
+  -o-object-fit: contain;
+  object-fit: contain;
+  margin-bottom: -8rem;
+  width: 100rem;
 }
 
 .lightbox {
-   display: none;
+  display: none;
 
-    position: fixed;
-    z-index: 999;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 1em;
-    background: rgba(0, 0, 0, 0.8);
-    justify-content: center;
-    align-items: end;
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1em;
+  background: rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  align-items: end;
 }
 
 /* Unhide the lightbox when it's the target */
 
-button:hover img, button:active img{
+button:hover img,
+button:active img {
   filter: brightness(1.11);
-} 
+}
 
 .lightbox span {
   display: block;

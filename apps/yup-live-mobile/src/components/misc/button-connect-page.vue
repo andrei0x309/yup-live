@@ -47,7 +47,10 @@ setup() {
   cursor: pointer;
   color: var(--button-color);
   padding: 0;
-  margin: 0;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   background: none;
   z-index: 1;
   box-shadow: 0 8px 20px var(--button-shadow);
@@ -58,6 +61,7 @@ setup() {
   border-radius: inherit;
   overflow: hidden;
   -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
   transform: scaleY(1.02) scaleX(1.005) rotate(-0.35deg);
 }
 .glow-button .gradient:before {
@@ -83,6 +87,7 @@ setup() {
   background-color: var(--button-background);
   overflow: hidden;
   -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
 }
 .glow-button span:before {
   content: "";

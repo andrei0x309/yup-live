@@ -100,7 +100,7 @@
                     :postTypesPromises="postTypesPromises"
                     :top-detection="false"
                     :mobile="true"
-                    :crossPost="() => import('@/views/CrossPostModal.vue')"
+                    :crossPost="() => import('@/components/post/reply-btn-mobile.vue')"
                     :deps="postDeps"
                   />
                   <LineLoader v-if="feedLoading" class="w-full h-2 m-8" />

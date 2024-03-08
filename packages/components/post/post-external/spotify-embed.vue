@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mt-2">
     <BtnSpinner v-if="isLoading" class="inline mr-2" />
     <div v-html="html"></div>
   </div>

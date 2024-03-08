@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col content-center justify-center items-center">
     <BtnSpinner v-if="isLoading" />
-    <img :ref="imgEl" :key="source" :class="`${isLoading ? '' : 'avatarImg '}${imgClass}`" :src="source" :alt="altImg" loading="lazy" @error="onError" @load="onLoad" />
+    <img :ref="imgEl" :key="source" :class="`w-8 h-8 ${isLoading ? '' : 'avatarImg '}${imgClass}`" :src="source" :alt="altImg" loading="lazy" @error="onError" @load="onLoad" />
   </div>
 </template>
 

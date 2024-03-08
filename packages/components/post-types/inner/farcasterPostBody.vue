@@ -1,6 +1,6 @@
 <template>
-  <div :class="`relative ${isReply ? 'mb-6' : ''}`">
-    <div class="flex p-2 overflow-hidden">
+  <div :class="`openpost pressable relative pt-2 rounded-lg ${isReply ? 'mb-6' : ''}`" @click="openLocalPost">
+    <div class="openpost flex p-2 overflow-hidden">
       <AvatarBtn
         :key="mainPost.userAvatar"
         class="w-9 h-9 cursor-pointer"
@@ -16,7 +16,7 @@
         "
       />
       <div
-        class="flex flex-col text-justify pl-3 cursor-pointer"
+        class="flex flex-col text-justify pl-3 cursor-pointer "
         @click="
           () => {
             goToCreator();
@@ -36,10 +36,10 @@
         <FarcasterIcon class="w-4 h-4" />
       </span>
     </div>
-    <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody">
-      <div :class="`indent ${isReply ? 'reply-line' : ''}`"></div>
-      <div class="pl-1 w-full">
-        <p v-html="mainPost.body"></p>
+    <div class="pt-2 text-justify pr-2 flex w3TweetTypeBody openpost">
+      <div :class="`openpost indent ${isReply ? 'reply-line' : ''}`"></div>
+      <div class="pl-1 w-full openpost">
+        <div class="openpost" v-html="mainPost.body"></div>
         <template
           v-for="media of mainPost.mediaEntities?.filter((e) => e.type === 'video')"
           :key="media.url"
@@ -73,26 +73,16 @@
 
         <Frame v-for="frameUrl of mainPost?.frames ?? []" :url="frameUrl" :deps="deps" :castDep="castDep" />
 
-        <FarcasterQoutedPost v-if="mainPost?.qoutedPost" :mainPost="(localQoutedPost as PostBodyProcessed)" :postId="(localQoutedPost as PostBodyProcessed)?.postId"  :deps="deps" />
+        <FarcasterQoutedPost v-if="mainPost?.qoutedPost" :mainPost="(localQoutedPost as PostBodyProcessed)" :deps="deps" />
 
-      </div>
-    </div>
-    <span
-      class="flex opacity-60 h-min space-x-1 items-center rounded-full text-[0.7rem] order-last justify-end mt-4 mr-2"
+        <div
+      class="openpost flex opacity-60 h-min space-x-1 items-right justify-end rounded-full text-[0.7rem] mr-2 mt-2 mb-2"
     >
-      <ClockIcon class="w-4 h-4" />
-      <p class="text-xs">
-        {{ mainPost.createdAt }}
-      </p>
-    </span>
-    <div class="flex">
-      <!-- <router-link v-if="(numComments ?? 0) > 1" :to="`/post/${mainPost?.postId}`">
-    <ComentsIcon class="inline-block w-5 mr-2" />{{ numComments - 1 }}</router-link> -->
-      <component
+    <div class="openpost flex items-left grow mt-2">
+    <component
         v-if="replyComp"
         :platforms="['farcaster']"
         :is="replyComp"
-        :showReplyButton="true"
         :replyTo="{
           farcaster: {
             fid: String(mainPost.farcaster?.fid),
@@ -100,8 +90,24 @@
           },
         }"
       />
+      </div>
+    <div class="openpost flex items-end">
+     <div class="openpost flex items-center">
+      <p class="openpost text-xs mr-2 mt-2">
+        <ClockIcon class="w-4 h-4 mr-1 inline-block" />
+        {{ mainPost.createdAt }}
+      </p>
+      <span v-if="mainPost?.channel" class="qouted-border">
+         <span style="top: 0.1rem;position: relative;">Channel:</span> <img v-if="!channelImageError" :src="mainPost?.channel?.image_url" class="channel-img" @error="() => channelImageError = true" />
+          <span v-else>{{ mainPost?.channel?.name }}</span>
+        </span>
+      </div>
     </div>
-  </div>
+    </div>
+
+      </div>
+    </div>
+    </div>
 </template>
 
 <script lang="ts">
@@ -125,6 +131,8 @@ import CrossIconGroup from "components/post-types/misc/crossicon-group.vue";
 import Frame from "components/post/frame.vue";
 import FarcasterQoutedPost from "components/post-types/inner/farcaster-qouted-post.vue";
 import { normalizePost } from "shared/src/utils/post";
+import { openPost } from 'shared/src/utils/post'
+
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE as string;
 
@@ -176,6 +184,17 @@ export default defineComponent({
     const castDep = props.mainPost?.farcaster as unknown as { hash: string; fid: string };
     const localQoutedPost = ref(props.mainPost?.qoutedPost ? normalizePost(props.mainPost?.qoutedPost) : null);
 
+    const channelImageError = ref(false);
+ 
+    const openLocalPost = (e: any) => {
+      if (!e.target.classList.contains('mention-handle')) {
+        if (!e?.target?.classList?.contains('openpost')) return
+        if (!props.mainPost?.postId ) return
+        openPost(router,  props.mainPost?.postId)
+        e.stopPropagation()
+      }
+    }
+
     const goToCreator = () => {
       if (props.mainPost.userAddress) {
         router.push(`/web3-profile/${props.mainPost.userAddress}`);
@@ -201,7 +220,9 @@ export default defineComponent({
       numComments,
       goToCreator,
       castDep,
-      localQoutedPost
+      localQoutedPost,
+      channelImageError,
+      openLocalPost
     };
   },
 });
@@ -213,4 +234,20 @@ export default defineComponent({
   fill: rgb(187 85 255);
   display: inline;
 }
+
+.qouted-border {
+    border: 1px solid #776616de;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    margin-top: 0.4rem;
+}
+
+.channel-img {
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    margin-left: 0.5rem;
+    display: inline;
+}
+
 </style>

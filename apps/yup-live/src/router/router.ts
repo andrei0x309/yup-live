@@ -210,16 +210,19 @@ const routes = [
     name: 'ErrorPage',
     component: () => import('@/pages/custom-error.vue')
   },
-  // {
-  //   path: '/:pathMatch(.*)*',
-  //   name: 'ErrorPage',
-  //   component: () => import('@/pages/custom-error.vue')
-  // }
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'ErrorPage',
+    component: () => import('@/pages/custom-error.vue')
+  }
 ]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes
+  routes,
+  scrollBehavior () {
+    return { top: 0, left: 0 }
+  }
 })
 
 const allowedFids = [1791]

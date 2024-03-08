@@ -1,5 +1,7 @@
 import type { IMainStore } from '../types/store'
 
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fetchWAuth = async (store: IMainStore, endpoint: string, options?: any, noHeader = false) => {
     if (!options) options = {}
@@ -8,3 +10,31 @@ export const fetchWAuth = async (store: IMainStore, endpoint: string, options?: 
     if (!options.headers['Authorization']) options.headers['Authorization'] = 'Bearer ' + store.userData.authToken
     return fetch(endpoint, options)
 }
+
+export const requestLoginCode = async ({ store }: { store: IMainStore }) => {
+    const req = await fetchWAuth(store, `${API_BASE}/mobile/login-code/create`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    if (req.ok) {
+        const res = await req.json()
+        return {
+            code: res.code,
+            expiresAt: Date.now() + 600000
+        }
+    }
+    return null
+}
+
+export const verifyLoginCode = async ({ store, code }: { store: IMainStore, code: string }) => {
+    const req = await fetchWAuth(store, `${API_BASE}/mobile/login-code/verify/${code}`)
+    if (req.ok) {
+        const res = await req.json()
+        return res
+    }
+    return null
+}
+
+// export const switchUserDesktop = async ({ store, userId, userStore }: { store: IMainStore, userId: string }) => {

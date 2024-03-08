@@ -22,6 +22,7 @@
         :openModal="openPostModal"
         :platforms="PLATFORMS"
         :shareLink="shareLink"
+        :crossPostShare="true"
         @update:open-modal="(v: boolean) => (openPostModal = v)"
         @success="postSent"
       />
@@ -46,6 +47,8 @@ import {
   toastController,
   IonLoading,
   modalController,
+  useBackButton,
+  useIonRouter,
 } from "@ionic/vue";
 import { ref, onBeforeMount, onBeforeUnmount, watch, defineAsyncComponent } from "vue";
 import { storage } from "@/utils/storage";
@@ -77,6 +80,7 @@ const loading = ref(false);
 const openPostModal = ref(false);
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const promisePostResolved = ref((_a: unknown) => {});
+const ionRouter = useIonRouter();
 
 const shareLink = ref("");
 
@@ -270,18 +274,18 @@ onBeforeMount(async () => {
             import("@capacitor/app").then((lib) => {
               if (res?.update && res?.forced) {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                lib.App.addListener("backButton", (_r) => {
+                useBackButton(99, () => {
                   lib.App.minimizeApp();
                 });
               } else {
-                lib.App.addListener("backButton", (r) => {
+                useBackButton(99, () => {
                   if ((window as any)?.closeLightbox) {
-                      const source = (window as any)?.closeLightboxSource;
-                      (window as any)?.closeLightbox?.(source);
-                      (window as any).closeLightbox = null;
-                      return;
-                    }
-                  if (!r.canGoBack) {
+                    const source = (window as any)?.closeLightboxSource;
+                    (window as any)?.closeLightbox?.(source);
+                    (window as any).closeLightbox = null;
+                    return;
+                  }
+                  if (!ionRouter.canGoBack()) {
                     lib.App.minimizeApp();
                   } else if (
                     router.currentRoute.value.path === "/" &&
@@ -290,7 +294,9 @@ onBeforeMount(async () => {
                   ) {
                     router.replace("/tabs/feeds");
                     lib.App.minimizeApp();
+                    return;
                   }
+                  router.back();
                 });
               }
             });
@@ -466,5 +472,22 @@ body.dark {
     linear-gradient(39deg, rgba(98, 92, 92, 0.2117647059), rgba(32, 31, 31, 0.5607843137));
   color: aliceblue;
   box-shadow: 2px 2px #2b2d2e;
+}
+
+.blink {
+  animation: blink 0.9s infinite;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 </style>

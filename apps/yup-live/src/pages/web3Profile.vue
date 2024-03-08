@@ -55,6 +55,7 @@
           position="centred"
           variant="warning"
           navTypeClass="boxed"
+          class="mt-4"
         >
           <o-tab-item value="content">
             <template #header>
@@ -87,7 +88,7 @@
                   :postTypesPromises="postTypesPromises"
                   :isHidenInfo="((post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid) || feedTab === 'farcaster'"
                   :deps="postDeps"
-                  :crossPost="() => import('@/components/content/post/crossPost.vue')"
+                  :crossPost="() => import('@/components/content/post/replyButton.vue')"
                   @updatepostinfo="
                     (postid: string) => {
                       postInfo = posts.find((p: any): boolean => postid === p._id.postid)
@@ -376,7 +377,7 @@ export default defineComponent({
             (posts.value[20] as Record<string, { postid: string }>)?._id?.postid
           );
         } catch (error) {
-          console.log(error);
+          console.error(error);
         }
       } else if (type === "down" && posts.value.length <= 30) {
         postsIndex.value += 10;
@@ -457,7 +458,6 @@ export default defineComponent({
 
       fetchRecommendedWeb3Profiles(API_BASE, store).then((res) => {
         recommandedProfiles.value = res as IWeb3ProfileRecommendation[];
-        console.log(recommandedProfiles.value, 'recommandedProfiles')
       });
       resetPosts();
       isLoadingUser.value = false;

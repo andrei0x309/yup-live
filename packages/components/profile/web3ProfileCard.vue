@@ -13,10 +13,10 @@
       >
     </div>
     <img
-      :key="avatar"
-      :src="avatar"
+      :key="computedAvatar"
+      :src="computedAvatar"
       class="web3Avatar w-21 h-21 mr-2 rounded-full ring-1 ring-gray-300 dark:ring-gray-500 inline-block"
-      :alt="`avatar ${lWeb3Profile?.avatar}`"
+      :alt="`avatar ${computedAvatar}`"
       loading="lazy"
       @error="onError"
     />
@@ -24,37 +24,59 @@
     <figcaption>
       <h3>
         [ {{ lWeb3Profile?.handle || `${id.slice(0, 6)}...` }} ]<span
-          >Additional Handles</span
+          >Social Handles</span
         >
       </h3>
       <div class="handles">
         <div v-if="lWeb3Profile?.ens?.handle">
-          <ProfileEthIcon class="mr-2 w-3 inline-block" /> {{ lWeb3Profile.ens.handle }}
+          <a :href="`https://polygonscan.com/address/${id}`" target="_blank">
+            <ProfileEthIcon class="mr-2 w-3 inline-block" />
+            {{ truncateSocialHandle(lWeb3Profile.ens.handle) }}
+            <LinkIcon class="w-3 inline" />
+          </a>
         </div>
         <div v-if="lWeb3Profile?.yup?.handle">
-          <ProfileYupIcon class="mr-2 w-4 inline-block" /> {{ lWeb3Profile.yup.handle }}
-          <router-link :to="`/profile/${lWeb3Profile.yup.handle}`" class="view-btn"
-            >VIEW</router-link
-          >
+          <router-link :to="`/profile/${lWeb3Profile.yup.handle}`">
+            <ProfileYupIcon class="mr-2 w-4 inline-block" />
+            {{ truncateSocialHandle(lWeb3Profile.yup.handle) }}
+            <LinkIcon class="w-3 inline" />
+          </router-link>
         </div>
         <div v-if="lWeb3Profile?.twitter?.handle">
-          <TwitterIcon class="mr-2 w-4 inline-block" /> {{ lWeb3Profile.twitter.handle }}
+          <a :href="`https://twitter.com/${lWeb3Profile.twitter.handle}`" target="_blank">
+            <TwitterIcon class="mr-2 w-4 inline-block" />
+            {{ truncateSocialHandle(lWeb3Profile.twitter.handle) }}
+            <LinkIcon class="w-3 inline" />
+          </a>
         </div>
         <div v-if="lWeb3Profile?.farcaster?.handle">
-          <ProfileFarcasterIcon class="mr-2 w-4 inline-block" />
-          {{ lWeb3Profile.farcaster.handle }}
+          <a
+            :href="`https://warpcast.com/${lWeb3Profile.farcaster.handle}`"
+            target="_blank"
+          >
+            <ProfileFarcasterIcon class="mr-2 w-4 inline-block" />
+            {{ truncateSocialHandle(lWeb3Profile.farcaster.handle) }}
+            <LinkIcon class="w-3 inline" />
+          </a>
         </div>
         <div v-if="lWeb3Profile?.lens?.handle">
-          <ProfileLensIcon class="mr-2 w-4 inline-block" /> {{ lWeb3Profile.lens.handle }}
+          <a :href="`https://hey.xyz/u/${lWeb3Profile?.lens?.handle}`" target="_blank">
+            <ProfileLensIcon class="mr-2 w-4 inline-block" />
+            {{ truncateSocialHandle(lWeb3Profile?.lens?.handle ?? "") }}
+            <LinkIcon class="w-3 inline" />
+          </a>
         </div>
         <div v-if="lWeb3Profile?.bsky?.handle">
-          <ProfileBskyIcon class="-ml-1 w-6 inline-block" />
-          {{ lWeb3Profile?.bsky?.handle }}
+          <a :href="`/profile/${lWeb3Profile.bsky.handle}`" target="_blank">
+            <ProfileBskyIcon class="-ml-1 w-6 inline-block" />
+            {{ truncateSocialHandle(lWeb3Profile?.bsky?.handle) }}
+            <LinkIcon class="w-3 inline" />
+          </a>
         </div>
-        <div v-if="lWeb3Profile?.threads?.handle">
+        <!-- <div v-if="lWeb3Profile?.threads?.handle">
           <ThreadsIcon class="mr-2 w-4 inline-block" />
           {{ lWeb3Profile?.threads?.handle }}
-        </div>
+        </div> -->
 
         <FollowUnfollwBtn
           :evmAddr="id"
@@ -70,14 +92,13 @@
         >
         <slot name="block"></slot>
         <slot name="report"></slot>
-
       </div>
     </figcaption>
   </figure>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, ref, computed } from "vue";
 import type { PropType } from "vue";
 import { makeRandAvatar } from "shared/src/utils/accounts";
 import DangLoader from "components/vote-list/loader.vue";
@@ -87,7 +108,7 @@ import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import ProfileEthIcon from "icons/src/profileEth.vue";
 import ProfileYupIcon from "icons/src/profileYup.vue";
 import ProfileBskyIcon from "icons/src/bskyClouds.vue";
-import ThreadsIcon from "icons/src/threads.vue";
+// import ThreadsIcon from "icons/src/threads.vue";
 
 import TwitterIcon from "icons/src/twitter.vue";
 import ScoreIcon from "icons/src/score.vue";
@@ -95,6 +116,8 @@ import FollowersIcon from "icons/src/followers.vue";
 import FollowUnfollwBtn from "components/profile/followUnfollowBtn.vue";
 import type { IDepsWeb3Profile } from "shared/src/types/web3/web3Deps";
 import { fetchWeb3Profile } from "shared/src/utils/requests/web3Profiles";
+import LinkIcon from "icons/src/link.vue";
+import { truncateSocialHandle } from "shared/src/utils/misc";
 
 export default defineComponent({
   name: "Web3ProfileCard",
@@ -109,7 +132,8 @@ export default defineComponent({
     FollowersIcon,
     FollowUnfollwBtn,
     ProfileBskyIcon,
-    ThreadsIcon,
+    // ThreadsIcon,
+    LinkIcon,
   },
   props: {
     web3Profile: {
@@ -143,6 +167,17 @@ export default defineComponent({
       props.overWriteEVM ?? props.web3Profile?.evmAddress ?? props.web3Profile?._id ?? ""
     );
     const lWeb3Profile = ref(props.web3Profile);
+    const computedHeyHandle = computed(() => {
+      return lWeb3Profile.value?.lens || "";
+    });
+    const computedAvatar = computed(() => {
+      const checkFarcasterAvatar = lWeb3Profile.value?.farcaster?.avatar
+        ? lWeb3Profile.value?.farcaster?.avatar
+        : lWeb3Profile?.value?.lens?.avatar;
+      return (lWeb3Profile.value?.avatar ?? "").startsWith("https://cdn.bsky.app")
+        ? checkFarcasterAvatar
+        : lWeb3Profile.value?.avatar;
+    });
 
     onMounted(async () => {
       if (props.overWriteEVM) {
@@ -166,6 +201,9 @@ export default defineComponent({
       avatar,
       id,
       lWeb3Profile,
+      truncateSocialHandle,
+      computedHeyHandle,
+      computedAvatar,
     };
   },
 });
@@ -243,13 +281,14 @@ export default defineComponent({
   bottom: 60%;
   left: 50%;
   opacity: 1;
-  box-shadow: 3px 3px 20px #00000080;
-  border: 2px solid rgba(255,255,255,.5);
+  box-shadow: 3px 3px 20px rgba(0, 0, 0, 0.5019607843);
+  border: 2px solid rgba(255, 255, 255, 0.5);
   transform: translate(-50%);
-  background-color: #4d2e19a6;
+  background-color: rgb(0 0 0 / 65%);
   height: 7rem;
   width: 7rem;
-  object-fit: contain;
+  -o-object-fit: contain;
+  object-fit: cover;
 }
 .snip1344 h3 {
   margin: 0 0 5px;

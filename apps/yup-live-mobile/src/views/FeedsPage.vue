@@ -46,7 +46,7 @@
                 :id="(post as Record<string, any>)._id.postid"
                 :key="(post  as Record<string, any>)._id.postid"
                 :post="(post)"
-                :crossPost="() => import('@/views/CrossPostModal.vue')"
+                :crossPost="() => import('@/components/post/reply-btn-mobile.vue')"
                 :postTypesPromises="postTypesPromises"
                 :deps="postDeps"
                 :mobile="true"
@@ -131,7 +131,7 @@ export default defineComponent({
   setup () {
     const loading = ref(true)
     const feeds = [
-      ['dailyhits', 'Daily Hits'],
+      ['dailyhits', 'For You'],
       ['farcaster', 'Farcaster'],
       ['lens', 'Lens'],
       ['bsky', 'BlueSky'], 

@@ -239,6 +239,24 @@
         </div>
       </div>
     </section>
+    <!-- <section id="#add-device" class="body-font relative" >
+      <div class="container px-5 py-2 mx-auto flex">
+        <div
+          class="glassCard rounded-lg p-8 flex flex-col md:ml-auto w-full mt-10 md:mt-0 relative shadow-md"
+        >
+          <h2 class="text-lg mb-1 font-medium title-font">Connect Device</h2>
+          <button
+            :disabled="isDeleteLoading"
+            class="bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+            @click="settingsModal = true"
+          >
+            <BtnSpinner v-if="isDeleteLoading" class="inline mr-2" />Get Connecting code
+          </button>
+        </div>
+      </div>
+    </section> -->
+    <AddDevice />
+    <AddAccount />
     <section class="body-font relative">
       <div class="container px-5 py-2 mx-auto flex">
         <div
@@ -554,6 +572,8 @@ import QrcodeVue from "qrcode.vue";
 import { CancelablePromise } from "shared/src/utils/misc";
 import ThreadsIcon from "icons/src/threads.vue";
 import { connectToThreads, disconnectThreads } from "shared/src/utils/requests/threads";
+import AddDevice from "@/components/content/profile/settings/addDevice.vue";
+import AddAccount from "@/components/content/profile/settings/addAccount.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -571,6 +591,8 @@ export default defineComponent({
     // WalletIcon,
     BlueSkyIcon,
     ThreadsIcon,
+    AddDevice,
+    AddAccount
   },
   props: {
     userData: {

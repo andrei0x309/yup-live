@@ -6,8 +6,8 @@
     <div class="bg-color table-list w-full mb-4">
       <DangLoader v-if="isDataLoading" />
       <template v-else>
-      <h2 class="text-center text-[1.1rem]">Post</h2>
-      <h2 class="text-center text-[0.9rem] mt-2 mb-4">{{ postId }}</h2>
+      <h2 class="text-center text-[1.1rem]"><component :is="icons?.[processedPost?.tag ?? '']" v-if="icons?.[processedPost?.tag ?? '']" class="w-4 h-4 inline-block" /> Post</h2>
+      <h2 class="text-center text-[0.7rem] mt-2 mb-4">{{ postId }}</h2>
       <div class="flex flex-col">
       <Post
         :id="postId"
@@ -15,7 +15,7 @@
         :post="processedPost"
         :postTypesPromises="postTypesPromises"
         :deps="postDeps"
-        :crossPost="() => import('@/views/CrossPostModal.vue')"
+        :crossPost="() => import('@/components/post/reply-btn-mobile.vue')"
         :mobile="true"
         @updatepostinfo="openInfoModal"
       />
@@ -71,6 +71,10 @@ import { IPost } from "shared/src/types/post";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
 import { IWeb3Profile } from 'shared/src/types/web3Profile'
 import Web3ProfileCard from 'components/profile/web3ProfileCard.vue'
+import TwitterIcon from "icons/src/twitter.vue";
+import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
+import ProfileLensIcon from "icons/src/profileLens.vue";
+import BlueSkyIcon from "icons/src/bsky.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -120,6 +124,13 @@ export default defineComponent({
     const infoModalOpen = ref(false);
     const followersCount = ref(0);
 
+    const icons = {
+      twitter: TwitterIcon,
+      farcaster: ProfileFarcasterIcon,
+      lens: ProfileLensIcon,
+      bsky: BlueSkyIcon,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
 
     const openInfoModal = () => {
       infoModalOpen.value = true;
@@ -168,7 +179,8 @@ export default defineComponent({
       openInfoModal,
       postDeps,
       web3Deps,
-      followersCount
+      followersCount,
+      icons
     };
   },
 });

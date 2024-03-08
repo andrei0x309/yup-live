@@ -1,7 +1,4 @@
 <template>
-  <button v-if="showReplyButton" class="view-btn flex ml-2" @click="openPostModal = true">
-    <ReplyIcon class="inline-block w-4" />Reply
-  </button>
   <o-modal v-model:active="openPostModal" contentClass="modalDefault" @close="sendClose">
     <section class="body-font relative">
       <div class="container p-1 mx-auto flex">
@@ -37,9 +34,9 @@
 
           <template v-if="modalContent == 'posting'">
             <h2 class="text-lg mb-1 font-medium title-font">
-              {{ platforms?.length > 1 ? "Create New Post" : "Reply" }}
+              {{ intialPlatforms?.length > 1 ? "Create New Post" : "Reply" }}
             </h2>
-            <div v-if="platforms?.length > 1" class="block my-4">
+            <div v-if="intialPlatforms?.length > 1" class="block my-4">
               <o-checkbox
                 v-for="platfrom of userPlatforms"
                 :key="platfrom"
@@ -160,6 +157,7 @@
             <div>
               <div class="flex justify-center mb-4">
               <button
+                v-if="intialPlatforms?.length > 1"
                 :disabled="isSendPost"
                 class="w-1/2 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
                 @click="addToThread"
@@ -180,7 +178,7 @@
               </button>
               </div>
               <button
-                v-show="!replyTo && showFcChannel"
+                v-show="intialPlatforms?.length > 1 && showFcChannel"
                 class=" dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mb-4"
                 @click="
                   () => {
@@ -208,6 +206,7 @@
               </button>
               <div class="flex justify-between mb-4">
               <button
+                 v-if="intialPlatforms?.length > 1 && localReplyTo"
                 :disabled="isSendPost"
                 class="w-1/2 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
                 @click="modalContent = 'scheduling'"
@@ -222,7 +221,7 @@
                 @click="doSendPost"
               >
                 <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SendIcon
-                  class="w-6 inline mr-2"
+                  class="w-5 inline mr-2"
                 />Send
               </button>
               </div>
@@ -326,7 +325,6 @@
 import {
   defineComponent,
   onMounted,
-  PropType,
   ref,
   watch,
   onUnmounted,
@@ -337,7 +335,6 @@ import BtnSpinner from "icons/src/btnSpinner.vue";
 import Alert from "components/functional/alert.vue";
 import { useMainStore } from "@/store/main";
 import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
-import ReplyIcon from "icons/src/reply.vue";
 import type { TPlatform, IReplyTo, TChannel, ISendPostData } from "shared/src/types/web3-posting";
 import ImageUploadIcon from "icons/src/imageUpload.vue";
 import SendIcon from "icons/src/send.vue";
@@ -370,7 +367,6 @@ export default defineComponent({
   components: {
     BtnSpinner,
     Alert,
-    ReplyIcon,
     SendIcon,
     ClockIcon,
     ImageUploadIcon,
@@ -385,26 +381,16 @@ export default defineComponent({
     VideoUploadIcon
   },
   props: {
-    replyTo: {
-      type: Object as PropType<IReplyTo | null>,
-      required: false,
-      default: null,
-    },
-    showReplyButton: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
     crossPost: {
       type: Boolean,
       required: false,
       default: false,
     },
-    platforms: {
-      type: Array as PropType<TPlatform[]>,
-      required: false,
-      default: () => PLATFORMS,
-    },
+    // platforms: {
+    //   type: Array as PropType<TPlatform[]>,
+    //   required: false,
+    //   default: () => PLATFORMS,
+    // },
     openModal: {
       type: Boolean,
       required: false,
@@ -414,18 +400,17 @@ export default defineComponent({
   emits: ["success", "update:openModal"],
   setup(props, ctx) {
     const openPostModal = ref(props.openModal);
-
-
-
     const postError = ref("");
     const postErrorKey = ref(0);
     const isSendPost = ref(false);
     const store = useMainStore();
-    const userPlatforms = PLATFORMS.filter((p) => store.userData?.connected?.[p]);
-    const postPlatforms = ref(props.platforms.filter((p) => userPlatforms.includes(p)));
+    const intialPlatforms = ref(store.openPostPlatforms ?? PLATFORMS);
+    const userPlatforms = ref(PLATFORMS.filter((p) => store.userData?.connected?.[p]))
+    const postPlatforms = ref((intialPlatforms.value ?? PLATFORMS).filter((p) => userPlatforms.value.includes(p)));
     const isFileUploading = ref(false);
     const maxCharCount = ref(getMaxCharCount(postPlatforms.value));
     const postErrorType = ref("error");
+    const localReplyTo = ref(store.openPostModalReply);
 
 
     const isVideoUploading = ref(false);
@@ -527,9 +512,34 @@ export default defineComponent({
       }
     );
 
+    const resetModalState = () => {
+        //  posts.forEach((p) => {
+        //    p.images = [];
+        //    p.videos = [];
+        //    p.postContent = "";
+        //  });
+         localReplyTo.value = null;
+         store.openPostModalReply = null;
+         store.openPostPlatforms = PLATFORMS;
+         openPostModal.value = false
+    }
+
+    watch( () => store.openPostModal , (newVal) => {
+       if (newVal) {
+         localReplyTo.value = store.openPostModalReply;
+         intialPlatforms.value = store.openPostPlatforms ?? PLATFORMS;
+         userPlatforms.value = PLATFORMS.filter((p) => store.userData?.connected?.[p]);
+         postPlatforms.value = (intialPlatforms.value ?? PLATFORMS).filter((p) => userPlatforms.value.includes(p));
+         openPostModal.value = newVal;
+       } else {
+          resetModalState()
+       }
+    });
+
     const fileToBase64 = (file: File) => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
+        console.log('file', file)
         reader.readAsDataURL(file);
         reader.onload = () => resolve(reader.result);
         reader.onerror = (error) => reject(error);
@@ -537,7 +547,8 @@ export default defineComponent({
     };
 
     const onFileUpload = async (f: File | Event, index: number) => {
-      const imageFile = (posts?.[index]?.fileInput?.files?.[0] ?? f) as File;
+      const isFile = f instanceof File;
+      const imageFile =  ( isFile ? f : posts?.[index]?.fileInput?.files?.[0] ) as File;
       if (!imageFile) return;
       isFileUploading.value = true;
       const imageBase64 = await fileToBase64(imageFile);
@@ -620,6 +631,9 @@ export default defineComponent({
 
     const sendClose = () => {
       ctx.emit("update:openModal", false);
+      resetModalState()
+      store.openPostModal = false;
+      openPostModal.value = false;
     };
 
     const deleteImage = (id: string, index: number) => {
@@ -628,8 +642,8 @@ export default defineComponent({
 
     const doSendPost = async () => {
       let replyTo: IReplyTo | undefined = undefined;
-      if (props.replyTo) {
-        replyTo = props.replyTo;
+      if (localReplyTo.value) {
+        replyTo = localReplyTo.value;
       }
       if ((farcasterChannel.value as TChannel)?.parent_url) {
         replyTo = {
@@ -672,8 +686,7 @@ export default defineComponent({
     }
       if (result) {
         ctx.emit("success");
-        openPostModal.value = false;
-        ctx.emit("update:openModal", false);
+        sendClose()
       }
     };
 
@@ -681,8 +694,8 @@ export default defineComponent({
       if (isSheduling.value) return;
       isSheduling.value = true;
       let replyTo: IReplyTo | undefined = undefined;
-      if (props.replyTo) {
-        replyTo = props.replyTo;
+      if (localReplyTo.value) {
+        replyTo = localReplyTo.value;
       }
       if ((farcasterChannel.value as TChannel)?.parent_url) {
         replyTo = {
@@ -732,9 +745,8 @@ export default defineComponent({
       });
       if (result?.ok) {
         ctx.emit("success");
-        openPostModal.value = false;
-        ctx.emit("update:openModal", false);
         stackAlertSuccess("Post scheduled successfully.");
+        sendClose()
       } else {
         if (result?.error === "insufficient") {
           stackAlertWarning(
@@ -756,7 +768,7 @@ export default defineComponent({
           }
         }
       };
-
+      console.log('intialPlatforms', intialPlatforms.value)
       document.addEventListener("paste", pasteListner);
     });
 
@@ -799,7 +811,9 @@ export default defineComponent({
       isVideoUploading,
       deleteVideo,
       onVideoFileUpload,
-      postErrorType
+      postErrorType,
+      localReplyTo,
+      intialPlatforms
     };
   },
 });
@@ -861,4 +875,5 @@ export default defineComponent({
     background-color: var(--glassBg) !important;
   }
 }
+ 
 </style>

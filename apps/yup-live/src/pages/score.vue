@@ -33,9 +33,12 @@
               <h2>
                 Computed Score <b>{{ yupAccount.data.yup_score.toFixed(3) }}</b>
               </h2>
-              <p>
-                Next Refresh: <b>{{ yupAccount.data.expiration }}</b>
-              </p>
+              <p v-if="!isConsideredSpam">
+                  Next Refresh: <b>{{ yupAccount.data.expiration }}</b>
+                </p>
+                <p v-else>
+                Acccount has too <b>low activity</b> to be considered for a score, score will not be refreshed.
+                </p>
               <p>
                 Blacklisted: <b>{{ yupAccount.data.blacklisted ? "Yes" : "No" }}</b>
               </p>
@@ -205,6 +208,8 @@ export default defineComponent({
     const isDataLoading = ref(false);
     const store = useMainStore();
     const isLoggedIn = ref(store.isLoggedIn);
+    const isConsideredSpam = ref(false);
+
 
     store.$subscribe(() => {
       isLoggedIn.value = store.isLoggedIn;
@@ -277,6 +282,13 @@ export default defineComponent({
           apiBase: API_BASE,
           stackAlertWarning
         });
+
+        if(yupAccount?.value?.data?.expiration === '0001-01-01T00:00:00') {
+        isConsideredSpam.value = true;
+       } else {
+        isConsideredSpam.value = false;
+       }
+
       isDataLoading.value = false;
     };
 
@@ -289,6 +301,13 @@ export default defineComponent({
           stackAlertWarning
         });
       }
+
+      if(yupAccount?.value?.data?.expiration === '0001-01-01T00:00:00') {
+        isConsideredSpam.value = true;
+       } else {
+        isConsideredSpam.value = false;
+       }
+
       isDataLoading.value = false;
     });
 
@@ -302,6 +321,7 @@ export default defineComponent({
       formatNumber,
       truncteEVMAddr,
       parseIpfs,
+      isConsideredSpam
     };
   },
 });

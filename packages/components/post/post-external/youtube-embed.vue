@@ -1,7 +1,8 @@
 <template>
-  <div>
+  <div class="mt-2">
   <BtnSpinner v-if="loading" />
   <iframe
+    loading="lazy"
     class="w-full min-h-60"
     :src="`https://www.youtube-nocookie.com/embed/${videoId}`"
     title="YouTube video player"

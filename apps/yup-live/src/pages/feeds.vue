@@ -4,7 +4,7 @@
       <nav class="feedNav">
         <ul>
           <li>
-            <router-link :class="activeFeed === feeds[0] ? 'navActive' : ''" :to="`/feeds/${feeds[0]}${userId ? '?userId='+userId : ''}`">Daily Hits</router-link>
+            <router-link :class="activeFeed === feeds[0] ? 'navActive' : ''" :to="`/feeds/${feeds[0]}${userId ? '?userId='+userId : ''}`">For You</router-link>
           </li>
           <li>
             <router-link :class="activeFeed === feeds[1] ? 'navActive' : ''" :to="`/feeds/${feeds[1]}${userId ? '?userId='+userId : ''}`">BlueSky</router-link>
@@ -33,6 +33,23 @@
           </li>
         </ul>
       </nav>
+      <div>Farcaster Channels</div>
+      <nav class="feedNav">
+        <ul>
+          <li>
+            <router-link :class="activeFeed === feeds[8] ? 'navActive' : ''" :to="`/feeds/${feeds[8]}`">Yup</router-link>
+          </li>
+          <li>
+            <router-link :class="activeFeed === feeds[9] ? 'navActive' : ''" :to="`/feeds/${feeds[9]}`">Farcaster</router-link>
+          </li>
+          <li>
+            <router-link :class="activeFeed === feeds[10] ? 'navActive' : ''" :to="`/feeds/${feeds[10]}`">Memes</router-link>
+          </li>
+          <li>
+            <router-link :class="activeFeed === feeds[11] ? 'navActive' : ''" :to="`/feeds/${feeds[11]}`">Crypto Left</router-link>
+          </li>
+        </ul>
+      </nav>
     </div>
 
     <div class="bg-color table-list w-full mb-4">
@@ -52,7 +69,7 @@
                 :postTypesPromises="postTypesPromises"
                 :isHidenInfo="(post  as Record<string, any>)._id.postid === (postInfo as Record<string, any>)._id.postid"
                 :deps="deps"
-                :crossPost="() => import('@/components/content/post/crossPost.vue')"
+                :crossPost="() => import('@/components/content/post/replyButton.vue')"
                 @updatepostinfo="
                   (postid: string) => {
                     postInfo = posts.find((p: any): boolean => postid === p._id.postid)
@@ -112,6 +129,11 @@ const deps: IPostDeps = {
     ToolTip: OTooltip
   }
 
+ const YUP_CHANNEL_URL = 'https://warpcast.com/~/channel/yup'
+ const FARCASTER_CHANNEL_URL = 'chain://eip155:7777777/erc721:0x4f86113fc3e9783cf3ec9a552cbb566716a57628'
+ const MEME_CHANNEL_URL = 'chain://eip155:1/erc721:0xfd8427165df67df6d7fd689ae67c8ebf56d9ca61'
+ const CRYPTO_LEFT_CHANNEL_URL = 'https://warpcast.com/~/channel/cryptoleft'
+
 const FEED_APIS: Record<string, string> = {
   dailyhits: 'https://api.yup.io/feed/dailyhits',
   bsky: 'https://api.yup.io/feed/bsky',
@@ -120,7 +142,11 @@ const FEED_APIS: Record<string, string> = {
   recent: 'https://api.yup.io/feed/recent',
   farcaster: 'https://api.yup.io/feed/farcaster',
   lens: 'https://api.yup.io/feed/lens',
-  twitter: 'https://api.yup.io/feed/twitter'
+  twitter: 'https://api.yup.io/feed/twitter',
+  yupchannel: 'https://api.yup.io/feed/channel/get?parentUrl=' + YUP_CHANNEL_URL,
+  farcasterchannel: 'https://api.yup.io/feed/channel/get?parentUrl=' + FARCASTER_CHANNEL_URL,
+  memechannel: 'https://api.yup.io/feed/channel/get?parentUrl=' + MEME_CHANNEL_URL,
+  cyptoleftchannel: 'https://api.yup.io/feed/channel/get?parentUrl=' + CRYPTO_LEFT_CHANNEL_URL
 }
 
 export default defineComponent({
@@ -136,7 +162,7 @@ export default defineComponent({
   setup() {
     const route = useRoute()
     const loading = ref(true)
-    const feeds = ['dailyhits', 'bsky', 'nfts', 'mirror', 'recent', 'farcaster', 'lens', 'twitter']
+    const feeds = ['dailyhits', 'bsky', 'nfts', 'mirror', 'recent', 'farcaster', 'lens', 'twitter', 'yupchannel', 'farcasterchannel', 'memechannel', 'cyptoleftchannel']
     const defaultFeed = (route.params.feedId as string) ?? 'dailyhits'
     let userId = (route.query.userId as string) ?? ''
     const posts = ref([]) as Ref<Array<IPost>>
@@ -205,7 +231,17 @@ export default defineComponent({
           userId = feedPersonalization.value;
         }
       }
-      const res = await fetch(`${FEED_APIS[activeFeed.value]}?start=${start}&limit=10${userId ? '&account='+userId : ''}`, {
+
+      let url
+      if(FEED_APIS[activeFeed.value].includes('/channel')){
+        url = `${FEED_APIS[activeFeed.value]}&start=${start}&limit=10${userId ? '&account='+userId : ''}`
+      } else {
+        url = `${FEED_APIS[activeFeed.value]}?start=${start}&limit=10${userId ? '&account='+userId : ''}`
+      }
+      // console.log('url', url)
+      // return []
+
+      const res = await fetch(url, {
         headers: {
           'Content-Type': 'application/json'
         }

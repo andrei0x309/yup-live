@@ -7,28 +7,14 @@
     controls
     playsinline
     preload="auto"
-    @canplay="canPlay"
-    data-setup="{}"
+    data-setup='{ "suppressNotSupportedError": true }'
   >
     <source :src="videoSource" :type="videType" />
   </video>
-  <div
-    v-else-if="!loading && isError"
-    :class="`noPreview rounded-t-lg ${noPreviewClass} relative`"
-  >
-    <img
-      class="postBkImg md:min-w-[24rem] w-full max-h-[14rem]"
-      alt="random image"
-      :src="makeRandomPreview(true)"
-      loading="lazy"
-    />
-    <YoutubeIcon class="noImgIcon" />
-    <p class="noImg-txt hidden md:flex relative">Video is not available</p>
-  </div>
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref } from "vue";
+import { onMounted, defineComponent, ref, Ref } from "vue";
 import { makeRandomPreview } from "shared/src/utils/misc";
 import YoutubeIcon from "icons/src/youtube.vue";
 import { getVideoTypeFromUrl } from "shared/src/utils/misc";
@@ -73,7 +59,7 @@ export default defineComponent({
     vidCss.rel = "stylesheet";
     vidCss.id = "videojs-core-css";
 
-    const videoPlayer = ref(null);
+    const videoPlayer = ref(null) as Ref<Record<string, any> | null>;
 
     const canPlay = () => {
       loading.value = false;
@@ -90,16 +76,19 @@ export default defineComponent({
         document.head.appendChild(vidCss);
       }
       let timer = 0;
+ 
+
       do {
         if (videoPlayer.value) {
           await wait(100);
-          if(videojs) {
-            videojs?.(videoPlayer.value as any);
-          }
           timer += 100;
           (videoPlayer.value as any)?.hook?.("error", function () {
             error();
           });
+          if(typeof videojs === "function") {
+            videojs(videoPlayer.value);
+            break;
+          }
         }
       } while (timer < 5000 && typeof (videoPlayer.value as any)?.hook === "function");
     });

@@ -110,14 +110,47 @@
           </ion-card-content>
         </ion-card>
       </div>
-      <div class="mt-20 mb-4">
-        <ion-button class="info-btn" fill="clear" @click="infoModalOpen = true"
+      <div class="mt-8 mb-4">
+        <ion-button
+          class="info-btn"
+          fill="clear"
+          @click="
+            () => {
+              reviewModalLogin = false;
+              codeModalLogin = false;
+              infoModalOpen = true;
+            }
+          "
           >INFO - YUP</ion-button
         >
       </div>
 
       <div class="mt-2 mb-6">
-        <ion-button class="info-btn" fill="clear" @click="reviewModalLogin = true"
+        <ion-button
+          class="info-btn"
+          fill="clear"
+          @click="
+            () => {
+              infoModalOpen = false;
+              codeModalLogin = true;
+              reviewModalLogin = false;
+            }
+          "
+          >Desktop Login</ion-button
+        >
+      </div>
+
+      <div class="mt-2 mb-6">
+        <ion-button
+          class="info-btn"
+          fill="clear"
+          @click="
+            () => {
+              infoModalOpen = false;
+              codeModalLogin = false;
+              reviewModalLogin = true;
+            }
+          "
           >Review Login</ion-button
         >
       </div>
@@ -135,8 +168,9 @@
       <ion-content class="ion-padding pb-10">
         <h3 class="text-center mb-4">TLDR</h3>
         <p>
-          This application is an alternative light client for Yup.io, it's open-source and
-          available on multiple platforms.
+          This application onpen-soruce community client for Yup.io, it allows you to to
+          aggregate content from multiple social media and interact with them. Source code
+          is available on GitHub: andrei0x309/yup-live.
         </p>
 
         <h3 class="mt-4 text-center mb-4">FAQ:</h3>
@@ -146,8 +180,7 @@
               <li class="mb-2">Q: Why do I need a wallet installed on my device?</li>
               <li class="mb-2">
                 A: Sign in to an Ethereum DAPP is usually made by signing a message thus
-                you need a wallet. In theory, you can sign in / sign-up even on a desktop
-                if you copy the link from the QR modal and input it in any wallet.
+                you need a wallet. But you can also sign in using a desktop website.
               </li>
             </ul>
             <ul class="mb-4">
@@ -161,23 +194,23 @@
               <li class="mb-2">Q: Is the signup open?</li>
               <li class="mb-2">
                 A: No, is currently gated by requiring to meet one of 3 conditions: (1)
-                Yup Score of 25, (2) Be on Allow List. There are many whitelisted address
-                so you can try to sign-up
+                Yup Score of 25, (2) Be on Allow List. (3) Be a farcaster user. There are
+                many whitelisted address so you can try to sign-up
               </li>
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: What I can do on YUP?</li>
               <li class="mb-2">
-                A: Browse content, and like, post on multiple other soical media
-                platforms, connect accounts and receive aggregated notifications from
-                platforms that you have connected.
+                A: Browse content, and like, and post on multiple other social media
+                platforms(farcaster, Bluesky, Lens, Twitter), connect accounts and receive
+                aggregated notifications from platforms that you have connected.
               </li>
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: Is this app open-source?</li>
               <li class="mb-2">
-                A: Yes, alongside the web-app application and desktop bundle, you can
-                finde the code on
+                A: Yes, alongside the web-app application and desktop bundle, you can find
+                the code on
                 <pre class="inline">yup-live</pre>
                 repo on my GitHub account
                 <pre class="inline">andrei0x309</pre>
@@ -188,7 +221,8 @@
               <li class="mb-2">Q: Is this app available on IOS?</li>
               <li class="mb-2">
                 A: No, it's available on these platforms: Android, Web, Win, Linux, Mac,
-                but not IOS as it requires some costs that I don't want to cover.
+                but not IOS as it requires some costs I can't cover. Source could be
+                modified to work on IOS too.
               </li>
             </ul>
           </li>
@@ -201,7 +235,7 @@
         <ion-toolbar>
           <ion-title>Review Login</ion-title>
           <ion-buttons slot="end">
-            <ion-button @click="infoModalOpen = false">Close</ion-button>
+            <ion-button @click="reviewModalLogin = false">Close</ion-button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
@@ -219,12 +253,52 @@
             <ion-input v-model="reviewPassword" placeholder=""></ion-input>
           </ion-item>
 
-          <CustomButton
-            :disabled="loading"
-            class="ion-margin"
-            text="Log in"
-            @click="reviewLogin"
-          />
+          <ion-item mode="ios">
+            <CustomButton
+              :disabled="loading"
+              class="mx-auto my-4"
+              text="Log in"
+              @click="reviewLogin"
+            />
+          </ion-item>
+        </ion-card-content>
+      </ion-content>
+    </ion-modal>
+
+    <ion-modal :is-open="codeModalLogin">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Desktop Login</ion-title>
+          <ion-buttons slot="end">
+            <ion-button @click="codeModalLogin = false">Close</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <h3 class="text-center mb-4">Login using desktop</h3>
+
+        <ion-card-content class="ion-justify-content-center">
+          <ion-item mode="ios">
+            <p class="p-4">
+              Open desktop at <a href="https://yup.live" target="_blank">yup.live</a> or
+              <a href="https://yup-live.pages.dev" target="_blank">yup-live.pages.dev</a>
+              after you signed in, go to setting "Connect Device" and click "Generate Auth
+              Code", then input the code below to login
+            </p>
+          </ion-item>
+
+          <ion-item mode="ios">
+            <ion-input label="Auth Code" label-placement="floating" fill="outline" placeholder="1sL1337Ls" v-model="codeInput" />
+          </ion-item>
+
+          <ion-item mode="ios">
+            <CustomButton
+              :disabled="loading"
+              class="ion-margin"
+              text="Log in"
+              @click="codeLogin"
+            />
+          </ion-item>
         </ion-card-content>
       </ion-content>
     </ion-modal>
@@ -279,6 +353,7 @@ import CustomButton from "@/components/misc/button-connect-page.vue";
 import { useRouter } from "vue-router";
 import HeaderBar from "@/components/template/header-bar.vue";
 import { getConnected } from "shared/src/utils/requests/accounts";
+import { verifyLoginCode } from "shared/src/utils/auth";
 
 const currentSegment = ref("login");
 const username = ref("");
@@ -292,8 +367,10 @@ const tostMsg = ref("");
 const router = useRouter();
 const infoModalOpen = ref(false);
 const reviewModalLogin = ref(false);
+const codeModalLogin = ref(false);
 const reviewUsername = ref("");
 const reviewPassword = ref("");
+const codeInput = ref("");
 
 const segmentChange = (value: any) => {
   currentSegment.value = value.detail.value;
@@ -370,12 +447,12 @@ const doLogin = (params: Awaited<ReturnType<typeof onSignup>>) => {
         avatar: params?.avatar ?? "",
         authToken: params?.authToken ?? "",
         weight: params?.weight ?? "1",
-        fid: ''
+        fid: "",
       };
       storage.set("authInfo", JSON.stringify(userAuth));
       mainStore.userData = userAuth;
       mainStore.isLoggedIn = true;
-      getConnected(mainStore, userAuth.account,  userAuth.address).catch((err) => {
+      getConnected(mainStore, userAuth.account, userAuth.address).catch((err) => {
         console.error("Failed to get connected", err);
       });
       router.replace("/tabs/feeds");
@@ -407,6 +484,29 @@ const onLoginLocal = async () => {
     setAlert,
   });
   doLogin(loginResult);
+  loading.value = false;
+};
+
+const codeLogin = async () => {
+  loading.value = true;
+  const res = await verifyLoginCode({ code: codeInput.value, store: mainStore });
+  if (!res) {
+    loading.value = false;
+    toastState.value = true;
+    tostMsg.value = "Invalid code";
+    return;
+  }
+  const loginRes = {
+      address: res?.address ?? "",
+      _id: res?.accountId ?? "",
+      avatar: res?.avatar ?? "",
+      weight: res?.weight ?? 1,
+      signature: "",
+      authToken: res?.jwt ?? "",
+      username: res?.username ?? "",
+    };
+  codeModalLogin.value = false;
+  doLogin(loginRes);
   loading.value = false;
 };
 

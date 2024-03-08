@@ -8,7 +8,7 @@ const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 const w3libsP = web3Libs()
 
 export const web3ModalInstantiate = async (
-    { loadState = null, setAlert = null }: { loadState: null | Function, setAlert: null | Function }
+    { loadState = null, setAlert = null }: { loadState: null | Function, setAlert: null | Function } = { loadState: null, setAlert: null }
 ) => {
     try {
         await wait(500)
@@ -259,6 +259,15 @@ const createAccount = async ({ username, address, signature, loadState = null, s
     }
 }
 
+
+export const getWalletAddress = async () => {
+    const inst = await web3ModalInstantiate()
+    if (inst) {
+        return inst.address
+    }
+    return null
+}
+
 export const onSignup = async (
     {
         username,
@@ -350,7 +359,8 @@ export const onLogin = async ({
 }: {
     loadState: null | Function,
     setAlert: null | Function,
-}) => {
+    } = { loadState: null, setAlert: null }
+) => {
     if (loadState) {
         loadState('start')
     }

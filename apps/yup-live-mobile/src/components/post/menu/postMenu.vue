@@ -132,6 +132,8 @@ import {
   flag,
   openOutline,
 } from "ionicons/icons";
+import { deletePost } from 'shared/src/utils/requests/web3-posting'
+
 
 import { addBlockedPost } from "shared/src/utils/post";
 
@@ -188,6 +190,11 @@ export default defineComponent({
       required: false,
       default: () => ({ url: "" }),
     },
+    isOwner: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
   },
   emits: ["update:vote", "deletedvote"],
   setup(props, ctx) {
@@ -216,7 +223,7 @@ export default defineComponent({
     const onError = () => {
       isError.value = true;
       isLoading.value = false;
-      console.log("error", isError.value);
+      console.error("error", isError.value);
     };
 
     const onLoad = () => {
@@ -287,6 +294,32 @@ export default defineComponent({
         stackAlertError("The vote could not be deleted!");
       }
     };
+
+    const delPost = async () => {
+        try {
+          delLoading.value = true
+
+
+          const delReq = await deletePost({
+            postid: props.postId,
+            apiBase: API_BASE,
+            store
+          })
+          if (delReq) {
+            store.deletePost = props.postId
+            ctx.emit('update:vote', Promise.resolve([]))
+            ctx.emit('deletedvote')
+          } else {
+            stackAlertError('There was an error and it post was not removed, please try to re-login.')
+          }
+          delLoading.value = false
+        } catch (error) {
+          console.error('error', error)
+          stackAlertError('The post could not be deleted!')
+        }
+
+        menuOpen.value = false
+    }
 
     const blockPost = async () => {
       try {
@@ -449,14 +482,25 @@ export default defineComponent({
         });
       }
 
+      if (props.isOwner) {
+        buttons.push({
+          text: "Delete Post",
+          role: "delete-post",
+          icon: trashBinOutline,
+          data: {
+            action: "delete-post",
+          },
+        });
+      } else {
       buttons.push({
-        text: "Block Item",
+        text: "Block Post",
         role: "block",
         icon: trashBinOutline,
         data: {
           action: "block",
         },
       });
+    }
 
       buttons.push({
         text: "Cancel",
@@ -504,6 +548,11 @@ export default defineComponent({
 
           case "block": {
             blockPost();
+            break;
+          }
+
+          case "delete-post": {
+            delPost();
             break;
           }
 

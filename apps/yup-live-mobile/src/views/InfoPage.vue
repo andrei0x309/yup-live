@@ -140,23 +140,26 @@
         <ion-card-content class="ion-justify-content-center pb-10 log-page">
           <ol>
           <li>Tapping avatars and handles of web3 posts will open their web3 profile page.</li>
-          <li>Web3 profiles are sourced from active users that use Ethereum and polygon networks.</li>
+          <li>Web3 profiles are mainly sourced from active users that use Ethereum and polygon networks.</li>
           <li>Web3 profiles will show indexed content and data connected to that user</li>
           <li>Tapping on the star of a web3 profile will open the yup score page of that profile</li>
           <li>Yup score is a blockchain-based reputation system that is used to rank a user address</li>
           <li>Protocol will auto-copy followers from other social networks</li>
           <li>The primary identification of a web3 profile is the Ethereum address</li>
           <li>Yup mobile products can be used only in authenticated mode</li>
-          <li>Signup and login necessitate using an Ethereum wallet</li>
+          <li>Signup and login require using an Ethereum wallet</li>
           <li>Following users will affect your feed as long as personalization is enabled</li>
           <li>Notifications are stored only for a couple of days</li>
-        <li>Main web3 posts are comming from Farcaster Lens and Mirror secondary web3 posts are NFTs POAPs Snapshots</li>
+        <li>Main web3 posts are comming from Farcaster, Lens, Bluesky, Mirror and other sources like web3 posts are NFTs POAPs Snapshots</li>
           </ol>
         </ion-card-content>
         <h3 class="text-center -mt-4 mb-4">Aditional Help</h3>
         <ion-card-content class="ion-justify-content-center pb-10 log-page mb-10">
-          
           <p class="text-center">If you need any help, please join discord.</p>
+        </ion-card-content>
+        <h3 class="text-center -mt-4 mb-4">How to Help</h3>
+        <ion-card-content class="ion-justify-content-center pb-10 log-page mb-10">
+          <p class="text-center">This is an open source monorepo project which is maintained by a sole developer. If you want to help, you could rate the app, share it with your friends, star the repo, or contribute to the codebase.</p>
         </ion-card-content>
       </ion-content>
     </ion-modal>

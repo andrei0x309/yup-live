@@ -170,7 +170,7 @@
                     :id="(post as Record<string, any>)._id.postid"
                     :key="(post  as Record<string, any>)._id.postid"
                     :post="post"
-                    :crossPost="() => import('@/views/CrossPostModal.vue')"
+                    :crossPost="() => import('@/components/post/reply-btn-mobile.vue')"
                     :postTypesPromises="postTypesPromises"
                     :deps="postDeps"
                     :mobile="true"

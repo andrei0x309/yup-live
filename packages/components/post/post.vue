@@ -1,11 +1,11 @@
 <template>
   <div
-    :class="`flex justify-between my-4 flex-row pPost ${postTypeClass}`"
-    :id="`p-${processedPost.id}`"
+    :class="`flex justify-between my-4 flex-row pPost ${postTypeClass} ${postTypeLoading ? 'postLoading' : ''}`"
   >
     <div
       class="flex flex-col max-w-2xl mx-auto postCard w-full md:min-w-[21rem] lg:min-w-[36rem] xl:min-w-[36rem]`"
       :style="full && post.tag === 'mirror' ? 'max-width: 56rem;' : ''"
+      :id="`${postElId}`"
     >
       <component
         :is="!postTypeLoading ? postTypeCom : undefined"
@@ -35,17 +35,11 @@
               :toolTipComponent="deps.ToolTip"
             />
             <div class="flex ml-auto">
-              <router-link
-                v-if="commentsNum > 0"
-                class="mr-2"
-                :to="`/post/${processedPost.id}`"
+              <router-link class="mr-2" :to="`/post/${processedPost.id}`"
                 ><ComentsIcon class="inline-block w-5 mr-2" />{{
                   commentsNum
                 }}</router-link
               >
-              <router-link v-else-if="!full" :to="`/post/${processedPost.id}`"
-                ><RadarIcon class="inline-block w-4 mr-2"
-              /></router-link>
               <InfoIcon
                 v-if="!isHidenInfo"
                 class="hidden !w-5 lg:flex ml-2 mr-4 cursor-pointer"
@@ -100,6 +94,7 @@ import {
   shallowRef,
   watch,
   PropType,
+  onUnmounted,
 } from "vue";
 import Voting from "components/post/voting.vue";
 import FavIco from "components/post/favIco.vue";
@@ -108,11 +103,13 @@ import InfoIcon from "icons/src/infoIcon.vue";
 import { hasVote } from "shared/src/utils/requests/vote";
 import type { Vote } from "shared/src/types/vote";
 import ComentsIcon from "icons/src/comments.vue";
-import RadarIcon from "icons/src/radar.vue";
 import { processPost } from "shared/src/utils/post";
 import type { IPost, IProcessedPost } from "shared/src/types/post";
 import { useRoute } from "vue-router";
 import type { IPostDeps } from "shared/src/types/post";
+import { useRouter } from "vue-router";
+import { searchWeb3ProfileByHandle } from "shared/src/utils/requests/web3Profiles";
+import { PLATFORMS } from "shared/src/utils/requests/web3-posting";
 
 export default defineComponent({
   name: "Post",
@@ -122,7 +119,6 @@ export default defineComponent({
     FavIco,
     InfoIcon,
     ComentsIcon,
-    RadarIcon,
   },
   props: {
     post: {
@@ -173,6 +169,7 @@ export default defineComponent({
     const route = useRoute();
     const nested = (route.query.nested as string) ?? "";
     const commentsEnabled = ref(false);
+    const postElId = `pst-${props.post._id.postid}`;
 
     const processedPost = (reactive({
       id: "",
@@ -189,6 +186,8 @@ export default defineComponent({
       web3Preview: {},
       web3CreatorProfile: null,
       crossPostGroup: {},
+      tag: "",
+      channel: null,
       //   isMirror: false,
       //   isWeb3: false,
       //   isTwitter: false,
@@ -224,6 +223,7 @@ export default defineComponent({
       props.post?.web3Preview?.creator?.address ?? "",
     ].includes(store.userData.address.toLowerCase());
     const commentsComp = shallowRef(null) as Ref<ReturnType<typeof defineComponent>>;
+    const router = useRouter();
 
     // store.$subscribe(() => {
     // })
@@ -235,6 +235,31 @@ export default defineComponent({
 
     const updatePostInfo = () => {
       ctx.emit("updatepostinfo", props.post._id.postid);
+    };
+
+    const openMention = (e: any) => {
+      const el = e?.target;
+      el?.classList?.add("blink");
+      const text = e?.target?.innerText?.replace("@", "");
+      const platforms = (props.post?.tag
+        ? [props.post.tag]
+        : PLATFORMS) as typeof PLATFORMS;
+
+      searchWeb3ProfileByHandle(props.deps.apiBase, text, platforms)
+        .then((res) => {
+          if (res) {
+            const address = res?.[0]?._id;
+            if (!address) throw new Error("User not found");
+            router.push(`/web3-profile/${address}`);
+            el?.classList?.remove("blink");
+          }
+        })
+        .catch(() => {
+          props?.deps?.stackAlertWarning?.("User not found");
+          el?.classList?.remove("blink");
+        });
+      e?.preventDefault();
+      e?.stopPropagation();
     };
 
     onMounted(() => {
@@ -253,6 +278,7 @@ export default defineComponent({
               postTypeCom.value = (
                 await props.postTypesPromises.preloadFarcaster
               ).default;
+              processedPost.channel = props.post?.channel;
               break;
             case "lens":
               processedPost.web3Preview = props.post.web3Preview;
@@ -323,11 +349,21 @@ export default defineComponent({
           }
           processedPost.web3CreatorProfile = props.post?.web3CreatorProfile ?? null;
           processedPost.crossPostGroup = props.post?.crossPostGroup ?? {};
-
           postTypeLoading.value = false;
         }
       );
       processPost(props.post, processedPost, cloneWeights, postShareInfo);
+
+      setTimeout(() => {
+        const selector = `#${postElId} .mention-handle`;
+        document?.querySelectorAll(selector)?.forEach((el) => {
+          if (el?.getAttribute("listener") === "true") return;
+          el.addEventListener("click", (e) => {
+            openMention(e);
+          });
+          el.setAttribute("listener", "true");
+        });
+      }, 1150);
     });
 
     const tags = [
@@ -359,9 +395,11 @@ export default defineComponent({
       votingKey.value++;
     };
 
-    // onBeforeMount(() => {
-
-    // })
+    onUnmounted(() => {
+      document?.querySelectorAll(".mention-handle")?.forEach((el) => {
+        el.removeEventListener("click", openMention);
+      });
+    });
 
     return {
       processedPost,
@@ -381,6 +419,7 @@ export default defineComponent({
       isOwner,
       commentsEnabled,
       commentsComp,
+      postElId
     };
   },
 });
@@ -447,7 +486,7 @@ export default defineComponent({
 
 .pPost {
   opacity: 1;
-  transition: opacity 700ms linear;
+  transition: opacity 400ms linear;
   align-items: center;
 }
 
@@ -476,4 +515,24 @@ div.w3TweetTypeBody {
     margin-right: 0.8rem;
   }
 }
+
+.pressable {
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+.pressable:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.postLoading {
+  background-color: var(--post-card-bg);
+  border: 1px solid #00000047;
+  min-height: 22rem;
+  border-radius: 0.5rem;
+  box-shadow: inset -1px -1px 0px 0px rgba(10, 10, 10, 0.7019607843);
+  height: min-content;
+  position: relative;
+  opacity: 0.5;
+}
+
 </style>

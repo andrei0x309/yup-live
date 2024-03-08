@@ -400,6 +400,26 @@
               />
             </div>
           </template>
+          <template v-else-if="settingsModalContent === 'lens-profiles' && settingsModal">
+      <h2 class="mt-2 p-4 text-[1.3rem]">Select Lens Profile</h2>
+      <div class="flex flex-col lens-profiles">
+                <o-radio
+                  v-for="profile of transferData.data"
+                  :key="profile.id"
+                  v-model="lensSelectedProfile"
+                  :native-value="profile.id"
+                >
+                  <div class="flex flex-wrap-reverse justify-end">
+                    <div class="w-max-[28%]">
+                      <ProfileLensIcon class="w-4 inline mr-2" />
+                    </div>
+                    <div class="flex flex-col text-left w-[70%]">
+                      <p>{{ profile.handle.fullHandle }}</p>
+                    </div>
+                  </div>
+                </o-radio>
+              </div>
+    </template>
           <template v-else-if="settingsModalContent === 'farcaster-connect'">
             <!-- <ion-segment
               style="width: auto"
@@ -575,7 +595,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref, PropType, computed, onMounted } from "vue";
+import { defineComponent, ref, Ref, PropType, computed, onMounted, watch } from "vue";
 import {
   IonContent,
   IonHeader,
@@ -753,6 +773,44 @@ export default defineComponent({
 
     const threadsUser = ref("");
     const threadsPass = ref("");
+    
+
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lensSelectedProfile = ref(undefined) as Ref<any | undefined | string>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const transferData = ref({} as { type: string; data: any });
+    const resolvePromiseSetProfile = ref(() => 42) as Ref<
+      (a: unknown) => typeof a & void
+    >;
+
+    watch(
+      () => lensSelectedProfile.value,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (newVal: any) => {
+        if (newVal) {
+          settingsModal.value = false;
+          transferData.value = {
+            type: "lens",
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            data: transferData.value.data.find((p: any) => p.id === newVal),
+          };
+          resolvePromiseSetProfile.value(true);
+        } else if (newVal === "") {
+          settingsModal.value = false;
+          resolvePromiseSetProfile.value(false);
+        }
+      }
+    );
+
+    watch(
+      () =>  settingsModal.value,
+      (newVal) => {
+        if (newVal === false && !lensSelectedProfile.value) {
+          closeSettingsModal();
+        }
+      }
+    );
 
     const deleteAccount = async () => {
       isDeleteLoading.value = true;
@@ -902,6 +960,11 @@ export default defineComponent({
         farcasterDeepLink.value = "";
         farcasterTimeout.value = 600000;
       }
+      if (settingsModalContent.value === "lens-profiles" ) {
+          transferData.value = { type: "lens", data: null };
+          lensSelectedProfile.value = undefined;
+          resolvePromiseSetProfile.value(true);
+      }
       settingsModal.value = false;
     };
 
@@ -921,6 +984,7 @@ export default defineComponent({
     };
 
     const doConnectLens = async () => {
+      lensSelectedProfile.value = undefined;
       const result = await connectLens({
         stackAlertWarning,
         stackAlertSuccess,
@@ -932,6 +996,8 @@ export default defineComponent({
         settingsModal,
         resolvePromiseSetDispatcher,
         isConnectedToLens,
+        resolvePromiseSetProfile,
+        transferData,
       });
       if (result) {
         setConnected(store, "lens", true);
@@ -1137,6 +1203,8 @@ export default defineComponent({
       doDisconnectThreads,
       threadsUser,
       threadsPass,
+      lensSelectedProfile,
+      transferData
     };
   },
 });

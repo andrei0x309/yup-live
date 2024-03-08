@@ -181,6 +181,7 @@ export interface PostBodyProcessed {
   embeds: Embed[]
   lens?: {
     pubId: string
+    profileId?: string
   }
   farcaster?: {
     hash: string
@@ -198,6 +199,18 @@ export interface PostBodyProcessed {
   }
   frames: string[]
   qoutedPost?: IPost
+  channel?: {
+    channel_created_at: string
+    createdAt: string
+    description: string
+    id: string
+    image_url: string
+    lead: Record<string, any>
+    name: string
+    parent_url: string
+    updatedAt: string
+    url: string
+  } | null
 }
 
 export type Embed = {

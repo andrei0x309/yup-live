@@ -1,9 +1,44 @@
 export const recentChanges = [
     {
-        date: "29 Feb - 2024",
+        date: "08 March - 2024",
         title: "Changes",
         changes: [
-            'allow lens profile selection',
+            'new Android version',
+            'added message on score page when schore will not be calculated to avoid user confusion',
+            'added some efect on post loading to reduce CLS'
+        ],
+    },
+    {
+        date: "05 March - 2024",
+        title: "Changes",
+        changes: [
+            'new Android version',
+            'better post body mention support',
+            'better farcaster frames support',
+            'various style changes',
+            'added login with desktop web app',
+        ],
+    },
+    {
+        date: "04 March - 2024",
+        title: "Changes",
+        changes: [
+            'enable choosing lens profile if user has multiple lens profiles on both web and mobile',
+            'new Android version',
+            'nuke all app storage on logout, to protect user privacy',
+            'allow owner to delete their own posts on mobile as well',
+            'improved web3profile display, added external links to all social handles',
+            'added back 404 page on yup live web',
+            'added channel display to farcaster posts',
+            'tested feed endpoint for loading posts from specific channels, added some channels on yup live web',
+            'made posts clickable',
+            'changed to always show the parent post',
+            'added navigation over quoted posts',
+            'changed the way cross-post-modal is triggered to improve performance',
+            'deleted warpcast preview links as they are deprecated in favor of embed casts',
+            'changed scroll behavior on yup live web on navigation',
+            'decoupled reply button from post modal',
+            'added dynamic body text mentions',
         ],
     },
     {

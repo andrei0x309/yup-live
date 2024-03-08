@@ -21,7 +21,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useAlertStack, setAlertStack, stackAlertSuccess } from "@/store/alertStore";
 import AlertStack from "components/functional/alertStack.vue";
 import { getConnected } from "shared/src/utils/requests/accounts";
-import { checkAccess, isOnLocalhost, isBot } from "shared/src/utils/get-access";
+// import { checkAccess, isOnLocalhost, isBot } from "shared/src/utils/get-access";
 import { updateNotify } from "shared/src/utils/changeLog";
 
 // const API_BASE = import.meta.env.VITE_YUP_API_BASE;
@@ -54,14 +54,14 @@ export default defineComponent({
             router,
           });
         }, 1000);
-        if (!isBot && !isOnLocalhost) {
-          const access = await checkAccess();
-          if (access !== 1) {
-            if (access === 0) window.location.replace("/login.html");
-            else window.location.replace(`/login.html?e=${access}`);
-            return;
-          }
-        }
+        // if (!isBot && !isOnLocalhost) {
+        //   const access = await checkAccess();
+        //   if (access !== 1) {
+        //     if (access === 0) window.location.replace("/login.html");
+        //     else window.location.replace(`/login.html?e=${access}`);
+        //     return;
+        //   }
+        // }
         if (((window as unknown) as { __TAURI__: boolean }).__TAURI__) {
           headBar.value = (
             await import("@/components/content/desktop/head-bar.vue")
@@ -137,6 +137,7 @@ export default defineComponent({
 html {
   scrollbar-width: thin;
   scroll-behavior: smooth;
+  font-display: optional;
 }
 
 @font-face {
@@ -250,6 +251,7 @@ html[class="dark"] .bg-color {
     padding-left: 0.2rem;
     padding-right: 0.2rem;
   }
+  min-height: 100%;
 }
 
 #app {

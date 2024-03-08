@@ -1,7 +1,9 @@
 <template>
   <div
     v-if="isLoadedFrame"
-    :class="`flex flex-col content-center justify-center items-center fcFrame ${canInteractWithFrame  ? '' : 'opacity-40'}`"
+    :class="`flex flex-col content-center justify-center items-center fcFrame ${
+      canInteractWithFrame ? '' : 'opacity-40'
+    }`"
     :style="secondLoading ? 'filter: blur(0.6rem);' : ''"
   >
     <div class="flex flex-col">
@@ -21,13 +23,19 @@
           v-model="inputText"
         />
       </div>
-      <div :class="`grid grid-cols-1 ${buttons?.length > 1 ? 'md:grid-cols-2': ''}  auto-cols-auto auto-cols-fr ${buttons?.length > 2 ? 'lg:grid-cols-3': ''}`">
+      <div
+        :class="`grid grid-cols-1 ${
+          buttons?.length > 1 ? 'md:grid-cols-2' : ''
+        }  auto-cols-auto auto-cols-fr ${buttons?.length > 2 ? 'lg:grid-cols-3' : ''}`"
+      >
         <button
           v-for="button in buttons"
           :key="button.index"
           class="text-white p-2 rounded-lg m-2 btn-frame text-[0.9rem] col-auto"
           @click="doFrameAction(button)"
-        > <LinkIcon v-if="isRedirectBtn(button)" class="w-4 h-4" />
+        >
+          <LinkIcon v-if="isRedirectBtn(button)" class="w-4 h-4" />
+          <NFTIco v-if="isMintBtn(button)" class="w-4 h-4 inline" />
           {{ button.title }}
         </button>
       </div>
@@ -35,8 +43,10 @@
         <DangLoader />
       </div>
       <div v-if="!canInteractWithFrame" class="flex justify-center">
-        <p class="text-[0.7rem] text-yellow-300 p-2">Only users with a connected Farcaster account can interact with this frame.</p>
-        </div>
+        <p class="text-[0.7rem] text-yellow-300 p-2">
+          Only users with a connected Farcaster account can interact with this frame.
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -49,6 +59,8 @@ import { getInitialFrame, postFrameAction } from "shared/src/utils/requests/web3
 import type { IPostDeps } from "shared/src/types/post";
 import DangLoader from "components/vote-list/loader.vue";
 import LinkIcon from "icons/src/link.vue";
+import NFTIco from "icons/src/nft.vue";
+import { getOpenSeaNftUrl } from "shared/src/utils/web3/open-sea";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -58,7 +70,8 @@ export default defineComponent({
     ImagePreview,
     GotTo,
     DangLoader,
-    LinkIcon
+    LinkIcon,
+    NFTIco,
   },
   props: {
     url: {
@@ -88,23 +101,6 @@ export default defineComponent({
     const textPlaceholder = ref("") as Ref<string>;
     let store = props?.deps?.useMainStore?.();
     const canInteractWithFrame = ref(false) as Ref<boolean>;
-
-    const sanitizeFrameImage = (url: string) => {
-      if (url?.includes("mirror.xyz")) {
-        let urlArr = url.split("featuredImageUrl=");
-        if(!urlArr?.[1]) return url;
-        url = decodeURIComponent(urlArr[1]);
-        return url;
-      } 
-      return url;
-    };
-
-    const isRedirectBtn = (button :{
-      type: string;
-    }) => {
-      return button.type === "post_redirect" || button.type === "link";
-    };
-    
     const buttons = ref([]) as Ref<
       {
         index: number;
@@ -126,19 +122,67 @@ export default defineComponent({
       castHash: string;
       inputText?: string;
       buttonIndex?: number;
+      state?: string;
+    };
+    let frame: {
+      imageUrl: string;
+      textInput: boolean;
+      inputText: string;
+      postUrl: string;
+      buttons: {
+        index: number;
+        title: string;
+        type: string;
+        target: string;
+      }[];
+      state: string;
+      redirectUrl?: string;
+    } | null = null;
+
+    const isZora = props.url.includes("zora.co");
+
+    const sanitizeFrameImage = (url: string) => {
+      if (url?.includes("mirror.xyz")) {
+        let urlArr = url.split("featuredImageUrl=");
+        if (!urlArr?.[1]) return url;
+        url = decodeURIComponent(urlArr[1]);
+        return url;
+      }
+      return url;
     };
 
-    const loadFrame = async (url: string, secLoad = false, frame?: any ) => {
+    const isRedirectBtnLink = (button: { type: string }) => {
+      return button.type === "link";
+    };
+
+    const isRedirectBtnPost = (button: { type: string }) => {
+      return button.type === "post_redirect";
+    };
+
+    const isRedirectBtn = (button: { type: string }) => {
+      return isRedirectBtnLink(button) || isRedirectBtnPost(button);
+    };
+
+    const isMintBtn = (button: { type: string }) => {
+      return button.type === "mint";
+    };
+
+    const loadFrame = async (
+      url: string,
+      secLoad = false,
+    ) => {
       if (!secLoad) {
         frame = await getInitialFrame(url);
       }
       canInteractWithFrame.value = store?.userData?.connected?.farcaster || false;
-      frameImage.value = sanitizeFrameImage(frame?.imageUrl)
+      frameImage.value = sanitizeFrameImage(frame?.imageUrl || "");
       textInput.value = !!frame?.textInput;
       textPlaceholder.value = frame?.inputText || "";
       sendData.url = frame?.postUrl || url || "";
       buttons.value = frame?.buttons || [];
+      sendData.state = frame?.state || "";
       if (frame?.imageUrl && sendData.url) isLoadedFrame.value = true;
+      return frame;
     };
 
     const doFrameAction = async (button: {
@@ -147,42 +191,65 @@ export default defineComponent({
       target: string;
     }) => {
       try {
-      sendData.inputText = inputText.value;
-      sendData.buttonIndex = button.index;
-      secondLoading.value = true;
+        sendData.inputText = inputText.value;
+        sendData.buttonIndex = button.index;
+        secondLoading.value = true;
 
-      if(isRedirectBtn(button) && button?.target) {
-        window.open(button.target, "_blank");
-        secondLoading.value = false;
-        return;
-      }
-
-      const frame = await postFrameAction({
-          apiBase: API_BASE,
-          store: store,
-          sendData,
-        })
-
-        if(!frame) {
-          props?.deps?.stackAlertError && props.deps.stackAlertError("Error posting frame action");
+        if (isRedirectBtnLink(button) && button?.target) {
+          window.open(button.target, "_blank");
           secondLoading.value = false;
           return;
         }
 
-      if(frame?.redirectUrl) {
-        window.open(frame?.redirectUrl, "_blank");
+        if (isMintBtn(button) && button?.target) {
+          const openSeaUrl = getOpenSeaNftUrl(button.target);
+          if (openSeaUrl) {
+            window.open(openSeaUrl, "_blank");
+            secondLoading.value = false;
+          }
+          return;
+        }
+
+        if(isRedirectBtnPost(button) && isZora) {
+          window.open(props.url, "_blank");
+          secondLoading.value = false;
+          return;
+        }
+
+        // isPostRedirect = isRedirectBtnPost(button);
+
+        // if(isPostRedirect) {
+        //   sendData.url = props.url;
+        // } else {
+        //   sendData.url = frame?.postUrl || props.url;
+        // }
+
+        frame = await postFrameAction({
+          apiBase: API_BASE,
+          store: store,
+          sendData
+        });
+
+        if (!frame) {
+          props?.deps?.stackAlertError &&
+            props.deps.stackAlertError("Error posting frame action");
+          secondLoading.value = false;
+          return;
+        }
+
+        if (frame?.redirectUrl) {
+          window.open(frame?.redirectUrl, "_blank");
+          secondLoading.value = false;
+          return;
+        }
+        await loadFrame("", true);
         secondLoading.value = false;
-        return;
+      } catch (e) {
+        console.error(e);
+        props?.deps?.stackAlertError &&
+          props.deps.stackAlertError("Error posting frame action");
+        secondLoading.value = false;
       }
-      await loadFrame(''
-        ,true, frame
-      );
-      secondLoading.value = false;
-    } catch (e) {
-      console.error(e);
-      props?.deps?.stackAlertError && props.deps.stackAlertError("Error posting frame action");
-      secondLoading.value = false;
-    }
     };
 
     onMounted(() => {
@@ -202,7 +269,8 @@ export default defineComponent({
       inputText,
       secondLoading,
       canInteractWithFrame,
-      isRedirectBtn
+      isRedirectBtn,
+      isMintBtn,
     };
   },
 });
@@ -212,8 +280,7 @@ export default defineComponent({
 .fcFrame {
   margin: 0.5rem;
   position: relative;
-  min-width: 16rem;
-  background-color: #5c5c5c96;
+  background-color: rgb(119 0 255 / 4%);
   border-radius: 0.3rem;
   border: 1px solid #4f4f4fad;
 
@@ -224,9 +291,9 @@ export default defineComponent({
 }
 .linkPreview:hover {
   cursor: pointer;
-  filter: brightness(1.2);
+  background-color: #372e3fad;
 }
 .linkPreview:active {
-  filter: brightness(0.8);
+  background-color: #372e3fad;
 }
 </style>
