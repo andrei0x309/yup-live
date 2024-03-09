@@ -30,8 +30,8 @@
         <ion-item button @click="goTo('/tabs/metrics')">
           <ion-icon :icon="podiumOutline" class="w-5 mr-4" /> General Metrics
         </ion-item>
-        <ion-item button @click="goTo('/tabs/live')">
-          <ActivityIcon class="w-5 mr-4" /> Live Activity
+        <ion-item button @click="goTo('/tabs/channels')">
+          <ProfileFarcasterIcon class="w-5 mr-4" /> Farcaster Channels
         </ion-item>
         <ion-item button @click="goTo(`/tabs/score/${store.userData?.address}`)">
           <ScoreIcon class="w-5 mr-4" /> Yup Score
@@ -73,12 +73,13 @@ import { storage } from "@/utils/storage";
 import { useMainStore } from "@/store/main";
 import { useRouter } from "vue-router";
 import LogOutIcon from "icons/src/logout.vue";
-import ActivityIcon from "@/icons/activity.vue";
+// import ActivityIcon from "@/icons/activity.vue";
 import InfoIcon from "icons/src/infoIcon.vue";
 import ScoreIcon from "icons/src/score.vue";
 import StakeIcon from "icons/src/stake.vue";
 import { walletDisconnect } from "shared/src/utils/login-signup";
 import SettingsModal from "@/views/SettingsModal.vue";
+import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 
 export default defineComponent({
   name: "HeaderMenu",
@@ -93,7 +94,7 @@ export default defineComponent({
     IonItem,
     IonList,
     LogOutIcon,
-    ActivityIcon,
+    ProfileFarcasterIcon,
     InfoIcon,
     ScoreIcon,
     StakeIcon,

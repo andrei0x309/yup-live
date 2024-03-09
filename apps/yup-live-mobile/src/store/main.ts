@@ -26,7 +26,9 @@ const useMainStore = defineStore('main', {
                     farcaster: false,
                     twitter: false,
                     lens: false
-                }
+                },
+                bio: '',
+                fullname: '',
             },
             deletePost: '',
             isLoggedIn: false,

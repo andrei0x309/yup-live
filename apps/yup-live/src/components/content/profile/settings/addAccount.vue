@@ -110,7 +110,6 @@ export default defineComponent({
       isLoading.value = true;
       try {
         const address = await getWalletAddress();
-        console.log(address);
         if (!address) {
           stackAlertWarning(
             "Failed to get wallet address, be sure to connect your wallet"

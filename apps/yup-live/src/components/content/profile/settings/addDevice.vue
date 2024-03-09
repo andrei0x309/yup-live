@@ -38,7 +38,7 @@ import { requestLoginCode } from "shared/src/utils/auth";
 // const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
-  name: "SettingsAddDevice",
+  name: "SettingsAddAccount",
   components: {
     BtnSpinner,
    },

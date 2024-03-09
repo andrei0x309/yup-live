@@ -2,7 +2,7 @@ import { prepareForTransaction, signedTypeData, TWeb3Libs } from '../evmTxs'
 import { fetchWAuth } from '../auth'
 import { IMainStore } from 'shared/src/types/store'
 import type { Ref } from 'vue'
-import { walletDisconnect } from 'shared/src/utils/login-signup'
+import { walletDisconnect, getWalletAddress } from 'shared/src/utils/login-signup'
 
 
 const lensGraphQl = 'https://api-v2.lens.dev'
@@ -443,11 +443,23 @@ export const connectLens = async ({
     return;
   }
   isConnectToLens.value = true;
-  const ownedProfiles = await getLensOwnedBy(store.userData.address);
-  if (ownedProfiles?.length === 0) {
+  const address = await getWalletAddress();
+  if (!address) {
     return cleanDoConnectLens(
       {
-        error: "Error no lens fonud for this address",
+        error: "Error while getting wallet address",
+        stackAlertError,
+        isConnectToLens,
+      }
+    );
+  }
+
+  const ownedProfiles = await getLensOwnedBy(address);
+
+  if (ownedProfiles?.length === 0 || !ownedProfiles) {
+    return cleanDoConnectLens(
+      {
+        error: "Error no lens found for this wallet address, please check wallet address",
         stackAlertError,
         isConnectToLens,
       }

@@ -159,7 +159,7 @@
         </ion-card-content>
         <h3 class="text-center -mt-4 mb-4">How to Help</h3>
         <ion-card-content class="ion-justify-content-center pb-10 log-page mb-10">
-          <p class="text-center">This is an open source monorepo project which is maintained by a sole developer. If you want to help, you could rate the app, share it with your friends, star the repo, or contribute to the codebase.</p>
+          <p class="text-center">This is an open source monorepo (https://github.com/andrei0x309/yup-live) project which is maintained by a sole developer. If you want to help, you could rate the app, share it with your friends, star the repo, or contribute to the codebase.</p>
         </ion-card-content>
       </ion-content>
     </ion-modal>

@@ -406,7 +406,7 @@
   resolved "https://registry.npmjs.org/@capacitor/keyboard/-/keyboard-5.0.8.tgz#b8cc21bd6e06273ec61974be9d7f4d8c421a63a4"
   integrity sha512-XYyBzGlzjgLPqyPVdu5McGLYV6+G2efVR4I3l5cF1B27M6U/oFqv9CQU74WNG08nee28bfccboNpv6eWCLYn1A==
 
-"@capacitor/share@^5.0.6":
+"@capacitor/share@^5.0.7":
   version "5.0.7"
   resolved "https://registry.npmjs.org/@capacitor/share/-/share-5.0.7.tgz#301d06e2c8add86e24957f4c02e28e847b894f89"
   integrity sha512-4GraggRRxwhstxIdF9JyOEBq4QTufqFOekdB4P9GeiQYWJoA5VraSR1mwy4Trke1VFfaBjz/nGi4WQOJdHIAgg==

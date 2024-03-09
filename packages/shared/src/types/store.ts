@@ -15,6 +15,8 @@ export interface IStoreUserData {
     bsky: boolean
     threads: boolean
   }
+  bio?: string
+  fullname?: string
 }
 
 export interface IMainStore {

@@ -253,6 +253,7 @@
             </ion-list>
           </div>
         </ion-accordion>
+        <AddAccount />
         <ion-accordion value="push">
           <ion-item slot="header" color="light">
             <ion-label>Push Notifications</ion-label>
@@ -403,21 +404,19 @@
           <template v-else-if="settingsModalContent === 'lens-profiles' && settingsModal">
       <h2 class="mt-2 p-4 text-[1.3rem]">Select Lens Profile</h2>
       <div class="flex flex-col lens-profiles">
-                <o-radio
-                  v-for="profile of transferData.data"
+ 
+
+                <ion-radio-group
+                :value="lensSelectedProfile"
+                v-model="lensSelectedProfile"
+                > <ion-item v-for="profile of transferData.data"
                   :key="profile.id"
-                  v-model="lensSelectedProfile"
-                  :native-value="profile.id"
-                >
-                  <div class="flex flex-wrap-reverse justify-end">
-                    <div class="w-max-[28%]">
-                      <ProfileLensIcon class="w-4 inline mr-2" />
-                    </div>
-                    <div class="flex flex-col text-left w-[70%]">
-                      <p>{{ profile.handle.fullHandle }}</p>
-                    </div>
-                  </div>
-                </o-radio>
+                  >
+                  <ion-radio  :value="profile.id" justify="start"><ProfileLensIcon class="w-4 inline mr-2" /> {{ profile.handle.fullHandle }}</ion-radio>
+                </ion-item>
+                </ion-radio-group>
+                
+
               </div>
     </template>
           <template v-else-if="settingsModalContent === 'farcaster-connect'">
@@ -620,6 +619,8 @@ import {
   IonAlert,
   IonToast,
   modalController,
+  IonRadioGroup,
+  IonRadio
 } from "@ionic/vue";
 
 import BtnSpinner from "icons/src/btnSpinner.vue";
@@ -660,6 +661,7 @@ import { PUSH_NOTIFICATION_TYPES, setPushSettings } from "@/utils/expo-push-not-
 import BlueSkyIcon from "icons/src/bsky.vue";
 import ThreadsIcon from "icons/src/threads.vue";
 import { connectToThreads, disconnectThreads } from "shared/src/utils/requests/threads";
+import AddAccount from '@/components/settings/addAccount.vue'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -698,6 +700,9 @@ export default defineComponent({
     CustomButton,
     DangLoader,
     ThreadsIcon,
+    AddAccount,
+    IonRadioGroup,
+    IonRadio
   },
   props: {
     userData: {
@@ -783,6 +788,20 @@ export default defineComponent({
     const resolvePromiseSetProfile = ref(() => 42) as Ref<
       (a: unknown) => typeof a & void
     >;
+
+    store.$subscribe( () => {
+      if (store.userData) {
+        bio.value = store.userData.bio ?? "";
+        fullName.value = store.userData.fullname ?? "";
+        avatar.value = store.userData.avatar;
+        isConnectedToTwitter.value = store.userData.connected?.twitter ?? false;
+        isConnectedToLens.value = store.userData.connected?.lens ?? false;
+        isConnectedToFarcaster.value = store.userData.connected?.farcaster ?? false;
+        isConnectedToBsky.value = store.userData.connected?.bsky ?? false;
+        isConnectedToThreads.value = store.userData.connected?.threads ?? false;
+      }
+    });
+
 
     watch(
       () => lensSelectedProfile.value,

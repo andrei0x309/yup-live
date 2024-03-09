@@ -99,13 +99,13 @@ const routes: Array<RouteRecordRaw> = [
         path: 'metrics',
         component: () => import('@/views/TokenMetrics.vue')
       },
+      // {
+      //   path: 'live',
+      //   component: () => import('@/views/ActivityPage.vue')
+      // },
       {
-        path: 'meetings',
-        component: () => import('@/views/MeetingsPage.vue')
-      },
-      {
-        path: 'live',
-        component: () => import('@/views/ActivityPage.vue')
+        path: 'channels',
+        component: () => import('@/views/FarcasterChannels.vue')
       },
       {
         path: 'search',

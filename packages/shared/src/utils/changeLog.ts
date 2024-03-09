@@ -1,11 +1,21 @@
 export const recentChanges = [
     {
-        date: "08 March - 2024",
+        date: "09 March - 2024",
         title: "Changes",
         changes: [
             'new Android version',
-            'added message on score page when schore will not be calculated to avoid user confusion',
-            'added some efect on post loading to reduce CLS'
+            'added switch accounts on yup live mobile in settings',
+            'added farcaster channels page on yup live mobile',
+            'tested multiple lens profile selection',
+            'refactored lens connection'
+        ],
+    },
+    {
+        date: "08 March - 2024",
+        title: "Changes",
+        changes: [
+            'added message on score page when score will not be calculated to avoid user confusion',
+            'added some effect on post loading to reduce CLS'
         ],
     },
     {

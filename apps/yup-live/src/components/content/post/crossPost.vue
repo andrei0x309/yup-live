@@ -159,7 +159,7 @@
               <button
                 v-if="intialPlatforms?.length > 1"
                 :disabled="isSendPost"
-                class="w-1/2 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
                 @click="addToThread"
               >
                 <BtnSpinner v-if="isSendPost" class="inline mr-2" /><AddIcon
@@ -169,7 +169,7 @@
               <button
                 v-if="posts.length > 1"
                 :disabled="isSendPost"
-                class="w-1/2 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
                 @click="substractFromThread"
               >
                 <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SubstractIcon
@@ -179,7 +179,7 @@
               </div>
               <button
                 v-show="intialPlatforms?.length > 1 && showFcChannel"
-                class=" dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mb-4"
+                class=" bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mb-4"
                 @click="
                   () => {
                     if (farcasterChannel) {
@@ -206,9 +206,9 @@
               </button>
               <div class="flex justify-between mb-4">
               <button
-                 v-if="intialPlatforms?.length > 1 && localReplyTo"
+                 v-if="intialPlatforms?.length > 1"
                 :disabled="isSendPost"
-                class="w-1/2 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
                 @click="modalContent = 'scheduling'"
               >
                 <BtnSpinner v-if="isSendPost" class="inline mr-2" /><ClockIcon
@@ -217,7 +217,7 @@
               </button>
               <button
                 :disabled="isSendPost"
-                class="w-1/2 ml-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                class="w-1/2 ml-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
                 @click="doSendPost"
               >
                 <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SendIcon
@@ -256,7 +256,7 @@
             <div>
               <button
                 :disabled="isSheduling"
-                class="w-1/3 mr-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                class="w-1/3 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
                 @click="modalContent = 'posting'"
               >
                 <BtnSpinner v-if="isSheduling" class="inline mr-2" /><GoToIcon
@@ -265,7 +265,7 @@
               </button>
               <button
                 :disabled="isSheduling"
-                class="w-1/3 ml-1 dark:bg-stone-600 bg-stone-800 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                class="w-1/3 ml-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
                 @click="doSchedulePost"
               >
                 <BtnSpinner v-if="isSheduling" class="inline mr-2" /><ClockIcon
@@ -539,7 +539,6 @@ export default defineComponent({
     const fileToBase64 = (file: File) => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        console.log('file', file)
         reader.readAsDataURL(file);
         reader.onload = () => resolve(reader.result);
         reader.onerror = (error) => reject(error);

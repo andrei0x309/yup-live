@@ -10,11 +10,15 @@
         <ion-router-outlet id="content-page" ref="outlet" />
 
         <ion-tab-bar slot="bottom" class="text-[0.85rem]">
-          <ion-tab-button v-if="canDoPost" @click="openPostModal = true">
+          <ion-tab-button v-if="canDoPost"  :class="`${canDoPostLoading ? 'blink' : '' }`" @click="() => {
+            if(!canDoPostLoading) openPostModal = true
+          }">
             <CrossPostIcon class="inline w-6 h-6 mt-1" />
             <ion-label>Cross Post</ion-label>
           </ion-tab-button>
-          <ion-tab-button v-else @click="openSettings">
+          <ion-tab-button v-else :class="`${canDoPostLoading ? 'blink' : '' }`" @click="() => {
+            if(!canDoPostLoading) openSettings()
+          }">
             <ConnectPlatformIcon class="inline w-6 h-6 mt-1" />
             <ion-label>Link Socials</ion-label>
           </ion-tab-button>
@@ -123,6 +127,9 @@ import SettingsModal from "@/views/SettingsModal.vue";
 import { createUserData } from "shared/src/utils/requests/accounts";
 import { clearNotifications } from "shared/src/utils/notifications";
 import { PLATFORMS } from "shared/src/utils/requests/web3-posting";
+import { IMainStore } from "shared/src";
+import { getConnected } from "shared/src/utils/requests/accounts";
+
 
 export default defineComponent({
   name: "BottomNavigation",
@@ -146,13 +153,14 @@ export default defineComponent({
     const store = useMainStore();
     const avatar = ref("");
     const account = ref("");
-    const router = useRouter();
+    // const router = useRouter();
     const outlet = (ref(null) as unknown) as Ref<typeof IonRouterOutlet>;
     const hasNewNot = ref(false);
     const notDisplay = ref("");
     let timerPromise: CancelablePromise | null = null;
     const canDoPost = ref(canPost(store));
     const openPostModal = ref(false);
+    const canDoPostLoading = ref(false);
     const userData = (ref({
       _id: "",
       username: "",
@@ -176,8 +184,9 @@ export default defineComponent({
     }) as unknown) as Ref<Awaited<ReturnType<typeof createUserData>>["data"]["userData"]>;
     const emitKey = ref(0);
 
-    store.$subscribe(() => {
-      canDoPost.value = canPost(store);
+    store.$subscribe(async (newValue) => {
+      if(newValue?.userData?.account === userData.value._id || !newValue) return;
+      await getUserData(newValue)
     });
 
     const checkNot = () => {
@@ -190,26 +199,33 @@ export default defineComponent({
       });
     };
 
-    onMounted(async () => {
+    const getUserData = async (store: IMainStore) => {
+      canDoPostLoading.value = true;
       if (!store.isLoggedIn) {
         const authInfo = await storage.get("authInfo");
         if (authInfo) {
           store.userData = JSON.parse(authInfo);
           avatar.value = store.userData.avatar;
           account.value = store.userData.account;
-
+         
           store.isLoggedIn = true;
         }
       }
       if (store.isLoggedIn) {
         checkNot();
 
-        createUserData(store.userData.account, true).then((uD) => {
-          if (!uD.error) {
+        const uD = await createUserData(store.userData.account, true)
+        if (!uD.error) {
             userData.value = Object.assign(userData.value, uD.data?.userData);
           }
-        });
       }
+      await getConnected(store, store.userData.account, store.userData.address);
+      canDoPost.value = canPost(store);
+      canDoPostLoading.value = false;
+    };
+
+    onMounted(async () => {
+       getUserData(store);
     });
 
     onBeforeUnmount(() => {
@@ -264,6 +280,7 @@ export default defineComponent({
       PLATFORMS,
       store,
       emitKey,
+      canDoPostLoading
     };
   },
 });

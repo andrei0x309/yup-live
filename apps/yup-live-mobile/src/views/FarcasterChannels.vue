@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <HeaderBar text="FEEDS" :menu="true" />
+    <HeaderBar text="FARCASTER CHANNELS" :menu="true" />
 
     <!-- <ion-item>
         <ion-select v-model="activeFeed" aria-label="feed" :value="feeds[0][0]" style="margin:auto;" interface="action-sheet" placeholder="Select Feed" @ionChange="feedChange">
@@ -144,18 +144,21 @@ export default defineComponent({
   },
   setup() {
     const loading = ref(true);
-    const feeds = [
-      ["dailyhits", "Daily Hits"],
-      ["farcaster", "Farcaster"],
-      ["lens", "Lens"],
-      ["bsky", "BlueSky"],
-      ["nfts", "NFTs"],
-      ["mirror", "Mirror"],
-      ["twitter", "Twitter"],
-      ["recent", "Recent"],
-    ];
 
-    const defaultFeed = "dailyhits";
+
+ const YUP_CHANNEL_URL = 'https://warpcast.com/~/channel/yup'
+ const FARCASTER_CHANNEL_URL = 'chain://eip155:7777777/erc721:0x4f86113fc3e9783cf3ec9a552cbb566716a57628'
+ const MEME_CHANNEL_URL = 'chain://eip155:1/erc721:0xfd8427165df67df6d7fd689ae67c8ebf56d9ca61'
+ const CRYPTO_LEFT_CHANNEL_URL = 'https://warpcast.com/~/channel/cryptoleft'
+
+const feeds = [
+  ['channel/get?parentUrl=' + YUP_CHANNEL_URL, "Yup"],
+  ['channel/get?parentUrl=' + FARCASTER_CHANNEL_URL, "Farcaster"],
+  ['channel/get?parentUrl=' + MEME_CHANNEL_URL, "Memes"],
+  ['channel/get?parentUrl=' + CRYPTO_LEFT_CHANNEL_URL, "Memes"],
+];
+
+    const defaultFeed = feeds[0][0];
     const posts = ref([]) as Ref<Array<IPost>>;
     const activeFeed = ref(defaultFeed) as Ref<string>;
     const postsIndex = ref(0);
@@ -171,7 +174,7 @@ export default defineComponent({
         if (refresh) {
           res = await fetchWAuth(
             store,
-            `${FEED_APIS}/${activeFeed.value}?start=${start}&limit=10&refresh=true${
+            `${FEED_APIS}/${activeFeed.value}&start=${start}&limit=10&refresh=true${
               personalized && store?.userData?.account
                 ? "&account=" + store.userData.account
                 : ""
@@ -185,7 +188,7 @@ export default defineComponent({
         }
         {
           res = await fetch(
-            `${FEED_APIS}/${activeFeed.value}?start=${start}&limit=10${
+            `${FEED_APIS}/${activeFeed.value}&start=${start}&limit=10${
               personalized && store?.userData?.account
                 ? "&account=" + store.userData.account
                 : ""
@@ -206,13 +209,7 @@ export default defineComponent({
 
     const onHit = async (type: string) => {
       feedLoading.value = true;
-      if (type === "up" && posts.value.length <= 30) {
-        return;
-      } else if (type === "up" && postsIndex.value >= 30) {
-        postsIndex.value -= 10;
-        const newPosts = await getFeedPosts(postsIndex.value - 30);
-        posts.value = [...newPosts, ...posts.value.slice(-30)];
-      } else if (type === "down" && posts.value.length <= 30) {
+      if (type === "down" && posts.value.length <= 30) {
         postsIndex.value += 10;
         const newPosts = await getFeedPosts(postsIndex.value);
         posts.value = [...posts.value, ...newPosts];
