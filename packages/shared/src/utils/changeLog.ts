@@ -1,5 +1,14 @@
 export const recentChanges = [
     {
+        date: "21 March - 2024",
+        title: "Changes",
+        changes: [
+            'smaller improvements on staking page',
+            'do full reload on user switch on mobile',
+            'fix link of bsky profiles on web3profile page'
+        ],
+    },
+    {
         date: "09 March - 2024",
         title: "Changes",
         changes: [

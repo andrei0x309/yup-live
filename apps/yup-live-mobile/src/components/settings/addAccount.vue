@@ -3,7 +3,7 @@
     <ion-item slot="header" color="light">
       <ion-label>Manage/Switch Accounts</ion-label>
     </ion-item>
-    <div slot="content" class="ion-padding">
+    <div slot="content" class="ion-padding flex flex-col items-center">
       <div v-for="(account, id) in storedAccounts" :key="id" class="p-4 w-full">
         <div
           class="h-full bg-[#00000025] bg-opacity-75 p-8 rounded-lg text-center relative"
@@ -89,6 +89,7 @@ export default defineComponent({
 
     const doSwitchAccount = (id: string) => {
       switchAccount(storedAccounts.value[id]);
+      location.reload();
     };
 
     const switchAccount = async (account: StoredAccount) => {

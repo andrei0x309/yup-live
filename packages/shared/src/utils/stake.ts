@@ -66,6 +66,28 @@ const clearStartNumber = () => {
     }
 }
 
+const checkNetwork = async ({ wgamiLib, stackAlertWarning }:
+    {
+        wgamiLib: Awaited<ReturnType<typeof prepareForTransaction>>
+        stackAlertWarning?: (msg: string) => void
+    }) => {
+    if (!wgamiLib) {
+        return false
+    }
+
+    let chainId = await wgamiLib.wgamiCore.getNetwork()
+
+    if (chainId.chain?.id !== 137) {
+        await wgamiLib.wgamiCore.switchNetwork({ chainId: 137 })
+        chainId = await wgamiLib.wgamiCore.getNetwork()
+        if (chainId.chain?.id !== 137) {
+            stackAlertWarning && stackAlertWarning('You need to be on Polygon network')
+            return false
+        }
+    }
+    return true
+}
+
 export const fetchContractsData = ({
     address,
     polyStaked,
@@ -105,7 +127,7 @@ export const fetchContractsData = ({
             UNIContractPoly.balanceOf(POLY_LIQUIDITY_REWARDS)
         ]
 
-        Promise.all(arrProm).then((res) => {
+        return Promise.all(arrProm).then((res) => {
             polyUnstaked.value = Number(ethersLib.formatEther(res[0]))
             polyStaked.value = Number(ethersLib.formatEther(res[1]))
             rewardsPoly = Number(ethersLib.formatEther(res[2]))
@@ -153,6 +175,10 @@ export const onStake = async ({
         return null
     }
     try {
+        if (!await checkNetwork({ wgamiLib, stackAlertWarning })) {
+            return
+        }
+
         const amount = ethersLib.parseEther(inputValue.value.toString())
 
         await wgamiLib.wgamiCore.writeContract({
@@ -169,15 +195,21 @@ export const onStake = async ({
             args: [amount]
         })
 
+        polyUnstaked.value -= Number(inputValue.value)
+        polyStaked.value += Number(inputValue.value)
+
         stackAlertSuccess && stackAlertSuccess(`You staked ${inputValue.value} LPT successfuly`)
-        fetchContractsData({
+
+        setTimeout(() => {
+            fetchContractsData({
             address,
             polyStaked,
             polyUnstaked,
             rewards,
             poolShare,
             Web3Libs
-        })
+            })
+        }, 2500) 
     } catch (e) {
         console.error(e)
         stackAlertWarning && stackAlertWarning('User rejected or tx failed')
@@ -214,6 +246,10 @@ export const onUnstake = async ({
     }
 
     try {
+        if (!await checkNetwork({ wgamiLib, stackAlertWarning })) {
+            return
+        }
+
         const willSusbstractPoly = Number(inputValue.value)
         await wgamiLib.wgamiCore.writeContract({
             abi: yupRewardsPABI,
@@ -223,16 +259,20 @@ export const onUnstake = async ({
         })
         if (willSusbstractPoly > 0) {
             polyStaked.value -= willSusbstractPoly
+            polyUnstaked.value += willSusbstractPoly
         }
         stackAlertSuccess && stackAlertSuccess(`You unstaked ${inputValue.value} LPT successfuly`)
-        fetchContractsData({
-            address,
-            polyStaked,
-            polyUnstaked,
-            rewards,
-            poolShare,
-            Web3Libs
-        })
+
+        setTimeout(() => {
+            fetchContractsData({
+                address,
+                polyStaked,
+                polyUnstaked,
+                rewards,
+                poolShare,
+                Web3Libs
+            })
+        }, 2500) 
     } catch {
         stackAlertWarning && stackAlertWarning('User rejected or tx failed')
     }
@@ -266,6 +306,10 @@ export const onReward = async ({
     }
 
     try {
+        if (!await checkNetwork({ wgamiLib, stackAlertWarning })) {
+            return
+        }
+
         if (rewardsPoly > 0) {
             await wgamiLib.wgamiCore.writeContract({
                 abi: yupRewardsPABI,
@@ -286,14 +330,16 @@ export const onReward = async ({
                     rewards
                 })
             }
-            fetchContractsData({
-                address,
-                polyStaked,
-                polyUnstaked,
-                rewards,
-                poolShare,
-                Web3Libs
-            })
+            setTimeout(() => {
+                fetchContractsData({
+                    address,
+                    polyStaked,
+                    polyUnstaked,
+                    rewards,
+                    poolShare,
+                    Web3Libs
+                })
+            }, 2500) 
         } else {
             stackAlertWarning && stackAlertWarning("You don't have anything to collect")
         }

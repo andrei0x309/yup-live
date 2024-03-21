@@ -67,7 +67,7 @@
           </a>
         </div>
         <div v-if="lWeb3Profile?.bsky?.handle">
-          <a :href="`/profile/${lWeb3Profile.bsky.handle}`" target="_blank">
+          <a :href="`https://bsky.app/profile/${lWeb3Profile.bsky.handle}`" target="_blank">
             <ProfileBskyIcon class="-ml-1 w-6 inline-block" />
             {{ truncateSocialHandle(lWeb3Profile?.bsky?.handle) }}
             <LinkIcon class="w-3 inline" />
