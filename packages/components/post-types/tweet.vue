@@ -59,11 +59,11 @@
       <div v-if="!embedLoaded">
         <p><WarningIcon class="w-10 mx-auto mt-2" /></p>
         <p class="p-2" v-if="deleted">
-          Sorry this tweet is not available anymore was <b>deleted</b>!
+          Sorry the tweet data is not available on yup!
         </p>
         <div v-else>
           <p>Preview for this tweet is missing.</p>
-          <p>Do you want to load an embed?</p>
+          <p>Do you want to try to load an embed?</p>
           <p>
             <CustomButton
               :mobile="true"
@@ -76,7 +76,7 @@
           </p>
         </div>
       </div>
-      <div ref="tweet" :id="`${missingTweetId}`"></div>
+      <div ref="tweet" :id="`${missingTweetId}`" class="flex justify-center"></div>
     </div>
     <div v-else-if="tweetType === 'reply'" class="p-2">
       <div class="relative mb-6">
@@ -385,10 +385,13 @@ export default defineComponent({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ((window as unknown) as { twttr: Record<string, any> }).twttr
             .ready(() => {
+
+              const tweetEl = tweet.value || document.getElementById(id);
+
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               ((window as unknown) as {
                 twttr: Record<string, any>;
-              }).twttr.widgets.createTweet(id, tweet.value, {
+              }).twttr.widgets.createTweet(id, tweetEl, {
                 theme: "dark",
               });
             })

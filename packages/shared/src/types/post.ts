@@ -1,6 +1,5 @@
 import type { reactive, defineComponent } from 'vue'
 import type { IVotingDeps } from 'shared/src/types/vote'
-import { IMainStore } from './store'
 export interface IPost {
   _id: {
     postid: string
@@ -199,19 +198,21 @@ export interface PostBodyProcessed {
   }
   frames: string[]
   qoutedPost?: IPost
-  channel?: {
-    channel_created_at: string
-    createdAt: string
-    description: string
-    id: string
-    image_url: string
-    lead: Record<string, any>
-    name: string
-    parent_url: string
-    updatedAt: string
-    url: string
-  } | null
+  channel?: T_CHANNEL
 }
+
+export type T_CHANNEL = {
+  channel_created_at: string
+  createdAt: string
+  description: string
+  id: string
+  image_url: string
+  lead: Record<string, any>
+  name: string
+  parent_url: string
+  updatedAt: string
+  url: string
+} | null
 
 export type Embed = {
   type: string

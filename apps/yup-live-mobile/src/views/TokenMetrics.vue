@@ -123,7 +123,7 @@ export default defineComponent({
       const yr = await Promise.all([
         import("@/res/years/2022"),
         import("@/res/years/2023"),
-        import("@/res/years/2023"),
+        import("@/res/years/2024"),
       ]);
       const yearData = yr.reduce((pv, cv) => {
         return { ...pv, ...cv.data };

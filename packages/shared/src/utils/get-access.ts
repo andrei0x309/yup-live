@@ -42,13 +42,13 @@ export const getAccess = async ({
     try {
         const { parseEther } = (await viemImport)
 
-        const connector = (await wgamiLib.wgamiCore.getAccount()).connector
+        const connector = (await wgamiLib.wgamiCore.getAccount(wgamiLib.wgConfig.wagmiConfig)).connector
 
         const clientChainId = await connector?.getChainId()
 
         if (clientChainId !== CHAIN_ID) {
             try {
-                const switched = await wgamiLib.wgamiCore.switchNetwork({ chainId: CHAIN_ID })
+                const switched = await wgamiLib.wgamiCore.switchChain(wgamiLib.wgConfig.wagmiConfig, { chainId: CHAIN_ID })
                 if (!switched || switched.id !== CHAIN_ID) {
                     stackAlertWarning && stackAlertWarning('User rejected switch network')
                     return false
@@ -62,7 +62,7 @@ export const getAccess = async ({
 
         const approveAmount = parseEther(TOKEN_ALLOWANCE.toString())
 
-        const request = (await wgamiLib.wgamiCore.prepareWriteContract({
+        const request = (await wgamiLib.wgamiCore.simulateContract(wgamiLib.wgConfig.wagmiConfig, {
             abi: ERC20PartialAbi,
             address: TOKEN_ADDRESS,
             functionName: 'approve',
@@ -70,7 +70,7 @@ export const getAccess = async ({
             chainId: CHAIN_ID
         })).request
 
-        await wgamiLib.wgamiCore.writeContract(request)
+        await wgamiLib.wgamiCore.writeContract(wgamiLib.wgConfig.wagmiConfig, request)
 
         let tenSeconds = 10
         buttonText.value = `Wait ${tenSeconds} for first tx to be confirmed`
@@ -83,7 +83,8 @@ export const getAccess = async ({
 
         try {
 
-            const request2 = (await wgamiLib.wgamiCore.prepareWriteContract({
+
+            const request2 = (await wgamiLib.wgamiCore.simulateContract(wgamiLib.wgConfig.wagmiConfig, {
                 abi: yupliveAccessPABI,
                 address: YUPLIVE_ACCESS_PROXY_ADDRESS,
                 functionName: 'addAccess',
@@ -92,7 +93,7 @@ export const getAccess = async ({
             })).request
 
 
-            await wgamiLib.wgamiCore.writeContract(request2)
+            await wgamiLib.wgamiCore.writeContract(wgamiLib.wgConfig.wagmiConfig, request2)
         } catch (e) {
             console.error(e)
             if (String(e).includes('Not enough tokens to execute transaction')) {

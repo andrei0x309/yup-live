@@ -1,5 +1,17 @@
 export const recentChanges = [
     {
+        date: "24 March - 2024",
+        title: "Changes",
+        changes: [
+            'Added new Android version',
+            'Added the ability to navigate to any channel from the farcaster post',
+            'Migrated wallet libs to latest version',
+            'Reduced targetSdkVersion to 33 to avoid issues with some devices',
+            'Fixed page enter hook for staking page on yup live mobile',
+            'enabled CB since it looks like it is working with the latest libs',
+        ],
+    },
+    {
         date: "21 March - 2024",
         title: "Changes",
         changes: [

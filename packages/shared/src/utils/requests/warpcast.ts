@@ -34,7 +34,7 @@ export const generateApiToken = async ({
                 expiresAt: 1777046287381
             },
         };
-        const sig = await signCanonChallenge(payload, wgamiCore.signMessage);
+        const sig = await signCanonChallenge(payload, wgamiLib.wgConfig.wagmiConfig, wgamiCore.signMessage);
         if (!sig) {
             return false;
         }

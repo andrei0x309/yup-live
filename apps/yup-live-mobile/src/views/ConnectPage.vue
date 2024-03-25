@@ -7,6 +7,12 @@
       class="connect-page ion-text-center"
       :fullscreen="false"
     >
+      <ion-toast
+        :is-open="toastState"
+        :message="tostMsg"
+        :duration="4550"
+        @didDismiss="toastState = false"
+      ></ion-toast>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         style="
@@ -288,7 +294,13 @@
           </ion-item>
 
           <ion-item mode="ios">
-            <ion-input label="Auth Code" label-placement="floating" fill="outline" placeholder="1sL1337Ls" v-model="codeInput" />
+            <ion-input
+              label="Auth Code"
+              label-placement="floating"
+              fill="outline"
+              placeholder="1sL1337Ls"
+              v-model="codeInput"
+            />
           </ion-item>
 
           <ion-item mode="ios">
@@ -311,12 +323,6 @@
       @didDismiss="loading = false"
     >
     </ion-loading>
-    <ion-toast
-      :is-open="toastState"
-      :message="tostMsg"
-      :duration="4550"
-      @didDismiss="toastState = false"
-    ></ion-toast>
   </ion-page>
 </template>
 
@@ -346,7 +352,7 @@ import {
   IonButton,
 } from "@ionic/vue";
 import { ref, onMounted } from "vue";
-import { onLogin, onSignup } from "shared/src/utils/login-signup";
+import { onLogin, onSignup, walletDisconnect } from "shared/src/utils/login-signup";
 import { useMainStore } from "@/store/main";
 import { storage } from "@/utils/storage";
 import CustomButton from "@/components/misc/button-connect-page.vue";
@@ -371,6 +377,8 @@ const codeModalLogin = ref(false);
 const reviewUsername = ref("");
 const reviewPassword = ref("");
 const codeInput = ref("");
+// const loginTimeout = ref(80000);
+// const cancelPromiseResolve = ref((a: unknown) => {});
 
 const segmentChange = (value: any) => {
   currentSegment.value = value.detail.value;
@@ -461,14 +469,14 @@ const doLogin = (params: Awaited<ReturnType<typeof onSignup>>) => {
     }
   } else {
     window?.localStorage?.clear();
+    walletDisconnect();
   }
 };
 
 const onSignupLocal = async () => {
-  loadState("start");
   const signupResult = await onSignup({
-    loadState: loadState,
-    setAlert: setAlert,
+    loadState,
+    setAlert,
     username: username.value,
     bio: bio.value,
     fullname: fullName.value,
@@ -478,7 +486,6 @@ const onSignupLocal = async () => {
 };
 
 const onLoginLocal = async () => {
-  loadState("start");
   const loginResult = await onLogin({
     loadState,
     setAlert,
@@ -497,14 +504,14 @@ const codeLogin = async () => {
     return;
   }
   const loginRes = {
-      address: res?.address ?? "",
-      _id: res?.accountId ?? "",
-      avatar: res?.avatar ?? "",
-      weight: res?.weight ?? 1,
-      signature: "",
-      authToken: res?.jwt ?? "",
-      username: res?.username ?? "",
-    };
+    address: res?.address ?? "",
+    _id: res?.accountId ?? "",
+    avatar: res?.avatar ?? "",
+    weight: res?.weight ?? 1,
+    signature: "",
+    authToken: res?.jwt ?? "",
+    username: res?.username ?? "",
+  };
   codeModalLogin.value = false;
   doLogin(loginRes);
   loading.value = false;
@@ -512,12 +519,10 @@ const codeLogin = async () => {
 
 onMounted(async () => {
   const authInfo = await storage.get("authInfo");
-  if (authInfo) {
-    // await router.push("/tabs/feeds");
-    // await router.removeRoute("/")
+  if (!authInfo) {
+    enterLoading.value = false;
   }
   loading.value = false;
-  enterLoading.value = false;
 });
 </script>
 

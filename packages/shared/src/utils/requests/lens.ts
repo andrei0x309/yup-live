@@ -1,9 +1,8 @@
-import { prepareForTransaction, signedTypeData, TWeb3Libs } from '../evmTxs'
+import { prepareForTransaction, signedTypeData, TWeb3Libs, getConfig } from '../evmTxs'
 import { fetchWAuth } from '../auth'
 import { IMainStore } from 'shared/src/types/store'
 import type { Ref } from 'vue'
 import { walletDisconnect, getWalletAddress } from 'shared/src/utils/login-signup'
-
 
 const lensGraphQl = 'https://api-v2.lens.dev'
 
@@ -35,14 +34,15 @@ export const authLens = async ({
   const wgamiLib = (await prepareForTransaction({
     localWeb3Libs: web3Libs,
     stackAlertWarning,
-
-  }))
+  }, true))
   if (!(wgamiLib)) {
     return null
   }
   const wgamiCore = wgamiLib.wgamiCore
   let signature
-  const address = (await wgamiCore.getAccount()).address ?? ''
+  await wgamiCore.reconnect(wgamiLib.wgConfig.wagmiConfig)
+
+  const address = (await wgamiCore.getAccount(wgamiLib.wgConfig.wagmiConfig)).address ?? ''
   const req = await fetch(`${lensGraphQl}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -62,7 +62,7 @@ challenge(request: { signedBy: "${address}", for: "${profileId}" }) {
       }
     } = await req.json()
     try {
-      signature = await wgamiCore.signMessage({ message: text })
+      signature = await wgamiCore.signMessage(wgamiLib.wgConfig.wagmiConfig, { message: text })
     } catch (error) {
       stackAlertWarning && stackAlertWarning('User rejected signature')
       return null
@@ -293,11 +293,13 @@ export const setDispatcher = async ({ profileId, authToken, test = false, web3Li
   })
   if (req.ok) {
     const data = (await req.json())?.data?.createSetDispatcherTypedData
+
     const signature = await signedTypeData({
       domain: data.typedData.domain,
       types: data.typedData.types,
       value: data.typedData.value,
-      signTypedData: wgamiCore.signTypedData
+      signTypedData: wgamiCore.signTypedData,
+      wagmiConfig: wgamiLib.wgConfig.wagmiConfig
     })
     if (!signature) {
       return -3
@@ -385,13 +387,15 @@ const enableSignless = async ({ web3Libs, store, apiBase = API_BASE, }:
       method: 'POST',
     })
     const { id, typedData } = await typeForSignless.json()
+    await wgamiLib.wgamiCore.reconnect(wgamiLib.wgConfig.wagmiConfig)
 
     const signature = await signedTypeData({
       domain: typedData.domain,
       types: typedData.types,
       value: typedData.value,
       signTypedData: wgamiLib.wgamiCore.signTypedData,
-      primaryType: 'ChangeDelegatedExecutorsConfig'
+      primaryType: 'ChangeDelegatedExecutorsConfig',
+      wagmiConfig: wgamiLib.wgConfig.wagmiConfig
     })
 
     if (!signature) {

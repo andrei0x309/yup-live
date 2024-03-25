@@ -21,6 +21,12 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
+    path: '/channel/:channelId',
+    redirect (to) {
+      return `/tabs/channel/${to.params.channelId}`
+    },
+  },
+  {
     path: '/profile/:userId',
     redirect (to) {
       return `/tabs/profile/${to.params.userId}`
@@ -106,6 +112,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'channels',
         component: () => import('@/views/FarcasterChannels.vue')
+      },
+      {
+        path: 'channel/:channelId',
+        component: () => import('@/views/FarcasterChannel.vue')
       },
       {
         path: 'search',

@@ -1,7 +1,7 @@
 import { editProfile } from './requests/accounts'
-import { config } from './config'
-import { web3Libs, metadata } from './evmTxs'
+import { web3Libs, getConfig, prepareForTransaction } from './evmTxs'
 import { wait } from './time'
+import type { Ref } from 'vue'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -11,72 +11,19 @@ export const web3ModalInstantiate = async (
     { loadState = null, setAlert = null }: { loadState: null | Function, setAlert: null | Function } = { loadState: null, setAlert: null }
 ) => {
     try {
-        await wait(500)
-        const { web3ModalWagmi, wgamiCore, wgamiChains } = w3libsP
-        const [lib1, lib2, lib3] = await Promise.all([web3ModalWagmi, wgamiCore, wgamiChains])
-        const { createWeb3Modal, defaultWagmiConfig } = lib1
-        const { getAccount } = lib2
-        const { polygon, mainnet, polygonMumbai } = lib3
-
-        const chains = [polygon, mainnet, polygonMumbai]
-
-        const enableCoinbase = !(window as any)?.Ionic
-
-        const wagmiConfig = defaultWagmiConfig({
-            projectId: config.PROJECT_ID,
-            chains,
-            enableCoinbase,
-            enableInjected: true,
-            enableWalletConnect: true,
-            enableEIP6963: true,
-            enableEmail: false,
-            metadata
-        })
-
-        const web3Modal = createWeb3Modal({
-            wagmiConfig,
-            projectId: config.PROJECT_ID,
-            chains,
-            themeMode: 'dark',
-        })
-
-        if (web3Modal) {
-            let conn = await getAccount()
-            if (!conn?.isConnected) {
-                await web3Modal.open()
-                const modalStateProm = new Promise((resolve) => {
-                    const unsub = web3Modal.subscribeEvents((event: { data: { event: string }, timestamp: number }) => {
-                        const eventType = event.data.event
-                        if (eventType === 'CONNECT_SUCCESS' || eventType === 'MODAL_CLOSE') {
-                            resolve(event)
-                            unsub()
-                        }
-                    })
-                })
-                await modalStateProm
-                conn = await getAccount()
-                if (!conn.isConnected) {
-                    if (loadState && setAlert) {
-                        loadState('end')
-                        setAlert({
-                            type: 'error',
-                            message: 'User closed connect modal.'
-                        })
-                    }
-                    return
-                }
-                return conn
-            }
-            return conn
-        } else {
+        await wait(100)
+        const wgGami = await prepareForTransaction({ localWeb3Libs: await w3libsP, stackAlertWarning: () => { } })
+        if (!wgGami) {
             if (loadState && setAlert) {
                 loadState('end')
                 setAlert({
                     type: 'error',
-                    message: 'Web3 Instance is null.'
+                    message: 'User closed connect modal.'
                 })
             }
+            return
         }
+        return wgGami.wgamiCore.getAccount(wgGami.wgConfig.wagmiConfig)
     } catch (error) {
         if (loadState && setAlert) {
             loadState('end')
@@ -90,9 +37,11 @@ export const web3ModalInstantiate = async (
 
 export const walletDisconnect = async () => {
     try {
-        const wgamiCore = (await w3libsP.wgamiCore)
-        const { disconnect } = wgamiCore
-    await disconnect()
+        const wgConfig = await getConfig(w3libsP)
+        const { disconnect, reconnect } = wgConfig.wgamiC
+        const { wagmiConfig } = wgConfig
+        await reconnect(wagmiConfig)
+        await disconnect(wagmiConfig)
     } catch {
         // do nothing
     }
@@ -145,11 +94,17 @@ const getYupAccount = async ({
 }
 
 const signChallenge = async ({
-    address, loadState = null, setAlert = null
+    address, loadState = null,
+    setAlert = null,
+    timeout = null,
+    cancelPromise = null
 }: {
         address: string,
     loadState: null | Function
-        setAlert: null | Function
+        setAlert: null | Function,
+        timeout?: null | Ref<number>,
+        cancelPromise?: null | Promise<any>
+
 }) => {
     const req = await fetch(`${API_BASE}/v1/eth/challenge?address=${address}`, {
         headers: {
@@ -159,22 +114,48 @@ const signChallenge = async ({
     const res = await req.json()
     const challenge = res.data
     let signature: string
-    const timeout = new Promise((resolve) => setTimeout(() => resolve(0), 90000))
-    const wgamiCore = (await w3libsP.wgamiCore)
-    const { signMessage, disconnect } = wgamiCore
+    let localTimeout = timeout ? timeout.value : 80000
+    let decInterval: null | number = null
+    if (timeout) {
+        timeout.value = 80000
+        decInterval = setInterval(() => {
+            if (timeout.value > 0) {
+                timeout.value -= 1000
+            }
+            localTimeout -= 1000
+        }, 1000) as unknown as number
+    }
+    const timeoutP = new Promise((resolve) => setTimeout(() => resolve(0), localTimeout))
+    const wgConfig = await getConfig(w3libsP)
+    const { signMessage, disconnect } = wgConfig.wgamiC
+    const { wagmiConfig } = wgConfig
     try {
-        signature = await Promise.race([signMessage({
+        const promises = [signMessage(wagmiConfig, {
             message: challenge,
-        }), timeout]) as string
-        if (!signature) {
+        }), timeoutP]
+        if (cancelPromise) {
+            promises.push(cancelPromise)
+        }
+        signature = await Promise.race(promises) as string
+        if (decInterval) {
+            clearInterval(decInterval)
+        }
+        if (!signature || typeof signature !== 'string') {
             if (loadState && setAlert) {
                 loadState('end')
-                setAlert({
-                    type: 'error',
-                    message: 'Wallet did not respond in 90s. Please try again later'
-                })
-                disconnect()
+                if (localTimeout > 0) {
+                    setAlert({
+                        type: 'error',
+                        message: 'User cancelled the signature'
+                    })
+                } else {
+                    setAlert({
+                        type: 'error',
+                        message: `Wallet did not respond in ${localTimeout / 1000}s. Please try again later`
+                    })
+                }
             }
+            disconnect(wagmiConfig).catch(() => { })
             return
         }
     } catch (error) {
@@ -185,7 +166,7 @@ const signChallenge = async ({
                 type: 'error',
                 message: 'User cancelled the signature'
             })
-            disconnect()
+            disconnect(wagmiConfig).catch(() => { })
         }
         return
     }
@@ -274,13 +255,17 @@ export const onSignup = async (
         loadState = null,
         setAlert = null,
         bio = null,
-        fullname = null
+        fullname = null,
+        timeout = null,
+        cancelPromise = null
     }: {
         username: string
         loadState: null | Function,
         setAlert: null | Function,
         bio?: null | string,
-        fullname?: null | string
+            fullname?: null | string,
+            timeout?: null | Ref<number>
+            cancelPromise?: null | Promise<any>
     }) => {
     if (loadState) {
         loadState('start')
@@ -289,17 +274,28 @@ export const onSignup = async (
     if (inst) {
         const address = inst.address ?? ""
         const account = await getYupAccount({ address, type: 'signup', loadState, setAlert })
-        if (!account) return
-        const signature = await signChallenge({ address, loadState, setAlert })
+        if (!account) {
+            loadState && loadState('end')
+            return
+        }
+        const signature = await signChallenge({ address, loadState, setAlert, timeout, cancelPromise })
+
+        if (!signature) {
+            loadState && loadState('end')
+            return
+        }
 
         await logSignup({
             address,
             username,
         })
 
-        if (!signature) return
         const accountSignUp = await createAccount({ address, signature, username, loadState, setAlert })
-        if (!accountSignUp) return
+
+        if (!accountSignUp) {
+            loadState && loadState('end')
+            return
+        }
         try {
             if (bio || fullname) {
                 await editProfile({
@@ -355,10 +351,14 @@ const logSignup = async (data: Record<string, any>) => {
 
 export const onLogin = async ({
     loadState = null,
-    setAlert = null
+    setAlert = null,
+    timeout = null,
+    cancelPromise = null
 }: {
     loadState: null | Function,
     setAlert: null | Function,
+        timeout?: null | Ref<number>
+        cancelPromise?: null | Promise<any>
     } = { loadState: null, setAlert: null }
 ) => {
     if (loadState) {
@@ -368,11 +368,20 @@ export const onLogin = async ({
     if (inst) {
         const address = inst.address ?? ""
         const account = await getYupAccount({ address, type: 'login', loadState, setAlert })
-        if (!account) return
-        const signature = await signChallenge({ address, loadState, setAlert })
-        if (!signature) return
+        if (!account) {
+            loadState && loadState('end')
+            return
+        }
+        const signature = await signChallenge({ address, loadState, setAlert, timeout, cancelPromise })
+        if (!signature) {
+            loadState && loadState('end')
+            return
+        }
         const accountLogIn = await logIn({ address, signature, loadState, setAlert })
-        if (!accountLogIn) return
+        if (!accountLogIn) {
+            loadState && loadState('end')
+            return
+        }
         return {
             address,
             _id: account._id,

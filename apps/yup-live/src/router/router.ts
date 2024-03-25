@@ -154,6 +154,11 @@ const routes = [
     component: () => import('@/pages/feeds.vue')
   },
   {
+    path: '/channel/:channelId',
+    name: 'FcChannel',
+    component: () => import('@/pages/fc-channel.vue')
+  },
+  {
     path: '/score',
     name: 'Yup Score',
     component: () => import('@/pages/score.vue')

@@ -23,11 +23,56 @@ const canonicalize = import("canonicalize");
 // let w3mConnectors: Awaited<ReturnType<typeof web3Libs>['web3ModalEthereum']>['w3mConnectors']
 // let w3mProvider: Awaited<ReturnType<typeof web3Libs>['web3ModalEthereum']>['w3mProvider']
 // let Web3Modal: Awaited<ReturnType<typeof web3Libs>['web3ModalHtml']>['Web3Modal']
-let configureChains: Awaited<ReturnType<typeof web3Libs>['wgamiCore']>['configureChains']
 let createConfig: Awaited<ReturnType<typeof web3Libs>['wgamiCore']>['createConfig']
-let wagmiConfig: ReturnType<typeof createConfig>
-let wgamiChains: Awaited<ReturnType<typeof web3Libs>['wgamiChains']>
 // let coinBaseConnector: Awaited<ReturnType<typeof web3Libs>['CoinbaseWalletConnector']>['CoinbaseWalletConnector']
+type TwgConfig = {
+    wagmiConfig: ReturnType<typeof createConfig>
+    web3Modal: Awaited<ReturnType<typeof web3Libs>['web3ModalWagmi']>
+    wgamiC: Awaited<ReturnType<typeof web3Libs>['wgamiCore']>
+    chains: Awaited<ReturnType<typeof web3Libs>['wgamiChains']>
+} | null
+
+let wgConfig: TwgConfig = null
+
+export const getConfig = async (localWeb3Libs: ReturnType<typeof web3Libs>) => {
+
+    if (wgConfig) {
+        return wgConfig
+    }
+
+    const { web3ModalWagmi, wgamiCore, wgamiChains } = localWeb3Libs
+    const [web3Modal, wgamiC, chainsLib] = await Promise.all([web3ModalWagmi, wgamiCore, wgamiChains])
+    const { defaultWagmiConfig } = web3Modal
+    const { polygon } = chainsLib
+
+
+    const chains = [polygon] as any
+    // const enableCoinbase = !(window as any)?.Ionic
+    const enableCoinbase = true
+
+
+    const wagmiConfig = defaultWagmiConfig({
+        projectId: config.PROJECT_ID,
+        chains,
+        enableCoinbase,
+        enableInjected: true,
+        enableWalletConnect: true,
+        enableEIP6963: true,
+        enableEmail: false,
+        metadata
+    })
+
+    wgConfig = {
+        wagmiConfig,
+        web3Modal,
+        wgamiC,
+        chains: chainsLib,
+    }
+
+    return wgConfig
+
+}
+
 
 
 export const web3Libs = () => {
@@ -70,47 +115,15 @@ export const tryToGetAddressWithoutPrompt = async ({
     localWeb3Libs
 }: {
         localWeb3Libs: ReturnType<typeof web3Libs>
-}) => {
-    const { web3ModalWagmi, wgamiCore, wgamiChains } = localWeb3Libs
-    const [lib1, lib2, lib3] = await Promise.all([web3ModalWagmi, wgamiCore, wgamiChains])
-    const { createWeb3Modal, defaultWagmiConfig } = lib1
-    const { getAccount } = lib2
-    const { polygon, mainnet, polygonMumbai } = lib3
+    }) => {
 
+    const wgConfig = await getConfig(localWeb3Libs)
 
-    const chains = [polygon, mainnet, polygonMumbai]
+    const { getAccount, reconnect } = wgConfig.wgamiC
+    const { wagmiConfig } = wgConfig
 
-    // const { publicClient } = configureChains(chains, [w3mProvider({ projectId: config.PROJECT_ID })])
-    // const wagmiConfig = createConfig({
-    //     autoConnect: true,
-    //     connectors: w3mConnectors({ projectId: config.PROJECT_ID, chains }),
-    //     publicClient
-    // })
-    // const ethereumClient = new EthereumClient(wagmiConfig, chains)
-
-    const enableCoinbase = !(window as any)?.Ionic
-
-
-    const wagmiConfig = defaultWagmiConfig({
-        projectId: config.PROJECT_ID,
-        chains,
-        enableCoinbase,
-        enableInjected: true,
-        enableWalletConnect: true,
-        enableEIP6963: true,
-        enableEmail: false,
-        metadata
-    })
-
-    createWeb3Modal({
-        wagmiConfig,
-        projectId: config.PROJECT_ID, 
-        chains,
-        themeMode: 'dark',
-    })
-
-
-    return (await getAccount()).address || null
+    await reconnect(wagmiConfig)
+    return (await getAccount(wagmiConfig)).address || null
 }
 
 export const prepareForTransaction = async ({
@@ -119,75 +132,67 @@ export const prepareForTransaction = async ({
 }: {
     stackAlertWarning?: (msg: string) => void,
         localWeb3Libs: ReturnType<typeof web3Libs>
-}) => {
+    }, clean = false) => {
 
-    const { web3ModalWagmi, wgamiCore, wgamiChains } = localWeb3Libs
-    const [lib1, wgamiCoreLib, lib3] = await Promise.all([web3ModalWagmi, wgamiCore, wgamiChains])
-    const { createWeb3Modal, defaultWagmiConfig } = lib1
-    const { polygon, mainnet, polygonMumbai } = lib3
+    const wgConfig = await getConfig(localWeb3Libs)
 
-
-    const chains = [polygon, mainnet, polygonMumbai]
-
-    // const { publicClient } = configureChains(chains, [w3mProvider({ projectId: config.PROJECT_ID })])
-    // const wagmiConfig = createConfig({
-    //     autoConnect: true,
-    //     connectors: w3mConnectors({ projectId: config.PROJECT_ID, chains }),
-    //     publicClient
-    // })
-    // const ethereumClient = new EthereumClient(wagmiConfig, chains)
-
-    const metadata = {
-        name: 'Web3Modal',
-        description: 'Web3Modal Example',
-        url: 'https://web3modal.com',
-        icons: ['https://avatars.githubusercontent.com/u/37784886']
+    if (clean) {
+        try {
+            const { disconnect, reconnect } = wgConfig.wgamiC
+            const { wagmiConfig } = wgConfig
+            await reconnect(wagmiConfig)
+            await disconnect(wagmiConfig)
+        } catch {
+            // do nothing
+        }
     }
 
-    const enableCoinbase = !(window as any)?.Ionic
+    const { createWeb3Modal, } = wgConfig.web3Modal
+    const { wagmiConfig } = wgConfig
+    const wgamiCoreLib = wgConfig.wgamiC
 
-    const wagmiConfig = defaultWagmiConfig({
-        projectId: config.PROJECT_ID,
-        chains,
-        enableCoinbase,
-        enableInjected: true,
-        enableWalletConnect: true,
-        enableEIP6963: true,
-        enableEmail: false,
-        metadata
-    })
+    await wgamiCoreLib.reconnect(wagmiConfig)
+    let conn = await wgamiCoreLib.getAccount(wagmiConfig)
+
+    if (conn.isConnected) {
+        return {
+            wgamiCore: wgamiCoreLib,
+            wgConfig
+        }
+    }
 
     const web3Modal = createWeb3Modal({
         wagmiConfig,
         projectId: config.PROJECT_ID, 
-        chains,
         themeMode: 'dark',
     })
 
     if (web3Modal) {
-        let conn = await wgamiCoreLib.getAccount()
         if (!conn?.isConnected) {
             await web3Modal.open()
             const modalStateProm = new Promise((resolve) => {
                 const unsub = web3Modal.subscribeEvents((event: { data: { event: string }, timestamp: number }) => {
                     const eventType = event.data.event
-                    if (eventType === 'CONNECT_SUCCESS' || eventType === 'MODAL_CLOSE') {
+                    if (eventType === 'CONNECT_SUCCESS' || eventType === 'MODAL_CLOSE' || eventType === 'CONNECT_ERROR') {
                         resolve(event)
                         unsub()
+                        if (eventType === 'CONNECT_ERROR') {
+                            web3Modal.close()
+                        }
                     }
                 })
             })
             await modalStateProm
-            conn = await wgamiCoreLib.getAccount()
+            conn = await wgamiCoreLib.getAccount(wagmiConfig)
             if (!conn.isConnected) {
                 stackAlertWarning && stackAlertWarning('User closed connect modal.')
                 return false
             }
-        } else {
-            await wagmiConfig.autoConnect()
         }
+        await wgamiCoreLib.reconnect(wagmiConfig)
         return {
-            wgamiCore: wgamiCoreLib
+            wgamiCore: wgamiCoreLib,
+            wgConfig
         }
     } else {
         stackAlertWarning && stackAlertWarning('Web3 Instance is null.')
@@ -215,11 +220,11 @@ export const prepareForTransaction = async ({
     // return true
 }
 
-export const signCanonChallenge = async (payload: Record<string, unknown>, signMessage: (arg: { message: string }) => Promise<string>) => {
+export const signCanonChallenge = async (payload: Record<string, unknown>, config: any, signMessage: (config: any, arg: { message: string }) => Promise<string>) => {
     const canFn = (await canonicalize).default;
     let signature;
     try {
-        signature = await signMessage({ message: canFn(payload) as string });
+        signature = await signMessage(config, { message: canFn(payload) as string });
     } catch (error) {
         return;
     }
@@ -231,18 +236,20 @@ export const signedTypeData = async ({
     types,
     value,
     primaryType = 'SetDispatcherWithSig',
-    signTypedData
+    signTypedData,
+    wagmiConfig
 }: {
         domain: Record<string, any>,
     types: Record<string, any>,
     value: Record<string, any>,
         primaryType?: string,
         signTypedData: typeof TsignTypedData
+        wagmiConfig: ReturnType<typeof createConfig>
 }
 ) => {
     try {
 
-    return await signTypedData({
+        return await signTypedData(wagmiConfig, {
         domain,
         types,
         message: value,

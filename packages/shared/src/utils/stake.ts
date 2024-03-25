@@ -75,12 +75,12 @@ const checkNetwork = async ({ wgamiLib, stackAlertWarning }:
         return false
     }
 
-    let chainId = await wgamiLib.wgamiCore.getNetwork()
+    let chainId = await wgamiLib.wgamiCore.getChainId(wgamiLib.wgConfig.wagmiConfig)
 
-    if (chainId.chain?.id !== 137) {
-        await wgamiLib.wgamiCore.switchNetwork({ chainId: 137 })
-        chainId = await wgamiLib.wgamiCore.getNetwork()
-        if (chainId.chain?.id !== 137) {
+    if (chainId !== 137) {
+        await wgamiLib.wgamiCore.switchChain(wgamiLib.wgConfig.wagmiConfig, { chainId: 137 })
+        chainId = await wgamiLib.wgamiCore.getChainId(wgamiLib.wgConfig.wagmiConfig)
+        if (chainId !== 137) {
             stackAlertWarning && stackAlertWarning('You need to be on Polygon network')
             return false
         }
@@ -142,6 +142,7 @@ export const fetchContractsData = ({
             if (polyStaked.value && totalStakePoly) {
                 poolShare.value = (100 * polyStaked.value) / totalStakePoly
             }
+            console.log('polyStaked', polyStaked.value)
         })
     })
 }
@@ -181,14 +182,14 @@ export const onStake = async ({
 
         const amount = ethersLib.parseEther(inputValue.value.toString())
 
-        await wgamiLib.wgamiCore.writeContract({
+        await wgamiLib.wgamiCore.writeContract(wgamiLib.wgConfig.wagmiConfig, {
             abi: uniPoolPABI,
             address: POLY_UNI_LP_TOKEN as '0x',
             functionName: 'approve',
             args: [POLY_LIQUIDITY_REWARDS, amount]
         })
 
-        await wgamiLib.wgamiCore.writeContract({
+        await wgamiLib.wgamiCore.writeContract(wgamiLib.wgConfig.wagmiConfig, {
             abi: yupRewardsPABI,
             address: POLY_LIQUIDITY_REWARDS as '0x',
             functionName: 'stake',
@@ -251,7 +252,7 @@ export const onUnstake = async ({
         }
 
         const willSusbstractPoly = Number(inputValue.value)
-        await wgamiLib.wgamiCore.writeContract({
+        await wgamiLib.wgamiCore.writeContract(wgamiLib.wgConfig.wagmiConfig, {
             abi: yupRewardsPABI,
             address: POLY_LIQUIDITY_REWARDS as '0x',
             functionName: 'unstake',
@@ -311,7 +312,7 @@ export const onReward = async ({
         }
 
         if (rewardsPoly > 0) {
-            await wgamiLib.wgamiCore.writeContract({
+            await wgamiLib.wgamiCore.writeContract(wgamiLib.wgConfig.wagmiConfig, {
                 abi: yupRewardsPABI,
                 address: POLY_LIQUIDITY_REWARDS as '0x',
                 functionName: 'getReward',
@@ -378,7 +379,7 @@ export const connect = async ({
         return null
     }
     const wgamiCore = wgamiLib.wgamiCore
-    address.value = (await wgamiCore.getAccount()).address || ''
+    address.value = (await wgamiCore.getAccount(wgamiLib.wgConfig.wagmiConfig)).address || ''
     loading.value = true
     await fetchContractsData({
         address,

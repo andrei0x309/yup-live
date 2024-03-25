@@ -223,7 +223,7 @@ export const connectToFarcaster = async ({
                 return null
             }
             const wgamiCore = wgamiLib.wgamiCore
-            const address = (await wgamiCore.getAccount()).address ?? ''
+            const address = (await wgamiCore.getAccount(wgamiLib.wgConfig.wagmiConfig)).address ?? ''
             const fidNo = await getFidByAddress(store, address, apiBase);
             if (!fidNo) {
                 walletDisconnect()
@@ -246,7 +246,7 @@ export const connectToFarcaster = async ({
             for (let i = 0; i < len; i++) {
                 hash[i] = binaryString.charCodeAt(i);
             }
-            const signature = await wgamiCore.signTypedData({
+            const signature = await wgamiCore.signTypedData(wgamiLib.wgConfig.wagmiConfig, {
                 domain: EIP_712_FARCASTER_DOMAIN,
                 types: { MessageData: EIP_712_FARCASTER_MESSAGE_DATA },
                 message: { hash },

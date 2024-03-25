@@ -12,9 +12,7 @@
         </template>
         <template v-if="!loading">
           <div class="my-4">
-            <p>
-              Connected Address: 
-            </p>
+            <p>Connected Address:</p>
             <p class="p-2 text-[0.8rem] mt-2">{{ address }}</p>
             <p v-if="poolShare > 0">
               Your current pool share: <b>{{ `${poolShare.toFixed(4)}%` }}</b>
@@ -111,9 +109,16 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, onUnmounted, Ref, ref } from "vue";
+import { defineComponent, onUnmounted, Ref, ref } from "vue";
 import DangLoader from "components/vote-list/loader.vue";
-import { IonContent, IonSegment, IonSegmentButton, IonPage, IonLabel } from "@ionic/vue";
+import {
+  IonContent,
+  IonSegment,
+  IonSegmentButton,
+  IonPage,
+  IonLabel,
+  onIonViewWillEnter,
+} from "@ionic/vue";
 import StakeIcon from "icons/src/stake.vue";
 import NoStakeIcon from "icons/src/noStake.vue";
 import YUPPOLY from "icons/src/yup-poly.vue";
@@ -171,7 +176,7 @@ export default defineComponent({
     const store = useMainStore();
     const inputValue = ref("0");
     const poolShare = ref(0);
-    const address = ref(localStorage.getItem("address"));
+    const address = ref(localStorage.getItem("address") || store.userData.address);
 
     const Web3Libs = (ref(null) as unknown) as Ref<TWeb3Libs>;
 
@@ -240,7 +245,7 @@ export default defineComponent({
       });
     };
 
-    onMounted(async () => {
+    onIonViewWillEnter(async () => {
       getAprs({
         stackAlertWarning,
       }).then(async (res) => {

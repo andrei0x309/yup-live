@@ -402,23 +402,18 @@
             </div>
           </template>
           <template v-else-if="settingsModalContent === 'lens-profiles' && settingsModal">
-      <h2 class="mt-2 p-4 text-[1.3rem]">Select Lens Profile</h2>
-      <div class="flex flex-col lens-profiles">
- 
-
-                <ion-radio-group
-                :value="lensSelectedProfile"
-                v-model="lensSelectedProfile"
-                > <ion-item v-for="profile of transferData.data"
-                  :key="profile.id"
+            <h2 class="mt-2 p-4 text-[1.3rem]">Select Lens Profile</h2>
+            <div class="flex flex-col lens-profiles">
+              <ion-radio-group :value="lensSelectedProfile" v-model="lensSelectedProfile">
+                <ion-item v-for="profile of transferData.data" :key="profile.id">
+                  <ion-radio :value="profile.id" justify="start"
+                    ><ProfileLensIcon class="w-4 inline mr-2" />
+                    {{ profile.handle.fullHandle }}</ion-radio
                   >
-                  <ion-radio  :value="profile.id" justify="start"><ProfileLensIcon class="w-4 inline mr-2" /> {{ profile.handle.fullHandle }}</ion-radio>
                 </ion-item>
-                </ion-radio-group>
-                
-
-              </div>
-    </template>
+              </ion-radio-group>
+            </div>
+          </template>
           <template v-else-if="settingsModalContent === 'farcaster-connect'">
             <!-- <ion-segment
               style="width: auto"
@@ -620,7 +615,7 @@ import {
   IonToast,
   modalController,
   IonRadioGroup,
-  IonRadio
+  IonRadio,
 } from "@ionic/vue";
 
 import BtnSpinner from "icons/src/btnSpinner.vue";
@@ -661,7 +656,7 @@ import { PUSH_NOTIFICATION_TYPES, setPushSettings } from "@/utils/expo-push-not-
 import BlueSkyIcon from "icons/src/bsky.vue";
 import ThreadsIcon from "icons/src/threads.vue";
 import { connectToThreads, disconnectThreads } from "shared/src/utils/requests/threads";
-import AddAccount from '@/components/settings/addAccount.vue'
+import AddAccount from "@/components/settings/addAccount.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -702,7 +697,7 @@ export default defineComponent({
     ThreadsIcon,
     AddAccount,
     IonRadioGroup,
-    IonRadio
+    IonRadio,
   },
   props: {
     userData: {
@@ -778,8 +773,6 @@ export default defineComponent({
 
     const threadsUser = ref("");
     const threadsPass = ref("");
-    
-
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const lensSelectedProfile = ref(undefined) as Ref<any | undefined | string>;
@@ -789,7 +782,7 @@ export default defineComponent({
       (a: unknown) => typeof a & void
     >;
 
-    store.$subscribe( () => {
+    store.$subscribe(() => {
       if (store.userData) {
         bio.value = store.userData.bio ?? "";
         fullName.value = store.userData.fullname ?? "";
@@ -801,7 +794,6 @@ export default defineComponent({
         isConnectedToThreads.value = store.userData.connected?.threads ?? false;
       }
     });
-
 
     watch(
       () => lensSelectedProfile.value,
@@ -823,7 +815,7 @@ export default defineComponent({
     );
 
     watch(
-      () =>  settingsModal.value,
+      () => settingsModal.value,
       (newVal) => {
         if (newVal === false && !lensSelectedProfile.value) {
           closeSettingsModal();
@@ -840,7 +832,7 @@ export default defineComponent({
         });
         if (req.ok) {
           await storage.clear();
-          const logSig = await import("shared/src/utils/login-signup");
+          const logSig = await import("shared/src/utils/");
           try {
             await logSig.walletDisconnect();
           } catch (e) {
@@ -979,10 +971,10 @@ export default defineComponent({
         farcasterDeepLink.value = "";
         farcasterTimeout.value = 600000;
       }
-      if (settingsModalContent.value === "lens-profiles" ) {
-          transferData.value = { type: "lens", data: null };
-          lensSelectedProfile.value = undefined;
-          resolvePromiseSetProfile.value(true);
+      if (settingsModalContent.value === "lens-profiles") {
+        transferData.value = { type: "lens", data: null };
+        lensSelectedProfile.value = undefined;
+        resolvePromiseSetProfile.value(true);
       }
       settingsModal.value = false;
     };
@@ -1223,7 +1215,7 @@ export default defineComponent({
       threadsUser,
       threadsPass,
       lensSelectedProfile,
-      transferData
+      transferData,
     };
   },
 });

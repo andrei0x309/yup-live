@@ -50,7 +50,7 @@
 import { onMounted, defineComponent, ref } from "vue";
 import { useMainStore } from "@/store/main";
 import BtnSpinner from "icons/src/btnSpinner.vue";
-import { getWalletAddress, onLogin } from "shared/src/utils/login-signup";
+import { onLogin, walletDisconnect } from "shared/src/utils/login-signup";
 import { stackAlertWarning } from "@/store/alert-store";
 import { storage } from "@/utils/storage";
 import AvatarBtn from "components/functional/avatarBtn.vue";
@@ -109,14 +109,17 @@ export default defineComponent({
     const addAccount = async () => {
       isLoading.value = true;
       try {
-        const address = await getWalletAddress();
-        if (!address) {
-          stackAlertWarning(
-            "Failed to get wallet address, be sure to connect your wallet"
-          );
+        await walletDisconnect();
+        const loginNewAccount = await onLogin();
+        if (!loginNewAccount) {
+          stackAlertWarning("Failed to login new account, please try again later");
           isLoading.value = false;
           return;
-        } else if (address === store.userData?.address) {
+        }
+        if (
+          loginNewAccount.address?.toLowerCase() ===
+          store.userData?.address?.toLowerCase()
+        ) {
           stackAlertWarning(
             "You are already using this account, please switch to another wallet address"
           );
@@ -132,12 +135,7 @@ export default defineComponent({
           fid: store.userData.fid || "",
           avatar: store.userData.avatar || "",
         };
-        const loginNewAccount = await onLogin();
-        if (!loginNewAccount) {
-          stackAlertWarning("Failed to login new account, please try again later");
-          isLoading.value = false;
-          return;
-        }
+
         storedAccounts.value[loginNewAccount._id] = {
           authToken: loginNewAccount.authToken,
           account: loginNewAccount._id,
@@ -145,9 +143,10 @@ export default defineComponent({
           address: loginNewAccount.address,
           avatar: loginNewAccount.avatar,
         };
-        storage.set("storedAccounts", JSON.stringify(storedAccounts.value));
-        switchAccount(storedAccounts.value[loginNewAccount._id]);
+
+        await storage.set("storedAccounts", JSON.stringify(storedAccounts.value));
         isLoading.value = false;
+        doSwitchAccount(loginNewAccount._id);
       } catch (e) {
         stackAlertWarning("Failed to add account, please try again later");
         console.error(e);

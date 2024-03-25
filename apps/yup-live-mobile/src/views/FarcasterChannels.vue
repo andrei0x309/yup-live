@@ -162,7 +162,6 @@ const feeds = [
     const posts = ref([]) as Ref<Array<IPost>>;
     const activeFeed = ref(defaultFeed) as Ref<string>;
     const postsIndex = ref(0);
-    const postInfo = ref(null) as Ref<unknown>;
     const feedLoading = ref(false);
     const catComp = shallowRef(null) as Ref<unknown>;
     const store = useMainStore();
@@ -240,9 +239,6 @@ const feeds = [
     onIonViewWillEnter(async () => {
       getFeedPosts(postsIndex.value).then((res) => {
         posts.value = res;
-        if (!postInfo.value) {
-          postInfo.value = posts.value[0];
-        }
         loading.value = false;
       });
     });
@@ -255,7 +251,6 @@ const feeds = [
       loading,
       posts,
       FEED_APIS,
-      postInfo,
       activeFeed,
       feedLoading,
       catComp,
