@@ -340,6 +340,7 @@ export const postFrameAction = async (
             inputText?: string
             buttonIndex?: number,
             state?: string
+            txHash?: string
         }
     }) => {
     try {
@@ -477,6 +478,8 @@ export const getInitialFrame = async (url: string) => {
                     buttons[index] = { ...buttons[index], index: (index || undefined), target: content }
                 } else if (forthToken === 'action') {
                     buttons[index] = { ...buttons[index], index: (index || undefined), type: content }
+                } else if (forthToken === 'post_url') {
+                    buttons[index] = { ...buttons[index], index: (index || undefined), postUrl: content }
                 }
             }
         } else if (property?.startsWith('redirectUrl')) {

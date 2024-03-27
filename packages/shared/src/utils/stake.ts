@@ -3,7 +3,7 @@ const RW_API_BASE = 'https://rewards-manager.yup.io'
 import { getPolyContractAddresses } from '@yupio/contract-addresses'
 import { uniPoolPABI } from 'shared/src/partial-abis/uni-pool'
 import { yupRewardsPABI } from 'shared/src/partial-abis/yup-rewards'
-import { prepareForTransaction, tryToGetAddressWithoutPrompt, TWeb3Libs } from 'shared/src/utils/evmTxs'
+import { prepareForTransaction, tryToGetAddressWithoutPrompt, TWeb3Libs, checkNetwork } from 'shared/src/utils/evmTxs'
 const POLY_RPC = import.meta.env.VITE_POLYGON_RPC
 // const HISTORIC_REWARDS_ENDPOINT = 'https://yup-lp-historic-rewards.deno.dev'
 
@@ -66,27 +66,7 @@ const clearStartNumber = () => {
     }
 }
 
-const checkNetwork = async ({ wgamiLib, stackAlertWarning }:
-    {
-        wgamiLib: Awaited<ReturnType<typeof prepareForTransaction>>
-        stackAlertWarning?: (msg: string) => void
-    }) => {
-    if (!wgamiLib) {
-        return false
-    }
 
-    let chainId = await wgamiLib.wgamiCore.getChainId(wgamiLib.wgConfig.wagmiConfig)
-
-    if (chainId !== 137) {
-        await wgamiLib.wgamiCore.switchChain(wgamiLib.wgConfig.wagmiConfig, { chainId: 137 })
-        chainId = await wgamiLib.wgamiCore.getChainId(wgamiLib.wgConfig.wagmiConfig)
-        if (chainId !== 137) {
-            stackAlertWarning && stackAlertWarning('You need to be on Polygon network')
-            return false
-        }
-    }
-    return true
-}
 
 export const fetchContractsData = ({
     address,

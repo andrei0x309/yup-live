@@ -1,5 +1,12 @@
 export const recentChanges = [
     {
+        date: "27 March - 2024",
+        title: "Changes",
+        changes: [
+            'added frontend implementation for farcaster tx frames',
+        ],
+    },
+    {
         date: "24 March - 2024",
         title: "Changes",
         changes: [

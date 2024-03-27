@@ -36,6 +36,7 @@
         >
           <LinkIcon v-if="isRedirectBtn(button)" class="w-4 h-4" />
           <NFTIco v-if="isMintBtn(button)" class="w-4 h-4 inline" />
+          <span v-if="isTxBtn(button)">🗲</span>
           {{ button.title }}
         </button>
       </div>
@@ -61,6 +62,7 @@ import DangLoader from "components/vote-list/loader.vue";
 import LinkIcon from "icons/src/link.vue";
 import NFTIco from "icons/src/nft.vue";
 import { getOpenSeaNftUrl } from "shared/src/utils/web3/open-sea";
+import { framePromptForTransaction } from "shared/src/utils/evmTxs";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -107,6 +109,7 @@ export default defineComponent({
         title: string;
         type: string;
         target: string;
+        post_url?: string;
       }[]
     >;
     const isLoadedFrame = ref(false) as Ref<boolean>;
@@ -116,6 +119,7 @@ export default defineComponent({
       castFid: Number(props.castDep.fid),
       castHash: props.castDep.hash,
       inputText: undefined,
+      txHash: undefined,
     } as {
       url: string;
       castFid: number;
@@ -123,6 +127,7 @@ export default defineComponent({
       inputText?: string;
       buttonIndex?: number;
       state?: string;
+      txHash?: string;
     };
     let frame: {
       imageUrl: string;
@@ -134,6 +139,7 @@ export default defineComponent({
         title: string;
         type: string;
         target: string;
+        post_url?: string;
       }[];
       state: string;
       redirectUrl?: string;
@@ -167,13 +173,16 @@ export default defineComponent({
       return button.type === "mint";
     };
 
-    const loadFrame = async (
-      url: string,
-      secLoad = false,
-    ) => {
+    const isTxBtn = (button: { type: string }) => {
+      return button.type === "tx";
+    };
+
+    const loadFrame = async (url: string, secLoad = false) => {
       if (!secLoad) {
         frame = await getInitialFrame(url);
       }
+      console.log("frame", frame);
+
       canInteractWithFrame.value = store?.userData?.connected?.farcaster || false;
       frameImage.value = sanitizeFrameImage(frame?.imageUrl || "");
       textInput.value = !!frame?.textInput;
@@ -189,6 +198,7 @@ export default defineComponent({
       index: number;
       type: string;
       target: string;
+      post_url?: string;
     }) => {
       try {
         sendData.inputText = inputText.value;
@@ -210,10 +220,41 @@ export default defineComponent({
           return;
         }
 
-        if(isRedirectBtnPost(button) && isZora) {
+        if (isRedirectBtnPost(button) && isZora) {
           window.open(props.url, "_blank");
           secondLoading.value = false;
           return;
+        }
+
+        if (isTxBtn(button)) {
+          console.log("button", button);
+          if (!button?.target) {
+            props?.deps?.stackAlertError &&
+              props.deps.stackAlertError("Error Tx is missing target url");
+            secondLoading.value = false;
+            return;
+          }
+
+          const txHash = await framePromptForTransaction({
+            apiBase: API_BASE,
+            store: store,
+            sendData: {
+              ...sendData,
+              url: button.target,
+            },
+            stackAlertWarning: props?.deps?.stackAlertWarning,
+          });
+          if (typeof txHash !== "string" || txHash === "") {
+            props?.deps?.stackAlertWarning &&
+              props.deps.stackAlertWarning("User cancelled transaction");
+            secondLoading.value = false;
+            return;
+          } else {
+            sendData.txHash = txHash;
+            if (button?.post_url) {
+              sendData.url = button.post_url;
+            }
+          }
         }
 
         // isPostRedirect = isRedirectBtnPost(button);
@@ -227,7 +268,7 @@ export default defineComponent({
         frame = await postFrameAction({
           apiBase: API_BASE,
           store: store,
-          sendData
+          sendData,
         });
 
         if (!frame) {
@@ -271,6 +312,7 @@ export default defineComponent({
       canInteractWithFrame,
       isRedirectBtn,
       isMintBtn,
+      isTxBtn,
     };
   },
 });

@@ -2,6 +2,8 @@
 // import { TypedDataDomain } from '@ethersproject/abstract-signer'
 import { config } from './config'
 import type { signTypedData as TsignTypedData } from '@wagmi/core'
+import type { IMainStore } from '../types/store'
+import { fetchWAuth } from './auth'
 
 export const metadata = {
     name: 'YupLive',
@@ -34,9 +36,9 @@ type TwgConfig = {
 
 let wgConfig: TwgConfig = null
 
-export const getConfig = async (localWeb3Libs: ReturnType<typeof web3Libs>) => {
+export const getConfig = async (localWeb3Libs: ReturnType<typeof web3Libs>, neededChains?: any[]) => {
 
-    if (wgConfig) {
+    if (wgConfig && !neededChains) {
         return wgConfig
     }
 
@@ -45,8 +47,7 @@ export const getConfig = async (localWeb3Libs: ReturnType<typeof web3Libs>) => {
     const { defaultWagmiConfig } = web3Modal
     const { polygon } = chainsLib
 
-
-    const chains = [polygon] as any
+    const chains = (neededChains || [polygon]) as any
     // const enableCoinbase = !(window as any)?.Ionic
     const enableCoinbase = true
 
@@ -128,13 +129,15 @@ export const tryToGetAddressWithoutPrompt = async ({
 
 export const prepareForTransaction = async ({
     stackAlertWarning,
-    localWeb3Libs
+    localWeb3Libs,
+    neededChains
 }: {
     stackAlertWarning?: (msg: string) => void,
-        localWeb3Libs: ReturnType<typeof web3Libs>
+        localWeb3Libs: ReturnType<typeof web3Libs>,
+        neededChains?: any[]
     }, clean = false) => {
 
-    const wgConfig = await getConfig(localWeb3Libs)
+    const wgConfig = await getConfig(localWeb3Libs, neededChains)
 
     if (clean) {
         try {
@@ -200,6 +203,7 @@ export const prepareForTransaction = async ({
     }
 
 
+
     // if (!depUserProvider.value) {
     //     try {
     //         await web3Mprom
@@ -219,6 +223,151 @@ export const prepareForTransaction = async ({
     // }
     // return true
 }
+
+
+// export const postFrameAction = async (
+//    ) => {
+//     try {
+
+//         const req = await fetchWAuth(store, `${apiBase}/farcaster/frame-packet-action`, {
+//             body: JSON.stringify(sendData),
+//             method: 'POST'
+//         })
+
+//         if (!req.ok) {
+//             console.error('Error postFrameAction: ', req.statusText)
+//             return null
+//         }
+//         const json = await req.json();
+//         console.info('json', JSON.stringify(json));
+//         return json
+//     } catch (e) {
+//         console.error('postFrameAction: ', e)
+//         return null
+//     }
+// }
+
+
+export const checkNetwork = async ({ wgamiLib, stackAlertWarning, switchTo }:
+    {
+        wgamiLib: Awaited<ReturnType<typeof prepareForTransaction>>
+        stackAlertWarning?: (msg: string) => void,
+        switchTo?: number
+    }) => {
+    if (!wgamiLib) {
+        return false
+    }
+    if (!switchTo) {
+        switchTo = 137
+    }
+
+    let chainId = await wgamiLib.wgamiCore.getChainId(wgamiLib.wgConfig.wagmiConfig)
+    let newWgami = null
+    if (chainId !== switchTo) {
+        if (!wgamiLib.wgConfig.wagmiConfig.chains.find((c: any) => c.chainId === switchTo)) {
+            const newChain = Object.values(wgamiLib.wgConfig.chains).find((c: any) => c.id === switchTo)
+            if (!newChain) {
+                stackAlertWarning && stackAlertWarning('TX uses an unknown chain')
+                return false
+            }
+            const neededChains = [...wgamiLib.wgConfig.wagmiConfig.chains, newChain]
+            console.log(neededChains)
+            newWgami = await prepareForTransaction({ stackAlertWarning, localWeb3Libs: web3Libs(), neededChains }) as typeof wgamiLib
+            if (!newWgami) {
+                stackAlertWarning && stackAlertWarning('Faild to intialize new chain')
+                return false
+            }
+            wgamiLib = newWgami
+        }
+        console.log('Switching to chain: ', switchTo, ' from: ', chainId, newWgami)
+
+        await wgamiLib.wgamiCore.switchChain(wgamiLib.wgConfig.wagmiConfig, { chainId: switchTo })
+        chainId = await wgamiLib.wgamiCore.getChainId(wgamiLib.wgConfig.wagmiConfig)
+        if (chainId !== switchTo) {
+            let network = 'Polygon'
+            switch (switchTo) {
+                case 1:
+                    network = 'Ethereum'
+                    break
+                case 56:
+                    network = 'Binance Smart Chain'
+                    break
+                case 10:
+                    network = 'Optimism'
+                    break
+                case 7777777:
+                    network = 'Zora'
+                    break
+                case 8453:
+                    network = 'Base'
+                    break
+                case 42161:
+                    network = 'Arbitrum'
+                    break
+                case 100:
+                    network = 'xDai'
+                    break
+                case 84532:
+                    network = 'Base (testnet)'
+                    break
+                default:
+                    network = 'ID: ' + switchTo
+                    break
+            }
+
+            stackAlertWarning && stackAlertWarning('You need to be on ' + network + ' network')
+            return false
+        }
+    }
+    return (newWgami ? newWgami : wgamiLib) as typeof wgamiLib
+}
+
+export const framePromptForTransaction = async ({ store, apiBase, sendData, stackAlertWarning }: {
+    store: IMainStore, apiBase: string, sendData: {
+        url: string
+        castFid: number
+        castHash: string
+        inputText?: string
+        buttonIndex?: number,
+        state?: string
+        txHash?: string
+    },
+    stackAlertWarning?: (msg: string) => void
+}): Promise<string | null> => {
+    try {
+        const req = await fetchWAuth(store, `${apiBase}/farcaster/frame-get-tx`, {
+            body: JSON.stringify(sendData),
+            method: 'POST'
+        })
+
+        if (!req.ok) {
+            console.error('Error Getting TX: ', req.statusText)
+            return null
+        }
+
+        const data = await req.json()
+        let wgami = await prepareForTransaction({ stackAlertWarning, localWeb3Libs: web3Libs() })
+        if (!wgami) {
+            return null
+        }
+        const chainId = data.chainId.split(':')[1]
+        wgami = await checkNetwork({ wgamiLib: wgami, stackAlertWarning, switchTo: parseInt(chainId) })
+        if (!wgami) {
+            return null
+        }
+        const tx = {
+            to: data.to,
+            value: data.value,
+            data: data.data
+        }
+        const txHash = await wgami.wgamiCore.sendTransaction(wgami.wgConfig.wagmiConfig, tx)
+        return txHash
+    } catch (e) {
+        console.error(e)
+        return null
+    }
+}
+
 
 export const signCanonChallenge = async (payload: Record<string, unknown>, config: any, signMessage: (config: any, arg: { message: string }) => Promise<string>) => {
     const canFn = (await canonicalize).default;
