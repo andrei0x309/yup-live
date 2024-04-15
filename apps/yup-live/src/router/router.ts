@@ -144,6 +144,11 @@ const routes = [
     component: () => import('@/pages/stake.vue')
   },
   {
+    path: '/claim',
+    name: 'RewardClaim',
+    component: () => import('@/pages/reward-claim.vue')
+  },
+  {
     path: '/feeds',
     name: 'Feeds',
     component: () => import('@/pages/feeds.vue')

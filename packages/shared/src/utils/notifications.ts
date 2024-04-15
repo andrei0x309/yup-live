@@ -13,7 +13,7 @@ const types = {
     "3": "follow",
 }
 
-export const notificationTypes = ['reward', 'vote', 'follow', 'repost', 'comment', 'mention']
+export const notificationTypes = ['reward', 'vote', 'follow', 'repost', 'comment', 'mention', 'unfollow']
 export const notificationPlatforms = ["lens", "farcaster", "yup", "bsky"] as const;
 
 export const getNotifications = async (

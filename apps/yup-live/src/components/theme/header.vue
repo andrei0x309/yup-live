@@ -58,23 +58,26 @@
     <ul>
       <li>
         <p
-              v-if="canDoPost"
-              :key="`l${isLoggedIn}`"
-              class="post-btn cursor-pointer menu-pill w-full"
-              @click="openPostModal = true; toggleSidebar()"
-            >
-              <CrossPostIcon class="inline w-3 mr-2" />New Post
-       </p>
-       <router-link
-              v-else-if="isLoggedIn"
-              class="post-btn menu-pill w-full"
-              style="display: flex; line-height: 2rem"
-              :to="{
-                path: `/profile/${store.userData.account}/settings?show-connect=true`,
-                query: { showConnect: 'true' },
-              }"
-            >
-              <ConnectPlatformIcon class="inline w-3 mr-1 mt-1" />Link Social
+          v-if="canDoPost"
+          :key="`l${isLoggedIn}`"
+          class="post-btn cursor-pointer menu-pill w-full"
+          @click="
+            openPostModal = true;
+            toggleSidebar();
+          "
+        >
+          <CrossPostIcon class="inline w-3 mr-2" />New Post
+        </p>
+        <router-link
+          v-else-if="isLoggedIn"
+          class="post-btn menu-pill w-full"
+          style="display: flex; line-height: 2rem"
+          :to="{
+            path: `/profile/${store.userData.account}/settings?show-connect=true`,
+            query: { showConnect: 'true' },
+          }"
+        >
+          <ConnectPlatformIcon class="inline w-3 mr-1 mt-1" />Link Social
         </router-link>
 
         <router-link class="menu-pill" to="/feeds" @click="toggleSidebar()">
@@ -197,7 +200,10 @@
               :to="(menu.path as unknown as string)"
             >
               <o-dropdown-item
-                v-if="menu.text !== menuDropDownLinks.text"
+                v-if="
+                  menu.text !== menuDropDownLinks.text &&
+                  (menu.text !== 'Home Page' || $router.currentRoute.value.path !== '/')
+                "
                 :value="menu"
                 aria-role="listitem"
                 class="gap-1 p-1 hover:text-gray-700 hover:dark:text-gray-200 dark:text-gray-300"
@@ -299,12 +305,12 @@ export default defineComponent({
 
     const linksFs = [
       {
-        text: "Yup Social Posts",
+        text: "Home Page",
         path: "/",
       },
       {
-        text: "Yup Raw Influence",
-        path: "/raw-influence",
+        text: "Claim Content Rewards",
+        path: "/claim",
       },
       {
         text: "Check Yup Score",
@@ -313,10 +319,6 @@ export default defineComponent({
       {
         text: "Emissions",
         path: "/emissions",
-      },
-      {
-        text: "Meetings",
-        path: "/meetings",
       },
     ];
 
@@ -353,6 +355,7 @@ export default defineComponent({
       store,
       isLoggedIn,
       PLATFORMS,
+      router,
     };
   },
 });

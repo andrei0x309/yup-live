@@ -45,9 +45,10 @@ export const getConfig = async (localWeb3Libs: ReturnType<typeof web3Libs>, need
     const { web3ModalWagmi, wgamiCore, wgamiChains } = localWeb3Libs
     const [web3Modal, wgamiC, chainsLib] = await Promise.all([web3ModalWagmi, wgamiCore, wgamiChains])
     const { defaultWagmiConfig } = web3Modal
-    const { polygon } = chainsLib
 
-    const chains = (neededChains || [polygon]) as any
+    const allChainsArr = Object.values(chainsLib) as any
+
+    const chains = (neededChains || allChainsArr) as any
     // const enableCoinbase = !(window as any)?.Ionic
     const enableCoinbase = true
 
@@ -67,7 +68,7 @@ export const getConfig = async (localWeb3Libs: ReturnType<typeof web3Libs>, need
         wagmiConfig,
         web3Modal,
         wgamiC,
-        chains: chainsLib,
+        chains: allChainsArr,
     }
 
     return wgConfig

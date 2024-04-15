@@ -30,7 +30,9 @@
             <RewardNotification :notification="notification" />
           </template>
           <template
-            v-else-if="['follow', 'mention', 'repost'].includes(notification.eventType)"
+            v-else-if="
+              ['follow', 'unfollow', 'mention', 'repost'].includes(notification.eventType)
+            "
           >
             <MultiNotifications
               :notification="notification"

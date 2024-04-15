@@ -1,5 +1,15 @@
 export const recentChanges = [
     {
+        date: "15 April - 2024",
+        title: "Changes",
+        changes: [
+            'loaded all suported EVM chains in wallet lib',
+            'added unfollow notification type',
+            'added a test page to claim content rewards',
+            'changed some routes in yup live web dropdown',
+        ],
+    },
+    {
         date: "27 March - 2024",
         title: "Changes",
         changes: [

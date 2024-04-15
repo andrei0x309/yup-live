@@ -15,7 +15,9 @@
         <o-tab-item value="0" label="ALL">
           <DangLoader v-if="loading" class="-mt-4" />
           <div v-if="!loading && !notifications?.length">
-            <p class="text-center text-[1.4rem] mt-10">Sorry! there are no notifications :(, do some stuff and check later</p>
+            <p class="text-center text-[1.4rem] mt-10">
+              Sorry! there are no notifications :(, do some stuff and check later
+            </p>
           </div>
           <div
             v-for="notification of notifications"
@@ -29,19 +31,30 @@
             <template v-else-if="notification.eventType === 'reward'">
               <RewardNotification :notification="notification" />
             </template>
-            <template v-else-if="['follow', 'mention', 'repost'].includes(notification.eventType)">
-            <MultiNotifications :notification="notification" :type="notification.eventType" />
-          </template>
-          <template v-else-if="notification.eventType === 'comment'">
-            <CommentNotification :notification="notification" />
-          </template>
+            <template
+              v-else-if="
+                ['follow', 'unfollow', 'mention', 'repost'].includes(
+                  notification.eventType
+                )
+              "
+            >
+              <MultiNotifications
+                :notification="notification"
+                :type="notification.eventType"
+              />
+            </template>
+            <template v-else-if="notification.eventType === 'comment'">
+              <CommentNotification :notification="notification" />
+            </template>
           </div>
         </o-tab-item>
 
         <o-tab-item value="1" label="Votes">
           <DangLoader v-if="loading" class="-mt-4" />
           <div v-if="!loading && !notifications?.length">
-            <p class="text-center text-[1.4rem] mt-10">Sorry! there are no notifications :(, do some stuff and check later</p>
+            <p class="text-center text-[1.4rem] mt-10">
+              Sorry! there are no notifications :(, do some stuff and check later
+            </p>
           </div>
           <div
             v-for="notification of notifications"
@@ -55,7 +68,9 @@
         <o-tab-item value="2" label="Rewards">
           <DangLoader v-if="loading" class="-mt-4" />
           <div v-if="!loading && !notifications?.length">
-            <p class="text-center text-[1.4rem] mt-10">Sorry! there are no notifications :(, do some stuff and check later</p>
+            <p class="text-center text-[1.4rem] mt-10">
+              Sorry! there are no notifications :(, do some stuff and check later
+            </p>
           </div>
           <div
             v-for="notification of notifications"
@@ -83,7 +98,10 @@
           </div>
         </o-tab-item>
       </o-tabs>
-      <button v-if="hasMore" class="view-btn mt-4 text-[0.92rem] p-3" @click="doLoadMore"><AddIcon class="inline-block w-4 mr-2" />Load Older <BtnSpinner v-if="loadingMore" class="inline-block w-4 ml-2" /></button>
+      <button v-if="hasMore" class="view-btn mt-4 text-[0.92rem] p-3" @click="doLoadMore">
+        <AddIcon class="inline-block w-4 mr-2" />Load Older
+        <BtnSpinner v-if="loadingMore" class="inline-block w-4 ml-2" />
+      </button>
 
       <!-- <input
           v-model="search"
@@ -119,17 +137,21 @@ import {
 import { useHead } from "unhead";
 import DangLoader from "components/vote-list/loader.vue";
 import { useRoute } from "vue-router";
-import { getNotifications, loadMore, clearNotifications } from "shared/src/utils/notifications";
+import {
+  getNotifications,
+  loadMore,
+  clearNotifications,
+} from "shared/src/utils/notifications";
 import type { NotifType } from "shared/src/types/notification";
 import AddIcon from "icons/src/add.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 
 import VoteNotification from "components/notifications/vote.vue";
-import RewardNotification from  "components/notifications/reward.vue";
+import RewardNotification from "components/notifications/reward.vue";
 import MultiNotifications from "components/notifications/follow-mention-repost.vue";
 import CommentNotification from "components/notifications/comment.vue";
 import { useMainStore } from "@/store/main";
- 
+
 export default defineComponent({
   name: "Notifications",
   components: {
@@ -139,7 +161,7 @@ export default defineComponent({
     MultiNotifications,
     CommentNotification,
     AddIcon,
-    BtnSpinner
+    BtnSpinner,
   },
   setup() {
     const loading = ref(false);
@@ -158,7 +180,7 @@ export default defineComponent({
       description: `YUP Live view notifications about votes & rewards`,
     });
 
-    useHead(({
+    useHead({
       title: computed(() => siteData.title).value,
       meta: [
         {
@@ -202,7 +224,7 @@ export default defineComponent({
           content: computed(() => siteData.description).value,
         },
       ],
-    }));
+    });
 
     onUnmounted(() => {
       // do nothing
@@ -210,19 +232,13 @@ export default defineComponent({
 
     const getByActiveTab = async () => {
       if (activeTab.value === "0") {
-        notifications.value = (await getNotifications({ address, type: null }));
+        notifications.value = await getNotifications({ address, type: null });
       } else if (activeTab.value === "1") {
-        notifications.value = (
-          await getNotifications({ address, type: ['vote'] })
-        );
+        notifications.value = await getNotifications({ address, type: ["vote"] });
       } else if (activeTab.value === "2") {
-        notifications.value = (
-          await getNotifications({ address, type: ['reward'] })
-        );
+        notifications.value = await getNotifications({ address, type: ["reward"] });
       } else if (activeTab.value === "3") {
-        notifications.value = (
-          await getNotifications({ address, type: ['follow'] })
-        );
+        notifications.value = await getNotifications({ address, type: ["follow"] });
       }
       hasMore.value = true;
       if (notifications.value.length < 10) {
@@ -251,8 +267,8 @@ export default defineComponent({
 
     onMounted(async () => {
       loading.value = true;
-      if(store?.userData?.account) {
-        clearNotifications(store)
+      if (store?.userData?.account) {
+        clearNotifications(store);
       }
       await getByActiveTab();
       loading.value = false;
@@ -265,7 +281,7 @@ export default defineComponent({
       activeTab,
       hasMore,
       doLoadMore,
-      loadingMore
+      loadingMore,
     };
   },
 });
