@@ -308,10 +308,10 @@ export default defineComponent({
         text: "Home Page",
         path: "/",
       },
-      {
-        text: "Claim Content Rewards",
-        path: "/claim",
-      },
+      // {
+      //   text: "Claim Content Rewards",
+      //   path: "/claim",
+      // },
       {
         text: "Check Yup Score",
         path: "/score",

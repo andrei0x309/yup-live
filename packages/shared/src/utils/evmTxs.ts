@@ -275,7 +275,7 @@ export const checkNetwork = async ({ wgamiLib, stackAlertWarning, switchTo }:
             console.log(neededChains)
             newWgami = await prepareForTransaction({ stackAlertWarning, localWeb3Libs: web3Libs(), neededChains }) as typeof wgamiLib
             if (!newWgami) {
-                stackAlertWarning && stackAlertWarning('Faild to intialize new chain')
+                stackAlertWarning && stackAlertWarning('Failed to intialize new chain')
                 return false
             }
             wgamiLib = newWgami
