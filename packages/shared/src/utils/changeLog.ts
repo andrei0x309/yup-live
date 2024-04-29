@@ -1,5 +1,12 @@
 export const recentChanges = [
     {
+        date: "30 April - 2024",
+        title: "Changes",
+        changes: [
+            'improved edge case for handeling images in farcaster posts',
+        ],
+    },
+    {
         date: "15 April - 2024",
         title: "Changes",
         changes: [

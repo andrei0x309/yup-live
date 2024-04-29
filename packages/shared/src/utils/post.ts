@@ -97,7 +97,7 @@ const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], e
 
             if (e.url.includes('youtube.com') || e.url.includes('youtu.be')) return
 
-            if (isProbablyPage(e.url) && postTag === 'farcaster') {
+            if (isProbablyPage(e.url) && postTag === 'farcaster' && !e?.images?.includes(e.url)) {
                 url = e.url
                 frames.push(e.url)
                 return
@@ -116,7 +116,7 @@ const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], e
                 })
                 return
             }
-            if (isImage(e.url)) {
+            if (isImage(e.url, e?.images ?? [])) {
                 retArr.push({ type: 'image', url: parseIpfs(e.url) })
                 return
             } else if (isVideo(e.url)) {

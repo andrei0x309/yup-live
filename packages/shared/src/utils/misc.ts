@@ -104,7 +104,8 @@ export const isValidAddress = (addr: string) => addr.match(/0x[0-9a-f]{40}/i) !=
 
 export const makeRandomPreview = (remote = false) => remote ? `https://yup-live.pages.dev/picsum/${Math.floor(Math.random() * 99)}.webp` : `/picsum/${Math.floor(Math.random() * 99)}.webp`;
 
-export const isImage = (url: string) => {
+export const isImage = (url: string, images: string[]) => {
+  if (images.includes(url)) return true
   return /^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(url)
 }
 
