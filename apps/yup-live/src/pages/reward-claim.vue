@@ -32,6 +32,14 @@
             :disabled="rewardLoading || rewards <= 0"
             @click="doOnReward"
           />
+
+          <CustomButton
+            :icon="refYupRewardsIcon"
+            text="AddR"
+            size="large"
+            :class="`m-auto my-4`"
+            @click="addReward"
+          />
         </div>
       </template>
     </div>
@@ -58,6 +66,7 @@ import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 import { fetchClaimString, fetchUnclaimedReward, onReward } from "shared/src/utils/claim";
 import { prepareForTransaction } from "shared/src/utils/evmTxs";
 import BtnSpinner from "icons/src/btnSpinner.vue";
+import { fetchWAuth } from "shared/src/utils/auth";
 
 const refYupRewardsIcon = YUPCollectIcon;
 
@@ -155,6 +164,18 @@ export default defineComponent({
       }
     };
 
+    const addReward = () => {
+      fetchWAuth(
+        store,
+        API_BASE.replace("api.", "dev.api.") + "/rewards/test/add-rewards",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    };
+
     return {
       loading,
       rewards,
@@ -162,6 +183,7 @@ export default defineComponent({
       address,
       rewardLoading,
       doOnReward,
+      addReward,
     };
   },
 });

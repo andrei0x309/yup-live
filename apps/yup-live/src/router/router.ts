@@ -143,11 +143,11 @@ const routes = [
     name: 'Staking',
     component: () => import('@/pages/stake.vue')
   },
-  // {
-  //   path: '/claim',
-  //   name: 'RewardClaim',
-  //   component: () => import('@/pages/reward-claim.vue')
-  // },
+  {
+    path: '/claim',
+    name: 'RewardClaim',
+    component: () => import('@/pages/reward-claim.vue')
+  },
   {
     path: '/feeds',
     name: 'Feeds',

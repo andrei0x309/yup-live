@@ -7,7 +7,12 @@
         <DangLoader :unset="true" />
       </template>
       <template v-if="!loading">
-        <div v-if="!address" class="my-4">
+        <h2 class="text-[1.3rem] p-6 tracking-wide uppercase">
+          YUP staking rewards on polygon have been permanently disabled. As yup moved to
+          base layer 2 network.
+        </h2>
+
+        <!-- <div v-if="!address" class="my-4">
           If you don't have an yup account to log-in, you can connect using an wallet by pressing the button:
           <CustomButton :icon="refWalletIcon" class="mx-auto my-4" text="Connect" @click="doConnect()" />
         </div>
@@ -97,105 +102,117 @@
             <li v-if="historicETHReward" class="pt-4">ETH LP Rewards: {{ historicETHReward.toFixed(4) }}</li>
             <li v-if="historicPolyReward" class="pt-4">Poly LP Rewards: {{ historicPolyReward.toFixed(4) }}</li>
           </ul>
-        </div>
+        </div> -->
       </template>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref, ref } from 'vue'
-import { useHead } from 'unhead'
-import DangLoader from 'components/vote-list/loader.vue'
+import {
+  onMounted,
+  defineComponent,
+  reactive,
+  computed,
+  onUnmounted,
+  Ref,
+  ref,
+} from "vue";
+import { useHead } from "unhead";
+import DangLoader from "components/vote-list/loader.vue";
 // import { useRoute } from 'vue-router'
-import StakeIcon from 'icons/src/stake.vue'
-import NoStakeIcon from 'icons/src/noStake.vue'
-import YUPPOLY from 'icons/src/yup-poly.vue'
-import PolyIcon from 'icons/src/poly.vue'
-import NoInput from 'components/staking/noInput.vue'
-import CustomButton from 'components/functional/customButton.vue'
-import {TWeb3Libs, web3Libs } from 'shared/src/utils/evmTxs'
+import StakeIcon from "icons/src/stake.vue";
+import NoStakeIcon from "icons/src/noStake.vue";
+// import YUPPOLY from 'icons/src/yup-poly.vue'
+// import PolyIcon from 'icons/src/poly.vue'
+// import NoInput from 'components/staking/noInput.vue'
+// import CustomButton from 'components/functional/customButton.vue'
+import { TWeb3Libs } from "shared/src/utils/evmTxs";
 
-import { useMainStore } from '@/store/main'
-import YUPCollectIcon from 'icons/src/yup-collect.vue'
-import { stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
-import WalletIcon from 'icons/src/walletIcon.vue'
-import { connect, getAprs, onStake, onUnstake, fetchContractsData, onReward  } from 'shared/src/utils/stake'
+import { useMainStore } from "@/store/main";
+import YUPCollectIcon from "icons/src/yup-collect.vue";
+import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
+import WalletIcon from "icons/src/walletIcon.vue";
+import {
+  connect,
+  // getAprs,
+  onStake,
+  onUnstake,
+  // fetchContractsData,
+  onReward,
+} from "shared/src/utils/stake";
 
-const refStakeIcon = StakeIcon
-const refUnStakeIcon = NoStakeIcon
-const refYupRewardsIcon = YUPCollectIcon
-const refWalletIcon = WalletIcon
+const refStakeIcon = StakeIcon;
+const refUnStakeIcon = NoStakeIcon;
+const refYupRewardsIcon = YUPCollectIcon;
+const refWalletIcon = WalletIcon;
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // import { useMainStore } from '@/store/main'
 export default defineComponent({
-  name: 'Staking',
+  name: "Staking",
   components: {
     DangLoader,
-    StakeIcon,
-    NoStakeIcon,
-    YUPPOLY,
-    PolyIcon,
-    NoInput,
-    CustomButton
+    // StakeIcon,
+    // NoStakeIcon,
+    // YUPPOLY,
+    // PolyIcon,
+    // NoInput,
+    // CustomButton
   },
   setup() {
-    const loading = ref(true)
-    const activeTab = ref('0') as Ref<string>
-    const activeTabStake = ref('0') as Ref<string>
+    const loading = ref(true);
+    const activeTab = ref("0") as Ref<string>;
+    const activeTabStake = ref("0") as Ref<string>;
     const aprs = ref({
       poly: 0,
-      eth: 0
-    }) as Ref<Record<string, number>>
-    const rewards = ref(0)
-    const polyStaked = ref(0)
-    const polyUnstaked = ref(0)
-    const store = useMainStore()
-    const inputValue = ref('0')
-    const historicETHReward = ref(0)
-    const historicPolyReward = ref(0)
-    const poolShare = ref(0)
-    const address = ref(localStorage.getItem('address'))
+      eth: 0,
+    }) as Ref<Record<string, number>>;
+    const rewards = ref(0);
+    const polyStaked = ref(0);
+    const polyUnstaked = ref(0);
+    const store = useMainStore();
+    const inputValue = ref("0");
+    const historicETHReward = ref(0);
+    const historicPolyReward = ref(0);
+    const poolShare = ref(0);
+    const address = ref(localStorage.getItem("address"));
 
-
-    const Web3Libs = ref(null) as unknown as Ref<TWeb3Libs>;
-
+    const Web3Libs = (ref(null) as unknown) as Ref<TWeb3Libs>;
 
     store.$subscribe(() => {
-      address.value = store.userData.address
-    })
+      address.value = store.userData.address;
+    });
 
     const siteData = reactive({
       title: `Yup Staking`,
       description: `Stake, unstake, collect yup liqudity rewards. And interact with the Yup liquidity rewards contracts.`,
       meta: [
         {
-          name: 'description',
-          content: `Stake, unstake, collect yup liqudity rewards. And interact with the Yup liquidity rewards contracts.`
+          name: "description",
+          content: `Stake, unstake, collect yup liqudity rewards. And interact with the Yup liquidity rewards contracts.`,
         },
         {
-          name: 'og:image',
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-stake.png`
+          name: "og:image",
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-stake.png`,
         },
-      ]
-    })
+      ],
+    });
 
     onUnmounted(() => {
       // do nothing
-    })
+    });
 
     useHead({
       title: computed(() => siteData.title).value,
       meta: [
         {
-          name: 'description',
-          content: computed(() => siteData.description).value
+          name: "description",
+          content: computed(() => siteData.description).value,
         },
-      ]
-    })
-
+      ],
+    });
 
     // const getHistoricRewards = async (address: string) => {
     //   try {
@@ -258,7 +275,7 @@ export default defineComponent({
 
     // connect, getAprs, onStake, onUnstake
 
-    const doConnect = async() => {
+    const doConnect = async () => {
       await connect({
         address: address as Ref<string>,
         loading,
@@ -268,10 +285,10 @@ export default defineComponent({
         rewards,
         Web3Libs,
         stackAlertWarning,
-      })
-    }
+      });
+    };
 
-    const doStake = async() => {
+    const doStake = async () => {
       await onStake({
         address: address as Ref<string>,
         inputValue,
@@ -281,11 +298,11 @@ export default defineComponent({
         rewards,
         Web3Libs,
         stackAlertWarning,
-        stackAlertSuccess
-      })
-    }
+        stackAlertSuccess,
+      });
+    };
 
-    const doUnstake = async() => {
+    const doUnstake = async () => {
       await onUnstake({
         address: address as Ref<string>,
         inputValue,
@@ -295,11 +312,11 @@ export default defineComponent({
         rewards,
         Web3Libs,
         stackAlertWarning,
-        stackAlertSuccess
-      })
-    }
+        stackAlertSuccess,
+      });
+    };
 
-    const doReward = async() => {
+    const doReward = async () => {
       await onReward({
         address: address as Ref<string>,
         polyStaked,
@@ -308,29 +325,29 @@ export default defineComponent({
         rewards,
         Web3Libs,
         stackAlertWarning,
-        stackAlertSuccess
-      })
-    }
-
+        stackAlertSuccess,
+      });
+    };
 
     onMounted(async () => {
-      getAprs({
-        stackAlertWarning,
-      }).then(async (res) => {
-        aprs.value.eth = Number(res.eth)
-        aprs.value.poly = Number(res.poly)
-        loading.value = false
-      })
-      Web3Libs.value = web3Libs();
-      fetchContractsData({
-        address: address as Ref<string>,
-        polyStaked,
-        polyUnstaked,
-        poolShare,
-        rewards,
-        Web3Libs
-      })
-    })
+      // getAprs({
+      //   stackAlertWarning,
+      // }).then(async (res) => {
+      //   aprs.value.eth = Number(res.eth)
+      //   aprs.value.poly = Number(res.poly)
+      //   loading.value = false
+      // })
+      // Web3Libs.value = web3Libs();
+      // fetchContractsData({
+      //   address: address as Ref<string>,
+      //   polyStaked,
+      //   polyUnstaked,
+      //   poolShare,
+      //   rewards,
+      //   Web3Libs
+      // })
+      loading.value = false;
+    });
 
     return {
       loading,
@@ -352,10 +369,10 @@ export default defineComponent({
       doConnect,
       doStake,
       doUnstake,
-      doReward
-    }
-  }
-})
+      doReward,
+    };
+  },
+});
 </script>
 
 <style lang="scss">
