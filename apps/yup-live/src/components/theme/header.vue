@@ -83,8 +83,8 @@
         <router-link class="menu-pill" to="/feeds" @click="toggleSidebar()">
           <FeedsIcon class="inline w-3 mr-2" /> Feeds
         </router-link>
-        <router-link class="menu-pill" to="/staking" @click="toggleSidebar()">
-          <StakeIcon class="inline w-5 mr-2" /> Staking
+        <router-link class="menu-pill" to="/claim" @click="toggleSidebar()">
+          <GetCoinIcon class="inline w-5 mr-2" /> Claim Rewards
         </router-link>
       </li>
     </ul>
@@ -153,19 +153,22 @@
           <router-link
             class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 font-semibold transition duration-100 flex items-center"
             to="/feeds"
-            ><FeedsIcon class="inline w-4 mr-2" />Feeds
+          >
+            <FeedsIcon class="inline w-4 mr-2" />Feeds
           </router-link>
           <router-link
             style="line-height: 1.7rem"
             class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 font-semibold transition duration-100"
-            to="/staking"
-            ><StakeIcon class="inline w-6 mr-2" />Staking
+            to="/claim"
+          >
+            <GetCoinIcon class="inline w-6 mr-2" />Claim Rewards
           </router-link>
           <router-link
             style="line-height: 1.7rem"
             class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 font-semibold transition duration-100"
             to="/search"
-            ><SearchIcon class="inline w-6 mr-2" />Search
+          >
+            <SearchIcon class="inline w-6 mr-2" />Search
           </router-link>
           <o-dropdown
             v-model="menuDropDownLinks"
@@ -262,7 +265,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch } from "vue";
 import ConnectButton from "@/components/content/connect/connectBtn.vue";
-import StakeIcon from "icons/src/stake.vue";
+import GetCoinIcon from "icons/src/getCoin.vue";
 import FeedsIcon from "icons/src/feeds.vue";
 import SearchIcon from "icons/src/search.vue";
 import { useRouter } from "vue-router";
@@ -276,7 +279,7 @@ import { PLATFORMS } from "shared/src/utils/requests/web3-posting";
 export default defineComponent({
   name: "HeaderTemplate",
   components: {
-    StakeIcon,
+    GetCoinIcon,
     FeedsIcon,
     ConnectButton,
     SearchIcon,
@@ -308,10 +311,10 @@ export default defineComponent({
         text: "Home Page",
         path: "/",
       },
-      // {
-      //   text: "Claim Content Rewards",
-      //   path: "/claim",
-      // },
+      {
+        text: "Claim Content Rewards",
+        path: "/claim",
+      },
       {
         text: "Check Yup Score",
         path: "/score",

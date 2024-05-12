@@ -6,7 +6,7 @@
     </div>
   </button>
   <button v-else class="logo loggedBtn">
-    <router-link :to="`/profile/${mainStore.userData.account}`" aria-label="profile" >
+    <router-link :to="`/profile/${mainStore.userData.account}`" aria-label="profile">
       <AvatarBtn
         :key="avatarKey"
         :useMainStore="useMainStore"
@@ -15,10 +15,13 @@
       />
     </router-link>
     <NotifBtn class="mr-2" aria-label="notifications" />
-    <router-link :to="`/profile/${mainStore.userData.account}/settings`" aria-label="profile settings" >
-    <SettingsIcon class="w-6 h-6 mr-2 connectBtnBar" aria-label="settings" />
+    <router-link
+      :to="`/profile/${mainStore.userData.account}/settings`"
+      aria-label="profile settings"
+    >
+      <SettingsIcon class="w-6 h-6 mr-2 connectBtnBar" aria-label="settings" />
     </router-link>
-    <LogOutBtn class="mr-2" aria-label="logout"  />
+    <LogOutBtn class="mr-2" aria-label="logout" />
   </button>
   <o-modal
     v-model:active="refConnectMod"
@@ -47,8 +50,7 @@ import { useMainStore } from "@/store/main";
 import AvatarBtn from "components/functional/avatarBtn.vue";
 import NotifBtn from "./notifBtn.vue";
 import LogOutBtn from "./logOutBtn.vue";
-import SettingsIcon from 'icons/src/settings.vue'
-
+import SettingsIcon from "icons/src/settings.vue";
 
 export default defineComponent({
   name: "ConnectButton",
@@ -58,7 +60,7 @@ export default defineComponent({
     AvatarBtn,
     NotifBtn,
     LogOutBtn,
-    SettingsIcon
+    SettingsIcon,
   },
   setup() {
     const mainStore = useMainStore();
@@ -119,7 +121,7 @@ export default defineComponent({
     };
 
     onUnmounted(() => {
-      refDynLogComp?.value.removeEventListener("loading", compLoadState);
+      refDynLogComp?.value?.removeEventListener?.("loading", compLoadState);
     });
 
     onMounted(() => {
@@ -139,7 +141,7 @@ export default defineComponent({
       refLoginState,
       useMainStore,
       mainStore,
-      avatarKey
+      avatarKey,
     };
   },
 });
@@ -228,5 +230,4 @@ header .loggedBtn {
 .connectBtnBar:hover {
   transform: scale(1.1);
 }
-
 </style>

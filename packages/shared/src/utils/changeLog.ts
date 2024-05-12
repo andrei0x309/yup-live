@@ -1,5 +1,14 @@
 export const recentChanges = [
     {
+        date: "12 May - 2024",
+        title: "Changes",
+        changes: [
+            'deprecated polygon staking page on yup live web',
+            'replaced staking links with claim links on yup live web',
+            'added support for claiming yup rewards on yup live web',
+        ],
+    },
+    {
         date: "30 April - 2024",
         title: "Changes",
         changes: [
