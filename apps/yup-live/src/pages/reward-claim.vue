@@ -25,7 +25,7 @@
         <div class="p-4 thinSBox">
           <h2 class="text-[1.4rem] uppercase mb-4">Rewards to collect</h2>
           <span class="claimNumber">{{
-            rewards > 0 ? rewards + " YUP" : "No rewards to collect yet."
+            rewards > 0 ? rewards.toFixed(6) + " YUP" : "No rewards to collect yet."
           }}</span>
           <BtnSpinner v-if="rewardLoading" />
           <CustomButton
