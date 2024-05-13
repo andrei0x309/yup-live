@@ -1,5 +1,8 @@
 <template>
-  <div :class="`openpost pressable relative pt-2 rounded-lg ${isReply ? 'mb-6' : ''}`" @click="openLocalPost">
+  <div
+    :class="`openpost pressable relative pt-2 rounded-lg ${isReply ? 'mb-6' : ''}`"
+    @click="openLocalPost"
+  >
     <div class="openpost flex p-2 overflow-hidden">
       <AvatarBtn
         :key="mainPost.userAvatar"
@@ -16,7 +19,7 @@
         "
       />
       <div
-        class="flex flex-col text-justify pl-3 cursor-pointer "
+        class="flex flex-col text-justify pl-3 cursor-pointer"
         @click="
           () => {
             goToCreator();
@@ -24,12 +27,18 @@
         "
       >
         <span>{{ mainPost.userName }}</span>
-        <span class="opacity-70"
+        <span v-if="mainPost.userHandle" class="opacity-70"
           >@{{ mainPost.userHandle }}
           <VerifiedIcon v-if="mainPost.verified" class="verIcon"
         /></span>
+        <span v-else-if="mainPost.farcaster?.fid" class="opacity-60"
+          >FID: {{ mainPost.farcaster?.fid }}</span
+        >
       </div>
-      <span v-if="Object.keys(mainPost.crossPostGroup ?? {})?.length > 1" class="mCrossIcon">
+      <span
+        v-if="Object.keys(mainPost.crossPostGroup ?? {})?.length > 1"
+        class="mCrossIcon"
+      >
         <CrossIconGroup :post="mainPost" />
       </span>
       <span v-else class="flex mfavIco ml-auto">
@@ -71,46 +80,60 @@
 
         <ExternalEmbeds v-if="mainPost?.embeds?.length" :embeds="mainPost.embeds" />
 
-        <Frame v-for="frameUrl of mainPost?.frames ?? []" :url="frameUrl" :deps="deps" :castDep="castDep" />
+        <Frame
+          v-for="frameUrl of mainPost?.frames ?? []"
+          :url="frameUrl"
+          :deps="deps"
+          :castDep="castDep"
+        />
 
-        <FarcasterQoutedPost v-if="mainPost?.qoutedPost" :mainPost="(localQoutedPost as PostBodyProcessed)" :deps="deps" />
+        <FarcasterQoutedPost
+          v-if="mainPost?.qoutedPost"
+          :mainPost="(localQoutedPost as PostBodyProcessed)"
+          :deps="deps"
+        />
 
         <div
-      class="openpost flex opacity-60 h-min space-x-1 items-right justify-end rounded-full text-[0.7rem] mr-2 mt-2 mb-2"
-    >
-    <div class="openpost flex items-left grow mt-2">
-    <component
-        v-if="replyComp"
-        :platforms="['farcaster']"
-        :is="replyComp"
-        :replyTo="{
-          farcaster: {
-            fid: String(mainPost.farcaster?.fid),
-            hash: mainPost.farcaster?.hash,
-          },
-        }"
-      />
-      </div>
-    <div class="openpost flex items-end">
-     <div class="openpost flex items-center">
-      <p class="openpost text-xs mr-2 mt-2">
-        <ClockIcon class="w-4 h-4 mr-1 inline-block" />
-        {{ mainPost.createdAt }}
-      </p>
+          class="openpost flex opacity-60 h-min space-x-1 items-right justify-end rounded-full text-[0.7rem] mr-2 mt-2 mb-2"
+        >
+          <div class="openpost flex items-left grow mt-2">
+            <component
+              v-if="replyComp"
+              :platforms="['farcaster']"
+              :is="replyComp"
+              :replyTo="{
+                farcaster: {
+                  fid: String(mainPost.farcaster?.fid),
+                  hash: mainPost.farcaster?.hash,
+                },
+              }"
+            />
+          </div>
+          <div class="openpost flex items-end">
+            <div class="openpost flex items-center">
+              <p class="openpost text-xs mr-2 mt-2">
+                <ClockIcon class="w-4 h-4 mr-1 inline-block" />
+                {{ mainPost.createdAt }}
+              </p>
 
-      <router-link :to="`/channel/${ mainPost.channel?.id }`" class="channel-link">
-      <span v-if="mainPost?.channel" class="qouted-border">
-         <span style="top: 0.1rem;position: relative;">Channel:</span> <img v-if="!channelImageError" :src="mainPost?.channel?.image_url" class="channel-img" @error="() => channelImageError = true" />
-          <span v-else>{{ mainPost?.channel?.name }}</span>
-        </span>
-        </router-link>
+              <router-link :to="`/channel/${mainPost.channel?.id}`" class="channel-link">
+                <span v-if="mainPost?.channel" class="qouted-border">
+                  <span style="top: 0.1rem; position: relative">Channel:</span>
+                  <img
+                    v-if="!channelImageError"
+                    :src="mainPost?.channel?.image_url"
+                    class="channel-img"
+                    @error="() => (channelImageError = true)"
+                  />
+                  <span v-else>{{ mainPost?.channel?.name }}</span>
+                </span>
+              </router-link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    </div>
-
-      </div>
-    </div>
-    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -134,8 +157,7 @@ import CrossIconGroup from "components/post-types/misc/crossicon-group.vue";
 import Frame from "components/post/frame.vue";
 import FarcasterQoutedPost from "components/post-types/inner/farcaster-qouted-post.vue";
 import { normalizePost } from "shared/src/utils/post";
-import { openPost } from 'shared/src/utils/post'
-
+import { openPost } from "shared/src/utils/post";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE as string;
 
@@ -153,7 +175,7 @@ export default defineComponent({
     LinkPreview,
     CrossIconGroup,
     Frame,
-    FarcasterQoutedPost
+    FarcasterQoutedPost,
   },
   props: {
     mainPost: {
@@ -184,19 +206,24 @@ export default defineComponent({
   setup(props) {
     const numComments = ref(0);
     const router = useRouter();
-    const castDep = props.mainPost?.farcaster as unknown as { hash: string; fid: string };
-    const localQoutedPost = ref(props.mainPost?.qoutedPost ? normalizePost(props.mainPost?.qoutedPost) : null);
+    const castDep = (props.mainPost?.farcaster as unknown) as {
+      hash: string;
+      fid: string;
+    };
+    const localQoutedPost = ref(
+      props.mainPost?.qoutedPost ? normalizePost(props.mainPost?.qoutedPost) : null
+    );
 
     const channelImageError = ref(false);
- 
+
     const openLocalPost = (e: any) => {
-      if (!e.target.classList.contains('mention-handle')) {
-        if (!e?.target?.classList?.contains('openpost')) return
-        if (!props.mainPost?.postId ) return
-        openPost(router,  props.mainPost?.postId)
-        e.stopPropagation()
+      if (!e.target.classList.contains("mention-handle")) {
+        if (!e?.target?.classList?.contains("openpost")) return;
+        if (!props.mainPost?.postId) return;
+        openPost(router, props.mainPost?.postId);
+        e.stopPropagation();
       }
-    }
+    };
 
     const goToCreator = () => {
       if (props.mainPost.userAddress) {
@@ -225,7 +252,7 @@ export default defineComponent({
       castDep,
       localQoutedPost,
       channelImageError,
-      openLocalPost
+      openLocalPost,
     };
   },
 });
@@ -239,18 +266,18 @@ export default defineComponent({
 }
 
 .qouted-border {
-    border: 1px solid #776616de;
-    padding: 0.5rem;
-    border-radius: 1rem;
-    margin-top: 0.4rem;
+  border: 1px solid #776616de;
+  padding: 0.5rem;
+  border-radius: 1rem;
+  margin-top: 0.4rem;
 }
 
 .channel-img {
-    width: 1.2rem;
-    height: 1.2rem;
-    border-radius: 50%;
-    margin-left: 0.5rem;
-    display: inline;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  margin-left: 0.5rem;
+  display: inline;
 }
 
 a.channel-link {
@@ -261,5 +288,4 @@ a.channel-link:hover {
   scale: 1.1;
   opacity: 0.9;
 }
-
 </style>
