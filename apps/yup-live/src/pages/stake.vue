@@ -12,6 +12,25 @@
           base layer 2 network.
         </h2>
 
+        <div class="thinSBox flex flex-col justify-center items-center">
+          <div v-if="address" class="my-4">
+            <p>
+              Connected Address: <b>{{ address }}</b>
+            </p>
+          </div>
+          <p>
+            If you have staked before on polygon you can use this button to exit staking.
+          </p>
+          <p>
+            Detected staked balance
+            <span class="text-[1.2rem]" v-html="polyStaked.toFixed(4)" />
+          </p>
+
+          <div class="max-w-30">
+            <CustomButton :icon="refUnStakeIcon" text="Exit" @click="doExit()" />
+          </div>
+        </div>
+
         <!-- <div v-if="!address" class="my-4">
           If you don't have an yup account to log-in, you can connect using an wallet by pressing the button:
           <CustomButton :icon="refWalletIcon" class="mx-auto my-4" text="Connect" @click="doConnect()" />
@@ -126,8 +145,8 @@ import NoStakeIcon from "icons/src/noStake.vue";
 // import YUPPOLY from 'icons/src/yup-poly.vue'
 // import PolyIcon from 'icons/src/poly.vue'
 // import NoInput from 'components/staking/noInput.vue'
-// import CustomButton from 'components/functional/customButton.vue'
-import { TWeb3Libs } from "shared/src/utils/evmTxs";
+import CustomButton from "components/functional/customButton.vue";
+import { TWeb3Libs, web3Libs } from "shared/src/utils/evmTxs";
 
 import { useMainStore } from "@/store/main";
 import YUPCollectIcon from "icons/src/yup-collect.vue";
@@ -138,7 +157,8 @@ import {
   // getAprs,
   onStake,
   onUnstake,
-  // fetchContractsData,
+  onExit,
+  fetchContractsData,
   onReward,
 } from "shared/src/utils/stake";
 
@@ -159,7 +179,7 @@ export default defineComponent({
     // YUPPOLY,
     // PolyIcon,
     // NoInput,
-    // CustomButton
+    CustomButton,
   },
   setup() {
     const loading = ref(true);
@@ -316,6 +336,20 @@ export default defineComponent({
       });
     };
 
+    const doExit = async () => {
+      await onExit({
+        address: address as Ref<string>,
+        inputValue,
+        polyStaked,
+        polyUnstaked,
+        poolShare,
+        rewards,
+        Web3Libs,
+        stackAlertWarning,
+        stackAlertSuccess,
+      });
+    };
+
     const doReward = async () => {
       await onReward({
         address: address as Ref<string>,
@@ -337,15 +371,15 @@ export default defineComponent({
       //   aprs.value.poly = Number(res.poly)
       //   loading.value = false
       // })
-      // Web3Libs.value = web3Libs();
-      // fetchContractsData({
-      //   address: address as Ref<string>,
-      //   polyStaked,
-      //   polyUnstaked,
-      //   poolShare,
-      //   rewards,
-      //   Web3Libs
-      // })
+      Web3Libs.value = web3Libs();
+      fetchContractsData({
+        address: address as Ref<string>,
+        polyStaked,
+        polyUnstaked,
+        poolShare,
+        rewards,
+        Web3Libs,
+      });
       loading.value = false;
     });
 
@@ -370,6 +404,7 @@ export default defineComponent({
       doStake,
       doUnstake,
       doReward,
+      doExit,
     };
   },
 });

@@ -1,5 +1,12 @@
 export const recentChanges = [
     {
+        date: "13 May - 2024",
+        title: "Changes",
+        changes: [
+            'added exit liqudity on deprecated staking page that ca be accesed at /stake route'
+        ],
+    },
+    {
         date: "12 May - 2024",
         title: "Changes",
         changes: [

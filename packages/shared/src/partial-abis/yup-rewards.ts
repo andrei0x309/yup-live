@@ -82,5 +82,6 @@ export const yupRewardsPABI = [
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function'
-  }
+  },
+  { "inputs": [], "name": "exit", "outputs": [], "stateMutability": "nonpayable", "type": "function" }
 ]

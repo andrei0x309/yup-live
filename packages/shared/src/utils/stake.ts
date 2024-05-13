@@ -259,6 +259,75 @@ export const onUnstake = async ({
     }
 }
 
+
+export const onExit = async ({
+    stackAlertWarning,
+    inputValue,
+    Web3Libs,
+    stackAlertSuccess,
+    address,
+    polyStaked,
+    polyUnstaked,
+    rewards,
+    poolShare,
+}: {
+    stackAlertWarning?: (msg: string) => void
+    inputValue: Ref<string>
+    Web3Libs: Ref<TWeb3Libs>
+    stackAlertSuccess?: (msg: string) => void
+    address: Ref<string>
+    polyStaked: Ref<number>
+    polyUnstaked: Ref<number>
+    rewards: Ref<number>
+    poolShare: Ref<number>
+}) => {
+    const wgamiLib = (await prepareForTransaction({
+        localWeb3Libs: Web3Libs.value,
+        stackAlertWarning,
+    }))
+    if (!(wgamiLib)) {
+        return null
+    }
+
+    try {
+        if (!await checkNetwork({ wgamiLib, stackAlertWarning })) {
+            return
+        }
+
+        const willSusbstractPoly = Number(inputValue.value)
+        const tx = await wgamiLib.wgamiCore.writeContract(wgamiLib.wgConfig.wagmiConfig, {
+            abi: yupRewardsPABI,
+            address: POLY_LIQUIDITY_REWARDS as '0x',
+            functionName: 'exit',
+            args: []
+        })
+        if (willSusbstractPoly > 0) {
+            polyStaked.value -= willSusbstractPoly
+            polyUnstaked.value += willSusbstractPoly
+        }
+        stackAlertSuccess && stackAlertSuccess(`You exited with ${inputValue.value} LPT successfuly`)
+
+        await wgamiLib.wgamiCore.waitForTransactionReceipt(wgamiLib.wgConfig.wagmiConfig, {
+            hash: tx,
+            confirmations: 3
+        })
+
+        setTimeout(() => {
+            fetchContractsData({
+                address,
+                polyStaked,
+                polyUnstaked,
+                rewards,
+                poolShare,
+                Web3Libs
+            })
+        }, 1500)
+    } catch (e) {
+        console.error(e)
+        stackAlertWarning && stackAlertWarning('User rejected no staked LPT')
+    }
+}
+
 export const onReward = async ({
     stackAlertWarning,
     Web3Libs,
