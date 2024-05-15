@@ -36,8 +36,8 @@
         <ion-item button @click="goTo(`/tabs/score/${store.userData?.address}`)">
           <ScoreIcon class="w-5 mr-4" /> Yup Score
         </ion-item>
-        <ion-item button @click="goTo('/tabs/stake')">
-          <StakeIcon class="w-5 mr-4" /> Stake
+        <ion-item button @click="goTo('/tabs/claim')">
+          <YUPCollectIcon class="w-5 mr-4" /> Yup Claim
         </ion-item>
         <ion-item button @click="goTo('/tabs/info')">
           <InfoIcon class="!w-5 mr-4" /> About & Info
@@ -60,7 +60,7 @@ import {
   IonItem,
   IonList,
   menuController,
-  modalController
+  modalController,
 } from "@ionic/vue";
 import {
   closeCircleOutline,
@@ -80,6 +80,7 @@ import StakeIcon from "icons/src/stake.vue";
 import { walletDisconnect } from "shared/src/utils/login-signup";
 import SettingsModal from "@/views/SettingsModal.vue";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
+import YUPCollectIcon from "icons/src/yup-collect.vue";
 
 export default defineComponent({
   name: "HeaderMenu",
@@ -97,7 +98,7 @@ export default defineComponent({
     ProfileFarcasterIcon,
     InfoIcon,
     ScoreIcon,
-    StakeIcon,
+    YUPCollectIcon,
   },
   props: {
     text: {

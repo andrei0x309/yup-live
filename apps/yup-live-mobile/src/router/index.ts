@@ -138,8 +138,8 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/ScorePage.vue')
       },
       {
-        path: 'stake',
-        component: () => import('@/views/StakingPage.vue')
+        path: 'claim',
+        component: () => import('@/views/ClaimRewardPage.vue')
       }
     ],
   },

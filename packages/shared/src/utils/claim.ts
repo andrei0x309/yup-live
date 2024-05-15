@@ -6,7 +6,7 @@ import type { IMainStore } from '../types/store';
 import type { TClaim } from 'shared/src/types/claim'
 
 const CHAIN_ID = 8453
-const CLIAM_CONTRACT_ADDRESS = '0xC2263b9E4EceF018E78b48FC632DDffEE0c0FE51'
+const CLAIM_CONTRACT_ADDRESS = '0xC2263b9E4EceF018E78b48FC632DDffEE0c0FE51'
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export const onReward = async ({
@@ -45,7 +45,7 @@ export const onReward = async ({
 
         await wgamiLib.wgamiCore.writeContract(wgamiLib.wgConfig.wagmiConfig, {
             abi: baseClaimRewardsPABI,
-            address: CLIAM_CONTRACT_ADDRESS as '0x',
+            address: CLAIM_CONTRACT_ADDRESS as '0x',
             functionName: 'redeemAllocation',
             args,
         })

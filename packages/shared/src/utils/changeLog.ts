@@ -1,5 +1,14 @@
 export const recentChanges = [
     {
+        date: "14 May - 2024",
+        title: "Changes",
+        changes: [
+            'removed the staking page from yup live mobile because it was deprecated',
+            'replaced the staking page with the claim page on yup live mobile',
+            'on a farcaster post if user dosen\'t have farcaster handle FID will be shown instead of the handle',
+        ],
+    },
+    {
         date: "13 May - 2024",
         title: "Changes",
         changes: [

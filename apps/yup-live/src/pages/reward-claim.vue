@@ -67,13 +67,12 @@ import {
 import { useHead } from "unhead";
 import DangLoader from "components/vote-list/loader.vue";
 import CustomButton from "components/functional/customButton.vue";
-import { TWeb3Libs, web3Libs } from "shared/src/utils/evmTxs";
+import { TWeb3Libs, web3Libs, prepareForTransaction } from "shared/src/utils/evmTxs";
 import { useMainStore } from "@/store/main";
 import YUPCollectIcon from "icons/src/yup-collect.vue";
 import RetryIcon from "icons/src/retry.vue";
 import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
 import { fetchUnclaimedReward, onReward } from "shared/src/utils/claim";
-import { prepareForTransaction } from "shared/src/utils/evmTxs";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import type { TClaim } from "shared/src/types/claim";
 import ConnectButton from "@/components/content/connect/connectBtn.vue";
@@ -87,7 +86,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // import { useMainStore } from '@/store/main'
 export default defineComponent({
-  name: "Staking",
+  name: "RewardClaimPage",
   components: {
     DangLoader,
     CustomButton,

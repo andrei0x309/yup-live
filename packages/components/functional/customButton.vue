@@ -1,45 +1,53 @@
 <template>
-  <button :class="`customBtn px-4 py-2 rounded-lg flex ${mobile ? 'mobile': ''} ${size}`">
-    <component v-if="icon" :is="icon" :class="`w-8 inline mr-3 -ml-1 ${size} ${iconClass} ${loading ? 'animate-spin my-1': ''}`" />
+  <button
+    :class="`customBtn px-4 py-2 rounded-lg flex ${mobile ? 'mobile' : ''} ${size}`"
+  >
+    <component
+      v-if="icon"
+      :is="icon"
+      :class="`w-8 inline mr-3 -ml-1 ${size} ${iconClass} ${
+        loading ? 'animate-spin my-1' : ''
+      }`"
+    />
     <span :class="`pl-1 table ${size}`" v-html="text"></span>
   </button>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'CustomButton',
+  name: "CustomButton",
   props: {
     icon: {
       type: Object,
-      default: null
+      default: null,
     },
     text: {
       type: String,
-      default: ''
+      default: "",
     },
     size: {
       type: String,
-      default: ''
+      default: "",
     },
     iconClass: {
       type: String,
-      default: ''
+      default: "",
     },
     mobile: {
       type: Boolean,
-      default: false
+      default: false,
     },
     loading: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup() {
-    return {}
-  }
-})
+    return {};
+  },
+});
 </script>
 
 <style scoped lang="scss">
@@ -49,7 +57,7 @@ export default defineComponent({
   line-height: 2.8rem;
 
   &::before {
-    content: '';
+    content: "";
     width: 4.3rem;
     height: 4rem;
   }
@@ -58,6 +66,29 @@ export default defineComponent({
   }
   span.large {
     padding-left: 0.4rem;
+  }
+}
+
+.customBtn.small {
+  font-size: 0.8rem;
+  height: 2.5rem;
+  line-height: 1.8rem;
+  max-width: 10rem;
+  width: 100%;
+
+  &::before {
+    content: "";
+    width: 2.8rem;
+    height: 2.5rem;
+  }
+
+  svg.small {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  span.small {
+    padding-left: 0.2rem;
   }
 }
 
@@ -85,7 +116,7 @@ export default defineComponent({
   }
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
