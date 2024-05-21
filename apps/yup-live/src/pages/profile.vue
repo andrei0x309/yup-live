@@ -214,26 +214,12 @@
           <p v-else class="mt-4">You have no scheduled posts</p>
         </template>
       </template>
-      <CollectionsPage
-        v-if="currentMenuTab === MENU_BUTTONS.collections"
-        :accountId="userId"
-        :collections="collectionsPageCollections"
-        :collectionPromise="collectionsPagePromise"
-      />
       <Web3FollwersPage
         v-if="currentMenuTab === MENU_BUTTONS.followers && followers !== null"
         :key="followers.length"
         :followersList="followers"
         :handle="userData.username"
         :addr="userData.evmAddress"
-      />
-      <WalletPage
-        v-if="currentMenuTab === MENU_BUTTONS.wallet"
-        :key="userData.evmAddress"
-        :accountId="userId"
-        :accountEVMAddr="userData.evmAddress"
-        :stackAlertError="stackAlertError"
-        :apiBase="API_BASE"
       />
       <SettingsPage
         v-if="currentMenuTab === MENU_BUTTONS.settings"
@@ -273,19 +259,12 @@ import ProfileMenu from "@/components/content/profile/menu.vue";
 import { useMainStore, openConnectModal } from "@/store/main";
 import { useRoute } from "vue-router";
 import { wait } from "shared/src/utils/time";
-import {
-  useCollectionStore,
-  useCollectionStoreEx,
-  getCollections,
-} from "@/store/collections";
 import { MENU_BUTTONS } from "@/components/content/profile/menuButtonEnums";
-import CollectionsPage from "@/components/content/profile/collectionsPage.vue";
 import { postTypesPromises } from "components/post-types/post-types";
 import PostInfo from "@/components/content/post/postInfo.vue";
 import LineLoader from "components/functional/lineLoader.vue";
 import { createActionUsage, createUserData } from "shared/src/utils/requests/accounts";
 import type { NameValue } from "shared/src/types/account";
-import type { ICollection } from "shared/src/types/store";
 import Web3FollwersPage from "@/components/content/profile/web3FollwersPage.vue";
 import Alert from "components/functional/alert.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
@@ -340,7 +319,6 @@ export default defineComponent({
     ProfileMenu,
     Post,
     InfScroll,
-    CollectionsPage,
     PostInfo,
     LineLoader,
     Web3FollwersPage,
@@ -357,7 +335,6 @@ export default defineComponent({
     SettingsPage: defineAsyncComponent(
       () => import("@/components/content/profile/settingsPage.vue")
     ),
-    WalletPage: defineAsyncComponent(() => import("components/profile/walletPage.vue")),
   },
   setup() {
     const route = useRoute();
@@ -382,8 +359,6 @@ export default defineComponent({
     );
     const catComp = shallowRef(null) as Ref<unknown>;
 
-    const collections = useCollectionStore();
-    const collectionsEx = useCollectionStoreEx();
     const postInfo = ref(null) as Ref<unknown>;
     const followers = ref(null) as Ref<string[] | null>;
     const isOwnAccount = ref(
@@ -605,22 +580,6 @@ export default defineComponent({
       // }
     };
 
-    const collectionsPageCollections = computed(() => {
-      if (userId.value !== store.userData.account) {
-        return collectionsEx.collections;
-      } else {
-        return collections.collections;
-      }
-    });
-
-    const collectionsPagePromise = computed(() => {
-      if (userId.value !== store.userData.account) {
-        return collectionsEx.collectionsPromise as Promise<ICollection[]>;
-      } else {
-        return collections.collectionsPromise as Promise<ICollection[]>;
-      }
-    });
-
     const cancelScheduledPost = async (taskId: string, type: string) => {
       if (isScheduledLoading.value) return;
       isScheduledLoading.value = true;
@@ -660,18 +619,6 @@ export default defineComponent({
           }
         });
 
-        if (userId.value !== store.userData.account) {
-          collectionsEx.collectionsPromise = getCollections(
-            collectionsEx,
-            userData.value._id as string,
-            true
-          ) as Promise<ICollection[]>;
-        } else {
-          collections.collectionsPromise = getCollections(
-            collections,
-            userData.value._id as string
-          ) as Promise<ICollection[]>;
-        }
         if (currentMenuTab.value === MENU_BUTTONS.feed) {
           resetPosts();
         }
@@ -740,8 +687,6 @@ export default defineComponent({
       menuChange,
       currentMenuTab,
       MENU_BUTTONS,
-      collectionsPageCollections,
-      collectionsPagePromise,
       postTypesPromises,
       postInfo,
       feedLoading,
