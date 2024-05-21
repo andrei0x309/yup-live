@@ -303,18 +303,6 @@ export default defineComponent({
       // do nothing
     });
 
-    const getYupData = async (address: string) => {
-      try {
-        const req = await fetch(`${API_BASE}/accounts/eth?address=${address}`);
-        if (req.ok) {
-          return await req.json();
-        }
-      } catch {
-        // ignore
-      }
-      return null;
-    };
-
     const getFarcasterData = async (address: string) => {
       try {
         const req = await fetch(`${API_BASE}/profile/farcaster/${address}`);
@@ -376,20 +364,11 @@ export default defineComponent({
     const getAccounsData = async (address: string) => {
       address = address.trim();
       await Promise.all([
-        getYupData(address),
         getFarcasterData(address),
         getMirrorAccount(address),
         getLensUserData(address),
-      ]).then(([yupData, farcasterData, mirrorData, lensData]) => {
+      ]).then(([farcasterData, mirrorData]) => {
         resetAccValue();
-        if (yupData?.web3Handles?.lens || lensData?.data?.defaultProfile?.handle) {
-          const lensResp = { ...{ data: {} }, ...(lensData ?? {}) };
-          lensResp.data.fallback = yupData?.web3Handles?.lens;
-          lensAccount.value = lensResp;
-        }
-        if (yupData) {
-          yupAccount.value = yupData;
-        }
         if (farcasterData) {
           farcasterAccount.value = farcasterData;
         }

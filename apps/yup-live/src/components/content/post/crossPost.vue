@@ -56,8 +56,8 @@
                 title="Error"
                 :type="postErrorType"
               />
-              </div>
-              <div v-for="(post, index) in posts" :key="index">
+            </div>
+            <div v-for="(post, index) in posts" :key="index">
               <AvatarBtn
                 :useMainStore="useMainStore"
                 class="mr-2"
@@ -73,113 +73,128 @@
                 v-model="post.postContent"
                 :disabled="isSendPost"
                 class="txt-box w-full bg-stone-200 text-gray-800 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
-                @input="() => {
-                  postContentCharCount[index] = post.postContent.length;
-                }"
+                @input="
+                  () => {
+                    postContentCharCount[index] = post.postContent.length;
+                  }
+                "
               >
               </textarea>
               <small
-                >Character limit: {{ postContentCharCount[index] }} / {{ maxCharCount }}</small
+                >Character limit: {{ postContentCharCount[index] }} /
+                {{ maxCharCount }}</small
               >
-            <div class="flex flex-col">
-            <div v-if="post.images.length" class="flex">
-              <div
-                v-for="image of post.images"
-                :key="image.id"
-                class="flex flex-col items-center"
-              >
-                <img :src="image.img" class="max-w-20 max-h-20 mx-2" />
-                <button
-                  class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
-                  @click="() => !isSendPost && deleteImage(image.id, index)"
-                >
-                  <DeleteIcon class="inline w-6" />
-                </button>
-              </div>
-            </div>
-            <div v-if="post.videos.length" class="flex">
-            <div v-for="video of post.videos" :key="video.id" class="flex flex-col items-center">
-              <video class="max-w-20 max-h-20 mx-2" controls>
-                <source :src="video.source" :type="video.type">
-              </video>
-              <button
-                class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
-                @click="deleteVideo(video.id, index)"
-              >
-                <DeleteIcon class="inline w-6" />
-              </button>
-            </div>
-          </div>
-            <input
-              :ref="el => {
+              <div class="flex flex-col">
+                <div v-if="post.images.length" class="flex">
+                  <div
+                    v-for="image of post.images"
+                    :key="image.id"
+                    class="flex flex-col items-center"
+                  >
+                    <img :src="image.img" class="max-w-20 max-h-20 mx-2" />
+                    <button
+                      class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
+                      @click="() => !isSendPost && deleteImage(image.id, index)"
+                    >
+                      <DeleteIcon class="inline w-6" />
+                    </button>
+                  </div>
+                </div>
+                <div v-if="post.videos.length" class="flex">
+                  <div
+                    v-for="video of post.videos"
+                    :key="video.id"
+                    class="flex flex-col items-center"
+                  >
+                    <video class="max-w-20 max-h-20 mx-2" controls>
+                      <source :src="video.source" :type="video.type" />
+                    </video>
+                    <button
+                      class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
+                      @click="deleteVideo(video.id, index)"
+                    >
+                      <DeleteIcon class="inline w-6" />
+                    </button>
+                  </div>
+                </div>
+                <input
+                  :ref="el => {
                 if(el && posts[index]) {
                   posts[index].fileInput = el as HTMLInputElement;
                 }
               }"
-              type="file"
-              style="display: none"
-              accept="image/*"
-              @change="(f) => onFileUpload(f, index)"
-            />
-            <input
-            :ref="e => {
+                  type="file"
+                  style="display: none"
+                  accept="image/*"
+                  @change="(f) => onFileUpload(f, index)"
+                />
+                <input
+                  :ref="e => {
               if (e && posts[index]) {
                 posts[index].videoFileInput = e as HTMLInputElement;
               }
             }"
-            type="file"
-            style="display: none"
-            accept="video/*" 
-            @change="(f) => onVideoFileUpload(f, index)"
-          />
-          <div class="flex justify-between">
-          <button
-            class="w-1/2 mr-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
-            @click="triggerFileInput(index)"
-          >
-            <BtnSpinner v-if="isFileUploading" class="inline mr-2 w-4" /><ImageUploadIcon
-              class="inline mr-2 w-4"
-            />
-            Add Image
-          </button>
-          <button
-            class="w-1/2 ml-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
-            @click="triggerVideoFileInput(index)"
-          >
-            <BtnSpinner v-if="isVideoUploading" class="inline mr-2 w-4" /><VideoUploadIcon
-              class="inline mr-2 w-4"
-            />
-            Add Video
-          </button>
-          </div>
-          </div>
+                  type="file"
+                  style="display: none"
+                  accept="video/*"
+                  @change="(f) => onVideoFileUpload(f, index)"
+                />
+                <div class="flex justify-between">
+                  <button
+                    class="w-1/2 mr-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+                    @click="triggerFileInput(index)"
+                  >
+                    <BtnSpinner
+                      v-if="isFileUploading"
+                      class="inline mr-2 w-4"
+                    /><ImageUploadIcon class="inline mr-2 w-4" />
+                    Add Image
+                  </button>
+                  <button
+                    class="w-1/2 ml-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+                    @click="triggerVideoFileInput(index)"
+                  >
+                    <BtnSpinner
+                      v-if="isVideoUploading"
+                      class="inline mr-2 w-4"
+                    /><VideoUploadIcon class="inline mr-2 w-4" />
+                    Add Video
+                  </button>
+                </div>
+              </div>
             </div>
             <div>
               <div class="flex justify-center mb-4">
-              <button
-                v-if="intialPlatforms?.length > 1"
-                :disabled="isSendPost"
-                class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-                @click="addToThread"
-              >
-                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><AddIcon
-                  class="w-6 inline mr-2"
-                /> {{  posts.length > 1 ? 'Add new post to Thread' : 'Create Thread' }}
-              </button>
-              <button
-                v-if="posts.length > 1"
-                :disabled="isSendPost"
-                class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-                @click="substractFromThread"
-              >
-                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SubstractIcon
-                  class="w-6 inline mr-2"
-                /> {{  posts.length  === 2 ? 'Convert To single Post' : 'Remove post from Thread' }}
-              </button>
+                <button
+                  v-if="intialPlatforms?.length > 1"
+                  :disabled="isSendPost"
+                  class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                  @click="addToThread"
+                >
+                  <BtnSpinner v-if="isSendPost" class="inline mr-2" /><AddIcon
+                    class="w-6 inline mr-2"
+                  />
+                  {{ posts.length > 1 ? "Add new post to Thread" : "Create Thread" }}
+                </button>
+                <button
+                  v-if="posts.length > 1"
+                  :disabled="isSendPost"
+                  class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                  @click="substractFromThread"
+                >
+                  <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SubstractIcon
+                    class="w-6 inline mr-2"
+                  />
+                  {{
+                    posts.length === 2
+                      ? "Convert To single Post"
+                      : "Remove post from Thread"
+                  }}
+                </button>
               </div>
               <button
                 v-show="intialPlatforms?.length > 1 && showFcChannel"
-                class=" bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mb-4"
+                class="bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mb-4"
                 @click="
                   () => {
                     if (farcasterChannel) {
@@ -205,25 +220,25 @@
                 }}
               </button>
               <div class="flex justify-between mb-4">
-              <button
-                 v-if="intialPlatforms?.length > 1"
-                :disabled="isSendPost"
-                class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-                @click="modalContent = 'scheduling'"
-              >
-                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><ClockIcon
-                  class="w-6 inline mr-2"
-                />Schedule
-              </button>
-              <button
-                :disabled="isSendPost"
-                class="w-1/2 ml-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-                @click="doSendPost"
-              >
-                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SendIcon
-                  class="w-5 inline mr-2"
-                />Send
-              </button>
+                <button
+                  v-if="intialPlatforms?.length > 1"
+                  :disabled="isSendPost"
+                  class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                  @click="modalContent = 'scheduling'"
+                >
+                  <BtnSpinner v-if="isSendPost" class="inline mr-2" /><ClockIcon
+                    class="w-6 inline mr-2"
+                  />Schedule
+                </button>
+                <button
+                  :disabled="isSendPost"
+                  class="w-1/2 ml-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                  @click="doSendPost"
+                >
+                  <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SendIcon
+                    class="w-5 inline mr-2"
+                  />Send
+                </button>
               </div>
             </div>
           </template>
@@ -322,20 +337,17 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  onMounted,
-  ref,
-  watch,
-  onUnmounted,
-  Ref,
-  reactive
-} from "vue";
+import { defineComponent, onMounted, ref, watch, onUnmounted, Ref, reactive } from "vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import Alert from "components/functional/alert.vue";
 import { useMainStore } from "@/store/main";
 import { stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
-import type { TPlatform, IReplyTo, TChannel, ISendPostData } from "shared/src/types/web3-posting";
+import type {
+  TPlatform,
+  IReplyTo,
+  TChannel,
+  ISendPostData,
+} from "shared/src/types/web3-posting";
 import ImageUploadIcon from "icons/src/imageUpload.vue";
 import SendIcon from "icons/src/send.vue";
 import ClockIcon from "icons/src/clock.vue";
@@ -346,7 +358,7 @@ import {
   schedulePost,
   makeSendData,
   searchChannel,
-  sendThread
+  sendThread,
 } from "shared/src/utils/requests/web3-posting";
 import DeleteIcon from "icons/src/delete.vue";
 import { getMaxCharCount } from "shared/src/utils/requests/crossPost";
@@ -378,7 +390,7 @@ export default defineComponent({
     ProfileFarcasterIcon,
     AddIcon,
     SubstractIcon,
-    VideoUploadIcon
+    VideoUploadIcon,
   },
   props: {
     crossPost: {
@@ -405,37 +417,40 @@ export default defineComponent({
     const isSendPost = ref(false);
     const store = useMainStore();
     const intialPlatforms = ref(store.openPostPlatforms ?? PLATFORMS);
-    const userPlatforms = ref(PLATFORMS.filter((p) => store.userData?.connected?.[p]))
-    const postPlatforms = ref((intialPlatforms.value ?? PLATFORMS).filter((p) => userPlatforms.value.includes(p)));
+    const userPlatforms = ref(PLATFORMS.filter((p) => store.userData?.connected?.[p]));
+    const postPlatforms = ref(
+      (intialPlatforms.value ?? PLATFORMS).filter((p) => userPlatforms.value.includes(p))
+    );
     const isFileUploading = ref(false);
     const maxCharCount = ref(getMaxCharCount(postPlatforms.value));
     const postErrorType = ref("error");
     const localReplyTo = ref(store.openPostModalReply);
 
-
     const isVideoUploading = ref(false);
 
-    const posts = reactive([{
-      images: [] as {
-        twiter: string;
-        farcaster: string;
-        lens: string;
-        bsky: string;
-        img: string;
-        id: string;
-      }[],
-      videos: [] as {
-        twiter: string;
-        farcaster: string;
-        lens: string;
-        source: string;
-        id: string;
-        type: string;
-      }[],
-      fileInput: null as HTMLInputElement | null,
-      videoFileInput: null as HTMLInputElement | null,
-      postContent: "",
-    }]);
+    const posts = reactive([
+      {
+        images: [] as {
+          twiter: string;
+          farcaster: string;
+          lens: string;
+          bsky: string;
+          img: string;
+          id: string;
+        }[],
+        videos: [] as {
+          twiter: string;
+          farcaster: string;
+          lens: string;
+          source: string;
+          id: string;
+          type: string;
+        }[],
+        fileInput: null as HTMLInputElement | null,
+        videoFileInput: null as HTMLInputElement | null,
+        postContent: "",
+      },
+    ]);
 
     const postContentCharCount = reactive(posts.map((p) => p.postContent.length));
 
@@ -456,8 +471,8 @@ export default defineComponent({
     let searchString = "";
 
     const addToThread = () => {
-      if(posts.length > 30) {
-        stackAlertWarning('This thread is too long, please limit it to 30 posts');
+      if (posts.length > 30) {
+        stackAlertWarning("This thread is too long, please limit it to 30 posts");
         return;
       }
       posts.push({
@@ -465,7 +480,7 @@ export default defineComponent({
         fileInput: null,
         postContent: "",
         videos: [],
-        videoFileInput: null
+        videoFileInput: null,
       });
       postContentCharCount.push(0);
     };
@@ -513,28 +528,33 @@ export default defineComponent({
     );
 
     const resetModalState = () => {
-        //  posts.forEach((p) => {
-        //    p.images = [];
-        //    p.videos = [];
-        //    p.postContent = "";
-        //  });
-         localReplyTo.value = null;
-         store.openPostModalReply = null;
-         store.openPostPlatforms = PLATFORMS;
-         openPostModal.value = false
-    }
+      posts.forEach((p) => {
+        p.images = [];
+        p.videos = [];
+        p.postContent = "";
+      });
+      localReplyTo.value = null;
+      store.openPostModalReply = null;
+      store.openPostPlatforms = PLATFORMS;
+      openPostModal.value = false;
+    };
 
-    watch( () => store.openPostModal , (newVal) => {
-       if (newVal) {
-         localReplyTo.value = store.openPostModalReply;
-         intialPlatforms.value = store.openPostPlatforms ?? PLATFORMS;
-         userPlatforms.value = PLATFORMS.filter((p) => store.userData?.connected?.[p]);
-         postPlatforms.value = (intialPlatforms.value ?? PLATFORMS).filter((p) => userPlatforms.value.includes(p));
-         openPostModal.value = newVal;
-       } else {
-          resetModalState()
-       }
-    });
+    watch(
+      () => store.openPostModal,
+      (newVal) => {
+        if (newVal) {
+          localReplyTo.value = store.openPostModalReply;
+          intialPlatforms.value = store.openPostPlatforms ?? PLATFORMS;
+          userPlatforms.value = PLATFORMS.filter((p) => store.userData?.connected?.[p]);
+          postPlatforms.value = (intialPlatforms.value ?? PLATFORMS).filter((p) =>
+            userPlatforms.value.includes(p)
+          );
+          openPostModal.value = newVal;
+        } else {
+          resetModalState();
+        }
+      }
+    );
 
     const fileToBase64 = (file: File) => {
       return new Promise((resolve, reject) => {
@@ -547,20 +567,23 @@ export default defineComponent({
 
     const onFileUpload = async (f: File | Event, index: number) => {
       const isFile = f instanceof File;
-      const imageFile =  ( isFile ? f : posts?.[index]?.fileInput?.files?.[0] ) as File;
+      const imageFile = (isFile ? f : posts?.[index]?.fileInput?.files?.[0]) as File;
       if (!imageFile) return;
       isFileUploading.value = true;
       const imageBase64 = await fileToBase64(imageFile);
       const upload = await mediaUpload(store, API_BASE, postPlatforms.value, imageFile);
 
-      if(upload?.errors) {
+      if (upload?.errors) {
         const platforms = [] as TPlatform[];
         for (const error of upload.errors) {
-          platforms.push(error.platform)
+          platforms.push(error.platform);
         }
-        postPlatforms.value = postPlatforms.value.filter(p => !platforms.includes(p));
-        showError(`Error uploading image to ${platforms.join(', ')}, platforms removed from post`, true);
-        if(Object.keys(upload.results).length) {
+        postPlatforms.value = postPlatforms.value.filter((p) => !platforms.includes(p));
+        showError(
+          `Error uploading image to ${platforms.join(", ")}, platforms removed from post`,
+          true
+        );
+        if (Object.keys(upload.results).length) {
           posts[index].images.push(upload.results);
         }
       } else {
@@ -569,7 +592,7 @@ export default defineComponent({
 
       upload.img = imageBase64 as string;
       upload.id = Math.random().toString(36).substring(7);
-      
+
       isFileUploading.value = false;
     };
 
@@ -590,36 +613,41 @@ export default defineComponent({
       const videoFile = (posts?.[index]?.videoFileInput?.files?.[0] ?? f) as File;
       if (!videoFile) return;
 
- 
-      if(postPlatforms.value.includes('bsky')) {
-        showError("Video upload is not supported on BlueSky, your Bluesky post will be sent without the video.", true);
-        postPlatforms.value = postPlatforms.value.filter(p => p !== 'bsky');
+      if (postPlatforms.value.includes("bsky")) {
+        showError(
+          "Video upload is not supported on BlueSky, your Bluesky post will be sent without the video.",
+          true
+        );
+        postPlatforms.value = postPlatforms.value.filter((p) => p !== "bsky");
       }
-      const upload = await mediaUpload(store, API_BASE, postPlatforms.value , videoFile )
-      if(upload?.errors) {
+      const upload = await mediaUpload(store, API_BASE, postPlatforms.value, videoFile);
+      if (upload?.errors) {
         const platforms = [] as TPlatform[];
         for (const error of upload.errors) {
-          platforms.push(error.platform)
+          platforms.push(error.platform);
         }
-        postPlatforms.value = postPlatforms.value.filter(p => !platforms.includes(p));
-        showError(`Error uploading video to ${platforms.join(', ')}, platforms removed from post`, true);
-        if(Object.keys(upload.results).length) {
-          upload.results.source =  URL.createObjectURL(videoFile);
-          upload.results.type = videoFile.type
-          upload.results.id =  Math.random().toString(36).substring(7)
+        postPlatforms.value = postPlatforms.value.filter((p) => !platforms.includes(p));
+        showError(
+          `Error uploading video to ${platforms.join(", ")}, platforms removed from post`,
+          true
+        );
+        if (Object.keys(upload.results).length) {
+          upload.results.source = URL.createObjectURL(videoFile);
+          upload.results.type = videoFile.type;
+          upload.results.id = Math.random().toString(36).substring(7);
           posts[index].videos.push(upload.results);
         }
       } else {
-        upload.source =  URL.createObjectURL(videoFile);
-        upload.type = videoFile.type
-        upload.id =  Math.random().toString(36).substring(7)
+        upload.source = URL.createObjectURL(videoFile);
+        upload.type = videoFile.type;
+        upload.id = Math.random().toString(36).substring(7);
         posts[index].videos.push(upload);
       }
       isVideoUploading.value = false;
     };
 
     const deleteVideo = (id: string, index: number) => {
-      posts[index].videos =  posts?.[index]?.videos.filter((video) => video.id !== id);
+      posts[index].videos = posts?.[index]?.videos.filter((video) => video.id !== id);
     };
 
     const showError = (msg: string, warn?: boolean) => {
@@ -629,14 +657,13 @@ export default defineComponent({
     };
 
     const sendClose = () => {
-      ctx.emit("update:openModal", false);
-      resetModalState()
+      resetModalState();
       store.openPostModal = false;
       openPostModal.value = false;
     };
 
     const deleteImage = (id: string, index: number) => {
-      posts[index].images =  posts?.[index]?.images.filter((image) => image.id !== id);
+      posts[index].images = posts?.[index]?.images.filter((image) => image.id !== id);
     };
 
     const doSendPost = async () => {
@@ -649,14 +676,14 @@ export default defineComponent({
           farcaster: (farcasterChannel.value as TChannel).parent_url,
         };
       }
-      let result 
+      let result;
       if (posts.length > 1) {
-          result = await sendThread({
+        result = await sendThread({
           store,
-          posts: posts.map((p) =>  {
+          posts: posts.map((p) => {
             return {
               postContent: p.postContent,
-              media: [...p.images ?? [], ...p.videos ?? []],
+              media: [...(p.images ?? []), ...(p.videos ?? [])],
               maxCharCount: maxCharCount.value,
               postPlatforms: postPlatforms.value,
             };
@@ -668,24 +695,24 @@ export default defineComponent({
           stackAlertWarning,
         });
       } else {
-        const media = [...posts?.[0]?.images ?? [], ...posts?.[0]?.videos ?? []]
+        const media = [...(posts?.[0]?.images ?? []), ...(posts?.[0]?.videos ?? [])];
 
         result = await sendPost({
-        store,
-        postContent: posts?.[0]?.postContent,
-        postPlatforms: postPlatforms.value,
-        maxCharCount: maxCharCount.value,
-        isSendPost,
-        replyTo,
-        media,
-        showError,
-        stackAlertSuccess,
-        stackAlertWarning,
-      });
-    }
+          store,
+          postContent: posts?.[0]?.postContent,
+          postPlatforms: postPlatforms.value,
+          maxCharCount: maxCharCount.value,
+          isSendPost,
+          replyTo,
+          media,
+          showError,
+          stackAlertSuccess,
+          stackAlertWarning,
+        });
+      }
       if (result) {
         ctx.emit("success");
-        sendClose()
+        sendClose();
       }
     };
 
@@ -702,34 +729,41 @@ export default defineComponent({
         };
       }
 
-      let sendData: ISendPostData | { posts: (ISendPostData | undefined)[]; platforms: TPlatform[]; time: number; replyTo?: IReplyTo } | undefined = undefined;
+      let sendData:
+        | ISendPostData
+        | {
+            posts: (ISendPostData | undefined)[];
+            platforms: TPlatform[];
+            time: number;
+            replyTo?: IReplyTo;
+          }
+        | undefined = undefined;
       if (posts.length > 1) {
         sendData = {
-          posts: posts.map((p) => {
-            return makeSendData({
-              postContent: p.postContent,
-              maxCharCount: maxCharCount.value,
-              media: [...p.images ?? [], ...p.videos ?? []],
-            });
-          }) ?? [],
+          posts:
+            posts.map((p) => {
+              return makeSendData({
+                postContent: p.postContent,
+                maxCharCount: maxCharCount.value,
+                media: [...(p.images ?? []), ...(p.videos ?? [])],
+              });
+            }) ?? [],
           platforms: postPlatforms.value,
           time: dateTime.value.getTime(),
           replyTo,
         };
       } else {
-        const media = [...posts?.[0]?.images ?? [], ...posts?.[0]?.videos ?? []]
-        sendData =
-      makeSendData({
-
-        postContent: posts?.[0]?.postContent,
-        postPlatforms: postPlatforms.value,
-        maxCharCount: maxCharCount.value,
-        media,
-        replyTo,
-        showError,
-        time: dateTime.value,
-      });
-    }
+        const media = [...(posts?.[0]?.images ?? []), ...(posts?.[0]?.videos ?? [])];
+        sendData = makeSendData({
+          postContent: posts?.[0]?.postContent,
+          postPlatforms: postPlatforms.value,
+          maxCharCount: maxCharCount.value,
+          media,
+          replyTo,
+          showError,
+          time: dateTime.value,
+        });
+      }
 
       if (!sendData) {
         isSheduling.value = false;
@@ -745,7 +779,7 @@ export default defineComponent({
       if (result?.ok) {
         ctx.emit("success");
         stackAlertSuccess("Post scheduled successfully.");
-        sendClose()
+        sendClose();
       } else {
         if (result?.error === "insufficient") {
           stackAlertWarning(
@@ -767,7 +801,7 @@ export default defineComponent({
           }
         }
       };
-      console.log('intialPlatforms', intialPlatforms.value)
+      console.log("intialPlatforms", intialPlatforms.value);
       document.addEventListener("paste", pasteListner);
     });
 
@@ -812,7 +846,7 @@ export default defineComponent({
       onVideoFileUpload,
       postErrorType,
       localReplyTo,
-      intialPlatforms
+      intialPlatforms,
     };
   },
 });
@@ -874,5 +908,4 @@ export default defineComponent({
     background-color: var(--glassBg) !important;
   }
 }
- 
 </style>

@@ -6,11 +6,9 @@
       <FollowersIcon class="inline-block w-4 mr-2" />{{ followersCount }}
     </div>
     <div v-if="lWeb3Profile?.yupScore ?? 0 > 0" class="yupScore">
-      <router-link :to="`/score/${id}`">
-        <ScoreIcon class="inline-block w-4 mr-2" />{{
-          Math.trunc(lWeb3Profile?.yupScore ?? 0)
-        }}</router-link
-      >
+      <ScoreIcon class="inline-block w-4 mr-2" />{{
+        Math.trunc(lWeb3Profile?.yupScore ?? 0)
+      }}
     </div>
     <img
       :key="computedAvatar"
@@ -67,7 +65,10 @@
           </a>
         </div>
         <div v-if="lWeb3Profile?.bsky?.handle">
-          <a :href="`https://bsky.app/profile/${lWeb3Profile.bsky.handle}`" target="_blank">
+          <a
+            :href="`https://bsky.app/profile/${lWeb3Profile.bsky.handle}`"
+            target="_blank"
+          >
             <ProfileBskyIcon class="-ml-1 w-6 inline-block" />
             {{ truncateSocialHandle(lWeb3Profile?.bsky?.handle) }}
             <LinkIcon class="w-3 inline" />

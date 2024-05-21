@@ -164,16 +164,6 @@ const routes = [
     component: () => import('@/pages/fc-channel.vue')
   },
   {
-    path: '/score',
-    name: 'Yup Score',
-    component: () => import('@/pages/score.vue')
-  },
-  {
-    path: '/score/:addr',
-    name: 'Yup Score With Addr',
-    component: () => import('@/pages/score.vue')
-  },
-  {
     path: '/test',
     name: 'TestPage',
     component: () => import('@/pages/test.vue')

@@ -39,18 +39,6 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
-    path: '/score',
-    redirect () {
-      return `/tabs/score`
-    },
-  },
-  {
-    path: '/score/:addr',
-    redirect (to) {
-      return `/tabs/score/${to.params.addr}`
-    },
-  },
-  {
     path: '/change-log',
     redirect () {
       return `/tabs/info/true`
@@ -128,14 +116,6 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'info/:openChanges',
         component: () => import('@/views/InfoPage.vue')
-      },
-      {
-        path: 'score',
-        component: () => import('@/views/ScorePage.vue')
-      },
-      {
-        path: 'score/:addr',
-        component: () => import('@/views/ScorePage.vue')
       },
       {
         path: 'claim',

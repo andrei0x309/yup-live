@@ -5,7 +5,7 @@
         <ion-toolbar>
           <ion-title>Post</ion-title>
           <ion-buttons v-if="modalContent !== 'scheduling'" slot="end">
-            <ion-button @click="openPostModal = false">Cancel</ion-button>
+            <ion-button @click="sendClose">Cancel</ion-button>
             <button
               :disabled="isSendPost"
               class="bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
@@ -707,7 +707,6 @@ export default defineComponent({
     };
 
     const sendClose = () => {
-      ctx.emit("update:openModal", false);
       resetModalState();
       store.openPostModal = false;
       openPostModal.value = false;

@@ -316,10 +316,6 @@ export default defineComponent({
         path: "/claim",
       },
       {
-        text: "Check Yup Score",
-        path: "/score",
-      },
-      {
         text: "Emissions",
         path: "/emissions",
       },

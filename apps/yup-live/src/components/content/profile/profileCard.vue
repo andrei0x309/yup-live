@@ -11,43 +11,45 @@
     <div class="name">
       {{ userData.username }}
       <h6 title="Followers">
-        <FollowersIcon class="inline w-4" /><span class="followers">{{ userData.followers }}</span>
+        <FollowersIcon class="inline w-4" /><span class="followers">{{
+          userData.followers
+        }}</span>
       </h6>
     </div>
     <template v-if="isOwnAccount">
       <o-tooltip :triggers="['hover']" :autoClose="true" :multiline="true">
-              <template #content>
-                <div class="followToolTip">
-                  <p class="p-2">You can't follow yourself</p>
-                </div>
-              </template>
-              <FollowUnfollwBtn 
-    :evmAddr="userData.evmAddress"
-    class="mt-10 view-btn text-[0.85rem]  w-22 p-1 text-center"
-    :iconClass="'inline-block w-3 mr-0'"
-    :deps="{
+        <template #content>
+          <div class="followToolTip">
+            <p class="p-2">You can't follow yourself</p>
+          </div>
+        </template>
+        <FollowUnfollwBtn
+          :evmAddr="userData.evmAddress"
+          class="mt-10 view-btn text-[0.85rem] w-22 p-1 text-center"
+          :iconClass="'inline-block w-3 mr-0'"
+          :deps="{
             apiBase: API_BASE,
             useMainStore,
             stackAlertWarning,
             stackAlertSuccess,
           }"
-    :disabled="true"
-     />
-            </o-tooltip>
+          :disabled="true"
+        />
+      </o-tooltip>
     </template>
     <template v-else>
-      <FollowUnfollwBtn 
-    :evmAddr="userData.evmAddress"
-    class="mt-10 view-btn text-[0.85rem] w-20 p-1 text-center mx-auto"
-    :iconClass="'inline-block w-3 mr-0'"
-    :deps="{
-            apiBase: API_BASE,
-            useMainStore,
-            stackAlertWarning,
-            stackAlertSuccess,
-          }"
-     />
-  </template>
+      <FollowUnfollwBtn
+        :evmAddr="userData.evmAddress"
+        class="mt-10 view-btn text-[0.85rem] w-20 p-1 text-center mx-auto"
+        :iconClass="'inline-block w-3 mr-0'"
+        :deps="{
+          apiBase: API_BASE,
+          useMainStore,
+          stackAlertWarning,
+          stackAlertSuccess,
+        }"
+      />
+    </template>
     <div class="ds-info">
       <div class="ds pens">
         <h6 title="Number of pens created by the user">Tokens</h6>
@@ -55,11 +57,13 @@
       </div>
       <div class="ds projects">
         <h6 title="Number of projects created by the user">Influence</h6>
-        <p><b>{{ userData.weight }}</b> out of 10</p>
+        <p>
+          <b>{{ userData.weight }}</b> out of 10
+        </p>
       </div>
       <div class="ds posts">
-        <h6 title="Number of posts">Score</h6>
-        <a :href="`/score/${userData.evmAddress}`" class="scoreLink" >{{ userData.score }}</a>
+        <h6 title="Score">Score</h6>
+        {{ userData?.score }}
       </div>
     </div>
     <div class="ds-actions">
@@ -74,45 +78,44 @@
   </div>
 </template>
 
-
 <script lang="ts">
-import { onMounted, defineComponent, ref, PropType } from 'vue'
-import ProfileUseBar from '@/components/content/profile/useBar.vue'
-import { makeRandAvatar } from 'shared/src/utils/accounts'
-import type { NameValue } from 'shared/src/types/account'
-import FollowersIcon from 'icons/src/followers.vue'
-import FollowUnfollwBtn from "components/profile/followUnfollowBtn.vue"
-import { useMainStore, openConnectModal } from '@/store/main'
-import { stackAlertWarning, stackAlertSuccess } from '@/store/alertStore'
-import { OTooltip } from '@oruga-ui/oruga-next'
+import { onMounted, defineComponent, ref, PropType } from "vue";
+import ProfileUseBar from "@/components/content/profile/useBar.vue";
+import { makeRandAvatar } from "shared/src/utils/accounts";
+import type { NameValue } from "shared/src/types/account";
+import FollowersIcon from "icons/src/followers.vue";
+import FollowUnfollwBtn from "components/profile/followUnfollowBtn.vue";
+import { useMainStore, openConnectModal } from "@/store/main";
+import { stackAlertWarning, stackAlertSuccess } from "@/store/alertStore";
+import { OTooltip } from "@oruga-ui/oruga-next";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
-  name: 'ProfileCard',
+  name: "ProfileCard",
   components: {
     ProfileUseBar,
     FollowersIcon,
     FollowUnfollwBtn,
-    OTooltip
+    OTooltip,
   },
   props: {
     postInfo: {
       type: Array as PropType<Array<NameValue>>,
       default: () => [
         {
-          name: '',
-          value: ''
-        }
-      ]
+          name: "",
+          value: "",
+        },
+      ],
     },
     userData: {
       type: Object,
       default: () => ({
-        username: '',
-        avatar: '',
-        nextReset: '',
-        evmAddress: '',
+        username: "",
+        avatar: "",
+        nextReset: "",
+        evmAddress: "",
         followers: 0,
         balance: 0,
         weight: 0,
@@ -120,26 +123,25 @@ export default defineComponent({
         actionBars: {
           vote: 0,
           deleteVote: 0,
-          follow: 0
-        }
-      })
+          follow: 0,
+        },
+      }),
     },
     isOwnAccount: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
   setup(props) {
-    const source = ref(props.userData.avatar)
+    const source = ref(props.userData.avatar);
 
     const onError = () => {
-      source.value = makeRandAvatar(props.userData.username)
-    }
-
+      source.value = makeRandAvatar(props.userData.username);
+    };
 
     onMounted(() => {
       // nothing
-    })
+    });
 
     return {
       onError,
@@ -148,10 +150,10 @@ export default defineComponent({
       openConnectModal,
       stackAlertWarning,
       stackAlertSuccess,
-      API_BASE
-    }
-  }
-})
+      API_BASE,
+    };
+  },
+});
 </script>
 
 <style lang="scss">
@@ -163,7 +165,7 @@ html {
   --profile-av-holder-sh2: #c3c3c3ed;
 }
 
-html[class='dark'] {
+html[class="dark"] {
   --profile-card-bg: #151515;
   --profile-card-head1: #1d55ab;
   --profile-card-head2: #0a1c3826;
@@ -186,9 +188,9 @@ html[class='dark'] {
   overflow: hidden;
 
   @function multiple-box-shadow($n) {
-    $value: '#{random(2000)}px #{random(2000)}px #FFF';
+    $value: "#{random(2000)}px #{random(2000)}px #FFF";
     @for $i from 2 through $n {
-      $value: '#{$value} , #{random(2000)}px #{random(2000)}px #FFF';
+      $value: "#{$value} , #{random(2000)}px #{random(2000)}px #FFF";
     }
 
     @return unquote($value);
@@ -215,7 +217,7 @@ html[class='dark'] {
     animation: animStar 50s linear infinite;
 
     &:after {
-      content: ' ';
+      content: " ";
       position: absolute;
       top: 2000px;
       width: 1px;
@@ -232,7 +234,7 @@ html[class='dark'] {
     animation: animStar 100s linear infinite;
 
     &:after {
-      content: ' ';
+      content: " ";
       position: absolute;
       top: 2000px;
       width: 2px;
@@ -249,7 +251,7 @@ html[class='dark'] {
     animation: animStar 150s linear infinite;
 
     &:after {
-      content: ' ';
+      content: " ";
       position: absolute;
       top: 2000px;
       width: 3px;
@@ -296,7 +298,8 @@ html[class='dark'] {
     width: 6rem;
     height: 6rem;
     border-radius: 50%;
-    box-shadow: 0 0 0 5px var(--profile-av-holder-sh1), inset 0 0 0 5px var(--profile-av-holder-sh2);
+    box-shadow: 0 0 0 5px var(--profile-av-holder-sh1),
+      inset 0 0 0 5px var(--profile-av-holder-sh2);
     overflow: hidden;
     animation: mvTop 1.5s;
     img {
@@ -451,18 +454,17 @@ html[class='dark'] {
 
 .followToolTip {
   font-size: 0.81rem;
-    display: inline-flex;
-    min-width: 12rem;
-    flex-direction: column;
+  display: inline-flex;
+  min-width: 12rem;
+  flex-direction: column;
 }
 
 .scoreLink {
-    display: block;
-    border: 1px solid #541aa1a8;
-    border-radius: 100%;
-    width: 1.3rem;
-    margin: auto;
-    font-size: 12px;
+  display: block;
+  border: 1px solid #541aa1a8;
+  border-radius: 100%;
+  width: 1.3rem;
+  margin: auto;
+  font-size: 12px;
 }
-
 </style>

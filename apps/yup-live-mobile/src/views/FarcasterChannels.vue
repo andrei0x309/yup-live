@@ -145,18 +145,19 @@ export default defineComponent({
   setup() {
     const loading = ref(true);
 
+    const YUP_CHANNEL_URL = "https://warpcast.com/~/channel/yup";
+    const FARCASTER_CHANNEL_URL =
+      "chain://eip155:7777777/erc721:0x4f86113fc3e9783cf3ec9a552cbb566716a57628";
+    const MEME_CHANNEL_URL =
+      "chain://eip155:1/erc721:0xfd8427165df67df6d7fd689ae67c8ebf56d9ca61";
+    const CRYPTO_LEFT_CHANNEL_URL = "https://warpcast.com/~/channel/cryptoleft";
 
- const YUP_CHANNEL_URL = 'https://warpcast.com/~/channel/yup'
- const FARCASTER_CHANNEL_URL = 'chain://eip155:7777777/erc721:0x4f86113fc3e9783cf3ec9a552cbb566716a57628'
- const MEME_CHANNEL_URL = 'chain://eip155:1/erc721:0xfd8427165df67df6d7fd689ae67c8ebf56d9ca61'
- const CRYPTO_LEFT_CHANNEL_URL = 'https://warpcast.com/~/channel/cryptoleft'
-
-const feeds = [
-  ['channel/get?parentUrl=' + YUP_CHANNEL_URL, "Yup"],
-  ['channel/get?parentUrl=' + FARCASTER_CHANNEL_URL, "Farcaster"],
-  ['channel/get?parentUrl=' + MEME_CHANNEL_URL, "Memes"],
-  ['channel/get?parentUrl=' + CRYPTO_LEFT_CHANNEL_URL, "Memes"],
-];
+    const feeds = [
+      ["channel/get?parentUrl=" + YUP_CHANNEL_URL, "Yup"],
+      ["channel/get?parentUrl=" + FARCASTER_CHANNEL_URL, "Farcaster"],
+      ["channel/get?parentUrl=" + MEME_CHANNEL_URL, "Memes"],
+      ["channel/get?parentUrl=" + CRYPTO_LEFT_CHANNEL_URL, "CryptoLeft"],
+    ];
 
     const defaultFeed = feeds[0][0];
     const posts = ref([]) as Ref<Array<IPost>>;

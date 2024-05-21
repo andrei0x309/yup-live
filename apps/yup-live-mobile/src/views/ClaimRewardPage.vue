@@ -11,7 +11,7 @@
           <DangLoader :unset="true" />
         </template>
         <template v-else>
-          <div class="my-4">
+          <div class="my-4 thinSBox">
             <p>
               Connected Address: <b>{{ address }}</b>
             </p>
