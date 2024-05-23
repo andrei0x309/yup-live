@@ -17,6 +17,7 @@ export interface IStoreUserData {
   }
   bio?: string
   fullname?: string
+  isOwner?: boolean
 }
 
 export interface IMainStore {
@@ -44,6 +45,7 @@ export interface IMainStore {
   openPostModalReply?: any
   openPostModal?: boolean
   openPostPlatforms?: TPlatform[]
+
 
 }
 

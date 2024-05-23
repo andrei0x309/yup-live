@@ -257,6 +257,7 @@
     </section> -->
     <AddDevice />
     <AddAccount />
+    <Teams />
     <section class="body-font relative">
       <div class="container px-5 py-2 mx-auto flex">
         <div
@@ -341,22 +342,22 @@
     <template v-else-if="settingsModalContent === 'lens-profiles' && settingsModal">
       <h2 class="mt-2 p-4 text-[1.3rem]">Select Lens Profile</h2>
       <div class="flex flex-col lens-profiles">
-                <o-radio
-                  v-for="profile of transferData.data"
-                  :key="profile.id"
-                  v-model="lensSelectedProfile"
-                  :native-value="profile.id"
-                >
-                  <div class="flex flex-wrap-reverse justify-end">
-                    <div class="w-max-[28%]">
-                      <ProfileLensIcon class="w-4 inline mr-2" />
-                    </div>
-                    <div class="flex flex-col text-left w-[70%]">
-                      <p>{{ profile.handle.fullHandle }}</p>
-                    </div>
-                  </div>
-                </o-radio>
-              </div>
+        <o-radio
+          v-for="profile of transferData.data"
+          :key="profile.id"
+          v-model="lensSelectedProfile"
+          :native-value="profile.id"
+        >
+          <div class="flex flex-wrap-reverse justify-end">
+            <div class="w-max-[28%]">
+              <ProfileLensIcon class="w-4 inline mr-2" />
+            </div>
+            <div class="flex flex-col text-left w-[70%]">
+              <p>{{ profile.handle.fullHandle }}</p>
+            </div>
+          </div>
+        </o-radio>
+      </div>
     </template>
     <template v-else-if="settingsModalContent === 'farcaster-connect'">
       <o-tabs
@@ -574,6 +575,7 @@ import ThreadsIcon from "icons/src/threads.vue";
 import { connectToThreads, disconnectThreads } from "shared/src/utils/requests/threads";
 import AddDevice from "@/components/content/profile/settings/addDevice.vue";
 import AddAccount from "@/components/content/profile/settings/addAccount.vue";
+import Teams from "@/components/content/profile/settings/teams.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -592,7 +594,8 @@ export default defineComponent({
     BlueSkyIcon,
     ThreadsIcon,
     AddDevice,
-    AddAccount
+    AddAccount,
+    Teams,
   },
   props: {
     userData: {
@@ -660,7 +663,7 @@ export default defineComponent({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const lensSelectedProfile = ref(undefined) as Ref<any | undefined | string>;
 
-      watch(
+    watch(
       () => lensSelectedProfile.value,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (newVal: any) => {
@@ -680,7 +683,7 @@ export default defineComponent({
     );
 
     watch(
-      () =>  settingsModal.value,
+      () => settingsModal.value,
       (newVal) => {
         if (newVal === false && !lensSelectedProfile.value) {
           closeSettingsModal();
@@ -786,10 +789,10 @@ export default defineComponent({
         farcasterDeepLink.value = "";
         farcasterTimeout.value = 600000;
       }
-      if (settingsModalContent.value === "lens-profiles" ) {
-          transferData.value = { type: "lens", data: null };
-          lensSelectedProfile.value = undefined;
-          resolvePromiseSetProfile.value(true);
+      if (settingsModalContent.value === "lens-profiles") {
+        transferData.value = { type: "lens", data: null };
+        lensSelectedProfile.value = undefined;
+        resolvePromiseSetProfile.value(true);
       }
       settingsModal.value = false;
     };
@@ -1034,7 +1037,7 @@ export default defineComponent({
       threadsUser,
       threadsPass,
       lensSelectedProfile,
-      transferData
+      transferData,
     };
   },
 });
@@ -1066,5 +1069,4 @@ export default defineComponent({
     display: none;
   }
 }
-
 </style>

@@ -10,7 +10,9 @@
     />
     <form v-if="!isLogin" id="registration-form" class="mt-8" @submit.prevent>
       <div class="mx-4 text-left -mt-4 glassCard text-[0.9rem]">
-        <p class="mt-2 mb-4">To sign-up you need to pass one of the following requirements:</p>
+        <p class="mt-2 mb-4">
+          To sign-up you need to pass one of the following requirements:
+        </p>
         <ul>
           <li class="p-1 ml-4">
             Address has a
@@ -24,7 +26,9 @@
           </li>
           <li class="p-1 ml-4">Address has been added to onboard allow list</li>
         </ul>
-        <p class="mt-2 text-[0.8rem]">Many addresses are already on the allow list, so try signing up first!</p>
+        <p class="mt-2 text-[0.8rem]">
+          Many addresses are already on the allow list, so try signing up first!
+        </p>
       </div>
 
       <input v-model="username" type="text" name="pass" placeholder="Username*" />
@@ -95,7 +99,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref  } from "vue";
+import { onMounted, defineComponent, ref, Ref } from "vue";
 
 import Alert from "components/functional/alert.vue";
 import { useMainStore } from "@/store/main";
@@ -103,6 +107,20 @@ import type { PartialAccountInfo } from "shared/src/types/account";
 import { onLogin, onSignup } from "shared/src/utils/login-signup";
 import { closeConnectModal } from "@/store/main";
 import { getConnected } from "shared/src/utils/requests/accounts";
+
+type StoredAccount = {
+  authToken: string;
+  account: string;
+  weight: number | null | undefined | string;
+  address: string;
+  fid?: string | null | undefined;
+  avatar: string | null | undefined;
+  isOwner?: boolean;
+};
+
+type StoredAccounts = {
+  [key: string]: StoredAccount;
+};
 
 export default defineComponent({
   name: "LoginSignup",
@@ -129,7 +147,8 @@ export default defineComponent({
     const fullname = ref("");
     const username = ref("");
     const bio = ref("");
-    const alert = ref(null) as unknown as Ref<typeof Alert>
+    const alert = (ref(null) as unknown) as Ref<typeof Alert>;
+    const storedAccounts = ref<StoredAccounts>({});
 
     const onBack = () => {
       formTitle.value = "Log-in";
@@ -148,8 +167,8 @@ export default defineComponent({
       message: string;
       type: string;
     }) => {
-      if(type === "error") alert.value?.showErr(message)
-      else alert.value?.showSuccess(message)
+      if (type === "error") alert.value?.showErr(message);
+      else alert.value?.showSuccess(message);
     };
 
     const doLogin = ({
@@ -177,9 +196,9 @@ export default defineComponent({
           avatar: account.avatar,
           weight: account.weight as number,
           authToken,
-          fid: ''
+          fid: "",
         };
-        getConnected(mainStore, mainStore.userData.account)
+        getConnected(mainStore, mainStore.userData.account);
         mainStore.isLoggedIn = true;
       } catch (error) {
         console.error("Failed to set auth data", error);
@@ -219,6 +238,49 @@ export default defineComponent({
       }
     };
 
+    const doStoreLogin = (params: Awaited<ReturnType<typeof onLogin>>) => {
+      if (params) {
+        for (const acc of params ?? []) {
+          storedAccounts.value[acc.account] = {
+            authToken: acc.authToken,
+            account: acc.account,
+            weight: acc.weight,
+            address: acc.address,
+            avatar: acc.avatar,
+          };
+        }
+
+        localStorage.setItem("storedAccounts", JSON.stringify(storedAccounts.value));
+
+        const account = params[0];
+
+        localStorage.setItem("account", account.account);
+        localStorage.setItem("authToken", account.authToken);
+        localStorage.setItem("weight", String(account.weight ?? "1"));
+        localStorage.setItem("address", account.address);
+        localStorage.setItem("avatar", account.avatar || "");
+
+        mainStore.userData = {
+          address: account.address,
+          account: account.account,
+          signature: "",
+          avatar: account.avatar,
+          weight: account.weight as number,
+          authToken: account.authToken,
+          fid: "",
+          connected: account.connected,
+        };
+        mainStore.isLoggedIn = true;
+        doExtensionLogin({
+          userId: params[0].account,
+          address: params[0].address,
+          authToken: params[0].authToken,
+          username: params[0].username,
+        });
+        props.loadState("close");
+      }
+    };
+
     const onSignupLocal = async () => {
       const signupResult = await onSignup({
         loadState: props.loadState,
@@ -238,8 +300,9 @@ export default defineComponent({
         loadState: props.loadState,
         setAlert,
       });
-      doAllLogin(loginResult);
-      if (loginResult?._id) {
+
+      doStoreLogin(loginResult);
+      if (loginResult?.length) {
         closeConnectModal(mainStore);
       }
     };
@@ -258,7 +321,7 @@ export default defineComponent({
       fullname,
       username,
       bio,
-      alert
+      alert,
     };
   },
 });

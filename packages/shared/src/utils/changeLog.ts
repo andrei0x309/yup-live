@@ -1,5 +1,12 @@
 export const recentChanges = [
     {
+        date: "22 May - 2024",
+        title: "Changes",
+        changes: [
+            'deprecated wallet and collection page from yup profile on yup live web',
+        ]
+    },
+    {
         date: "21 May - 2024",
         title: "Changes",
         changes: [

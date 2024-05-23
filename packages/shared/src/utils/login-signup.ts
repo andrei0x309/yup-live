@@ -3,9 +3,31 @@ import { web3Libs, getConfig, prepareForTransaction } from './evmTxs'
 import { wait } from './time'
 import type { Ref } from 'vue'
 
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+// const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+const API_BASE = (import.meta.env.VITE_YUP_API_BASE).replace('api.', 'dev.api.')
+
 
 const w3libsP = web3Libs()
+
+type TloginMap = {
+    username: string
+    authToken: string,
+    account: string,
+    weight: number,
+    address: string,
+    fid: string,
+    avatar: string,
+    isOwner: boolean
+    bio: string,
+    fullname: string
+    connected: {
+        farcaster: boolean
+        twitter: boolean
+        lens: boolean
+        bsky: boolean
+        threads: boolean
+    }
+}
 
 export const web3ModalInstantiate = async (
     { loadState = null, setAlert = null }: { loadState: null | Function, setAlert: null | Function } = { loadState: null, setAlert: null }
@@ -360,7 +382,8 @@ export const onLogin = async ({
         timeout?: null | Ref<number>
         cancelPromise?: null | Promise<any>
     } = { loadState: null, setAlert: null }
-) => {
+): Promise<undefined |
+    TloginMap[]> => {
     if (loadState) {
         loadState('start')
     }
@@ -382,15 +405,24 @@ export const onLogin = async ({
             loadState && loadState('end')
             return
         }
-        return {
-            address,
-            _id: account._id,
-            avatar: account.avatar,
-            weight: account.weight,
-            signature,
-            authToken: accountLogIn.jwt,
-            username: accountLogIn.username
-        }
+
+        const loginMap = accountLogIn.map((item: any) => {
+            return {
+                address: item.address,
+                username: item.username,
+                connected: item.connected,
+                avatar: item.avatar,
+                weight: item.weight,
+                authToken: item.jwt,
+                account: item.accountId,
+                isOwner: item.isOwner,
+                bio: item.bio,
+                fullname: item.fullname,
+                fid: item?.fid || ''
+            } as TloginMap
+        })
+
+        return loginMap
     } else {
         if (loadState) {
             loadState('end')
