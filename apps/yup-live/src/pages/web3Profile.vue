@@ -1,20 +1,20 @@
 <template>
   <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto mb-8">
     <div class="bg-color flex flex-col">
-
-      <h2 v-if="web3Profile?._id" class="text-2xl font-bold text-center mt-4 mb-4">Web3Profile for address: {{ truncteEVMAddr(web3Profile._id) }}</h2>
-
+      <h2 v-if="web3Profile?._id" class="text-2xl font-bold text-center mt-4 mb-4">
+        Web3Profile for address: {{ truncteEVMAddr(web3Profile._id) }}
+      </h2>
 
       <template v-if="!apiError">
         <div class="profile w-full mb-4 flex flex-row">
           <DangLoader v-if="isLoadingUser" class="mt-28" :unset="true" />
           <template v-else>
-        <Web3ProfileCard
-        :web3Profile="web3Profile" :followersCount="followersCount"
-        :deps="web3Deps"
-        />
-        <RecommandedCard :data="recommandedProfiles" :isAuth="isAuth" /> 
-
+            <Web3ProfileCard
+              :web3Profile="web3Profile"
+              :followersCount="followersCount"
+              :deps="web3Deps"
+            />
+            <RecommandedCard :data="recommandedProfiles" :isAuth="isAuth" />
           </template>
         </div>
       </template>
@@ -46,35 +46,33 @@
       </div>
     </div>
     <div v-if="!apiError" class="bg-color table-list profile w-full mb-4 flex flex-col">
-     
-        <o-tabs
-          v-model="feedTab"
-          :multiline="true"
-          :expanded="false"
-          type="default"
-          position="centred"
-          variant="warning"
-          navTypeClass="boxed"
-          class="mt-4"
-        >
-          <o-tab-item value="content">
-            <template #header>
-              <span><ContentIcon class="w-5 mr-2 inline-block"/> Created Content </span>
-            </template>
-          </o-tab-item>
-          <o-tab-item value="wallet">
+      <o-tabs
+        v-model="feedTab"
+        :multiline="true"
+        :expanded="false"
+        type="default"
+        position="centred"
+        variant="warning"
+        navTypeClass="boxed"
+        class="mt-4"
+      >
+        <o-tab-item value="content">
+          <template #header>
+            <span><ContentIcon class="w-5 mr-2 inline-block" /> Created Content </span>
+          </template>
+        </o-tab-item>
+        <!-- <o-tab-item value="wallet">
             <template #header>
               <WalletIcon class="w-5 mr-2" /><span> Wallet </span>
             </template>
-          </o-tab-item>
-          <o-tab-item value="followers">
-            <template #header>
-              <FollowersOutline class="w-5 mr-2" /><span> Followers </span>
-            </template>
-          </o-tab-item>
-
-        </o-tabs>
-        <template v-if="currentMenuTab === MENU_BUTTONS.feed">
+          </o-tab-item> -->
+        <o-tab-item value="followers">
+          <template #header>
+            <FollowersOutline class="w-5 mr-2" /><span> Followers </span>
+          </template>
+        </o-tab-item>
+      </o-tabs>
+      <template v-if="currentMenuTab === MENU_BUTTONS.feed">
         <InfScroll :key="`${postLoaded}-loaded`" :postLoaded="postLoaded" @hit="onHit">
           <template #content>
             <div v-if="posts.length > 0" class="flex flex-row mx-auto">
@@ -109,12 +107,16 @@
             </template>
             <div v-else>
               <h2 class="text-[1.3rem] mt-2 uppercase">This feed is empty :(</h2>
-              <component :is="(catComp as unknown)" v-if="catComp !== null" class="w-10 mx-auto" />
+              <component
+                :is="(catComp as unknown)"
+                v-if="catComp !== null"
+                class="w-10 mx-auto"
+              />
             </div>
           </template>
         </InfScroll>
       </template>
-      <WalletPage
+      <!-- <WalletPage
         v-if="currentMenuTab === MENU_BUTTONS.wallet"
         :key="userAddr"
         :accountId="web3Profile?.handle ?? userAddr"
@@ -122,14 +124,14 @@
         :stackAlertError = "stackAlertError"
         :apiBase="API_BASE"
 
-      />
+      /> -->
 
       <Web3FollwersPage
         v-if="currentMenuTab === MENU_BUTTONS.followers"
         :followersList="followers"
         :addr="userAddr"
         :handle="web3Profile?.handle ?? userAddr"
-        :stackAlertError = "stackAlertError"
+        :stackAlertError="stackAlertError"
         :apiBase="API_BASE"
       />
     </div>
@@ -147,7 +149,7 @@ import {
   ref,
   watch,
   defineAsyncComponent,
-  shallowRef
+  shallowRef,
 } from "vue";
 import { useHead } from "unhead";
 import DangLoader from "components/vote-list/loader.vue";
@@ -157,15 +159,21 @@ import { useRoute } from "vue-router";
 import { wait } from "shared/src/utils/time";
 import { MENU_BUTTONS } from "@/components/content/profile/menuButtonEnums";
 import { postTypesPromises } from "components/post-types/post-types";
-import Post from 'components/post/post.vue'
+import Post from "components/post/post.vue";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 
 import Alert from "components/functional/alert.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
-import WalletIcon from 'icons/src/walletIcon.vue';
+// import WalletIcon from "icons/src/walletIcon.vue";
 import { getWeb3CreatedFeed } from "shared/src/utils/requests/accountFeeds";
-import { fetchWeb3Profile, fetchRecommendedWeb3Profiles } from "shared/src/utils/requests/web3Profiles";
-import type { IWeb3Profile, IWeb3ProfileRecommendation } from "shared/src/types/web3Profile";
+import {
+  fetchWeb3Profile,
+  fetchRecommendedWeb3Profiles,
+} from "shared/src/utils/requests/web3Profiles";
+import type {
+  IWeb3Profile,
+  IWeb3ProfileRecommendation,
+} from "shared/src/types/web3Profile";
 import { truncteEVMAddr } from "shared/src/utils/misc";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
 import RecommandedCard from "@/components/content/profile/recommendedCard.vue";
@@ -174,13 +182,17 @@ import FollowersOutline from "icons/src/followersOutline.vue";
 import PostInfo from "@/components/content/post/postInfo.vue";
 import LineLoader from "components/functional/lineLoader.vue";
 import Web3ProfileCard from "components/profile/web3ProfileCard.vue";
-import { stackAlertError, stackAlertSuccess, stackAlertWarning } from "@/store/alertStore";
-import type { IPost } from 'shared/src/types/post'
-import PostMenu from '@/components/content/post/menu/postMenu.vue'
-import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
-import type { IPostDeps } from 'shared/src/types/post'
-import type { IMainStore } from 'shared/src/types/store'
-import { OTooltip } from '@oruga-ui/oruga-next'
+import {
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+} from "@/store/alertStore";
+import type { IPost } from "shared/src/types/post";
+import PostMenu from "@/components/content/post/menu/postMenu.vue";
+import CollectMenu from "@/components/content/post/menu/collectMenu.vue";
+import type { IPostDeps } from "shared/src/types/post";
+import type { IMainStore } from "shared/src/types/store";
+import { OTooltip } from "@oruga-ui/oruga-next";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -189,20 +201,20 @@ const web3Deps = {
   useMainStore,
   stackAlertWarning,
   stackAlertSuccess,
-  apiBase:API_BASE
-}
+  apiBase: API_BASE,
+};
 
 const postDeps: IPostDeps = {
   stackAlertError,
   stackAlertSuccess,
   stackAlertWarning,
   openConnectModal,
-  useMainStore: useMainStore as unknown as () => IMainStore,
+  useMainStore: (useMainStore as unknown) as () => IMainStore,
   apiBase: API_BASE,
   PostMenu: PostMenu,
   CollectMenu: CollectMenu,
-  ToolTip: OTooltip
-}
+  ToolTip: OTooltip,
+};
 
 export default defineComponent({
   name: "Web3ProfilePage",
@@ -217,7 +229,7 @@ export default defineComponent({
     LineLoader,
     Alert,
     BtnSpinner,
-    WalletIcon,
+    // WalletIcon,
     RecommandedCard,
     ContentIcon,
     FollowersOutline,
@@ -225,14 +237,12 @@ export default defineComponent({
     Web3FollwersPage: defineAsyncComponent(
       () => import("@/components/content/profile/web3FollwersPage.vue")
     ),
-    WalletPage: defineAsyncComponent(
-      () => import("components/profile/walletPage.vue")
-    ),
+    // WalletPage: defineAsyncComponent(() => import("components/profile/walletPage.vue")),
   },
   setup() {
     const route = useRoute();
     const userAddr = ref(route.params.addr as string);
-    const accountRoute = route.params.accountRoute as string
+    const accountRoute = route.params.accountRoute as string;
     const web3Profile = ref(null) as Ref<IWeb3Profile | null>;
     const search = ref("");
     const store = useMainStore();
@@ -262,8 +272,8 @@ export default defineComponent({
     const isFollowing = ref(true);
     const recommandedProfiles = ref([]) as Ref<Array<IWeb3ProfileRecommendation>>;
     const followersCount = ref(0);
-    const followers = ref([]) as Ref<Array<string>>; 
- 
+    const followers = ref([]) as Ref<Array<string>>;
+
     // const router = useRouter()
 
     const siteData = reactive({
@@ -275,8 +285,8 @@ export default defineComponent({
       title: computed(() => siteData.title).value,
       meta: [
         {
-          name: 'og:image',
-          content: `$/share/yup-live-ogs/og-yup-live-web3-profile.png`
+          name: "og:image",
+          content: `$/share/yup-live-ogs/og-yup-live-web3-profile.png`,
         },
         {
           name: "description",
@@ -316,13 +326,14 @@ export default defineComponent({
         },
         {
           name: "twitter:image",
-          content: `/share/yup-live-ogs/og-yup-live-web3-profile.png`
+          content: `/share/yup-live-ogs/og-yup-live-web3-profile.png`,
         },
       ],
     });
 
     store.$subscribe(async () => {
-      isOwnAccount.value = store?.isLoggedIn && store?.userData.address === userAddr.value;
+      isOwnAccount.value =
+        store?.isLoggedIn && store?.userData.address === userAddr.value;
       isAuth.value = store.isLoggedIn;
 
       if (store.deletePost) {
@@ -335,7 +346,6 @@ export default defineComponent({
           (p) => (p as { _id: { postid: string } })._id.postid !== store.deletePost
         );
       }
-
     });
 
     watch(currentMenuTab, (newValue) => {
@@ -352,7 +362,7 @@ export default defineComponent({
     const getCreatedFeedPosts = async (start = 0) => {
       return (await getWeb3CreatedFeed(API_BASE, start, userAddr.value)).posts;
     };
- 
+
     let getFeedPosts = getCreatedFeedPosts;
 
     const scrollIntoView = (id: string) => {
@@ -420,8 +430,6 @@ export default defineComponent({
       // }
     };
 
-
-
     onMounted(async () => {
       // createUserData(userId.value, true).then((uD) => {
       //   if (uD.error) {
@@ -443,16 +451,16 @@ export default defineComponent({
       //   isLoadingUser.value = false;
       // });
 
-      web3Profile.value = await fetchWeb3Profile(API_BASE, userAddr.value)
-      if(!web3Profile.value) {
+      web3Profile.value = await fetchWeb3Profile(API_BASE, userAddr.value);
+      if (!web3Profile.value) {
         apiErrorMsg.value = `Account { ${userAddr.value} } not found`;
         apiError.value = true;
       }
 
       getFollowers(API_BASE, userAddr.value).then((res) => {
-        if(res) {
-          followers.value = res.followers.map((f: { _id: string}) => f._id)
-          followersCount.value = res.totalCount
+        if (res) {
+          followers.value = res.followers.map((f: { _id: string }) => f._id);
+          followersCount.value = res.totalCount;
         }
       });
 
@@ -461,14 +469,12 @@ export default defineComponent({
       });
       resetPosts();
       isLoadingUser.value = false;
-
-
     });
 
     const getByActiveTab = async () => {
       if (feedTab.value === "content") {
         currentMenuTab.value = MENU_BUTTONS.feed;
-        externalPosts.value = false
+        externalPosts.value = false;
         getFeedPosts = getCreatedFeedPosts;
       } else if (feedTab.value === "wallet") {
         currentMenuTab.value = MENU_BUTTONS.wallet;
@@ -487,8 +493,6 @@ export default defineComponent({
     onUnmounted(() => {
       // do nothing
     });
-
- 
 
     return {
       search,
@@ -522,7 +526,7 @@ export default defineComponent({
       API_BASE,
       stackAlertError,
       web3Deps,
-      postDeps
+      postDeps,
     };
   },
 });
@@ -573,5 +577,4 @@ export default defineComponent({
     display: contents;
   }
 }
-
 </style>

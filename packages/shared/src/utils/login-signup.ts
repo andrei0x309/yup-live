@@ -3,8 +3,8 @@ import { web3Libs, getConfig, prepareForTransaction } from './evmTxs'
 import { wait } from './time'
 import type { Ref } from 'vue'
 
-// const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-const API_BASE = (import.meta.env.VITE_YUP_API_BASE).replace('api.', 'dev.api.')
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+// const API_BASE = (import.meta.env.VITE_YUP_API_BASE).replace('api.', 'dev.api.')
 
 
 const w3libsP = web3Libs()
@@ -209,7 +209,8 @@ const logIn = async ({
         },
         body: JSON.stringify({
             address,
-            signature
+            signature,
+            enableTeamAccounts: true
         })
     })
     if (reqLogin.status !== 200) {
@@ -244,7 +245,8 @@ const createAccount = async ({ username, address, signature, loadState = null, s
         body: JSON.stringify({
             address,
             username,
-            signature
+            signature,
+            enableTeamAccounts: true
         })
     })
     if (!req.ok) {
@@ -313,8 +315,9 @@ export const onSignup = async (
         })
 
         const accountSignUp = await createAccount({ address, signature, username, loadState, setAlert })
+        const firstAccount = accountSignUp[0]
 
-        if (!accountSignUp) {
+        if (!accountSignUp.length) {
             loadState && loadState('end')
             return
         }
@@ -332,12 +335,12 @@ export const onSignup = async (
         }
         return {
             address,
-            _id: accountSignUp.accountId,
+            _id: firstAccount.accountId,
             avatar: '',
             weight: 1,
             signature,
-            authToken: accountSignUp.jwt,
-            username: accountSignUp.username
+            authToken: firstAccount.jwt,
+            username: firstAccount.username
         }
     } else {
         if (loadState) {

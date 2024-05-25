@@ -361,6 +361,20 @@ import HeaderBar from "@/components/template/header-bar.vue";
 import { getConnected } from "shared/src/utils/requests/accounts";
 import { verifyLoginCode } from "shared/src/utils/auth";
 
+type StoredAccount = {
+  authToken: string;
+  account: string;
+  weight: number | null | undefined | string;
+  address: string;
+  fid?: string | null | undefined;
+  avatar: string | null | undefined;
+  isOwner?: boolean;
+};
+
+type StoredAccounts = {
+  [key: string]: StoredAccount;
+};
+
 const currentSegment = ref("login");
 const username = ref("");
 const bio = ref("");
@@ -377,6 +391,8 @@ const codeModalLogin = ref(false);
 const reviewUsername = ref("");
 const reviewPassword = ref("");
 const codeInput = ref("");
+const storedAccounts = ref<StoredAccounts>({});
+
 // const loginTimeout = ref(80000);
 // const cancelPromiseResolve = ref((a: unknown) => {});
 
@@ -473,6 +489,56 @@ const doLogin = (params: Awaited<ReturnType<typeof onSignup>>) => {
   }
 };
 
+const doStoreLogin = async (params: Awaited<ReturnType<typeof onLogin>>) => {
+  if (params) {
+    try {
+      for (const acc of params ?? []) {
+        storedAccounts.value[acc.account] = {
+          authToken: acc.authToken,
+          account: acc.account,
+          weight: acc.weight,
+          address: acc.address,
+          avatar: acc.avatar,
+        };
+      }
+
+      await storage.set("storedAccounts", JSON.stringify(storedAccounts.value));
+
+      const account = params[0];
+
+      localStorage.setItem("account", account.account);
+      localStorage.setItem("authToken", account.authToken);
+      localStorage.setItem("weight", String(account.weight ?? "1"));
+      localStorage.setItem("address", account.address);
+      localStorage.setItem("avatar", account.avatar || "");
+
+      const userAuth = {
+        address: account.address,
+        account: account.account,
+        signature: "",
+        avatar: account.avatar,
+        weight: account.weight as number,
+        authToken: account.authToken,
+        fid: "",
+        connected: account.connected,
+      };
+
+      await storage.set("authInfo", JSON.stringify(userAuth));
+      mainStore.userData = userAuth;
+      mainStore.isLoggedIn = true;
+      getConnected(mainStore, userAuth.account, userAuth.address).catch((err) => {
+        console.error("Failed to get connected", err);
+      });
+      router.replace("/tabs/feeds");
+    } catch (error) {
+      console.error("Failed to set auth data", error);
+    }
+  } else {
+    window?.localStorage?.clear();
+    walletDisconnect();
+  }
+};
+
 const onSignupLocal = async () => {
   const signupResult = await onSignup({
     loadState,
@@ -490,7 +556,7 @@ const onLoginLocal = async () => {
     loadState,
     setAlert,
   });
-  doLogin(loginResult);
+  doStoreLogin(loginResult);
   loading.value = false;
 };
 

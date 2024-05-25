@@ -106,47 +106,38 @@ export default defineComponent({
       store.userData = userAuth;
     };
 
+    const storeAccounts = async (loginResult: Awaited<ReturnType<typeof onLogin>>) => {
+      if (!loginResult) return;
+
+      for (const acc of loginResult ?? []) {
+        storedAccounts.value[acc.account] = {
+          authToken: acc.authToken,
+          account: acc.account,
+          weight: acc.weight,
+          address: acc.address,
+          avatar: acc.avatar,
+        };
+      }
+
+      await storage.set("storedAccounts", JSON.stringify(storedAccounts.value));
+
+      if (loginResult.length) {
+        doSwitchAccount(loginResult?.[0].account);
+      }
+    };
+
     const addAccount = async () => {
       isLoading.value = true;
       try {
         await walletDisconnect();
-        const loginNewAccount = await onLogin();
-        if (!loginNewAccount) {
+        const loginNewAccounts = await onLogin();
+        if (!loginNewAccounts) {
           stackAlertWarning("Failed to login new account, please try again later");
           isLoading.value = false;
           return;
         }
-        if (
-          loginNewAccount.address?.toLowerCase() ===
-          store.userData?.address?.toLowerCase()
-        ) {
-          stackAlertWarning(
-            "You are already using this account, please switch to another wallet address"
-          );
-          isLoading.value = false;
-          return;
-        }
-
-        storedAccounts.value[store.userData?.account || ""] = {
-          authToken: store.userData.authToken || "",
-          account: store.userData.account || "",
-          weight: store.userData.weight || "",
-          address: store.userData.address || "",
-          fid: store.userData.fid || "",
-          avatar: store.userData.avatar || "",
-        };
-
-        storedAccounts.value[loginNewAccount._id] = {
-          authToken: loginNewAccount.authToken,
-          account: loginNewAccount._id,
-          weight: loginNewAccount.weight,
-          address: loginNewAccount.address,
-          avatar: loginNewAccount.avatar,
-        };
-
-        await storage.set("storedAccounts", JSON.stringify(storedAccounts.value));
+        await storeAccounts(loginNewAccounts);
         isLoading.value = false;
-        doSwitchAccount(loginNewAccount._id);
       } catch (e) {
         stackAlertWarning("Failed to add account, please try again later");
         console.error(e);

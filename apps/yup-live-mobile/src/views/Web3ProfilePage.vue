@@ -100,7 +100,7 @@
                 <ion-select-option :value="accountPages[0]"
                   >Created Content</ion-select-option
                 >
-                <ion-select-option :value="accountPages[1]">Wallet</ion-select-option>
+                <!-- <ion-select-option :value="accountPages[1]">Wallet</ion-select-option> -->
               </ion-select>
             </ion-item>
           </ion-list>
@@ -139,14 +139,14 @@
               </div>
             </template>
           </InfScroll>
-          <WalletPage
+          <!-- <WalletPage
             v-else-if="accountPages[1] === currentAccountPage"
             :key="`${userAddr}${walletKeyRefresh}`"
             :accountId="web3Profile?.handle || userAddr"
             :accountEVMAddr="userAddr"
             :apiBase="API_BASE"
             :stackAlertError="stackAlertError"
-          />
+          /> -->
         </div>
       </div>
     </ion-content>
@@ -178,7 +178,7 @@ import { useMainStore } from "@/store/main";
 import { useRoute } from "vue-router";
 import { postTypesPromises } from "components/post-types/post-types";
 import LineLoader from "components/functional/lineLoader.vue";
-import WalletPage from "components/profile/walletPage.vue";
+// import WalletPage from "components/profile/walletPage.vue";
 import { settingsOutline } from "ionicons/icons";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
 import Post from "components/post/post.vue";
@@ -227,7 +227,7 @@ export default defineComponent({
     InfScroll,
     LineLoader,
     BlockedProfile,
-    WalletPage,
+    // WalletPage,
     HeaderBar,
     IonPage,
     IonContent,

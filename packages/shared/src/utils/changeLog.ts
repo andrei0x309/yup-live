@@ -1,5 +1,13 @@
 export const recentChanges = [
     {
+        date: "24 May - 2024",
+        title: "Changes",
+        changes: [
+            'deprecated wallet page from web3Profile and yup profile on yup web/android',
+            'added new multi-login method that supports team accounts',
+        ]
+    },
+    {
         date: "22 May - 2024",
         title: "Changes",
         changes: [

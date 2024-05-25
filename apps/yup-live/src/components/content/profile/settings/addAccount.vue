@@ -87,6 +87,7 @@ export default defineComponent({
 
     const doSwitchAccount = (id: string) => {
       switchAccount(storedAccounts.value[id]);
+      location.reload();
     };
 
     const switchAccount = (account: StoredAccount) => {
@@ -118,7 +119,7 @@ export default defineComponent({
 
       localStorage.setItem("storedAccounts", JSON.stringify(storedAccounts.value));
       if (loginResult.length) {
-        switchAccount(storedAccounts.value[loginResult?.[0].account]);
+        doSwitchAccount(loginResult?.[0].account);
       }
     };
 

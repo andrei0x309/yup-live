@@ -26,7 +26,7 @@
                     class="bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
                     @click="() => doRemoveAdmin(admin)"
                   >
-                    <RedSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
+                    <DeleteIcon class="w-6 inline mr-2 rounded-full" />
                     Remove
                   </button>
                 </div>
@@ -48,7 +48,7 @@
             class="bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded text-lg mt-4"
             @click="() => doAddAdmin()"
           >
-            <BlueSkyIcon class="w-6 inline mr-2 bg-gray-200 rounded-full" />
+            <AddIcon class="w-6 inline mr-2 rounded-full" />
             Add member
           </button>
         </div>
@@ -60,14 +60,20 @@
 <script lang="ts">
 import { onMounted, defineComponent, ref, Ref } from "vue";
 import { useMainStore } from "@/store/main";
-// import BtnSpinner from "icons/src/btnSpinner.vue";
+import BtnSpinner from "icons/src/btnSpinner.vue";
 import { addAdmin, getAdmins, removeAdmin } from "shared/src/utils/requests/teams";
+import DeleteIcon from "icons/src/delete.vue";
+import AddIcon from "icons/src/add.vue";
 
 // const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   name: "SettingsAddTeam",
-  components: {},
+  components: {
+    BtnSpinner,
+    DeleteIcon,
+    AddIcon,
+  },
   setup() {
     const inAddress = ref("");
     const isProcessing = ref(false);

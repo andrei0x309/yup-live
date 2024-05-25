@@ -1,7 +1,8 @@
 import { fetchWAuth } from '../auth'
 import type { IMainStore } from '../../types/store'
 
-const API_BASE = (import.meta.env.VITE_YUP_API_BASE).replace('api.', 'dev.api.')
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+// const API_BASE = (import.meta.env.VITE_YUP_API_BASE).replace('api.', 'dev.api.')
 
 export const addAdmin = async ({
     store,
@@ -12,7 +13,7 @@ export const addAdmin = async ({
 }): Promise<boolean> => {
     try {
 
-        const res = await fetchWAuth(store, `${API_BASE}/accounts/add-admin`, {
+        const res = await fetchWAuth(store, `${API_BASE}/accounts/admin`, {
             method: 'POST',
             body: JSON.stringify({ address }),
         })
@@ -37,7 +38,7 @@ export const removeAdmin = async ({
 }): Promise<boolean> => {
     try {
 
-        const res = await fetchWAuth(store, `${API_BASE}/accounts/remove-admin`, {
+        const res = await fetchWAuth(store, `${API_BASE}/accounts/admin`, {
             method: 'DELETE',
             body: JSON.stringify({ address }),
         })

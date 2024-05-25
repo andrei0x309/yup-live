@@ -5,14 +5,14 @@
     }`"
     :id="`${hashId(refSources?.[0] ?? '')}-img`"
   >
-    <BtnSpinner
-      v-if="isLoading"
-      class="imagePreviewSpiner"
-      :key="`loading-${isLoading}`"
-    />
     <div :class="`grid grid-cols-${refSources?.length > 1 ? 2 : 1} gap-4`">
       <div v-for="(source, i) of refSources" :key="source">
-        <div v-if="!isError">
+        <BtnSpinner
+          v-if="isLoading[source]"
+          class="imagePreviewSpiner"
+          :key="`loading-${isLoading[source]}`"
+        />
+        <div v-if="!isError[source]">
           <button @click="openImg(source)">
             <img
               :key="source"
@@ -20,8 +20,8 @@
               :src="source"
               :alt="alt"
               loading="lazy"
-              @error="onError"
-              @load="onLoad"
+              @error="onError(source)"
+              @load="onLoad(source)"
             />
           </button>
           <button
@@ -33,7 +33,7 @@
             <span :style="`background-image: url('${source}')`"> </span>
           </button>
         </div>
-        <div
+        <!-- <div
           v-else-if="!isLoading && showPlaceholder"
           :class="`noPreview w-full ${noPreviewClass}`"
         >
@@ -45,14 +45,14 @@
           />
           <NoImg class="noImg opacity-70" />
           <p v-if="noPreviewParagraph" class="my-2 text-lg">No image preview available</p>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, PropType, Ref } from "vue";
+import { onMounted, defineComponent, ref, PropType, Ref, reactive } from "vue";
 import NoImg from "icons/src/noImg.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
 import { makeRandomPreview } from "shared/src/utils/misc";
@@ -109,8 +109,8 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const isError = ref(false);
-    const isLoading = ref(true);
+    const isError = reactive({}) as Record<string, boolean>;
+    const isLoading = reactive({}) as Record<string, boolean>;
     const isErrorBackup = ref(false);
     const refSources = ref(
       Array.isArray(props.source) ? props.source : [props.source]
@@ -135,13 +135,14 @@ export default defineComponent({
       closeImage(refSource);
     };
 
-    const onError = () => {
-      isError.value = true;
-      isLoading.value = false;
+    const onError = (source: string) => {
+      isError[source] = true;
+      isLoading[source] = false;
     };
 
-    const onLoad = () => {
-      isLoading.value = false;
+    const onLoad = (source: string) => {
+      isError[source] = false;
+      isLoading[source] = false;
     };
 
     const openImg = async (refSource: string) => {
@@ -164,10 +165,10 @@ export default defineComponent({
 
     onMounted(() => {
       // nothing
-      if (!props.source) {
-        isError.value = true;
-        isLoading.value = false;
-      }
+      // if (!props.source) {
+      //   isError.value = true;
+      //   isLoading.value = false;
+      // }
     });
 
     return {

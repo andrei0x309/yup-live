@@ -128,13 +128,13 @@
                 >
                   Schedule
                 </ion-chip>
-                <ion-chip
+                <!-- <ion-chip
                   :key="accountPages[3]"
                   :color="accountPages[3] === currentAccountPage ? 'success' : 'primary'"
                   @click="accountPageChange(accountPages[3])"
                 >
                   Wallet
-                </ion-chip>
+                </ion-chip> -->
               </template>
             </HorizontalChips>
           </ion-item>
@@ -187,14 +187,14 @@
             </template>
           </InfScroll>
           <SchedulePage v-else-if="accountPages[2] === currentAccountPage" />
-          <WalletPage
+          <!-- <WalletPage
             v-else-if="accountPages[3] === currentAccountPage"
             :key="`${userData.evmAddress}${walletKeyRefresh}`"
             :accountId="userId"
             :accountEVMAddr="userData.evmAddress"
             :apiBase="API_BASE"
             :stackAlertError="stackAlertError"
-          />
+          /> -->
         </div>
       </div>
     </ion-content>
@@ -227,7 +227,7 @@ import { wait } from "shared/src/utils/time";
 import { postTypesPromises } from "components/post-types/post-types";
 import LineLoader from "components/functional/lineLoader.vue";
 import { createActionUsage, createUserData } from "shared/src/utils/requests/accounts";
-import WalletPage from "components/profile/walletPage.vue";
+// import WalletPage from "components/profile/walletPage.vue";
 import { settingsOutline } from "ionicons/icons";
 import SettingsModal from "@/views/SettingsModal.vue";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
@@ -267,7 +267,7 @@ export default defineComponent({
     Post,
     InfScroll,
     LineLoader,
-    WalletPage,
+    // WalletPage,
     HeaderBar,
     IonPage,
     IonContent,
@@ -280,7 +280,7 @@ export default defineComponent({
     HorizontalChips,
     BlockedProfile,
     ReportUserModal,
-    SchedulePage
+    SchedulePage,
   },
   setup() {
     const route = useRoute();
@@ -288,7 +288,7 @@ export default defineComponent({
     const userId = ref("");
     // const accountRoute = route.params.accountRoute as string
 
-    const accountPages = ["created", "feed", 'schedule', "wallet"];
+    const accountPages = ["created", "feed", "schedule", "wallet"];
 
     const search = ref("");
     const apiError = ref(false);
