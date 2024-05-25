@@ -71,10 +71,6 @@ export default defineConfig({
   build: {
     rollupOptions: {
       // plugins: [nodePolyfills()]
-      input: {
-        index: fileURLToPath(new URL('./index.html', import.meta.url)),
-        login: fileURLToPath(new URL('./login.html', import.meta.url)),
-      }
     },
     commonjsOptions: {
       transformMixedEsModules: true
