@@ -151,6 +151,7 @@ import RewardNotification from "components/notifications/reward.vue";
 import MultiNotifications from "components/notifications/follow-mention-repost.vue";
 import CommentNotification from "components/notifications/comment.vue";
 import { useMainStore } from "@/store/main";
+import { router } from "@/router";
 
 export default defineComponent({
   name: "Notifications",
@@ -169,7 +170,7 @@ export default defineComponent({
     const store = useMainStore();
 
     const route = useRoute();
-    const address = route.params.address as string;
+    const address = (route?.params?.address as string) ?? store?.userData?.address;
     const notifications = ref([]) as Ref<NotifType[]>;
     const activeTab = ref("0") as Ref<string>;
     const hasMore = ref(true);
@@ -270,6 +271,10 @@ export default defineComponent({
       if (store?.userData?.account) {
         clearNotifications(store);
       }
+      if (!address) {
+        router.push("/error/code/404");
+      }
+
       await getByActiveTab();
       loading.value = false;
     });

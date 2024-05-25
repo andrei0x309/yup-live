@@ -130,6 +130,11 @@ const routes = [
   },
   {
     path: '/notifications/:address',
+    name: 'NotificationsWithAddress',
+    component: () => import('@/pages/notifications.vue')
+  },
+  {
+    path: '/notifications',
     name: 'Notifications',
     component: () => import('@/pages/notifications.vue')
   },
