@@ -11,7 +11,7 @@
     "encrypt": "node ./scripts/build-encrypt.mjs --env-file=.env",
     "upgrade": "yarn-upgrade-all",
     "preview": "vite preview",
-    "build": "yarn build-no-ssg"
+    "build": "yarn build-ssg"
   },
   "husky": {
     "hooks": {
