@@ -62,7 +62,7 @@
           :key="`l${isLoggedIn}`"
           class="post-btn cursor-pointer menu-pill w-full"
           @click="
-            openPostModal = true;
+            doOpenPostModal();
             toggleSidebar();
           "
         >
@@ -134,7 +134,7 @@
               v-if="canDoPost"
               :key="`l${isLoggedIn}`"
               class="post-btn"
-              @click="openPostModal = true"
+              @click="doOpenPostModal"
             >
               <CrossPostIcon class="inline w-6 mr-2" />New Post
             </button>
@@ -253,10 +253,8 @@
       <!-- menu - end -->
     </div>
     <CrossPost
-      :key="`${openPostModal}k`"
-      :openModal="openPostModal"
+      :openModal="openPostModalState"
       :platforms="PLATFORMS"
-      @update:open-modal="(v: boolean) => (openPostModal = v)"
       @success="postSent"
     />
   </div>
@@ -269,7 +267,7 @@ import GetCoinIcon from "icons/src/getCoin.vue";
 import FeedsIcon from "icons/src/feeds.vue";
 import SearchIcon from "icons/src/search.vue";
 import { useRouter } from "vue-router";
-import { useMainStore } from "@/store/main";
+import { useMainStore, openPostModal } from "@/store/main";
 import { canPost } from "shared/src/utils/requests/crossPost";
 import CrossPost from "@/components/content/post/crossPost.vue";
 import CrossPostIcon from "icons/src/crossPost.vue";
@@ -295,8 +293,9 @@ export default defineComponent({
   },
   setup(props) {
     const sidebarOpen = ref(false);
-    const openPostModal = ref(false);
     const store = useMainStore();
+    const openPostModalState = ref(store.openPostModal);
+
     const canDoPost = ref(canPost(store));
     const router = useRouter();
     const isLoggedIn = ref(store.isLoggedIn);
@@ -339,8 +338,12 @@ export default defineComponent({
     });
 
     const postSent = () => {
-      openPostModal.value = false;
-      router.push(`/profile/${store.userData.account}/feed`);
+      // openPostModal.value = false;
+      // router.push(`/profile/${store.userData.account}/feed`);
+    };
+
+    const doOpenPostModal = () => {
+      openPostModal(store, undefined, PLATFORMS);
     };
 
     return {
@@ -349,12 +352,13 @@ export default defineComponent({
       toggleSidebar,
       props,
       postSent,
-      openPostModal,
+      doOpenPostModal,
       canDoPost,
       store,
       isLoggedIn,
       PLATFORMS,
       router,
+      openPostModalState,
     };
   },
 });

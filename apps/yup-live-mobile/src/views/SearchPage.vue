@@ -9,9 +9,9 @@
         mode="ios"
         @ion-change="segmentChange"
       >
-        <ion-segment-button value="search">
+        <!-- <ion-segment-button value="search">
           <ion-label>Posts</ion-label>
-        </ion-segment-button>
+        </ion-segment-button> -->
         <ion-segment-button value="profiles">
           <ion-label>Profiles</ion-label>
         </ion-segment-button>
@@ -28,28 +28,39 @@
             ></ion-searchbar>
           </form>
           <div class="text-[0.9rem] mt-4">
-          Sort by<br>
-          <ion-radio-group v-model="sortBy" value="relevance">
-              <ion-radio aria-label="relevance" value="relevance" class="mt-4 mr-4 text-[0.9rem]" >Relevance</ion-radio>
-              <ion-radio aria-label="recency" value="recency" class="mt-4 mr-4" >Recency</ion-radio>
-          </ion-radio-group>
-        </div>
-        <div class="text-[0.9rem] mt-4">
-          <template v-if="sortBy === 'recency'">
-            Order<br>
-            <ion-radio-group v-model="recencyType" value="desc" class="fadeIn">
-                <ion-radio aria-label="desc" value="desc" class="mt-4 mr-4" >Newer First</ion-radio>
-                <ion-radio value="asc" class="mt-4 mr-4" >Older First</ion-radio>
+            Sort by<br />
+            <ion-radio-group v-model="sortBy" value="relevance">
+              <ion-radio
+                aria-label="relevance"
+                value="relevance"
+                class="mt-4 mr-4 text-[0.9rem]"
+                >Relevance</ion-radio
+              >
+              <ion-radio aria-label="recency" value="recency" class="mt-4 mr-4"
+                >Recency</ion-radio
+              >
             </ion-radio-group>
-          </template>
-        </div>
-        <div class="text-[0.9rem] mt-4">
-          Filter Platform<br>
-          <ion-radio-group v-model="filterPlatforms" value="all">
-              <ion-radio aria-label="all" value="all" class="mt-4 mr-4" >All</ion-radio>
-              <ion-radio aria-label="specific" value="specific" class="mt-4 mr-4" >Specific</ion-radio>
-          </ion-radio-group>
-        </div>
+          </div>
+          <div class="text-[0.9rem] mt-4">
+            <template v-if="sortBy === 'recency'">
+              Order<br />
+              <ion-radio-group v-model="recencyType" value="desc" class="fadeIn">
+                <ion-radio aria-label="desc" value="desc" class="mt-4 mr-4"
+                  >Newer First</ion-radio
+                >
+                <ion-radio value="asc" class="mt-4 mr-4">Older First</ion-radio>
+              </ion-radio-group>
+            </template>
+          </div>
+          <div class="text-[0.9rem] mt-4">
+            Filter Platform<br />
+            <ion-radio-group v-model="filterPlatforms" value="all">
+              <ion-radio aria-label="all" value="all" class="mt-4 mr-4">All</ion-radio>
+              <ion-radio aria-label="specific" value="specific" class="mt-4 mr-4"
+                >Specific</ion-radio
+              >
+            </ion-radio-group>
+          </div>
           <ion-select
             v-if="filterPlatforms !== 'all'"
             v-model="platforms"
@@ -152,8 +163,8 @@
                           imgClass="h-8 w-8"
                         />
                         <p class="ml-4 mt-3 text-[0.95rem]">
-                        <b>{{ profile.handle || `${profile._id.slice(0, 6)}...` }}</b>
-                       </p>
+                          <b>{{ profile.handle || `${profile._id.slice(0, 6)}...` }}</b>
+                        </p>
                         <ion-button
                           fill="outline"
                           size="small"
@@ -226,7 +237,7 @@ import {
 } from "@/store/alert-store";
 import { useMainStore } from "@/store/main";
 import { IPost } from "shared/src/types/post";
-import AvatarBtn from 'components/functional/avatarBtn.vue'
+import AvatarBtn from "components/functional/avatarBtn.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -259,7 +270,7 @@ export default defineComponent({
     IonLoading,
     IonSegment,
     IonSegmentButton,
-    AvatarBtn
+    AvatarBtn,
   },
   setup() {
     interface ISearchWeb3Profile {
@@ -278,7 +289,7 @@ export default defineComponent({
     const platforms = ref();
     const recencyType = ref("desc");
     const noMoreResults = ref(false);
-    const currentSegment = ref("search");
+    const currentSegment = ref("profiles");
 
     // offset=0&searchText=sadsadsa&limit=15
     const getFeedPosts = async (offset = 0) => {
@@ -302,7 +313,7 @@ export default defineComponent({
       if (value.detail.value === "search") {
         itemIndex.value = posts.value.length;
       } else {
-        itemIndex.value = profiles.value.length;    
+        itemIndex.value = profiles.value.length;
       }
     };
 

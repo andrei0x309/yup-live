@@ -15,7 +15,7 @@
             :class="`${canDoPostLoading ? 'blink' : ''}`"
             @click="
               () => {
-                if (!canDoPostLoading) openPostModal = true;
+                if (!canDoPostLoading) doOpenPostModal();
               }
             "
           >
@@ -93,12 +93,7 @@
             </router-link>
             -->
     </ion-content>
-    <CrossPost
-      :key="`${openPostModal}k${emitKey}`"
-      :openModal="openPostModal"
-      :platforms="PLATFORMS"
-      @update:open-modal="(v: boolean) => setModalState(v)"
-    />
+    <CrossPost :openModal="openPostModalState" :platforms="PLATFORMS" />
   </ion-page>
 </template>
 
@@ -126,7 +121,7 @@ import {
 import { notificationsCircle, filterCircle } from "ionicons/icons";
 import AvatarBtn from "components/functional/avatarBtn.vue";
 import HeaderMenu from "./header-menu.vue";
-import { useMainStore } from "@/store/main";
+import { useMainStore, openPostModal } from "@/store/main";
 import { storage } from "@/utils/storage";
 import { useRouter } from "vue-router";
 import { getNotificationsCount } from "shared/src/utils/notifications";
@@ -170,7 +165,6 @@ export default defineComponent({
     const notDisplay = ref("");
     let timerPromise: CancelablePromise | null = null;
     const canDoPost = ref(canPost(store));
-    const openPostModal = ref(false);
     const canDoPostLoading = ref(false);
     const userData = (ref({
       _id: "",
@@ -193,7 +187,7 @@ export default defineComponent({
         follow: "",
       },
     }) as unknown) as Ref<Awaited<ReturnType<typeof createUserData>>["data"]["userData"]>;
-    const emitKey = ref(0);
+    const openPostModalState = ref(store.openPostModal);
 
     store.$subscribe(async (newValue) => {
       if (newValue?.userData?.account === userData.value._id || !newValue) return;
@@ -263,9 +257,9 @@ export default defineComponent({
       return false;
     };
 
-    const setModalState = (v: boolean) => {
-      emitKey.value += 1;
-      openPostModal.value = v;
+    const doOpenPostModal = () => {
+      console.log("doOpenPostModal");
+      openPostModal(store, undefined, PLATFORMS);
     };
 
     const clearNot = () => {
@@ -285,15 +279,14 @@ export default defineComponent({
       useMainStore,
       notDisplay,
       hasNewNot,
-      openPostModal,
-      setModalState,
+      doOpenPostModal,
+      openPostModalState,
       canDoPost,
       openSettings,
       clearNot,
       userData,
       PLATFORMS,
       store,
-      emitKey,
       canDoPostLoading,
     };
   },

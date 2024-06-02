@@ -1,5 +1,14 @@
 export const recentChanges = [
     {
+        date: "02 June - 2024",
+        title: "Changes",
+        changes: [
+            'cross post modal perf improvements',
+            'deprecate profile menu buttons for wallet and collection',
+            'deprecate search posts'
+        ]
+    },
+    {
         date: "24 May - 2024",
         title: "Changes",
         changes: [

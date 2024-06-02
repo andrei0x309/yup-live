@@ -1,15 +1,22 @@
 <template>
   <div ref="nav" class="nav">
     <div class="nav__item">
-      <button :ref="(el) => (buttons[MENU_BUTTONS.feed] = el as Element)" class="pmenu-active" @click="onClick(MENU_BUTTONS.feed)">
+      <button
+        :ref="(el) => (buttons[MENU_BUTTONS.feed] = el as Element)"
+        class="pmenu-active"
+        @click="onClick(MENU_BUTTONS.feed)"
+      >
         <svg class="icon" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M9,13H15V19H18V10L12,5.5L6,10V19H9V13M4,21V9L12,3L20,9V21H4Z" />
+          <path
+            fill="currentColor"
+            d="M9,13H15V19H18V10L12,5.5L6,10V19H9V13M4,21V9L12,3L20,9V21H4Z"
+          />
         </svg>
         <span class="text" data-title="Feed">Feed</span>
       </button>
     </div>
 
-    <div class="nav__item">
+    <!-- <div class="nav__item">
       <button
         :ref="(el) => (buttons[MENU_BUTTONS.collections] = el as Element)"
         class="menu-button"
@@ -23,24 +30,32 @@
         </svg>
         <span class="text" data-title="Collections">Collections</span>
       </button>
-    </div>
+    </div> -->
 
     <div class="nav__item">
-      <button :ref="(el) => (buttons[MENU_BUTTONS.followers] = el as Element)" class="menu-button" @click="onClick(MENU_BUTTONS.followers)">
+      <button
+        :ref="(el) => (buttons[MENU_BUTTONS.followers] = el as Element)"
+        class="menu-button"
+        @click="onClick(MENU_BUTTONS.followers)"
+      >
         <FollwersOutlineIcon class="opacity-80 max-w-7" />
         <span class="text" data-title="Followers">FOLLOWERS</span>
       </button>
     </div>
 
-    <div class="nav__item">
+    <!-- <div class="nav__item">
       <button :ref="(el) => (buttons[MENU_BUTTONS.wallet] = el as Element)" class="menu-button" @click="onClick(MENU_BUTTONS.wallet)">
         <WalletIcon class="max-w-7" />
         <span class="text" data-title="Wallet">WALLET</span>
       </button>
-    </div>
+    </div> -->
 
     <div v-if="isOwnAccount" class="nav__item">
-      <button :ref="(el) => (buttons[MENU_BUTTONS.settings] = el as Element)" class="menu-button" @click="onClick(MENU_BUTTONS.settings)">
+      <button
+        :ref="(el) => (buttons[MENU_BUTTONS.settings] = el as Element)"
+        class="menu-button"
+        @click="onClick(MENU_BUTTONS.settings)"
+      >
         <svg class="icon" viewBox="0 0 24 24">
           <path
             fill="currentColor"
@@ -56,54 +71,60 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref } from 'vue'
-import { MENU_BUTTONS, BUTTONS_ORDER } from './menuButtonEnums'
-import { useRouter } from 'vue-router'
-import WalletIcon from 'icons/src/walletIcon.vue'
-import FollwersOutlineIcon from 'icons/src/followersOutline.vue'
+import { onMounted, defineComponent, ref, Ref } from "vue";
+import { MENU_BUTTONS, BUTTONS_ORDER } from "./menuButtonEnums";
+import { useRouter } from "vue-router";
+// import WalletIcon from "icons/src/walletIcon.vue";
+import FollwersOutlineIcon from "icons/src/followersOutline.vue";
 
-const invObj = (obj: Record<string, string>) => Object.fromEntries(Object.entries(obj).map((a) => a.reverse()))
+const invObj = (obj: Record<string, string>) =>
+  Object.fromEntries(Object.entries(obj).map((a) => a.reverse()));
 
 export default defineComponent({
-  name: 'ProfileMenu',
+  name: "ProfileMenu",
   components: {
-    WalletIcon,
-    FollwersOutlineIcon
+    // WalletIcon,
+    FollwersOutlineIcon,
   },
   props: {
     currentMenuTab: {
       type: String,
-      default: 'feedButton'
+      default: "feedButton",
     },
     isOwnAccount: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
-  emits: ['change'],
+  emits: ["change"],
   setup(props, ctx) {
-    const { emit } = ctx
-    const INV_MENU_BUTTONS = invObj(MENU_BUTTONS)
-    const buttons = {} as { [key: string]: Element }
-    const isActive = ref((BUTTONS_ORDER as { [key: string]: number })[MENU_BUTTONS.feed])
-    const nav = ref(null) as unknown as Ref<HTMLElement>
-    const activeIndicator = ref(null) as unknown as Ref<HTMLElement>
-    const router = useRouter()
+    const { emit } = ctx;
+    const INV_MENU_BUTTONS = invObj(MENU_BUTTONS);
+    const buttons = {} as { [key: string]: Element };
+    const isActive = ref((BUTTONS_ORDER as { [key: string]: number })[MENU_BUTTONS.feed]);
+    const nav = (ref(null) as unknown) as Ref<HTMLElement>;
+    const activeIndicator = (ref(null) as unknown) as Ref<HTMLElement>;
+    const router = useRouter();
 
     const activeTabChange = (button: string) => {
-      const changeingActive = (BUTTONS_ORDER as { [key: string]: number })[button]
+      const changeingActive = (BUTTONS_ORDER as { [key: string]: number })[button];
       if (isActive.value > changeingActive) {
-        nav.value.classList.remove('slide-right')
-        nav.value.classList.add('slide-left')
+        nav.value.classList.remove("slide-right");
+        nav.value.classList.add("slide-left");
       } else {
-        nav.value.classList.remove('slide-left')
-        nav.value.classList.add('slide-right')
+        nav.value.classList.remove("slide-left");
+        nav.value.classList.add("slide-right");
       }
-      activeIndicator.value.style.transform = `translateX(${60 * changeingActive}px) translateY(-50%)`
-      buttons[Object.keys(BUTTONS_ORDER)[isActive.value]]?.classList.remove('pmenu-active')
-      isActive.value = changeingActive
-      buttons[Object.keys(BUTTONS_ORDER)[isActive.value]]?.classList.add('pmenu-active')
-      const pathFragments = router.currentRoute.value.fullPath.split('/').slice(0, 3)
+
+      activeIndicator.value.style.transform = `translateX(${
+        35 * changeingActive
+      }px) translateY(-50%)`;
+      buttons[Object.keys(BUTTONS_ORDER)[isActive.value]]?.classList.remove(
+        "pmenu-active"
+      );
+      isActive.value = changeingActive;
+      buttons[Object.keys(BUTTONS_ORDER)[isActive.value]]?.classList.add("pmenu-active");
+      const pathFragments = router.currentRoute.value.fullPath.split("/").slice(0, 3);
       history.pushState(
         {},
         `YUP LIVE ${pathFragments[2]}`,
@@ -111,37 +132,39 @@ export default defineComponent({
           window.location.origin,
           pathFragments[1],
           pathFragments[2],
-          (INV_MENU_BUTTONS as { [key: string]: string })[Object.keys(BUTTONS_ORDER)[isActive.value]]
-        ].join('/')
-      )
-    }
+          (INV_MENU_BUTTONS as { [key: string]: string })[
+            Object.keys(BUTTONS_ORDER)[isActive.value]
+          ],
+        ].join("/")
+      );
+    };
 
     const onClick = (button: string) => {
-      emit('change', button)
-      activeTabChange(button)
-    }
+      emit("change", button);
+      activeTabChange(button);
+    };
 
     onMounted(() => {
-      activeTabChange(props.currentMenuTab)
-    })
+      activeTabChange(props.currentMenuTab);
+    });
 
     return {
       onClick,
       buttons,
       MENU_BUTTONS,
       nav,
-      activeIndicator
-    }
-  }
-})
+      activeIndicator,
+    };
+  },
+});
 </script>
 
 <style lang="scss">
 :root {
-  --active-indicator-width: 120px;
+  --active-indicator-width: 80px;
   --icon-width: 26px;
   --icon-margin-right: 9px;
-  --menu-padding-horizontal: 29px;
+  --menu-padding-horizontal: 40px;
   --menu-padding-vertical: 20px;
   --active-indicator-extra-length: 12px; /* We want the indicator to be longer than the actual buttons themselves, this length is added to both sides of the indicator */
   --space-between-icons: 32px;
@@ -158,10 +181,10 @@ export default defineComponent({
 .nav {
   padding: var(--menu-padding-vertical) var(--menu-padding-horizontal);
   display: flex;
-  box-shadow: inset -1px -1px 24px 0 rgba(0, 0, 0, 0.26);
+  box-shadow: inset -1px -1px 28px 0 rgb(8 8 8 / 29%);
   border-radius: 1px;
   position: relative;
-  max-width: 26rem;
+  max-width: 28rem;
   border-radius: 1rem;
   position: relative;
   margin: auto;
@@ -175,11 +198,15 @@ export default defineComponent({
 .nav__active-indicator {
   position: absolute;
   top: 46%;
-  margin-left: calc(var(--menu-padding-horizontal) - var(--active-indicator-extra-length));
+  margin-left: 20px;
   left: 0;
   transform: translateY(-50%);
-  width: calc(var(--active-indicator-width) + var(--active-indicator-extra-length) * 2);
-  background: radial-gradient(ellipse at right, rgb(62 62 62 / 18%) 0%, rgb(60 60 60 / 16%) 100%);
+  width: 124px;
+  background: radial-gradient(
+    ellipse at right,
+    rgb(62 62 62 / 18%) 0%,
+    rgb(60 60 60 / 16%) 100%
+  );
   z-index: 3;
   border-radius: 1rem;
   height: 2.5rem;
