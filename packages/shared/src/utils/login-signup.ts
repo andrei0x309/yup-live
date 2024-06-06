@@ -122,12 +122,12 @@ const signChallenge = async ({
     cancelPromise = null,
     mobile = false
 }: {
-        address: string,
+    address: string,
     loadState: null | Function
-        setAlert: null | Function,
-        timeout?: null | Ref<number>,
-        cancelPromise?: null | Promise<any>
-        mobile?: boolean
+    setAlert: null | Function,
+    timeout?: null | Ref<number>,
+    cancelPromise?: null | Promise<any>
+    mobile?: boolean
 }) => {
     const uri = window?.location?.hostname ?? 'yup.live'
     const isHttps = window?.location?.protocol?.includes('https') ?? true
@@ -292,10 +292,10 @@ export const onSignup = async (
         loadState: null | Function,
         setAlert: null | Function,
         bio?: null | string,
-            fullname?: null | string,
-            timeout?: null | Ref<number>
-            cancelPromise?: null | Promise<any>,
-            mobile?: boolean
+        fullname?: null | string,
+        timeout?: null | Ref<number>
+        cancelPromise?: null | Promise<any>,
+        mobile?: boolean
     }) => {
     if (loadState) {
         loadState('start')
@@ -389,8 +389,8 @@ export const onLogin = async ({
 }: {
     loadState: null | Function,
     setAlert: null | Function,
-        timeout?: null | Ref<number>
-        cancelPromise?: null | Promise<any>
+    timeout?: null | Ref<number>
+    cancelPromise?: null | Promise<any>
     mobile?: boolean
 } = { loadState: null, setAlert: null, timeout: null, cancelPromise: null, mobile: false }
 ): Promise<undefined |
