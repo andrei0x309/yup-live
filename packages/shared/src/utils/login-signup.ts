@@ -119,16 +119,20 @@ const signChallenge = async ({
     address, loadState = null,
     setAlert = null,
     timeout = null,
-    cancelPromise = null
+    cancelPromise = null,
+    mobile = false
 }: {
         address: string,
     loadState: null | Function
         setAlert: null | Function,
         timeout?: null | Ref<number>,
         cancelPromise?: null | Promise<any>
-
+        mobile?: boolean
 }) => {
-    const req = await fetch(`${API_BASE}/v1/eth/challenge?address=${address}`, {
+    const domain = window?.location?.hostname ?? 'yup.live'
+    const isHttps = window?.location?.protocol?.includes('https') ?? true
+
+    const req = await fetch(`${API_BASE}/v1/eth/challenge?address=${address}&domain=${domain}&https=${isHttps}&enableSIWE=${mobile ? 'false' : 'true'}`, {
         headers: {
             'Content-Type': 'application/json'
         }
@@ -281,7 +285,8 @@ export const onSignup = async (
         bio = null,
         fullname = null,
         timeout = null,
-        cancelPromise = null
+        cancelPromise = null,
+        mobile = false
     }: {
         username: string
         loadState: null | Function,
@@ -289,7 +294,8 @@ export const onSignup = async (
         bio?: null | string,
             fullname?: null | string,
             timeout?: null | Ref<number>
-            cancelPromise?: null | Promise<any>
+            cancelPromise?: null | Promise<any>,
+            mobile?: boolean
     }) => {
     if (loadState) {
         loadState('start')
@@ -302,7 +308,7 @@ export const onSignup = async (
             loadState && loadState('end')
             return
         }
-        const signature = await signChallenge({ address, loadState, setAlert, timeout, cancelPromise })
+        const signature = await signChallenge({ address, loadState, setAlert, timeout, cancelPromise, mobile })
 
         if (!signature) {
             loadState && loadState('end')
@@ -378,13 +384,15 @@ export const onLogin = async ({
     loadState = null,
     setAlert = null,
     timeout = null,
-    cancelPromise = null
+    cancelPromise = null,
+    mobile = false
 }: {
     loadState: null | Function,
     setAlert: null | Function,
         timeout?: null | Ref<number>
         cancelPromise?: null | Promise<any>
-    } = { loadState: null, setAlert: null }
+    mobile?: boolean
+} = { loadState: null, setAlert: null, timeout: null, cancelPromise: null, mobile: false }
 ): Promise<undefined |
     TloginMap[]> => {
     if (loadState) {
@@ -398,7 +406,7 @@ export const onLogin = async ({
             loadState && loadState('end')
             return
         }
-        const signature = await signChallenge({ address, loadState, setAlert, timeout, cancelPromise })
+        const signature = await signChallenge({ address, loadState, setAlert, timeout, cancelPromise, mobile })
         if (!signature) {
             loadState && loadState('end')
             return

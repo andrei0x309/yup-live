@@ -546,6 +546,7 @@ const onSignupLocal = async () => {
     username: username.value,
     bio: bio.value,
     fullname: fullName.value,
+    mobile: true,
   });
   doLogin(signupResult);
   loading.value = false;
@@ -555,6 +556,7 @@ const onLoginLocal = async () => {
   const loginResult = await onLogin({
     loadState,
     setAlert,
+    mobile: true,
   });
   doStoreLogin(loginResult);
   loading.value = false;
