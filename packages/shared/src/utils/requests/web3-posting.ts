@@ -4,6 +4,9 @@ import type { IMainStore } from '../../types/store';
 import type { Ref } from 'vue';
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+// const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.', 'dev.api.');
+// const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'localhost:4001').replace('https', 'http');
+
 
 export const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens", "bsky", "threads"];
 
@@ -129,7 +132,7 @@ export const deletePost = async ({
     postid: string
 }) => {
     try {
-        const req = await fetchWAuth(store, `${apiBase}/web3-post`, {
+        const req = await fetchWAuth(store, `${API_BASE}/web3-post`, {
             method: 'DELETE',
             body: JSON.stringify({ postid })
         })

@@ -130,7 +130,13 @@ export default defineComponent({
       isLoading.value = true;
       try {
         await walletDisconnect();
-        const loginNewAccounts = await onLogin();
+        const loginNewAccounts = await onLogin({
+          mobile: true,
+          loadState: null,
+          setAlert: null,
+          cancelPromise: null,
+          timeout: null,
+        });
         if (!loginNewAccounts) {
           stackAlertWarning("Failed to login new account, please try again later");
           isLoading.value = false;
