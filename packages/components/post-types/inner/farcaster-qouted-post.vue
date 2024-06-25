@@ -1,5 +1,8 @@
 <template>
-  <div :class="`pressable openpost relative qouted-border ${isReply ? 'mb-6' : ''}`" @click="openLocalPost">
+  <div
+    :class="`pressable openpost relative qouted-border ${isReply ? 'mb-6' : ''}`"
+    @click="openLocalPost"
+  >
     <div class="flex p-2 overflow-hidden openpost">
       <AvatarBtn
         :key="mainPost.userAvatar"
@@ -112,8 +115,7 @@ import type { IPostDeps } from "shared/src/types/post";
 import { useRouter } from "vue-router";
 import CrossIconGroup from "components/post-types/misc/crossicon-group.vue";
 import Frame from "components/post/frame.vue";
-import { openPost } from 'shared/src/utils/post'
-
+import { openPost } from "shared/src/utils/post";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE as string;
 
@@ -167,14 +169,14 @@ export default defineComponent({
     };
 
     const openLocalPost = (e: any) => {
-    if (!e.target.classList.contains('mention-handle')) {
-      if (!e?.target?.classList?.contains('openpost')) return
-      if (! props.mainPost?.postId) return
-      openPost(router,   props.mainPost.postId || "")
-      e.stopPropagation()
-     }
-    }
- 
+      if (!e.target.classList.contains("mention-handle")) {
+        if (!e?.target?.classList?.contains("openpost")) return;
+        if (!props.mainPost?.postId) return;
+        openPost(router, props.mainPost.postId || "");
+        e.stopPropagation();
+      }
+    };
+
     const goToCreator = () => {
       if (props.mainPost.userAddress) {
         router.push(`/web3-profile/${props.mainPost.userAddress}`);
@@ -184,7 +186,6 @@ export default defineComponent({
       }
     };
 
- 
     onMounted(() => {
       // if(props.fetchComments) {
       //   getComments({
@@ -201,7 +202,7 @@ export default defineComponent({
       numComments,
       goToCreator,
       castDep,
-      openLocalPost
+      openLocalPost,
     };
   },
 });
@@ -209,17 +210,16 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .qouted-border {
-    border: 1px solid #776616de;
-    padding: 0.5rem;
-    border-radius: 1rem;
-    margin-top: 0.4rem;
-    max-width: 91vw;
+  border: 1px solid #332d4da2;
+  padding: 0.5rem;
+  border-radius: 1rem;
+  margin-top: 0.4rem;
+  max-width: 91vw;
 }
 
 .qoute-indent {
-    width: 0.2rem;
-    margin-left: 0.6rem;
-    margin-right: 0.4rem;
+  width: 0.2rem;
+  margin-left: 0.6rem;
+  margin-right: 0.4rem;
 }
-
 </style>

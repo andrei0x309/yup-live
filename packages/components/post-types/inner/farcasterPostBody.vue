@@ -117,14 +117,14 @@
               </p>
 
               <router-link :to="`/channel/${mainPost.channel?.id}`" class="channel-link">
-                <span v-if="mainPost?.channel" class="qouted-border">
+                <span v-if="mainPost?.channel" class="channel-span">
                   <img
                     v-if="!channelImageError"
                     :src="mainPost?.channel?.image_url"
                     class="channel-img"
                     @error="() => (channelImageError = true)"
                   />
-                  <span v-else>/{{ mainPost?.channel?.id }}</span>
+                  /{{ mainPost?.channel?.id }}
                 </span>
               </router-link>
             </div>
@@ -263,20 +263,20 @@ export default defineComponent({
   fill: rgb(187 85 255);
   display: inline;
 }
-
-.qouted-border {
-  border: 1px solid #776616de;
-  padding: 0.5rem;
-  border-radius: 1rem;
-  margin-top: 0.4rem;
-}
-
 .channel-img {
   width: 1.2rem;
   height: 1.2rem;
   border-radius: 50%;
   margin-left: 0.5rem;
   display: inline;
+}
+
+.channel-span {
+  display: inline-block;
+  margin-top: 0.5rem;
+  background: #0000004a;
+  padding: 0.2rem 0.4rem 0.2rem 0.1rem;
+  border-radius: 10rem;
 }
 
 a.channel-link {
