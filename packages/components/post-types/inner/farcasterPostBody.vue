@@ -118,14 +118,13 @@
 
               <router-link :to="`/channel/${mainPost.channel?.id}`" class="channel-link">
                 <span v-if="mainPost?.channel" class="qouted-border">
-                  <span style="top: 0.1rem; position: relative">Channel:</span>
                   <img
                     v-if="!channelImageError"
                     :src="mainPost?.channel?.image_url"
                     class="channel-img"
                     @error="() => (channelImageError = true)"
                   />
-                  <span v-else>{{ mainPost?.channel?.name }}</span>
+                  <span v-else>/{{ mainPost?.channel?.id }}</span>
                 </span>
               </router-link>
             </div>

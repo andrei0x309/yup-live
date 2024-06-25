@@ -1,5 +1,14 @@
 export const recentChanges = [
     {
+        date: "25 June - 2024",
+        title: "Changes",
+        changes: [
+            'delete gated info from signup',
+            'chnage faracster channel in post to be displayed as /channel.id',
+            'enable long cast post for farcaster'
+        ]
+    },
+    {
         date: "02 June - 2024",
         title: "Changes",
         changes: [

@@ -9,28 +9,6 @@
       style="max-width: 26rem; margin-left: auto; margin-right: auto"
     />
     <form v-if="!isLogin" id="registration-form" class="mt-8" @submit.prevent>
-      <div class="mx-4 text-left -mt-4 glassCard text-[0.9rem]">
-        <p class="mt-2 mb-4">
-          To sign-up you need to pass one of the following requirements:
-        </p>
-        <ul>
-          <li class="p-1 ml-4">
-            Address has a
-            <a
-              class="underline underline-offset-4"
-              href="https://docs.yup.io/protocol/yup-score"
-              rel="nofollow"
-              >yup score</a
-            >
-            of 25
-          </li>
-          <li class="p-1 ml-4">Address has been added to onboard allow list</li>
-        </ul>
-        <p class="mt-2 text-[0.8rem]">
-          Many addresses are already on the allow list, so try signing up first!
-        </p>
-      </div>
-
       <input v-model="username" type="text" name="pass" placeholder="Username*" />
       <input v-model="fullname" type="text" name="text" placeholder="Full name" />
       <textarea v-model="bio" name="text" placeholder="Bio"></textarea>
@@ -156,7 +134,7 @@ export default defineComponent({
     };
 
     const onNewUser = () => {
-      formTitle.value = "Gated Sign-up";
+      formTitle.value = "Sign-up";
       isLogin.value = false;
     };
 

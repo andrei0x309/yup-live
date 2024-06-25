@@ -5,7 +5,7 @@ import type { IMainStore } from "shared/src/types/store";
 export const getMaxCharCount = (platforms: TPlatform[]) => {
     if (platforms.includes('twitter')) return 280
     else if (platforms.includes('bsky')) return 300
-    else if (platforms.includes('farcaster')) return 320
+    else if (platforms.includes('farcaster')) return 1024
     return 1000
 }
 

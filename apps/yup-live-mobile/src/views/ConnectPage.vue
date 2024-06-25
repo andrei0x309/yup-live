@@ -110,9 +110,6 @@
               text="SignUp"
               @click="onSignupLocal"
             />
-            <ion-item mode="ios" class="text-[0.85rem] opacity-80">
-              Sign-up is gated check conditions by tapping the "INFO - YUP" button.
-            </ion-item>
           </ion-card-content>
         </ion-card>
       </div>
@@ -174,9 +171,12 @@
       <ion-content class="ion-padding pb-10">
         <h3 class="text-center mb-4">TLDR</h3>
         <p>
-          This application onpen-soruce community client for Yup.io, it allows you to to
-          aggregate content from multiple social media and interact with them. Source code
-          is available on GitHub: andrei0x309/yup-live.
+          This application is an open-source community client for Yup.io, it allows you to
+          to post content and intercat with multiple social media networks. Source code is
+          available on GitHub:
+          <a href="https://github.com/andrei0x309/yup-live" target="_blank"
+            >https://github.com/andrei0x309/yup-live</a
+          >.
         </p>
 
         <h3 class="mt-4 text-center mb-4">FAQ:</h3>
@@ -198,11 +198,7 @@
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: Is the signup open?</li>
-              <li class="mb-2">
-                A: No, is currently gated by requiring to meet one of 3 conditions: (1)
-                Yup Score of 25, (2) Be on Allow List. (3) Be a farcaster user. There are
-                many whitelisted address so you can try to sign-up
-              </li>
+              <li class="mb-2">A: Yes</li>
             </ul>
             <ul class="mb-4">
               <li class="mb-2">Q: What I can do on YUP?</li>

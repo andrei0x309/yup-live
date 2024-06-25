@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <ion-page>
-    <HeaderBar text="Staking" :menu="true" />
+    <HeaderBar text="Rewards" :menu="true" />
 
     <ion-content :fullscreen="false" class="mt-2">
       <div class="text-center">
