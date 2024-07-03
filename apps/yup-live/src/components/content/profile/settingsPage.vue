@@ -130,20 +130,26 @@
 
             Disconnect from BlueSky
           </button>
-          <!-- <template v-if="!isConnectedToThreads">
+          <template v-if="!isConnectedToThreads">
             <button
               :disabled="isConnectToBsky"
               class="mt-4 bg-gray-600 border-0 py-2 px-6 focus:outline-none hover:bg-gray-900 rounded text-lg"
-              @click="
-                () => {
-                  settingsModalContent = 'threads-connect';
-                  settingsModal = true;
-                }
-              "
+              @click="doConnectThreads"
             >
               <ThreadsIcon class="w-6 inline mr-2" />
               <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to
               Threads
+            </button>
+            <button
+              v-if="!isThreadsCancel && isConnectToThreads"
+              class="view-btn"
+              @click="
+                () => {
+                  isThreadsCancel = true;
+                }
+              "
+            >
+              Cancel Threads Linking
             </button>
           </template>
           <button
@@ -157,7 +163,7 @@
             />
 
             Disconnect from Threads
-          </button> -->
+          </button>
         </div>
       </div>
     </section>
@@ -494,7 +500,7 @@
         </button>
       </div>
     </template>
-    <template v-else-if="settingsModalContent === 'threads-connect'">
+    <!-- <template v-else-if="settingsModalContent === 'threads-connect'">
       <div class="mx-8 flex flex-col">
         <p class="text-[1rem]">Conect to Threads</p>
         <small class="my-4">
@@ -528,7 +534,7 @@
           <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to Threads
         </button>
       </div>
-    </template>
+    </template> -->
   </o-modal>
 </template>
 
@@ -572,7 +578,10 @@ import QrcodeVue from "qrcode.vue";
 // import WalletIcon from "icons/src/walletIcon.vue";
 import { CancelablePromise } from "shared/src/utils/misc";
 import ThreadsIcon from "icons/src/threads.vue";
-import { connectToThreads, disconnectThreads } from "shared/src/utils/requests/threads";
+import {
+  connectToThreadsOauth,
+  disconnectThreads,
+} from "shared/src/utils/requests/threads";
 import AddDevice from "@/components/content/profile/settings/addDevice.vue";
 import AddAccount from "@/components/content/profile/settings/addAccount.vue";
 import Teams from "@/components/content/profile/settings/teams.vue";
@@ -659,6 +668,7 @@ export default defineComponent({
 
     const isConnectedToThreads = ref(store.userData.connected?.threads ?? false);
     const isConnectToThreads = ref(false);
+    const isThreadsCancel = ref(false);
     const isDisconnectFromThreads = ref(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const lensSelectedProfile = ref(undefined) as Ref<any | undefined | string>;
@@ -947,16 +957,14 @@ export default defineComponent({
     };
 
     const doConnectThreads = async () => {
-      const threads = await connectToThreads({
+      const threads = await connectToThreadsOauth({
         stackAlertError,
         stackAlertSuccess,
         store,
-        apiBase: API_BASE,
+        apiBase: "http://localhost:4001",
         isConnectedToThreads,
         isConnectToThreads,
-        threadsPassword: threadsPass.value,
-        threadsUser: threadsUser.value,
-        settingsModal,
+        isThreadsCancel,
       });
       if (threads) {
         setConnected(store, "threads", true);
@@ -1038,6 +1046,7 @@ export default defineComponent({
       threadsPass,
       lensSelectedProfile,
       transferData,
+      isThreadsCancel,
     };
   },
 });

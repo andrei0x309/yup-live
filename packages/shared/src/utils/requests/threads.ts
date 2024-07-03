@@ -107,6 +107,77 @@ export const connectToThreads = async ({
     }
 }
 
+export const connectToThreadsOauth = async ({
+    store,
+    stackAlertError,
+    stackAlertSuccess,
+    isConnectedToThreads,
+    isConnectToThreads,
+    apiBase = API_BASE,
+    isThreadsCancel
+}: {
+    store: IMainStore
+    stackAlertError: (msg: string) => void
+    stackAlertSuccess: (msg: string) => void
+    apiBase?: string
+    isConnectedToThreads: Ref<boolean>
+    isConnectToThreads: Ref<boolean>,
+    isThreadsCancel: Ref<boolean>
+}) => {
+    if (isConnectToThreads.value) return
+    isConnectToThreads.value = true
+
+    const req = await fetchWAuth(store, `${apiBase}/web3-auth/threads/redirect-url`, {
+        method: 'GET',
+    })
+
+    if (!req.ok) {
+        stackAlertError('Could not connect to Threads')
+        isConnectToThreads.value = false
+        return false
+    }
+    const { url } = await req.json()
+
+    if (url) {
+        window.open(url, '_blank')
+        // isConnectToThreads.value = false
+        // isConnectedToThreads.value = false
+        // if (store.userData.connected) store.userData.connected.threads = false
+    }
+
+    let timeout = 300000
+
+    for (; ;) {
+        const req = await fetchWAuth(store, `${apiBase}/web3-auth/threads/is-connected`, {
+            method: 'GET',
+        })
+        if (!req.ok) {
+            stackAlertError('Could not connect to Threads')
+            isConnectToThreads.value = false
+            return false
+        }
+        const { isConnected } = await req.json()
+        if (isConnected) {
+            isConnectedToThreads.value = true
+            if (store.userData.connected) store.userData.connected.threads = true
+            isConnectToThreads.value = false
+            stackAlertSuccess('Connected to Threads')
+            return true
+        }
+        if (isThreadsCancel.value) {
+            isConnectToThreads.value = false
+            return false
+        }
+        await new Promise(resolve => setTimeout(resolve, 500))
+        timeout -= 500
+        if (timeout <= 0) {
+            stackAlertError('Could not connect to Threads due to timeout')
+            isConnectToThreads.value = false
+            return false
+        }
+    }
+}
+
 
 export const disconnectThreads = async ({
     store,

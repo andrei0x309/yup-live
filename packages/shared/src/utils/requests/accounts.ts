@@ -9,6 +9,8 @@ import { fetchWAuth } from '../auth'
 import { fetchWeb3Profile } from './web3Profiles'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+// const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
+
 
 export const getActionUsage = async (userId: string) => {
   try {
@@ -293,13 +295,15 @@ export const getConnected = async (store: IMainStore, account: string, address?:
     const uD = await createUserData(account, true)
     if (!uD.error) {
       connected = uD.data.userData.connected
+      console.log('connected', connected)
       localStorage.setItem('connected', JSON.stringify(connected))
     } else {
       connected = {
         farcaster: false,
         twitter: false,
         lens: false,
-        bsky: false
+        bsky: false,
+        threads: false
       }
     }
   }

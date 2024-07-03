@@ -40,9 +40,14 @@ export const authLens = async ({
   }
   const wgamiCore = wgamiLib.wgamiCore
   let signature
-  await wgamiCore.reconnect(wgamiLib.wgConfig.wagmiConfig)
 
   const address = (await wgamiCore.getAccount(wgamiLib.wgConfig.wagmiConfig)).address ?? ''
+
+  if (address === '') {
+    stackAlertWarning && stackAlertWarning('User address could not be retrieved')
+    return null
+  }
+
   const req = await fetch(`${lensGraphQl}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

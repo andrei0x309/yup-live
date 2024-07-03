@@ -74,10 +74,10 @@
             <LinkIcon class="w-3 inline" />
           </a>
         </div>
-        <!-- <div v-if="lWeb3Profile?.threads?.handle">
+        <div v-if="lWeb3Profile?.threads?.handle">
           <ThreadsIcon class="mr-2 w-4 inline-block" />
           {{ lWeb3Profile?.threads?.handle }}
-        </div> -->
+        </div>
 
         <FollowUnfollwBtn
           :evmAddr="id"
@@ -109,7 +109,7 @@ import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import ProfileEthIcon from "icons/src/profileEth.vue";
 import ProfileYupIcon from "icons/src/profileYup.vue";
 import ProfileBskyIcon from "icons/src/bskyClouds.vue";
-// import ThreadsIcon from "icons/src/threads.vue";
+import ThreadsIcon from "icons/src/threads.vue";
 
 import TwitterIcon from "icons/src/twitter.vue";
 import ScoreIcon from "icons/src/score.vue";

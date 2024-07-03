@@ -235,8 +235,8 @@ const allowedFids = [1791]
 router.beforeEach((to, from, next) => {
   if (to.path.startsWith('/raw-influence') || to.path.startsWith('/rewards')) {
     try {
-      const conected = JSON.parse(localStorage.getItem('connected') || '{}')
-      if (!conected.farcaster) {
+      const connected = JSON.parse(localStorage.getItem('connected') || '{}')
+      if (!connected.farcaster) {
         next({ path: '/error/code/403' })
       }
     } catch {
