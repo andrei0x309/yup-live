@@ -961,7 +961,7 @@ export default defineComponent({
         stackAlertError,
         stackAlertSuccess,
         store,
-        apiBase: "http://localhost:4001",
+        apiBase: API_BASE,
         isConnectedToThreads,
         isConnectToThreads,
         isThreadsCancel,
