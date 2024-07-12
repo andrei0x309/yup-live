@@ -6,6 +6,8 @@ export const getMaxCharCount = (platforms: TPlatform[]) => {
     if (platforms.includes('twitter')) return 280
     else if (platforms.includes('bsky')) return 300
     else if (platforms.includes('farcaster')) return 1024
+    else if (platforms.includes('lens')) return 1024
+    else if (platforms.includes('threads')) return 500
     return 1000
 }
 

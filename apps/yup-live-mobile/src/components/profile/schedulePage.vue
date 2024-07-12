@@ -1,45 +1,51 @@
 <template>
-      <div class="bg-color table-list mb-4 mt-2 mx-auto w-[98%]">
-        <ion-list
-          v-for="sPost of scheduledPosts"
-          :key="(sPost?._id as string)"
-          :class="`${isScheduledLoading ? 'tableLoading' : ''}`"
-          :loading="isScheduledLoading"
-          class="mx-y"
-          style="border-bottom: 1px solid #fcfcfc96"
-        >
-          <ion-item>
-            <DateIcon />&nbsp;Created at:
-            <div class="inline">
-                {{ new Date(sPost.createdAt).toLocaleDateString() }} -
-                {{ new Date(sPost.createdAt).toLocaleTimeString() }}
-              </div>
-          </ion-item>
-
-          <ion-item>
-            <DateIcon />&nbsp;Posting at:
-            <div class="inline">
-                {{ new Date(sPost?.scheduledUnixTime ?? Date.now() as number).toLocaleDateString() }} -
-                {{ new Date(sPost?.scheduledUnixTime ?? Date.now() as number).toLocaleTimeString() }}
-            </div>
-          </ion-item>
-
-          <ion-item v-if="sPost?.type">
-             Type:&nbsp;<b>{{ sPost.type as string }}</b>
-          </ion-item>
-
-          <ion-item v-if="sPost.platforms">
-             Platforms:&nbsp;<b>{{ sPost.platforms?.join(", ") }}</b>
-          </ion-item>
-
-          <ion-item>
-            <ion-chip @click="() => cancelScheduledPost(sPost._id, sPost.type)">Cancel</ion-chip>
-          </ion-item>
-        </ion-list>
-        <div v-if="!scheduledPosts.length" class="text-center p-4 mt-8 text-[0.96rem] bg-stone-800">
-          You have no scheduled posts.
+  <div class="bg-color table-list mb-4 mt-2 mx-auto w-[98%]">
+    <ion-list
+      v-for="sPost of scheduledPosts"
+      :key="(sPost?._id as string)"
+      :class="`${isScheduledLoading ? 'tableLoading' : ''}`"
+      :loading="isScheduledLoading"
+      class="mx-y"
+      style="border-bottom: 1px solid #fcfcfc96"
+    >
+      <ion-item>
+        <DateIcon />&nbsp;Created at:
+        <div class="inline">
+          {{ new Date(sPost.createdAt).toLocaleDateString() }} -
+          {{ new Date(sPost.createdAt).toLocaleTimeString() }}
         </div>
-      </div>
+      </ion-item>
+
+      <ion-item>
+        <DateIcon />&nbsp;Posting at:
+        <div class="inline">
+          {{ new Date(sPost?.scheduledUnixTime ?? Date.now() as number).toLocaleDateString() }}
+          -
+          {{ new Date(sPost?.scheduledUnixTime ?? Date.now() as number).toLocaleTimeString() }}
+        </div>
+      </ion-item>
+
+      <ion-item v-if="sPost?.type">
+        Type:&nbsp;<b>{{ sPost.type as string }}</b>
+      </ion-item>
+
+      <ion-item v-if="sPost.platforms">
+        Platforms:&nbsp;<b>{{ sPost.platforms?.join(", ") }}</b>
+      </ion-item>
+
+      <ion-item>
+        <ion-chip @click="() => cancelScheduledPost(sPost._id, sPost.type)"
+          >Cancel</ion-chip
+        >
+      </ion-item>
+    </ion-list>
+    <div
+      v-if="!scheduledPosts.length"
+      class="text-center p-4 mt-8 text-[0.96rem] bg-stone-800"
+    >
+      You have no scheduled posts.
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -47,16 +53,14 @@ import DateIcon from "icons/src/date.vue";
 import { useMainStore } from "@/store/main";
 
 import { IonList, IonItem, IonChip } from "@ionic/vue";
-import { deleteScheduledTask, getScheduledPosts, getScheduledThreads } from 'shared/src/utils/requests/web3-posting'
-import type { IWeb3PostTask, IWeb3ThreadTask } from 'shared/src/types/web3-posting'
-
 import {
-  onMounted,
-  defineComponent,
-  ref,
-  onUnmounted,
-  Ref,
-} from "vue";
+  deleteScheduledTask,
+  getScheduledPosts,
+  getScheduledThreads,
+} from "shared/src/utils/requests/web3-posting";
+import type { IWeb3PostTask, IWeb3ThreadTask } from "shared/src/types/web3-posting";
+
+import { onMounted, defineComponent, ref, onUnmounted, Ref } from "vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -71,56 +75,62 @@ export default defineComponent({
   setup() {
     const store = useMainStore();
     const isScheduledLoading = ref(false);
-    const scheduledPosts = ref([]) as Ref<Array<(IWeb3PostTask | IWeb3ThreadTask) & { type: string }>>;
+    const scheduledPosts = ref([]) as Ref<
+      Array<(IWeb3PostTask | IWeb3ThreadTask) & { type: string }>
+    >;
 
     const loadSchedule = async () => {
-        isScheduledLoading.value = true;
-        try {
-          const res = await Promise.all([
-            getScheduledPosts({ store, apiBase: API_BASE }),
-            getScheduledThreads({ store, apiBase: API_BASE }),
-          ]);
-          scheduledPosts.value = [
-            ...res[0].map((p: Record<string, string>) => {
-              p.type = "single post";
-              return p;
-            }),
-            ...res[1].map((p: Record<string, string>) => {
-              p.type = "thread";
-              return p;
-            }),
-          ];
-        } catch (error) {
-          scheduledPosts.value = [];
-          console.error(error);
-        }
-        isScheduledLoading.value = false;
-    };
-  
-    const cancelScheduledPost = async (taskId: string, type: string) => {
-      if(isScheduledLoading.value) return
-      isScheduledLoading.value = true
+      isScheduledLoading.value = true;
       try {
-          await deleteScheduledTask({ store, apiBase: API_BASE, taskId, isTread: type !== "single post" })
-        scheduledPosts.value = scheduledPosts.value.filter((p) => p._id !== taskId)
+        const res = await Promise.all([
+          getScheduledPosts({ store }),
+          getScheduledThreads({ store }),
+        ]);
+        scheduledPosts.value = [
+          ...res[0].map((p: Record<string, string>) => {
+            p.type = "single post";
+            return p;
+          }),
+          ...res[1].map((p: Record<string, string>) => {
+            p.type = "thread";
+            return p;
+          }),
+        ];
       } catch (error) {
-        console.error(error)
+        scheduledPosts.value = [];
+        console.error(error);
       }
-      isScheduledLoading.value = false
+      isScheduledLoading.value = false;
+    };
+
+    const cancelScheduledPost = async (taskId: string, type: string) => {
+      if (isScheduledLoading.value) return;
+      isScheduledLoading.value = true;
+      try {
+        await deleteScheduledTask({
+          store,
+          taskId,
+          isTread: type !== "single post",
+        });
+        scheduledPosts.value = scheduledPosts.value.filter((p) => p._id !== taskId);
+      } catch (error) {
+        console.error(error);
+      }
+      isScheduledLoading.value = false;
     };
 
     onMounted(async () => {
-        loadSchedule()
-     });
+      loadSchedule();
+    });
 
     onUnmounted(() => {
       // do nothing
     });
 
     return {
-        isScheduledLoading,
-        scheduledPosts,
-        cancelScheduledPost
+      isScheduledLoading,
+      scheduledPosts,
+      cancelScheduledPost,
     };
   },
 });

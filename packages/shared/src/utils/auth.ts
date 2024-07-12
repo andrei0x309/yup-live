@@ -1,13 +1,16 @@
 import type { IMainStore } from '../types/store'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+// const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
+
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const fetchWAuth = async (store: IMainStore, endpoint: string, options?: any, noHeader = false) => {
+export const fetchWAuth = (store: IMainStore, endpoint: string, options?: any, noHeader = false) => {
     if (!options) options = {}
     if (!options.headers) options.headers = {}
     if (!options.headers['Content-Type'] && !noHeader) options.headers['Content-Type'] = 'application/json'
-    if (!options.headers['Authorization']) options.headers['Authorization'] = 'Bearer ' + store.userData.authToken
+    const token = store.userData.authToken
+    if (!options.headers['Authorization']) options.headers['Authorization'] = 'Bearer ' + token
     return fetch(endpoint, options)
 }
 
@@ -37,4 +40,11 @@ export const verifyLoginCode = async ({ store, code }: { store: IMainStore, code
     return null
 }
 
-// export const switchUserDesktop = async ({ store, userId, userStore }: { store: IMainStore, userId: string }) => {
+export const getWeb3Auth = async ({ store }: { store: IMainStore }) => {
+    const req = await fetchWAuth(store, `${API_BASE}/web3-auth`)
+    if (req.ok) {
+        const res = await req.json()
+        return res
+    }
+    return null
+}

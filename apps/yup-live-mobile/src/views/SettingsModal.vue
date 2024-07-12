@@ -186,20 +186,26 @@
 
               Disconnect from BlueSky
             </button>
-            <!-- <template v-if="!isConnectedToThreads">
+            <template v-if="!isConnectedToThreads">
               <button
                 :disabled="isConnectToBsky"
                 class="mt-4 bg-gray-600 border-0 py-2 px-6 focus:outline-none hover:bg-gray-900 rounded text-lg"
-                @click="
-                  () => {
-                    settingsModalContent = 'threads-connect';
-                    settingsModal = true;
-                  }
-                "
+                @click="doConnectThreads"
               >
                 <ThreadsIcon class="w-6 inline mr-2" />
                 <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to
                 Threads
+              </button>
+              <button
+                v-if="!isThreadsCancel && isConnectToThreads"
+                class="view-btn"
+                @click="
+                  () => {
+                    isThreadsCancel = true;
+                  }
+                "
+              >
+                Cancel Threads Linking
               </button>
             </template>
             <button
@@ -214,7 +220,7 @@
               /><ThreadsIcon class="w-6 inline mr-2" />
 
               Disconnect from Threads
-            </button> -->
+            </button>
           </div>
         </ion-accordion>
         <ion-accordion value="settings">
@@ -545,43 +551,6 @@
               </button>
             </div>
           </template>
-          <template v-else-if="settingsModalContent === 'threads-connect'">
-            <div class="mx-8 flex flex-col">
-              <p class="text-[1rem]">Conect to Threads</p>
-              <small class="my-4">
-                <ul>
-                  <li>Credentials are required to connect to Threads</li>
-                  <li>
-                    Threads token will be saved by YUP API not the credentials entered
-                    here.
-                  </li>
-                </ul></small
-              >
-              <input
-                v-model="threadsUser"
-                type="text"
-                name="ident"
-                placeholder="Username"
-                class="mb-4 rounded p-2 text-[#e0e0e0]"
-              />
-              <input
-                v-model="threadsPass"
-                type="password"
-                name="pass"
-                placeholder="Password"
-                class="mb-4 rounded p-2 text-[#e0e0e0]"
-              />
-              <button
-                :disabled="isConnectToThreads"
-                class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg mt-4"
-                @click="() => doConnectThreads()"
-              >
-                <ThreadsIcon class="w-6 inline mr-2" />
-                <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to
-                Threads
-              </button>
-            </div>
-          </template>
         </ion-content>
       </ion-modal>
     </ion-content>
@@ -655,7 +624,10 @@ import { connectBlueSky, disconnectBlueSky } from "shared/src/utils/requests/bsk
 import { PUSH_NOTIFICATION_TYPES, setPushSettings } from "@/utils/expo-push-not-re";
 import BlueSkyIcon from "icons/src/bsky.vue";
 import ThreadsIcon from "icons/src/threads.vue";
-import { connectToThreads, disconnectThreads } from "shared/src/utils/requests/threads";
+import {
+  connectToThreadsOauth,
+  disconnectThreads,
+} from "shared/src/utils/requests/threads";
 import AddAccount from "@/components/settings/addAccount.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
@@ -759,6 +731,7 @@ export default defineComponent({
     const isConnectToBsky = ref(false);
     const farcasterConnectTabs = ref("warpcast");
     const isPushLoading = ref(false);
+    const isThreadsCancel = ref(false);
 
     const Web3Libs = (ref(null) as unknown) as Ref<TWeb3Libs>;
 
@@ -1079,16 +1052,13 @@ export default defineComponent({
     };
 
     const doConnectThreads = async () => {
-      const threads = await connectToThreads({
+      const threads = await connectToThreadsOauth({
         stackAlertError,
         stackAlertSuccess,
         store,
-        apiBase: API_BASE,
         isConnectedToThreads,
         isConnectToThreads,
-        threadsPassword: threadsPass.value,
-        threadsUser: threadsUser.value,
-        settingsModal,
+        isThreadsCancel,
       });
       if (threads) {
         setConnected(store, "threads", true);
@@ -1216,6 +1186,7 @@ export default defineComponent({
       threadsPass,
       lensSelectedProfile,
       transferData,
+      isThreadsCancel,
     };
   },
 });

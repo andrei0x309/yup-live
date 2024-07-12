@@ -1,10 +1,24 @@
 export const recentChanges = [
     {
+        date: "12 July - 2024",
+        title: "Changes",
+        changes: [
+            'updated web and mobile dependencies',
+            'Migrate to Ionic 8 on mobile',
+            'migrate to capacitor 6 on mobile',
+            'deleted deprecated NFTs and bluesky feeds',
+            'added threads feed',
+            'removed the score from the display and replaced that with pro account status',
+            'added ability to add favorite farcaster channels',
+            'added workflow to announce commits and new versions'
+        ]
+    },
+    {
         date: "25 June - 2024",
         title: "Changes",
         changes: [
             'delete gated info from signup',
-            'chnage faracster channel in post to be displayed as /channel.id',
+            'change farcaster channel in post to be displayed as /channel.id',
             'enable long cast post for farcaster'
         ]
     },

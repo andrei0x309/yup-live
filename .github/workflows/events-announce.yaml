@@ -1,0 +1,36 @@
+name: Bun Announce Event Workflow
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+ 
+jobs:
+  run-bun-script:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: CI
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          version: '1.1.18'
+
+      - name: Install Dependencies
+        run: bun install
+        
+      - name: Run Bun Script - Update
+        if: github.event_name == 'workflow_dispatch'
+        run: bun run index.ts '${{ toJSON(secrets) }}' '${{ toJSON(github.event) }}' update
+
+      - name: Run Bun Script - Push
+        if: github.event_name == 'push'
+        run: bun run index.ts '${{ toJSON(secrets) }}' '${{ toJSON(github.event) }}' push

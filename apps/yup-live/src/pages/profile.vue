@@ -388,6 +388,7 @@ export default defineComponent({
       avatar: "",
       bio: "",
       score: "",
+      isPro: false,
       cum_deposit_time: 0,
       nextReset: "",
       evmAddress: "",
@@ -586,7 +587,6 @@ export default defineComponent({
       try {
         await deleteScheduledTask({
           store,
-          apiBase: API_BASE,
           taskId,
           isTread: type !== "single post",
         });
@@ -637,8 +637,8 @@ export default defineComponent({
         isScheduledLoading.value = true;
         try {
           const res = await Promise.all([
-            getScheduledPosts({ store, apiBase: API_BASE }),
-            getScheduledThreads({ store, apiBase: API_BASE }),
+            getScheduledPosts({ store }),
+            getScheduledThreads({ store }),
           ]);
           scheduledPosts.value = [
             ...res[0].map((p: Record<string, string>) => {

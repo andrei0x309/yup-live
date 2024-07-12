@@ -109,4 +109,3 @@ export const FCSendCast = async (fcToken: string, text: string, base?: string, r
         }
     })
 }
-

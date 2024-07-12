@@ -132,8 +132,7 @@ import {
   flag,
   openOutline,
 } from "ionicons/icons";
-import { deletePost } from 'shared/src/utils/requests/web3-posting'
-
+import { deletePost } from "shared/src/utils/requests/web3-posting";
 
 import { addBlockedPost } from "shared/src/utils/post";
 
@@ -193,8 +192,8 @@ export default defineComponent({
     isOwner: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   emits: ["update:vote", "deletedvote"],
   setup(props, ctx) {
@@ -296,30 +295,30 @@ export default defineComponent({
     };
 
     const delPost = async () => {
-        try {
-          delLoading.value = true
+      try {
+        delLoading.value = true;
 
-
-          const delReq = await deletePost({
-            postid: props.postId,
-            apiBase: API_BASE,
-            store
-          })
-          if (delReq) {
-            store.deletePost = props.postId
-            ctx.emit('update:vote', Promise.resolve([]))
-            ctx.emit('deletedvote')
-          } else {
-            stackAlertError('There was an error and it post was not removed, please try to re-login.')
-          }
-          delLoading.value = false
-        } catch (error) {
-          console.error('error', error)
-          stackAlertError('The post could not be deleted!')
+        const delReq = await deletePost({
+          postid: props.postId,
+          store,
+        });
+        if (delReq) {
+          store.deletePost = props.postId;
+          ctx.emit("update:vote", Promise.resolve([]));
+          ctx.emit("deletedvote");
+        } else {
+          stackAlertError(
+            "There was an error and it post was not removed, please try to re-login."
+          );
         }
+        delLoading.value = false;
+      } catch (error) {
+        console.error("error", error);
+        stackAlertError("The post could not be deleted!");
+      }
 
-        menuOpen.value = false
-    }
+      menuOpen.value = false;
+    };
 
     const blockPost = async () => {
       try {
@@ -492,15 +491,15 @@ export default defineComponent({
           },
         });
       } else {
-      buttons.push({
-        text: "Block Post",
-        role: "block",
-        icon: trashBinOutline,
-        data: {
-          action: "block",
-        },
-      });
-    }
+        buttons.push({
+          text: "Block Post",
+          role: "block",
+          icon: trashBinOutline,
+          data: {
+            action: "block",
+          },
+        });
+      }
 
       buttons.push({
         text: "Cancel",

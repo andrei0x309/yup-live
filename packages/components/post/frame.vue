@@ -266,7 +266,6 @@ export default defineComponent({
         // }
 
         frame = await postFrameAction({
-          apiBase: API_BASE,
           store: store,
           sendData,
         });

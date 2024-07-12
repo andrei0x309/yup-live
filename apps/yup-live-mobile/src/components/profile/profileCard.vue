@@ -12,22 +12,24 @@
     <div class="name">
       {{ userData.username }}
       <h6 title="Followers">
-        <ion-icon :icon="PeopleIcon" class="w-6" /><span class="followers">{{ userData.followers }}</span>
+        <ion-icon :icon="PeopleIcon" class="w-6" /><span class="followers">{{
+          userData.followers
+        }}</span>
       </h6>
     </div>
     <!-- <button class="button">FOLLOW <ion-icon :icon="personAdd" /></button> -->
     <div class="ds-info">
       <div class="ds pens">
-        <h6 title="Number of pens created by the user">Tokens</h6>
+        <h6 title="Tokens">Tokens</h6>
         <p>{{ userData.balance }}</p>
       </div>
       <div class="ds projects">
-        <h6 title="Number of projects created by the user">Influence</h6>
+        <h6 title="Influence">Influence</h6>
         <p>{{ userData.weight }}/10</p>
       </div>
       <div class="ds posts">
-        <h6 title="Number of posts">Score</h6>
-        <p>{{ userData.score }}/100</p>
+        <h6 title="Pro">Pro</h6>
+        <p>{{ userData?.isPro ? "Yes" : "No" }}</p>
       </div>
     </div>
     <div class="ds-actions">
@@ -36,19 +38,37 @@
         Next Reset: <b>{{ userData.nextReset }}</b>
       </p>
       <div class="flex mx-auto justify-center my-2">
-      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-14" ><div><p>Like</p><b>{{userData.actionBars.vote}}</b></div></ion-chip>
-      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-14" ><div><p>Delete</p><b>{{userData.actionBars.deleteVote}}</b></div></ion-chip>
-      <ion-chip style="display: flex;flex-direction: column;" class="opacity-70 h-14" ><div><p>Follow</p><b>{{userData.actionBars.follow}}</b></div></ion-chip>
+        <ion-chip style="display: flex; flex-direction: column" class="opacity-70 h-14"
+          ><div>
+            <p>Like</p>
+            <b>{{ userData.actionBars.vote }}</b>
+          </div></ion-chip
+        >
+        <ion-chip style="display: flex; flex-direction: column" class="opacity-70 h-14"
+          ><div>
+            <p>Delete</p>
+            <b>{{ userData.actionBars.deleteVote }}</b>
+          </div></ion-chip
+        >
+        <ion-chip style="display: flex; flex-direction: column" class="opacity-70 h-14"
+          ><div>
+            <p>Follow</p>
+            <b>{{ userData.actionBars.follow }}</b>
+          </div></ion-chip
+        >
       </div>
       <div v-if="canDoPost">
         <h6 class="pt-2">Connected Socials</h6>
         <div class="flex mx-auto justify-center my-2">
           <TwitterIcon class="w-8 mx-2" v-if="store?.userData?.connected?.twitter" />
-          <ProfileFarcasterIcon class="w-6 mx-2" v-if="store?.userData?.connected?.farcaster" />
+          <ProfileFarcasterIcon
+            class="w-6 mx-2"
+            v-if="store?.userData?.connected?.farcaster"
+          />
           <ProfileLensIcon class="w-6 mx-2" v-if="store?.userData?.connected?.lens" />
           <ProfileBskyIcon class="w-10 mx-1" v-if="store?.userData?.connected?.bsky" />
           <ThreadsIcon class="w-6 mx-2" v-if="store?.userData?.connected?.threads" />
-      </div>
+        </div>
       </div>
       <slot name="block"></slot>
       <slot name="report"></slot>
@@ -57,28 +77,22 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, PropType } from 'vue'
-import { makeRandAvatar } from 'shared/src/utils/accounts'
-import type { NameValue } from 'shared/src/types/account'
-import {
-  IonIcon,
-  IonChip
-} from '@ionic/vue'
+import { onMounted, defineComponent, ref, PropType } from "vue";
+import { makeRandAvatar } from "shared/src/utils/accounts";
+import type { NameValue } from "shared/src/types/account";
+import { IonIcon, IonChip } from "@ionic/vue";
 
-import {
-people as PeopleIcon,
-personAdd
-} from "ionicons/icons";
+import { people as PeopleIcon, personAdd } from "ionicons/icons";
 import ProfileLensIcon from "icons/src/profileLens.vue";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import ProfileBskyIcon from "icons/src/bskyClouds.vue";
 import TwitterIcon from "icons/src/twitter.vue";
-import { canPost } from 'shared/src/utils/requests/crossPost';
-import { useMainStore } from '@/store/main';
-import ThreadsIcon from 'icons/src/threads.vue'
+import { canPost } from "shared/src/utils/requests/crossPost";
+import { useMainStore } from "@/store/main";
+import ThreadsIcon from "icons/src/threads.vue";
 
 export default defineComponent({
-  name: 'ProfileCard',
+  name: "ProfileCard",
   components: {
     // ProfileUseBar,
     // AddFollow,
@@ -88,47 +102,48 @@ export default defineComponent({
     ProfileBskyIcon,
     TwitterIcon,
     ProfileFarcasterIcon,
-    ThreadsIcon
+    ThreadsIcon,
   },
   props: {
     postInfo: {
       type: Array as PropType<Array<NameValue>>,
       default: () => [
         {
-          name: '',
-          value: ''
-        }
-      ]
+          name: "",
+          value: "",
+        },
+      ],
     },
     userData: {
       type: Object,
       default: () => ({
-        username: '',
-        avatar: '',
-        nextReset: '',
+        username: "",
+        avatar: "",
+        nextReset: "",
         followers: 0,
         balance: 0,
         weight: 0,
         score: 0,
+        isPro: false,
         actionBars: {
           vote: 0,
           deleteVote: 0,
-          follow: 0
-        }
-      })
-    }
+          follow: 0,
+        },
+      }),
+    },
   },
   setup(props) {
-    const source = ref(props.userData.avatar)
+    const source = ref(props.userData.avatar);
 
     // const isLoading = ref(true)
 
     const onError = () => {
-      source.value = makeRandAvatar(props.userData.username)
-    }
+      source.value = makeRandAvatar(props.userData.username);
+    };
 
-    const store = useMainStore()
-    const canDoPost = canPost(store)
+    const store = useMainStore();
+    const canDoPost = canPost(store);
 
     // const onLoad = () => {
     //   isLoading.value = false
@@ -136,7 +151,7 @@ export default defineComponent({
 
     onMounted(() => {
       // nothing
-    })
+    });
 
     return {
       onError,
@@ -144,26 +159,26 @@ export default defineComponent({
       PeopleIcon,
       personAdd,
       canDoPost,
-      store
+      store,
 
       // onLoad,
       // isLoading,
       // isError,
-    }
-  }
-})
+    };
+  },
+});
 </script>
 
 <style lang="scss">
 html {
-  --profile-card-bg: #ffffff61;  
+  --profile-card-bg: #ffffff61;
   --profile-card-head1: #ffd375d9;
   --profile-card-head2: #818181;
   --profile-av-holder-sh1: #cbcbcb;
   --profile-av-holder-sh2: #c3c3c3ed;
 }
 
-html[class='dark'] {
+html[class="dark"] {
   --profile-card-bg: #151515;
   --profile-card-head1: #1d55ab;
   --profile-card-head2: #0a1c3826;
@@ -173,22 +188,22 @@ html[class='dark'] {
 
 .card {
   position: relative;
-    margin: 1rem;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    max-width: 21rem;
-    border-radius: 10px;
-    box-shadow: 0 10px 25px 5px rgb(0 0 0 / 20%);
-    background: #485e830d;
-    overflow: hidden;
+  margin: 1rem;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-width: 21rem;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px 5px rgb(0 0 0 / 20%);
+  background: #485e830d;
+  overflow: hidden;
 
   @function multiple-box-shadow($n) {
-    $value: '#{random(2000)}px #{random(2000)}px #FFF';
+    $value: "#{random(2000)}px #{random(2000)}px #FFF";
     @for $i from 2 through $n {
-      $value: '#{$value} , #{random(2000)}px #{random(2000)}px #FFF';
+      $value: "#{$value} , #{random(2000)}px #{random(2000)}px #FFF";
     }
 
     @return unquote($value);
@@ -214,7 +229,7 @@ html[class='dark'] {
     animation: animStar 50s linear infinite;
 
     &:after {
-      content: ' ';
+      content: " ";
       position: absolute;
       top: 500px;
       width: 1px;
@@ -229,7 +244,7 @@ html[class='dark'] {
     animation: animStar 100s linear infinite;
 
     &:after {
-      content: ' ';
+      content: " ";
       position: absolute;
       top: 500px;
       width: 2px;
@@ -244,7 +259,7 @@ html[class='dark'] {
     animation: animStar 130s linear infinite;
 
     &:after {
-      content: ' ';
+      content: " ";
       position: absolute;
       top: 500px;
       width: 3px;
@@ -269,14 +284,15 @@ html[class='dark'] {
     width: 6rem;
     height: 6rem;
     border-radius: 30%;
-    box-shadow: 0 0 0 5px var(--profile-av-holder-sh1), inset 0 0 0 5px var(--profile-av-holder-sh2);
+    box-shadow: 0 0 0 5px var(--profile-av-holder-sh1),
+      inset 0 0 0 5px var(--profile-av-holder-sh2);
     overflow: hidden;
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       position: absolute;
-      z-index: 9; 
+      z-index: 9;
     }
   }
   .name {
@@ -353,7 +369,6 @@ html[class='dark'] {
     }
   }
 }
-
 
 .followers {
   position: relative;

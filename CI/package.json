@@ -1,0 +1,16 @@
+{
+  "name": "ci",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "farcaster-hub-utils": "^0.1.7",
+    "yup-api-interact": "^0.1.6"
+  },
+  "license": "MIT"
+}

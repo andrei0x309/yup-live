@@ -97,7 +97,7 @@ const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], e
 
             if (e.url.includes('youtube.com') || e.url.includes('youtu.be')) return
 
-            if (isProbablyPage(e.url) && postTag === 'farcaster' && !e?.images?.includes(e.url)) {
+            if (isProbablyPage(e.url) && postTag === 'farcaster') {
                 url = e.url
                 frames.push(e.url)
                 return

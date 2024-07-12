@@ -331,6 +331,7 @@
                       :key="channel.id"
                       :native-value="channel.id"
                       @click="farcasterChannel = channel.id"
+                      class="my-2"
                     >
                       <div class="flex flex-wrap-reverse w-full">
                         <div class="w-max-[28%]">
@@ -340,7 +341,8 @@
                           />
                         </div>
                         <div class="flex flex-col text-left w-[65%]">
-                          <p>{{ channel.name }}</p>
+                          <p>Name: {{ channel.name }}</p>
+                          <p class="text-[0.8rem] opacity-70">Id: {{ channel.id }}</p>
                           <p class="text-xs">{{ channel.description }}</p>
                         </div>
                       </div>
@@ -405,8 +407,6 @@ import { wait } from "shared/src";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import AddIcon from "icons/src/add.vue";
 import SubstractIcon from "icons/src/substract.vue";
-
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export default defineComponent({
   name: "CrossPost",
@@ -634,7 +634,7 @@ export default defineComponent({
       if (!imageFile) return;
       isFileUploading.value = true;
       const imageBase64 = await fileToBase64(imageFile);
-      const upload = await mediaUpload(store, API_BASE, postPlatforms.value, imageFile);
+      const upload = await mediaUpload(store, postPlatforms.value, imageFile);
 
       if (upload?.errors) {
         const platforms = [] as TPlatform[];
@@ -670,7 +670,7 @@ export default defineComponent({
         );
         postPlatforms.value = postPlatforms.value.filter((p) => p !== "bsky");
       }
-      const upload = await mediaUpload(store, API_BASE, postPlatforms.value, videoFile);
+      const upload = await mediaUpload(store, postPlatforms.value, videoFile);
       if (upload?.errors) {
         const platforms = [] as TPlatform[];
         for (const error of upload.errors) {
@@ -821,7 +821,6 @@ export default defineComponent({
       }
 
       const result = await schedulePost({
-        apiBase: API_BASE,
         store,
         sendData,
         isThread: posts.length > 1,

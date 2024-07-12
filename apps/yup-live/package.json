@@ -42,7 +42,7 @@
     "shared": "*",
     "text-clipper": "^2.2.0",
     "viem": "^2.8.18",
-    "vue": "^3.4.12",
+    "vue": "^3.4.31",
     "vue-cup-avatar": "^0.1.9",
     "vue-router": "^4.2.5"
   },

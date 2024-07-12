@@ -7,6 +7,7 @@ import { getFidByToken, getFidByAddress } from 'shared/src/utils/farcaster';
 // import { digestSha256 } from "shared/src/utils/misc";
 import { wait } from '../time'
 import { walletDisconnect } from '../login-signup'
+import { TChannel } from 'shared/src/types/web3-posting';
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -390,3 +391,39 @@ export const getFarcasterYupThread = async ({ postId, apiBase = API_BASE }: { po
     }
     return empty;
 }
+
+export const getFavoriteChannels = async (store: IMainStore) => {
+
+    const res = await fetchWAuth(store, `${API_BASE}/farcaster/channels/favorites`, {
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    const data = await res.json();
+    return data;
+};
+
+
+export const favAddChannel = (store: IMainStore, channel: TChannel) => {
+    fetchWAuth(store, `${API_BASE}/farcaster/channels/favorites`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            channels: [channel.parent_url]
+        }),
+    });
+};
+
+export const favChannelDelete = (store: IMainStore, channel: TChannel) => {
+    fetchWAuth(store, `${API_BASE}/farcaster/channels/favorites`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            channels: [channel.parent_url]
+        }),
+    });
+};

@@ -12,6 +12,7 @@ export interface IUserData {
   followers: number
   evmAddress: string
   fullname: string
+  isPro: boolean
   connected: {
     farcaster: boolean
     twitter: boolean

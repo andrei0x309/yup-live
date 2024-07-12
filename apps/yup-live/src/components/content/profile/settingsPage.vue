@@ -500,41 +500,6 @@
         </button>
       </div>
     </template>
-    <!-- <template v-else-if="settingsModalContent === 'threads-connect'">
-      <div class="mx-8 flex flex-col">
-        <p class="text-[1rem]">Conect to Threads</p>
-        <small class="my-4">
-          <ul>
-            <li>Credentials are required to connect to Threads</li>
-            <li>
-              Threads token will be saved by YUP API not the credentials entered here.
-            </li>
-          </ul></small
-        >
-        <input
-          v-model="threadsUser"
-          type="text"
-          name="ident"
-          placeholder="Username"
-          class="mb-4 rounded p-2 text-[#222]"
-        />
-        <input
-          v-model="threadsPass"
-          type="password"
-          name="pass"
-          placeholder="Password"
-          class="mb-4 rounded p-2 text-[#222]"
-        />
-        <button
-          :disabled="isConnectToThreads"
-          class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg mt-4"
-          @click="() => doConnectThreads()"
-        >
-          <ThreadsIcon class="w-6 inline mr-2" />
-          <BtnSpinner v-if="isConnectToThreads" class="inline mr-2" />Connect to Threads
-        </button>
-      </div>
-    </template> -->
   </o-modal>
 </template>
 
@@ -961,7 +926,6 @@ export default defineComponent({
         stackAlertError,
         stackAlertSuccess,
         store,
-        apiBase: API_BASE,
         isConnectedToThreads,
         isConnectToThreads,
         isThreadsCancel,

@@ -1,8 +1,9 @@
 import type { Ref } from 'vue';
 import type { IMainStore } from '../../types/store'
-import { fetchWAuth } from '../auth'
+import { fetchWAuth, getWeb3Auth } from '../auth'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+// const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
 
 const deviceID = 'android-k3wpbt5bk5c0000'
 
@@ -196,6 +197,8 @@ export const disconnectThreads = async ({
 }) => {
     if (isDisconnectFromThreads.value) return
     isDisconnectFromThreads.value = true
+
+    console.log(await getWeb3Auth({ store }))
 
     const req = await fetchWAuth(store, `${apiBase}/web3-auth`, {
         method: 'DELETE',

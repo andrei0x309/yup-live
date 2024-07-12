@@ -10,13 +10,13 @@ const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 export const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens", "bsky", "threads"];
 
-export const mediaUpload = async (store: IMainStore, apiBase: string, platforms: TPlatform[], file: File) => {
+export const mediaUpload = async (store: IMainStore, platforms: TPlatform[], file: File) => {
     try {
         const data = new FormData()
         data.append('platforms', JSON.stringify(platforms))
         data.append('data', file)
 
-        const req = await fetchWAuth(store, `${apiBase}/media-upload`, {
+        const req = await fetchWAuth(store, `${API_BASE}/media-upload`, {
             method: 'POST',
             body: data
         }, true)
@@ -30,16 +30,14 @@ export const mediaUpload = async (store: IMainStore, apiBase: string, platforms:
 
 export const submitPost = async ({
     store,
-    apiBase,
     sendData
 }: {
-    store: IMainStore
-    apiBase: string
+        store: IMainStore
     sendData: ISendPostData
 }
 ) => {
     try {
-        const req = await fetchWAuth(store, `${apiBase}/web3-post`, {
+        const req = await fetchWAuth(store, `${API_BASE}/web3-post`, {
             method: 'POST',
             body: JSON.stringify(sendData)
         })
@@ -58,7 +56,7 @@ export const submitPost = async ({
 
             if (failed.length === statusPlatforms.length) return null
 
-            retryPost({ taskId: data.taskId, store, apiBase })
+            retryPost({ taskId: data.taskId, store })
             return {
                 error: true,
                 partial: true,
@@ -74,11 +72,9 @@ export const submitPost = async ({
 
 export const submitThread = async ({
     store,
-    apiBase,
     sendData
 }: {
-    store: IMainStore
-    apiBase: string
+        store: IMainStore
     sendData: {
         posts: ISendPostData[]
         platforms: TPlatform[]
@@ -86,7 +82,7 @@ export const submitThread = async ({
 }
 ) => {
     try {
-        const req = await fetchWAuth(store, `${apiBase}/web3-post/thread`, {
+        const req = await fetchWAuth(store, `${API_BASE}/web3-post/thread`, {
             method: 'POST',
             body: JSON.stringify(sendData)
         })
@@ -108,7 +104,7 @@ export const submitThread = async ({
 
             if (failed.length === statusPlatforms.length) return null
 
-            retryPost({ taskId: data.taskId, store, apiBase })
+            retryPost({ taskId: data.taskId, store })
             return {
                 error: true,
                 partial: true,
@@ -124,11 +120,9 @@ export const submitThread = async ({
 
 export const deletePost = async ({
     store,
-    apiBase,
     postid
 }: {
-    store: IMainStore
-    apiBase: string
+        store: IMainStore
     postid: string
 }) => {
     try {
@@ -144,14 +138,12 @@ export const deletePost = async ({
     }
 }
 
-const retryPost = async ({ taskId, store,
-    apiBase, }: {
-        store: IMainStore
-        apiBase: string,
+const retryPost = async ({ taskId, store }: {
+    store: IMainStore
         taskId: string
     }) => {
     try {
-        const req = await fetchWAuth(store, `${apiBase}/web3-post/${taskId}`, {
+        const req = await fetchWAuth(store, `${API_BASE}/web3-post/${taskId}`, {
             method: 'POST',
             body: JSON.stringify({})
         })
@@ -254,7 +246,6 @@ export const sendPost = async ({
 
     const result = await submitPost({
         store,
-        apiBase: API_BASE,
         sendData
     });
 
@@ -273,9 +264,9 @@ export const sendPost = async ({
     return true
 };
 
-export const getScheduledPosts = async ({ store, apiBase }: { store: IMainStore, apiBase: string }) => {
+export const getScheduledPosts = async ({ store }: { store: IMainStore }) => {
     try {
-        const req = await fetchWAuth(store, `${apiBase}/web3-post/schedule?accountId=${store.userData.account}`)
+        const req = await fetchWAuth(store, `${API_BASE}/web3-post/schedule?accountId=${store.userData.account}`)
         if (!req.ok) throw new Error('Error getting scheduled posts' + req.statusText)
         return (await req.json()).scheduledPosts
     } catch (e) {
@@ -284,9 +275,9 @@ export const getScheduledPosts = async ({ store, apiBase }: { store: IMainStore,
     }
 }
 
-export const getScheduledThreads = async ({ store, apiBase }: { store: IMainStore, apiBase: string }) => {
+export const getScheduledThreads = async ({ store }: { store: IMainStore }) => {
     try {
-        const req = await fetchWAuth(store, `${apiBase}/web3-post/schedule/thread?accountId=${store.userData.account}`)
+        const req = await fetchWAuth(store, `${API_BASE}/web3-post/schedule/thread?accountId=${store.userData.account}`)
         if (!req.ok) throw new Error('Error getting scheduled threads' + req.statusText)
         return (await req.json()).scheduledThreads
     } catch (e) {
@@ -295,10 +286,10 @@ export const getScheduledThreads = async ({ store, apiBase }: { store: IMainStor
     }
 }
 
-export const deleteScheduledTask = async ({ store, apiBase, taskId, isTread }: { store: IMainStore, apiBase: string, taskId: string, isTread: boolean }) => {
+export const deleteScheduledTask = async ({ store, taskId, isTread }: { store: IMainStore, taskId: string, isTread: boolean }) => {
     try {
         const thread = isTread ? '/thread' : ''
-        const req = await fetchWAuth(store, `${apiBase}/web3-post/schedule${thread}`, {
+        const req = await fetchWAuth(store, `${API_BASE}/web3-post/schedule${thread}`, {
             body: JSON.stringify({ taskId }),
             method: 'DELETE'
         })
@@ -311,10 +302,10 @@ export const deleteScheduledTask = async ({ store, apiBase, taskId, isTread }: {
 }
 
 export const schedulePost = async (
-    { store, apiBase, sendData, isThread = false }:
-        { store: IMainStore, apiBase: string, sendData: ISendPostData | { posts: (ISendPostData | undefined)[]; platforms: TPlatform[]; time: number; replyTo?: IReplyTo } | undefined, isThread: boolean }) => {
+    { store, sendData, isThread = false }:
+        { store: IMainStore, sendData: ISendPostData | { posts: (ISendPostData | undefined)[]; platforms: TPlatform[]; time: number; replyTo?: IReplyTo } | undefined, isThread: boolean }) => {
     try {
-        const req = await fetchWAuth(store, `${apiBase}/web3-post/schedule${isThread ? '/thread' : ''}`, {
+        const req = await fetchWAuth(store, `${API_BASE}/web3-post/schedule${isThread ? '/thread' : ''}`, {
             body: JSON.stringify(sendData),
             method: 'POST'
         })
@@ -335,8 +326,8 @@ export const schedulePost = async (
 }
 
 export const postFrameAction = async (
-    { store, apiBase, sendData }: {
-        store: IMainStore, apiBase: string, sendData: {
+    { store, sendData }: {
+        store: IMainStore, sendData: {
             url: string
             castFid: number
             castHash: string
@@ -348,7 +339,7 @@ export const postFrameAction = async (
     }) => {
     try {
 
-        const req = await fetchWAuth(store, `${apiBase}/farcaster/frame-packet-action`, {
+        const req = await fetchWAuth(store, `${API_BASE}/farcaster/frame-packet-action`, {
             body: JSON.stringify(sendData),
             method: 'POST'
         })
@@ -445,7 +436,6 @@ export const deleteRepost = async ({
 }
 
 export const getInitialFrame = async (url: string) => {
-    //API_BASE
     const metas = await fetch(`${API_BASE}/posts/website-meta?url=${url}`)
     let metaTags = [] as any[]
     try {
@@ -541,7 +531,6 @@ export const sendThread = async ({
 
     const result = await submitThread({
         store,
-        apiBase: API_BASE,
         sendData
     });
 

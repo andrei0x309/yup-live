@@ -76,7 +76,8 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
     createdAt,
     ethInfo,
     web3Handles,
-    connected
+    connected,
+    isPro
   } = d.data
   const returnData = {
     userData: {
@@ -92,6 +93,7 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
       fullname,
       web3Handles,
       twitterInfo,
+      isPro: isPro,
       connected: connected || {
         farcaster: false,
         twitter: false,

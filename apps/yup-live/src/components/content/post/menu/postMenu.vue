@@ -9,15 +9,31 @@
     >
       <template #content>
         <ul class="w-32 text-justify postMenu">
-          <li class="pt-1 cursor-pointer" @click="showVoters"><RadarIcon class="w-5 inline -mt-1 mr-1" />View Voters</li>
-          <li v-if="refHasVote" class="pt-1 cursor-pointer" @click="deleteVote">
-            <DeleteIcon :class="`w-5 inline -mt-1 mr-1 ${delLoading ? 'rotate' : ''}`" />Delete Vote
+          <li class="pt-1 cursor-pointer" @click="showVoters">
+            <RadarIcon class="w-5 inline -mt-1 mr-1" />View Voters
           </li>
-          <li v-if="isOwner" class="pt-1 cursor-pointer" @click="delPost" > <DeleteIcon :class="`w-5 inline -mt-1 mr-1 ${delLoadingPost ? 'rotate' : ''}`" />Delete Post</li>
-          <li class="pt-1 cursor-pointer" @click="sharePost"><ShareIcon class="w-5 inline -mt-1 mr-1" />Share Post</li>
-          <li class="pt-1 cursor-pointer" @click="goToPost"><GoToIcon class="w-5 inline -mt-1 mr-1" />Post Details</li>
-          <li class="pt-1 cursor-pointer" @click="refreshPreview"><RetryIcon class="w-6 -ml-1 inline -mt-1 mr-1" />Refresh Data</li>
-          <li v-if="isAuth" class="pt-1 cursor-pointer" @click="openReportPost"><FlagIcon class="w-5 inline -mt-1 mr-1" />Report Post</li>
+          <li v-if="refHasVote" class="pt-1 cursor-pointer" @click="deleteVote">
+            <DeleteIcon
+              :class="`w-5 inline -mt-1 mr-1 ${delLoading ? 'rotate' : ''}`"
+            />Delete Vote
+          </li>
+          <li v-if="isOwner" class="pt-1 cursor-pointer" @click="delPost">
+            <DeleteIcon
+              :class="`w-5 inline -mt-1 mr-1 ${delLoadingPost ? 'rotate' : ''}`"
+            />Delete Post
+          </li>
+          <li class="pt-1 cursor-pointer" @click="sharePost">
+            <ShareIcon class="w-5 inline -mt-1 mr-1" />Share Post
+          </li>
+          <li class="pt-1 cursor-pointer" @click="goToPost">
+            <GoToIcon class="w-5 inline -mt-1 mr-1" />Post Details
+          </li>
+          <li class="pt-1 cursor-pointer" @click="refreshPreview">
+            <RetryIcon class="w-6 -ml-1 inline -mt-1 mr-1" />Refresh Data
+          </li>
+          <li v-if="isAuth" class="pt-1 cursor-pointer" @click="openReportPost">
+            <FlagIcon class="w-5 inline -mt-1 mr-1" />Report Post
+          </li>
         </ul>
       </template>
       <PostMenuIcon role="button" class="w-6" />
@@ -28,7 +44,13 @@
         <h2>Last 20 Interactions</h2>
         <ul class="m-auto">
           <li v-for="voter of voters" :key="voter.a._id" class="p-4">
-            <AvatarBtn imgClass="h-9 w-9" class="m-auto h-9 w-9" :pSource="voter.a.avatar" :pAccount="voter.a._id" :isSelf="false" />
+            <AvatarBtn
+              imgClass="h-9 w-9"
+              class="m-auto h-9 w-9"
+              :pSource="voter.a.avatar"
+              :pAccount="voter.a._id"
+              :isSelf="false"
+            />
             <p>
               <b>{{ voter.a.username }}</b> voted
             </p>
@@ -38,24 +60,44 @@
       </template>
       <template v-else-if="modalContent === 'report'">
         <h2 class="my-4 text-[1.1rem]">Report Post</h2>
-        <p class="my-4" >Are you sure you want to report this post?</p>
+        <p class="my-4">Are you sure you want to report this post?</p>
         <p class="my-4">Reason (required):</p>
         <div class="block">
-                <o-radio v-for="reason of reasons" :key="reason" v-model="reportReason" :native-value="reason">{{ reason }}</o-radio>
-          </div>
-          <div class="my-4">
+          <o-radio
+            v-for="reason of reasons"
+            :key="reason"
+            v-model="reportReason"
+            :native-value="reason"
+            >{{ reason }}</o-radio
+          >
+        </div>
+        <div class="my-4">
           Details (required):
           <textarea
-              id="castField"
-              v-model="reportText"
-              style="width: 90%;"
-              class="w-full text-gray-600 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
-            >
-            </textarea>
-          </div>
+            id="castField"
+            v-model="reportText"
+            style="width: 90%"
+            class="w-full text-gray-600 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
+          >
+          </textarea>
+        </div>
         <div class="flex justify-center">
-          <button :disabled="isReporting" class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg" :class="`${isReporting ? 'blink': ''}`" @click="modalOpen = false">Cancel</button>
-          <button :disabled="isReporting" class="bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg" :class="`ml-4 ${isReporting ? 'blink': ''}`" @click="doReport">Report</button>
+          <button
+            :disabled="isReporting"
+            class="bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg"
+            :class="`${isReporting ? 'blink' : ''}`"
+            @click="modalOpen = false"
+          >
+            Cancel
+          </button>
+          <button
+            :disabled="isReporting"
+            class="bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+            :class="`ml-4 ${isReporting ? 'blink' : ''}`"
+            @click="doReport"
+          >
+            Report
+          </button>
         </div>
       </template>
     </o-modal>
@@ -63,39 +105,43 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref, PropType } from 'vue'
-import PostMenuIcon from 'icons/src/postMenuIcon.vue'
-import { useMainStore, openConnectModal } from '@/store/main'
-import DangLoader from 'components/vote-list/loader.vue'
-import AvatarBtn from 'components/functional/avatarBtn.vue'
-import { timeAgo } from 'shared/src/utils/time'
-import { useRouter } from 'vue-router'
-import RadarIcon from 'icons/src/radar.vue'
-import ShareIcon from 'icons/src/share.vue'
-import DeleteIcon from 'icons/src/delete.vue'
-import GoToIcon from 'icons/src/goTo.vue'
-import RetryIcon from 'icons/src/retry.vue'
-import { wait } from 'shared/src/utils/time'
-import { fetchWAuth } from 'shared/src/utils/auth'
-import { stackAlertError, stackAlertSuccess, stackAlertWarning } from '@/store/alertStore'
-import FlagIcon from 'icons/src/flag.vue'
+import { onMounted, defineComponent, ref, Ref, PropType } from "vue";
+import PostMenuIcon from "icons/src/postMenuIcon.vue";
+import { useMainStore, openConnectModal } from "@/store/main";
+import DangLoader from "components/vote-list/loader.vue";
+import AvatarBtn from "components/functional/avatarBtn.vue";
+import { timeAgo } from "shared/src/utils/time";
+import { useRouter } from "vue-router";
+import RadarIcon from "icons/src/radar.vue";
+import ShareIcon from "icons/src/share.vue";
+import DeleteIcon from "icons/src/delete.vue";
+import GoToIcon from "icons/src/goTo.vue";
+import RetryIcon from "icons/src/retry.vue";
+import { wait } from "shared/src/utils/time";
+import { fetchWAuth } from "shared/src/utils/auth";
+import {
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+} from "@/store/alertStore";
+import FlagIcon from "icons/src/flag.vue";
 
-import type { PartialAccountInfo } from 'shared/src/types/account'
-import type { Vote } from 'shared/src/types/vote'
-import { report } from 'shared/src/utils/requests/report'
-import { reasons, reportType } from 'shared/src/types/report'
-import { OTooltip } from '@oruga-ui/oruga-next'
-import { deletePost } from 'shared/src/utils/requests/web3-posting'
+import type { PartialAccountInfo } from "shared/src/types/account";
+import type { Vote } from "shared/src/types/vote";
+import { report } from "shared/src/utils/requests/report";
+import { reasons, reportType } from "shared/src/types/report";
+import { OTooltip } from "@oruga-ui/oruga-next";
+import { deletePost } from "shared/src/utils/requests/web3-posting";
 
-const API_BASE = import.meta.env.VITE_YUP_API_BASE
+const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 interface Voter {
-  a: PartialAccountInfo
-  timestamp: string
+  a: PartialAccountInfo;
+  timestamp: string;
 }
 
 export default defineComponent({
-  name: 'PostMenu',
+  name: "PostMenu",
   components: {
     PostMenuIcon,
     RadarIcon,
@@ -106,247 +152,251 @@ export default defineComponent({
     AvatarBtn,
     RetryIcon,
     FlagIcon,
-    OTooltip
+    OTooltip,
   },
   props: {
     postId: {
       type: String,
-      required: true
+      required: true,
     },
     postShareInfo: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
     hasVote: {
       type: Promise as PropType<Promise<Vote[]>>,
-      required: true
+      required: true,
     },
     isOwner: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
-  emits: ['update:vote', 'deletedvote'],
+  emits: ["update:vote", "deletedvote"],
   setup(props, ctx) {
-    const router = useRouter()
-    const store = useMainStore()
-    const isError = ref(false)
-    const isLoading = ref(true)
-    const isAuth = ref(store.isLoggedIn)
-    const modalOpen = ref(false)
-    const modalLoading = ref(false)
-    const modalContent = ref('')
-    const voters = ref([]) as Ref<Voter[]>
-    const menuOpen = ref(false)
-    const delLoading = ref(false)
-    const delLoadingPost = ref(false)
-    const refHasVote = ref(false)
-    const vote = ref({}) as unknown as Ref<Vote>
-    const reportReason = ref(reasons[0])
-    const reportText = ref('')
-    const isReporting = ref(false)
+    const router = useRouter();
+    const store = useMainStore();
+    const isError = ref(false);
+    const isLoading = ref(true);
+    const isAuth = ref(store.isLoggedIn);
+    const modalOpen = ref(false);
+    const modalLoading = ref(false);
+    const modalContent = ref("");
+    const voters = ref([]) as Ref<Voter[]>;
+    const menuOpen = ref(false);
+    const delLoading = ref(false);
+    const delLoadingPost = ref(false);
+    const refHasVote = ref(false);
+    const vote = (ref({}) as unknown) as Ref<Vote>;
+    const reportReason = ref(reasons[0]);
+    const reportText = ref("");
+    const isReporting = ref(false);
 
     store.$subscribe(() => {
-      isAuth.value = store.isLoggedIn
-    })
+      isAuth.value = store.isLoggedIn;
+    });
 
     const onError = () => {
-      isError.value = true
-      isLoading.value = false
-    }
+      isError.value = true;
+      isLoading.value = false;
+    };
 
     const onLoad = () => {
-      isLoading.value = false
-    }
+      isLoading.value = false;
+    };
 
     const sharePost = () => {
       const share = {
         title: props.postShareInfo.title,
         text: props.postShareInfo.text,
-        url: props.postShareInfo.url
-      }
+        url: props.postShareInfo.url,
+      };
       if (navigator.share) {
         navigator
           .share(share)
-          .then(() => console.log('Successful share'))
-          .catch((error) => console.log('Error sharing', error))
+          .then(() => console.log("Successful share"))
+          .catch((error) => console.log("Error sharing", error));
       }
-    }
+    };
 
     const goToPost = () => {
-      router.push(`/post/${props.postId}`)
-    }
+      router.push(`/post/${props.postId}`);
+    };
 
     const refreshPreview = async () => {
       try {
         const reqReFetch = await fetch(`${API_BASE}/posts/re-fetch/preview`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            postid: props.postId
-          })
-        })
+            postid: props.postId,
+          }),
+        });
         if (reqReFetch.ok) {
-          stackAlertSuccess('Refresh request successful, reload after a few seconds.')
+          stackAlertSuccess("Refresh request successful, reload after a few seconds.");
         } else {
-          stackAlertWarning('Refresh data was requested already recently.')
+          stackAlertWarning("Refresh data was requested already recently.");
         }
-        menuOpen.value = false
+        menuOpen.value = false;
       } catch {
-        stackAlertError('API not available, please try again later.')
-        menuOpen.value = false
+        stackAlertError("API not available, please try again later.");
+        menuOpen.value = false;
       }
-    }
+    };
 
     const deleteVote = async () => {
       if (isAuth.value) {
         try {
-          delLoading.value = true
-          const reqVote = await fetch(`${API_BASE}/votes/post/${props.postId}/voter/${store.userData.account}`)
-          const voteId = (await reqVote.json())[0]._id.voteid
+          delLoading.value = true;
+          const reqVote = await fetch(
+            `${API_BASE}/votes/post/${props.postId}/voter/${store.userData.account}`
+          );
+          const voteId = (await reqVote.json())[0]._id.voteid;
           const p1 = fetchWAuth(store, `${API_BASE}/votes/${voteId}`, {
-            method: 'DELETE'
-          })
-          const p2 = wait(350)
-          const [req] = await Promise.all([p1, p2])
+            method: "DELETE",
+          });
+          const p2 = wait(350);
+          const [req] = await Promise.all([p1, p2]);
           if (req.ok) {
-            store.deletePost = props.postId
-            ctx.emit('update:vote', Promise.resolve([]))
-            ctx.emit('deletedvote')
+            store.deletePost = props.postId;
+            ctx.emit("update:vote", Promise.resolve([]));
+            ctx.emit("deletedvote");
           } else {
-            stackAlertError('There was an error with authorization, please try to re-login.')
+            stackAlertError(
+              "There was an error with authorization, please try to re-login."
+            );
           }
-          delLoading.value = false
+          delLoading.value = false;
         } catch (error) {
-          console.error('error', error)
-          stackAlertError('The vote could not be deleted!')
+          console.error("error", error);
+          stackAlertError("The vote could not be deleted!");
         }
 
-        menuOpen.value = false
+        menuOpen.value = false;
       } else {
-        openConnectModal(store)
+        openConnectModal(store);
       }
-    }
+    };
 
     const delPost = async () => {
       if (isAuth.value) {
         try {
-          delLoadingPost.value = true
-
+          delLoadingPost.value = true;
 
           const delReq = await deletePost({
             postid: props.postId,
-            apiBase: API_BASE,
-            store
-          })
+            store,
+          });
           if (delReq) {
-            store.deletePost = props.postId
-            ctx.emit('update:vote', Promise.resolve([]))
-            ctx.emit('deletedvote')
+            store.deletePost = props.postId;
+            ctx.emit("update:vote", Promise.resolve([]));
+            ctx.emit("deletedvote");
           } else {
-            stackAlertError('There was an error and it post was not removed, please try to re-login.')
+            stackAlertError(
+              "There was an error and it post was not removed, please try to re-login."
+            );
           }
-          delLoadingPost.value = false
+          delLoadingPost.value = false;
         } catch (error) {
-          console.error('error', error)
-          stackAlertError('The post could not be deleted!')
+          console.error("error", error);
+          stackAlertError("The post could not be deleted!");
         }
 
-        menuOpen.value = false
+        menuOpen.value = false;
       } else {
-        openConnectModal(store)
+        openConnectModal(store);
       }
-    }
+    };
 
     const showVoters = async () => {
-      modalContent.value = 'voters'
-      modalLoading.value = true
-      modalOpen.value = true
+      modalContent.value = "voters";
+      modalLoading.value = true;
+      modalOpen.value = true;
       const req = await fetch(`${API_BASE}/posts/interactions/${props.postId}?limit=20`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
-        }
-      })
+          "Content-Type": "application/json",
+        },
+      });
       if (req.status === 200) {
-        const data = await req.json()
+        const data = await req.json();
         const pArr = data.map(async (v: { voter: string; timestamp: string }) => {
           return await new Promise((resolve) => {
             fetch(`${API_BASE}/accounts/${v.voter}`).then((r) => {
               r.json().then((d) => {
                 resolve({
                   a: d,
-                  timestamp: v.timestamp
-                })
-              })
-            })
-          })
-        })
-        const p = await Promise.allSettled(pArr)
+                  timestamp: v.timestamp,
+                });
+              });
+            });
+          });
+        });
+        const p = await Promise.allSettled(pArr);
         const pArr2 = p.map((e) => {
-          if (e.status === 'fulfilled') {
-            return e.value
+          if (e.status === "fulfilled") {
+            return e.value;
           } else {
-            return null
+            return null;
           }
-        })
+        });
         const result = pArr2
           .filter((a) => a !== null)
           .map((a) => ({
             a: a.a,
-            timestamp: new Date(Number(a?.timestamp)).toISOString()
+            timestamp: new Date(Number(a?.timestamp)).toISOString(),
           }))
           .sort((a, b) => {
-            return new Date(b?.timestamp).getTime() - new Date(a?.timestamp).getTime()
-          })
-        voters.value = result as unknown as Voter[]
-        modalLoading.value = false
+            return new Date(b?.timestamp).getTime() - new Date(a?.timestamp).getTime();
+          });
+        voters.value = (result as unknown) as Voter[];
+        modalLoading.value = false;
       }
-    }
+    };
 
     const doReport = async () => {
       try {
-      if(!reportText.value.length || reportText.value.length < 6) {
-        stackAlertError('Repot reason is to short, it need at least 6 characters.')
-        return
+        if (!reportText.value.length || reportText.value.length < 6) {
+          stackAlertError("Repot reason is to short, it need at least 6 characters.");
+          return;
+        }
+        isReporting.value = true;
+        const res = await report(store, {
+          type: reportType[0],
+          reason: reportReason.value,
+          details: reportText.value,
+          resourceId: props.postId,
+        });
+        if (res) {
+          stackAlertSuccess("Report successful.");
+          modalOpen.value = false;
+        } else {
+          stackAlertError("There was an error with the report, please try again later.");
+        }
+      } catch {
+        stackAlertError("There was an error with the report, please try again later.");
       }
-      isReporting.value = true
-      const res = await report(store, {
-        type: reportType[0],
-        reason: reportReason.value,
-        details: reportText.value,
-        resourceId: props.postId
-      })
-      if(res) {
-        stackAlertSuccess('Report successful.')
-        modalOpen.value = false
-      } else {
-        stackAlertError('There was an error with the report, please try again later.')
-      }
-    } catch {
-      stackAlertError('There was an error with the report, please try again later.')
-    }
-    isReporting.value = false
-  }
+      isReporting.value = false;
+    };
 
     const openReportPost = () => {
-      modalContent.value = 'report'
-      modalOpen.value = true
-      modalLoading.value = false
-    }
+      modalContent.value = "report";
+      modalOpen.value = true;
+      modalLoading.value = false;
+    };
 
     onMounted(() => {
       props.hasVote.then((v) => {
         if (v.length > 0) {
-          vote.value = v[0]
-          refHasVote.value = true
+          vote.value = v[0];
+          refHasVote.value = true;
         }
-      })
-    })
+      });
+    });
 
     return {
       onError,
@@ -374,10 +424,10 @@ export default defineComponent({
       reportText,
       isReporting,
       delLoadingPost,
-      delPost
-    }
-  }
-})
+      delPost,
+    };
+  },
+});
 </script>
 
 <style lang="scss">

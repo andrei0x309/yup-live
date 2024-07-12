@@ -5,10 +5,8 @@
     <div v-if="followersCount > 0" class="followers">
       <FollowersIcon class="inline-block w-4 mr-2" />{{ followersCount }}
     </div>
-    <div v-if="lWeb3Profile?.yupScore ?? 0 > 0" class="yupScore">
-      <ScoreIcon class="inline-block w-4 mr-2" />{{
-        Math.trunc(lWeb3Profile?.yupScore ?? 0)
-      }}
+    <div v-if="lWeb3Profile?.isPro" class="isPro">
+      <StarIcon class="inline-block w-4 mr-2" />PRO
     </div>
     <img
       :key="computedAvatar"
@@ -112,7 +110,7 @@ import ProfileBskyIcon from "icons/src/bskyClouds.vue";
 import ThreadsIcon from "icons/src/threads.vue";
 
 import TwitterIcon from "icons/src/twitter.vue";
-import ScoreIcon from "icons/src/score.vue";
+import StarIcon from "icons/src/star.vue";
 import FollowersIcon from "icons/src/followers.vue";
 import FollowUnfollwBtn from "components/profile/followUnfollowBtn.vue";
 import type { IDepsWeb3Profile } from "shared/src/types/web3/web3Deps";
@@ -129,11 +127,11 @@ export default defineComponent({
     ProfileFarcasterIcon,
     ProfileLensIcon,
     TwitterIcon,
-    ScoreIcon,
+    StarIcon,
     FollowersIcon,
     FollowUnfollwBtn,
     ProfileBskyIcon,
-    // ThreadsIcon,
+    ThreadsIcon,
     LinkIcon,
   },
   props: {
@@ -238,7 +236,7 @@ export default defineComponent({
   }
 
   .followers,
-  .yupScore {
+  .isPro {
     position: absolute;
     top: 1rem;
 

@@ -127,6 +127,8 @@ export const getVideoTypeFromUrl = (url: string) => {
 export const isProbablyPage = (url: string) => {
   const imageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif', 'svg']
   const videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov', 'm3u8', 'mkv']
+  const knownAssetHost = ['imagedelivery.net']
+  if (knownAssetHost.some(h => url.includes(h))) return false
   let extension = url.split('.').pop()?.trim()?.toLowerCase()
   if (extension?.includes('?')) extension = extension.split('?')[0].trim()
   return ![...imageExtensions, ...videoExtensions].some(e => e === extension)

@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <HeaderBar text="FARCASTER CHANNELS" :menu="true" />
+    <HeaderBar text="FC CHANNELS" :menu="true" />
 
     <!-- <ion-item>
         <ion-select v-model="activeFeed" aria-label="feed" :value="feeds[0][0]" style="margin:auto;" interface="action-sheet" placeholder="Select Feed" @ionChange="feedChange">
@@ -37,6 +37,30 @@
           >
             {{ feed[1] }}
           </ion-chip>
+          <ion-chip
+            v-for="channel in favChannels"
+            :key="channel.id"
+            @click.self="feedChange(`channel/get?parentUrl=${channel.parent_url}`)"
+          >
+            <img
+              class="w-4 h-4 inline rounded-lg mx-2 my-1 border-gray-400"
+              :src="channel.image_url"
+            />
+            <p>{{ channel.name }}</p>
+            <ion-icon
+              :icon="trashBinOutline"
+              @click.stop="doFavChannelDelete(channel)"
+              class="w-4 h-4 inline rounded-lg mx-2 my-1 border-gray-400"
+            ></ion-icon>
+          </ion-chip>
+          <ion-chip
+            @click="
+              modalContent = 'addChannel';
+              modalOpen = true;
+            "
+          >
+            +
+          </ion-chip>
         </template>
       </HorizontalChips>
 
@@ -72,6 +96,63 @@
           </div>
         </template>
       </InfScroll>
+
+      <ion-modal :is-open="modalOpen">
+        <ion-header>
+          <ion-toolbar>
+            <ion-title v-if="modalContent === 'addChannel'">Recent Voters</ion-title>
+            <ion-title v-else>Modal</ion-title>
+            <ion-buttons slot="end">
+              <ion-button @click="modalOpen = false">Close</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <template v-if="modalContent === 'addChannel'">
+            <div class="add-channel">
+              <h2 class="text-lg mb-1 font-medium title-font">
+                Select Farcaster Channel
+              </h2>
+              <p>Search</p>
+              <input
+                id="farcasterChannelSearch"
+                type="text"
+                placeholder="channel name"
+                class="mb-4 rounded p-2 text-[#e0e0e0] bg-stone-800 border-purple-800 border-2 w-full"
+                @input="(e) => {
+                searchChannels((e?.target as any)?.value)
+            }"
+              />
+              <div v-if="channels?.length === 0">
+                <p>No channels found</p>
+              </div>
+              <ion-list v-else class="flex flex-col">
+                <ion-item
+                  v-for="channel of channels"
+                  :key="channel.id"
+                  :native-value="channel.id"
+                  @click="farcasterChannel = channel.id"
+                  class="my-2"
+                >
+                  <div class="flex flex-wrap-reverse w-full">
+                    <div class="w-max-[28%]">
+                      <img
+                        class="w-8 h-8 inline rounded-lg mx-4 my-1"
+                        :src="channel.image_url"
+                      />
+                    </div>
+                    <div class="flex flex-col text-left w-[65%]">
+                      <p>Name: {{ channel.name }}</p>
+                      <p class="text-[0.8rem] opacity-70">Id: {{ channel.id }}</p>
+                      <p class="text-xs">{{ channel.description }}</p>
+                    </div>
+                  </div>
+                </ion-item>
+              </ion-list>
+            </div>
+          </template>
+        </ion-content>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
@@ -89,8 +170,15 @@ import {
   IonLoading,
   IonChip,
   onIonViewWillEnter,
+  IonModal,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButton,
+  IonButtons,
+  IonIcon,
 } from "@ionic/vue";
-import { defineComponent, ref, Ref, shallowRef } from "vue";
+import { defineComponent, ref, Ref, shallowRef, watch } from "vue";
 import HeaderBar from "@/components/template/header-bar.vue";
 import { postTypesPromises } from "components/post-types/post-types";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
@@ -108,6 +196,16 @@ import { useMainStore } from "@/store/main";
 import { IPost } from "shared/src/types/post";
 import { fetchWAuth } from "shared/src/utils/auth";
 import HorizontalChips from "@/components/misc/horizontal-chips.vue";
+import type { TChannel } from "shared/src/types/web3-posting";
+import { searchChannel } from "shared/src/utils/requests/web3-posting";
+import { wait } from "shared/src";
+import {
+  getFavoriteChannels,
+  favAddChannel,
+  favChannelDelete,
+} from "shared/src/utils/requests/farcaster";
+
+import { trashBinOutline } from "ionicons/icons";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -124,8 +222,14 @@ const postDeps: IPostDeps = {
 const FEED_APIS = `${API_BASE}/feed`;
 
 export default defineComponent({
-  name: "FeedsPage",
+  name: "FcChannelsPage",
   components: {
+    IonModal,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButton,
+    IonButtons,
     IonContent,
     IonPage,
     IonList,
@@ -141,6 +245,7 @@ export default defineComponent({
     LineLoader,
     HorizontalChips,
     IonChip,
+    IonIcon,
   },
   setup() {
     const loading = ref(true);
@@ -167,6 +272,13 @@ export default defineComponent({
     const catComp = shallowRef(null) as Ref<unknown>;
     const store = useMainStore();
     const personalized = store.settings?.personalizedFeeds;
+    const modalOpen = ref(false);
+    const modalContent = ref("addChannel");
+    const channels = ref([]) as Ref<TChannel[]>;
+    const favChannels = ref([]) as Ref<TChannel[]>;
+    const farcasterChannel = ref(undefined) as Ref<TChannel | undefined | string>;
+    const isChannelSearching = ref(false);
+    let searchString = "";
 
     const getFeedPosts = async (start = 0, refresh = false) => {
       try {
@@ -237,12 +349,53 @@ export default defineComponent({
       event.target.complete();
     };
 
+    const searchChannels = async (value: string) => {
+      searchString = value;
+      if (!value) return;
+      if (isChannelSearching.value) return;
+      await wait(300);
+      if (isChannelSearching.value) return;
+      isChannelSearching.value = true;
+      let result: TChannel[];
+      let searchTerm = "";
+      do {
+        searchTerm = searchString;
+        result = await searchChannel(searchString);
+      } while (searchTerm !== searchString);
+      channels.value = result;
+      isChannelSearching.value = false;
+    };
+
+    const feedAdd = () => {
+      modalOpen.value = true;
+    };
+
+    const doFavChannelDelete = (channel: TChannel) => {
+      favChannelDelete(store, channel);
+      favChannels.value = favChannels.value.filter((c) => c.id !== channel.id);
+    };
+
     onIonViewWillEnter(async () => {
+      getFavoriteChannels(store).then((res: TChannel[]) => {
+        favChannels.value = res;
+      });
       getFeedPosts(postsIndex.value).then((res) => {
         posts.value = res;
         loading.value = false;
       });
     });
+
+    watch(
+      () => farcasterChannel.value,
+      (newVal) => {
+        if (newVal !== undefined && newVal !== "" && !(newVal as TChannel)?.id) {
+          farcasterChannel.value = channels.value.find((c) => c.id === newVal);
+          favChannels.value = [...favChannels.value, farcasterChannel.value as TChannel];
+          favAddChannel(store, farcasterChannel.value as TChannel);
+          modalOpen.value = false;
+        }
+      }
+    );
 
     return {
       postTypesPromises,
@@ -257,6 +410,15 @@ export default defineComponent({
       catComp,
       postDeps,
       handleRefresh,
+      feedAdd,
+      doFavChannelDelete,
+      modalOpen,
+      modalContent,
+      farcasterChannel,
+      channels,
+      searchChannels,
+      favChannels,
+      trashBinOutline,
     };
   },
 });

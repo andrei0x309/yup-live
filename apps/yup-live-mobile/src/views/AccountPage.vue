@@ -337,6 +337,7 @@ export default defineComponent({
       cum_deposit_time: 0,
       nextReset: "",
       evmAddress: "",
+      isPro: false,
       actionBars: {
         vote: "",
         deleteVote: "",

@@ -372,8 +372,6 @@ import AddIcon from "icons/src/add.vue";
 import SubstractIcon from "icons/src/substract.vue";
 import VideoUploadIcon from "icons/src/videoUpload.vue";
 
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-
 export default defineComponent({
   name: "CrossPost",
   components: {
@@ -571,7 +569,7 @@ export default defineComponent({
       if (!imageFile) return;
       isFileUploading.value = true;
       const imageBase64 = await fileToBase64(imageFile);
-      const upload = await mediaUpload(store, API_BASE, postPlatforms.value, imageFile);
+      const upload = await mediaUpload(store, postPlatforms.value, imageFile);
 
       if (upload?.errors) {
         const platforms = [] as TPlatform[];
@@ -620,7 +618,7 @@ export default defineComponent({
         );
         postPlatforms.value = postPlatforms.value.filter((p) => p !== "bsky");
       }
-      const upload = await mediaUpload(store, API_BASE, postPlatforms.value, videoFile);
+      const upload = await mediaUpload(store, postPlatforms.value, videoFile);
       if (upload?.errors) {
         const platforms = [] as TPlatform[];
         for (const error of upload.errors) {
@@ -771,7 +769,6 @@ export default defineComponent({
       }
 
       const result = await schedulePost({
-        apiBase: API_BASE,
         store,
         sendData,
         isThread: posts.length > 1,

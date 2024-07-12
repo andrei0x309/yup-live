@@ -52,18 +52,18 @@
     </template>
     <div class="ds-info">
       <div class="ds pens">
-        <h6 title="Number of pens created by the user">Tokens</h6>
+        <h6 title="Tokens">Tokens</h6>
         <p>{{ userData.balance }}</p>
       </div>
       <div class="ds projects">
-        <h6 title="Number of projects created by the user">Influence</h6>
+        <h6 title="Influence">Influence</h6>
         <p>
           <b>{{ userData.weight }}</b> out of 10
         </p>
       </div>
       <div class="ds posts">
-        <h6 title="Score">Score</h6>
-        {{ userData?.score }}
+        <h6 title="Pro">Pro</h6>
+        {{ userData?.isPro ? "Yes" : "No" }}
       </div>
     </div>
     <div class="ds-actions">
@@ -120,6 +120,7 @@ export default defineComponent({
         balance: 0,
         weight: 0,
         score: 0,
+        isPro: false,
         actionBars: {
           vote: 0,
           deleteVote: 0,

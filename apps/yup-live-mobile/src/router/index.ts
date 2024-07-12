@@ -1,9 +1,9 @@
-import { createRouter as crateIonicRouter, createWebHistory } from '@ionic/vue-router';
+import { createRouter as createIonicRouter, createWebHistory } from '@ionic/vue-router';
 import type { RouteRecordRaw } from 'vue-router';
 import ConnectPage from '@/views/ConnectPage.vue'
 import BottomNavigation from '@/components/template/bottom-navigation.vue'
 
-const routes: Array<RouteRecordRaw> = [
+const routes = [
   {
     path: '/',
     component: ConnectPage
@@ -124,11 +124,11 @@ const routes: Array<RouteRecordRaw> = [
     ],
   },
 
-]
+] as RouteRecordRaw[]
 
-export const IonicRouter = crateIonicRouter({
+export const IonicRouter = createIonicRouter({
   history: createWebHistory('/'),
-  routes
+  routes: routes as any
 })
 
 
