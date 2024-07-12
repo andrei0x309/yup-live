@@ -250,7 +250,7 @@ export default defineComponent({
     left: 2rem;
   }
 
-  .yupScore {
+  .isPro {
     right: 2rem;
   }
 }
