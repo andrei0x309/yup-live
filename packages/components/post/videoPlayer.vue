@@ -25,7 +25,6 @@ const vJs = "https://unpkg.com/video.js/dist/video.min.js";
 
 declare var videojs: Function;
 
-
 export default defineComponent({
   name: "VideoPlayer",
   components: {
@@ -76,7 +75,6 @@ export default defineComponent({
         document.head.appendChild(vidCss);
       }
       let timer = 0;
- 
 
       do {
         if (videoPlayer.value) {
@@ -85,7 +83,7 @@ export default defineComponent({
           (videoPlayer.value as any)?.hook?.("error", function () {
             error();
           });
-          if(typeof videojs === "function") {
+          if (typeof videojs === "function") {
             videojs(videoPlayer.value);
             break;
           }

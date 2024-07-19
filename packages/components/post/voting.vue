@@ -47,13 +47,15 @@
           doingLike ? 'blinkAndPump' : ''
         }`"
         :isSolid="refHasVote"
-        @click="() => {
-          if (refHasVote) {
-            deleteVote()
-          } else {
-            onLike()
+        @click="
+          () => {
+            if (refHasVote) {
+              deleteVote();
+            } else {
+              onLike();
+            }
           }
-        }"
+        "
       />
       <span
         v-if="refNumLikes"
@@ -74,7 +76,7 @@
         v-html="formatNumber(refNumReposts, 2)"
       ></span>
     </div>
-    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -85,13 +87,13 @@ import type { Vote } from "shared/src/types/vote";
 import type { IVotingDeps } from "shared/src/types/vote";
 import LikesIcon from "icons/src/likes.vue";
 import RepostIcon from "icons/src/repost.vue";
-import { sendRepost } from 'shared/src/utils/requests/web3-posting'
+import { sendRepost } from "shared/src/utils/requests/web3-posting";
 
 export default defineComponent({
   name: "Voting",
   components: {
     LikesIcon,
-    RepostIcon
+    RepostIcon,
   },
   props: {
     postId: {
@@ -149,7 +151,7 @@ export default defineComponent({
     const showUp = ref(false) as Ref<boolean>;
     const showDown = ref(false) as Ref<boolean>;
     const refNumLikes = ref(props.numLikes);
-    const refNumReposts = ref(0)
+    const refNumReposts = ref(0);
 
     store.$subscribe(() => {
       isAuth.value = store.isLoggedIn;
@@ -223,16 +225,22 @@ export default defineComponent({
         postid: props.postId,
         voter: store.userData.account,
         rating: 1,
-        like: true
-      }
-      const req = await fetchWAuth(
-        store,
-        `${props.deps.apiBase}/votes`,
-        {
-          method: "POST",
-          body: JSON.stringify(body),
+        like: true,
+      } as Record<string, unknown>;
+
+      if (!props.mobile) {
+        const disableNative = !!(
+          localStorage.getItem("disableLikeNativePropagation") || ""
+        );
+        if (disableNative) {
+          body.disableNativePropagation = true;
         }
-      );
+      }
+
+      const req = await fetchWAuth(store, `${props.deps.apiBase}/votes`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
       if (req.ok) {
         refNumLikes.value += 1;
         refHasVote.value = true;
@@ -256,7 +264,6 @@ export default defineComponent({
         doingLike.value = false;
         return null;
       }
-      
     };
 
     const deleteVote = async () => {
@@ -264,26 +271,30 @@ export default defineComponent({
         props.deps.openConnectModal && props.deps.openConnectModal(store);
         return;
       }
-        try {
-          doingLike.value = true
-          const reqVote = await fetch(`${props.deps.apiBase}/votes/post/${props.postId}/voter/${store.userData.account}`)
-          const voteId = (await reqVote.json())[0]._id.voteid
-          const p1 = fetchWAuth(store, `${props.deps.apiBase}/votes/${voteId}`, {
-            method: 'DELETE'
-          })
-          const [req] = await Promise.all([p1])
-          if (!req.ok) {
-            props.deps.stackAlertError('There was an error with authorization, please try to re-login.')
-          } else {
-            refNumLikes.value -= 1
-            refHasVote.value = false
-          }
-          doingLike.value = false
-        } catch (error) {
-          console.error('error', error)
-          props.deps.stackAlertError('The vote could not be deleted!')
+      try {
+        doingLike.value = true;
+        const reqVote = await fetch(
+          `${props.deps.apiBase}/votes/post/${props.postId}/voter/${store.userData.account}`
+        );
+        const voteId = (await reqVote.json())[0]._id.voteid;
+        const p1 = fetchWAuth(store, `${props.deps.apiBase}/votes/${voteId}`, {
+          method: "DELETE",
+        });
+        const [req] = await Promise.all([p1]);
+        if (!req.ok) {
+          props.deps.stackAlertError(
+            "There was an error with authorization, please try to re-login."
+          );
+        } else {
+          refNumLikes.value -= 1;
+          refHasVote.value = false;
         }
-    }
+        doingLike.value = false;
+      } catch (error) {
+        console.error("error", error);
+        props.deps.stackAlertError("The vote could not be deleted!");
+      }
+    };
 
     const doVote = (voteType: boolean) => {
       if (!isAuth.value) {
@@ -373,22 +384,22 @@ export default defineComponent({
       }
       if (refHasRepost.value) {
         try {
-          refHasRepost.value = false
+          refHasRepost.value = false;
         } catch (error) {
-          console.error('error', error)
+          console.error("error", error);
         }
       } else {
         try {
           await sendRepost({
             store,
-            postId: props.postId
-          })
-          refHasRepost.value = true
+            postId: props.postId,
+          });
+          refHasRepost.value = true;
         } catch (error) {
-          console.error('error', error)
+          console.error("error", error);
         }
       }
-    }
+    };
 
     onMounted(() => {
       if (props.postId) {
@@ -421,7 +432,7 @@ export default defineComponent({
       doingLike,
       doRepost,
       refHasRepost,
-      refNumReposts
+      refNumReposts,
     };
   },
 });
@@ -429,42 +440,41 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .like-vote:hover {
-  transform:  scale(1.4);
+  transform: scale(1.4);
   transition: all 0.2s;
 }
 .like-vote:active {
-  transform:  scale(1.4);
+  transform: scale(1.4);
   transition: all 0.2s;
 }
 
 .blinkAndPump {
-    animation: blink 0.9s infinite, pump 0.9s infinite;
+  animation: blink 0.9s infinite, pump 0.9s infinite;
 }
 @keyframes blink {
-    0% {
-            opacity: 0;
-        }
-    
-        50% {
-            opacity: .5;
-        }
-    
-        100% {
-            opacity: 1;
-        }
-    }
-    
-    @keyframes pump {
-        0% {
-            transform: scale(1);
-        }
-                50% {
-            transform: scale(1.4);
-            }
-            
-            100% {
-                transform: scale(1);
-            }
-            }
+  0% {
+    opacity: 0;
+  }
 
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes pump {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
 </style>

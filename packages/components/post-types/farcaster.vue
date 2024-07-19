@@ -1,7 +1,12 @@
 <template>
   <div v-if="processed">
     <div v-if="postType === 'single'" ref="postWrap" class="p-2">
-      <FarcasterPostBody :replyComp="replyComp" :mainPost="mainPost" :postId="post.id"  :deps="deps" />
+      <FarcasterPostBody
+        :replyComp="replyComp"
+        :mainPost="mainPost"
+        :postId="post.id"
+        :deps="deps"
+      />
     </div>
     <div v-else ref="postWrap" class="p-2">
       <FarcasterPostBody
@@ -13,7 +18,12 @@
         :fetchComments="true"
         :deps="deps"
       />
-      <FarcasterPostBody :replyComp="replyComp" :mainPost="replyPost" :postId="post.id"  :deps="deps" />
+      <FarcasterPostBody
+        :replyComp="replyComp"
+        :mainPost="replyPost"
+        :postId="post.id"
+        :deps="deps"
+      />
     </div>
   </div>
 </template>
@@ -23,7 +33,12 @@ import { getPostType } from "shared/src/utils/misc";
 import type { Embed, mediaType } from "shared/src/types/post";
 import { normalizePost } from "shared/src/utils/post";
 import FarcasterPostBody from "./inner/farcasterPostBody.vue";
-import type { IPost, PostBodyProcessed, linkPreviewTypeEx, IPostDeps } from "shared/src/types/post";
+import type {
+  IPost,
+  PostBodyProcessed,
+  linkPreviewTypeEx,
+  IPostDeps,
+} from "shared/src/types/post";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -98,10 +113,10 @@ export default defineComponent({
           break;
         }
         case "reply": {
-            mainPost.value = normalizePost(
-              props.post?.web3Preview?.meta?.parentPost as IPost
-            );
-            replyPost.value = normalizePost(props.post);
+          mainPost.value = normalizePost(
+            props.post?.web3Preview?.meta?.parentPost as IPost
+          );
+          replyPost.value = normalizePost(props.post);
           break;
         }
       }
@@ -112,7 +127,7 @@ export default defineComponent({
       mainPost,
       replyPost,
       postType,
-      processed
+      processed,
     };
   },
 });

@@ -1,5 +1,7 @@
 import type { Ref } from 'vue'
 
+const videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov', 'm3u8', 'mkv']
+
 export const gini = function (data: number[], unordered = true) {
   if (!Array.isArray(data)) {
     throw new Error('Data set is not an array.')
@@ -105,6 +107,8 @@ export const isValidAddress = (addr: string) => addr.match(/0x[0-9a-f]{40}/i) !=
 export const makeRandomPreview = (remote = false) => remote ? `https://yup-live.pages.dev/picsum/${Math.floor(Math.random() * 99)}.webp` : `/picsum/${Math.floor(Math.random() * 99)}.webp`;
 
 export const isImage = (url: string, images: string[]) => {
+  if (url.includes('data:image')) return true
+  if (videoExtensions.some(e => url.endsWith(e))) return false
   if (images.includes(url)) return true
   return /^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(url)
 }
@@ -126,7 +130,6 @@ export const getVideoTypeFromUrl = (url: string) => {
 
 export const isProbablyPage = (url: string) => {
   const imageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif', 'svg']
-  const videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov', 'm3u8', 'mkv']
   const knownAssetHost = ['imagedelivery.net']
   if (knownAssetHost.some(h => url.includes(h))) return false
   let extension = url.split('.').pop()?.trim()?.toLowerCase()

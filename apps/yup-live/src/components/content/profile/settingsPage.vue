@@ -217,7 +217,7 @@
         <div
           class="glassCard rounded-lg p-8 flex flex-col md:ml-auto w-full mt-10 md:mt-0 relative shadow-md"
         >
-          <h2 class="text-lg mb-1 font-medium title-font">Feed</h2>
+          <h2 class="text-lg mb-1 font-medium title-font">Persoanalization</h2>
           <div>
             Feeds personalization
             <o-switch
@@ -240,6 +240,21 @@
               :native-value="feed[0]"
               @change="changeDefaultFeed"
               >{{ feed[1] }}</o-radio
+            >
+          </div>
+
+          <div class="block my-3">
+            <span class="block my-2">Disable like native propagation</span>
+            <o-switch
+              v-model="disableLikeNativePropagation"
+              :rounded="true"
+              position="right"
+              size="small"
+              variant="warning"
+              @change="changeLikeNativePropagation"
+              >&nbsp;&nbsp;{{
+                disableLikeNativePropagation ? "Disable" : "Enable"
+              }}</o-switch
             >
           </div>
         </div>
@@ -608,6 +623,7 @@ export default defineComponent({
     );
     let farcasterConnectPromise: CancelablePromise | null = null;
     const feedPersonalization = ref(false);
+    const disableLikeNativePropagation = ref(false);
     const twFollowersAsKeywords = ref(false);
     const isAvatarLoading = ref(false);
     const isConnectedToLens = ref(store.userData.connected?.lens ?? false);
@@ -798,6 +814,17 @@ export default defineComponent({
       }
     };
 
+    const changeLikeNativePropagation = async () => {
+      const LNP = localStorage.getItem("disableLikeNativePropagation");
+      if (LNP === "true") {
+        disableLikeNativePropagation.value = !!"";
+        localStorage.setItem("disableLikeNativePropagation", "");
+      } else {
+        disableLikeNativePropagation.value = !!"true";
+        localStorage.setItem("disableLikeNativePropagation", "true");
+      }
+    };
+
     const onEditProfile = async () => {
       isEditLoading.value = true;
       if (
@@ -855,6 +882,9 @@ export default defineComponent({
     onMounted(async () => {
       Web3Libs.value = web3Libs();
       feedPersonalization.value = !!(localStorage.getItem("feedPersonalization") || "");
+      disableLikeNativePropagation.value = !!(
+        localStorage.getItem("disableLikeNativePropagation") || ""
+      );
       isLoading.value = false;
     });
 
@@ -966,7 +996,9 @@ export default defineComponent({
       disconnectFromFarcaster,
       isDisconnectFromFarcaster,
       changeFeedPersonalization,
+      changeLikeNativePropagation,
       feedPersonalization,
+      disableLikeNativePropagation,
       isConnectedToTwitter,
       isLoadingTwitter,
       twitterLink,

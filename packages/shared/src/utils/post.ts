@@ -117,6 +117,7 @@ const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], e
                 return
             }
             if (isImage(e.url, e?.images ?? [])) {
+                console.log('H1')
                 retArr.push({ type: 'image', url: parseIpfs(e.url) })
                 return
             } else if (isVideo(e.url)) {

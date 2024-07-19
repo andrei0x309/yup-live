@@ -1,5 +1,14 @@
 export const recentChanges = [
     {
+        date: "17 July - 2024",
+        title: "Changes",
+        changes: [
+            'minor changes to farcaster display',
+            'video player changes',
+            'updates to some android native dependencies',
+        ]
+    },
+    {
         date: "12 July - 2024",
         title: "Changes",
         changes: [
