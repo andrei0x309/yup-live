@@ -54,8 +54,8 @@ const main = async () => {
 
     if (action === 'update') {
         const VERSION = GithubEvent.inputs.version;
-        const message = `Github ClearWallet new version ${VERSION} has been released!\n
-        ChromeStore: https://bit.ly/yup-live-android \n
+        const message = `Github YupLive Android new version ${VERSION} has been released!\n
+        Google Play: https://bit.ly/yup-live-android \n
         Github: https://github.com/andrei0x309/yup-live
         `;
 

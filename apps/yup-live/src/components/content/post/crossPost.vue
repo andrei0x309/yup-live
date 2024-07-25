@@ -252,7 +252,7 @@
               >
             </p>
             <p>
-              <DateIcon />Minimum allowed date:
+              <DateIcon /> Minimum allowed date:
               <b
                 >{{ new Date(minimumDate).toLocaleDateString() }} -
                 {{ new Date(minimumDate).toLocaleTimeString() }}</b
@@ -459,7 +459,7 @@ export default defineComponent({
     };
 
     const modalContent = ref("posting");
-    const maximumDate = new Date(Date.now() + 1000 * 3570 * 24 * 7);
+    const maximumDate = new Date(Date.now() + 1000 * 3570 * 24 * 21);
     const minimumDate = new Date(Date.now() + 1000 * 60 * 2);
     const isSheduling = ref(false);
     const channels = ref([]) as Ref<TChannel[]>;
