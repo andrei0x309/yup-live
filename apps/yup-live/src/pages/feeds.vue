@@ -101,8 +101,11 @@
               <img
                 class="w-4 h-4 inline rounded-lg mx-2 my-1 border-gray-400"
                 :src="channel.image_url"
+                @click.self="feedChange(channel.parent_url)"
               />
-              <p class="inline">{{ channel.name }}</p>
+              <p class="inline" @click.self="feedChange(channel.parent_url)">
+                {{ channel.name }}
+              </p>
               <DeleteIcon
                 class="w-4 h-4 inline rounded-lg mx-2 my-1 border-gray-400 hover:scale-125"
                 @click.stop="doFavChannelDelete(channel)"

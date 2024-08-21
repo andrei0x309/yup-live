@@ -1,72 +1,80 @@
 <template>
-  <o-dropdown class="table-nav" aria-role="list" @active-change="dropActive = !dropActive">
+  <o-dropdown
+    class="table-nav"
+    aria-role="list"
+    @active-change="dropActive = !dropActive"
+  >
     <template #trigger>
-      <span>{{ `${act} ${dropActive ? '▲' : '▼'}` }}</span>
+      <span>{{ `${act} ${dropActive ? "▲" : "▼"}` }}</span>
     </template>
-    <o-dropdown-item v-for="link of linksWithoutActive" :key="link.name" aria-role="listitem" @click="goTo(link.path)">{{
-      link.name
-    }}</o-dropdown-item>
+    <o-dropdown-item
+      v-for="link of linksWithoutActive"
+      :key="link.name"
+      aria-role="listitem"
+      @click="goTo(link.path)"
+      >{{ link.name }}</o-dropdown-item
+    >
   </o-dropdown>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { defineComponent, ref } from "vue";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
-  name: 'TableNav',
+  name: "TableNav",
   props: {
     linkActive: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
   setup(props) {
     const links = [
       {
-        name: 'Yup Social',
-        path: '/'
+        name: "Yup Social",
+        path: "/",
       },
       {
-        name: 'Top Rewards',
-        path: '/rewards'
+        name: "Top Rewards",
+        path: "/rewards",
       },
       {
-        name: 'Top Sellers',
-        path: '/sellers'
+        name: "Top Sellers",
+        path: "/sellers",
       },
       {
-        name: 'Rewards Gini Index',
-        path: '/gini'
+        name: "Rewards Gini Index",
+        path: "/gini",
       },
       {
-        name: 'Recent Gini Trend',
-        path: '/gini-trend'
-      }
-    ]
-    const linksWithoutActive = links.filter((link) => link.name !== props.linkActive)
-    const dropActive = ref(false)
-    const act = ref(props.linkActive)
-    const router = useRouter()
+        name: "Recent Gini Trend",
+        path: "/gini-trend",
+      },
+    ];
+    const linksWithoutActive = links.filter((link) => link.name !== props.linkActive);
+    const dropActive = ref(false);
+    const act = ref(props.linkActive);
+    const router = useRouter();
 
     const goTo = (path: string) => {
-      router.push({ path })
-    }
+      router.push({ path });
+    };
 
     return {
       act,
       linksWithoutActive,
       dropActive,
-      goTo
-    }
-  }
-})
+      goTo,
+    };
+  },
+});
 </script>
 
 <style lang="scss">
 .table-nav {
   font-size: 0.8rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
   margin-bottom: 0.5rem;
   width: 10rem;
   color: aliceblue;

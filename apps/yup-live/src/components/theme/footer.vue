@@ -1,5 +1,8 @@
 <template>
-  <div v-if="!disabledFooter" class="bg-color dark:text-white pt-4 sm:pt-10 lg:pt-12">
+  <div
+    v-if="!disabledFooter"
+    class="bg-color dark:text-white pt-4 sm:pt-10 lg:pt-12 mt-2"
+  >
     <footer class="max-w-screen-2xl px-4 md:px-8 mx-auto">
       <div
         class="footer-content flex flex-col md:flex-row justify-between items-center border-t border-b gap-4 py-6 border-gray-400 dark:border-gray-200"
@@ -175,15 +178,30 @@
       </div>
 
       <div
-        class="text-gray-600 dark:text-gray-300 text-sm text-center py-8"
+        class="text-gray-600 dark:text-gray-300 text-sm text-center pt-8"
         style="display: flex; justify-content: center; align-items: center"
       >
-        <p class="inline">
+        <p v-if="isTeamMember()" class="mr-2">
+          <router-link to="/team-panel">
+            <TeamIcon class="inline w-4 mx-1" />Team Panel
+          </router-link>
+        </p>
+        <p class="mr-2">
           <router-link to="/change-log">
             <ClockIcon class="inline w-4 -mt-1 mx-1" />Change Log
           </router-link>
         </p>
-        <p class="inline">
+        <p class="mr-2">
+          <a target="_blank" href="https://www.coingecko.com/en/coins/yup" rel="nofollow"
+            ><CoinGeckoIcon class="-mt-1 mx-1" />YUP on CoinGecko
+          </a>
+        </p>
+      </div>
+      <div
+        class="text-gray-600 dark:text-gray-300 text-sm text-center pb-8"
+        style="display: flex; justify-content: center; align-items: center"
+      >
+        <p>
           <a
             title="Install yup live mobile"
             href="https://play.google.com/store/apps/details?id=gf.info.yup&hl=en&gl=US"
@@ -191,11 +209,6 @@
           >
             <PlayStoreIcon class="w-36 mx-auto p-4"
           /></a>
-        </p>
-        <p class="inline">
-          <a target="_blank" href="https://www.coingecko.com/en/coins/yup" rel="nofollow"
-            ><CoinGeckoIcon class="-mt-1 mx-1" />YUP on CoinGecko
-          </a>
         </p>
       </div>
     </footer>
@@ -212,10 +225,28 @@ import ClockIcon from "icons/src/clock.vue";
 import PlayStoreIcon from "icons/src/playStore.vue";
 import UniSwapIcon from "icons/src/uniSwap.vue";
 import QuickSwapIcon from "icons/src/quickSwap.vue";
+import TeamIcon from "icons/src/team-icon.vue";
+
+const ADMIN_IDS = [
+  "kabessaxxxxx",
+  "yupdev1-fed1b14f535d",
+  "vern-e42334e165d0",
+  "jackmcdermott",
+  "wurstbrotxxx",
+  "testxxxxxxxo",
+  "andreix155xx",
+];
 
 export default defineComponent({
   name: "FooterTemplate",
-  components: { CoinGeckoIcon, ClockIcon, PlayStoreIcon, UniSwapIcon, QuickSwapIcon },
+  components: {
+    CoinGeckoIcon,
+    ClockIcon,
+    PlayStoreIcon,
+    UniSwapIcon,
+    QuickSwapIcon,
+    TeamIcon,
+  },
   setup() {
     const isSwitchingTheme = ref(false);
     const buyIcons = {
@@ -252,6 +283,10 @@ export default defineComponent({
     const isDisabled = (paths: string[], currentPath: string) =>
       paths.some((path: string) => currentPath.startsWith(path));
     const disabledFooter = ref(isDisabled(disabledPaths, route.path));
+
+    const isTeamMember = () => {
+      return store?.userData?.account && ADMIN_IDS.includes(store?.userData?.account);
+    };
 
     watch(
       () => route.path,
@@ -290,6 +325,7 @@ export default defineComponent({
       disabledFooter,
       buyIcons,
       menuDropDownBuyYUP,
+      isTeamMember,
     };
   },
 });

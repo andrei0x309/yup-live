@@ -1,6 +1,8 @@
 <template>
   <div
-    :class="`flex justify-between my-4 flex-row pPost ${postTypeClass} ${postTypeLoading ? 'postLoading' : ''}`"
+    :class="`flex justify-between my-4 flex-row pPost ${postTypeClass} ${
+      postTypeLoading ? 'postLoading' : ''
+    }`"
   >
     <div
       class="flex flex-col max-w-2xl mx-auto postCard w-full md:min-w-[21rem] lg:min-w-[36rem] xl:min-w-[36rem]`"
@@ -419,7 +421,7 @@ export default defineComponent({
       isOwner,
       commentsEnabled,
       commentsComp,
-      postElId
+      postElId,
     };
   },
 });
@@ -534,5 +536,4 @@ div.w3TweetTypeBody {
   position: relative;
   opacity: 0.5;
 }
-
 </style>

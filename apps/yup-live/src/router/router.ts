@@ -69,6 +69,11 @@ const routes = [
     component: HomePage
   },
   {
+    path: '/team-panel',
+    name: 'Team Panel',
+    component: () => import('@/pages/team-panel.vue')
+  },
+  {
     path: '/emissions',
     name: 'EmissionsPage',
     component: () => import('@/pages/emissions.vue')

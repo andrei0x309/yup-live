@@ -9,7 +9,6 @@
     "build-no-ssg": "vite build",
     "build-ssg": "vite-ssg build",
     "encrypt": "node ./scripts/build-encrypt.mjs --env-file=.env",
-    "upgrade": "yarn-upgrade-all",
     "preview": "vite preview",
     "build": "yarn build-ssg"
   },
@@ -79,8 +78,7 @@
     "vite": "^5.0.11",
     "vite-plugin-eslint": "^1.8.1",
     "vite-ssg": "^0.23.6",
-    "vite-ssg-sitemap": "^0.4.3",
-    "yarn-upgrade-all": "^0.7.2"
+    "vite-ssg-sitemap": "^0.4.3"
   },
   "removedDeps": {
     "@web3auth/base": "^1.1.4",

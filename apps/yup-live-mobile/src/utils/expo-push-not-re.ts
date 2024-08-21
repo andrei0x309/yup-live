@@ -8,7 +8,7 @@ import { Device } from '@capacitor/device';
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
-export const PUSH_NOTIFICATION_TYPES = ['follow', 'reward', 'vote', 'comment', 'mention', 'repost']
+export const PUSH_NOTIFICATION_TYPES = ['follow', 'vote', 'comment', 'mention', 'repost']
 
 async function generateUUIDFromString (inputString: string) {
     const textEncoder = new TextEncoder();

@@ -1,5 +1,15 @@
 export const recentChanges = [
     {
+        date: "21 August - 2024",
+        title: "Changes",
+        changes: [
+            'minor change how to handle fac channels on web app',
+            'added team page to check various stats on cross-posts',
+            'removed reward notif from push settings as reward is always set to false on push on backend',
+            'updated some deps'
+        ]
+    },
+    {
         date: "17 July - 2024",
         title: "Changes",
         changes: [

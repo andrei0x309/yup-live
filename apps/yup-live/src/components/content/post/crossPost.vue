@@ -789,6 +789,19 @@ export default defineComponent({
       isSheduling.value = false;
     };
 
+    // const caclLinePos = () => {
+    //   console.log("caclLinePos");
+    //   const editorCords = document?.querySelector("#castField")?.getClientRects()[0];
+    //   const cursorCords = window?.getSelection()?.getRangeAt(0)?.getClientRects()[0];
+
+    //   console.log(editorCords, cursorCords);
+
+    //   if (editorCords && cursorCords) {
+    //     const line = Math.floor((cursorCords.y - editorCords.y) / cursorCords.height);
+    //     console.log(line);
+    //   }
+    // };
+
     onMounted(() => {
       pasteListner = async (e) => {
         for (const clipboardItem of (e?.clipboardData?.files ?? []) as File[]) {
