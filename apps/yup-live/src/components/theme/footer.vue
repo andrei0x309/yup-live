@@ -231,7 +231,7 @@ const ADMIN_IDS = [
   "kabessaxxxxx",
   "yupdev1-fed1b14f535d",
   "vern-e42334e165d0",
-  "jackmcdermott",
+  "jackmcdermox",
   "wurstbrotxxx",
   "testxxxxxxxo",
   "andreix155xx",
