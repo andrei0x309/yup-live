@@ -23,6 +23,13 @@ export type T_CrossPostEvent = {
     updatedAt: Date
 }
 
+export type T_TW_RateLimit = {
+    _id: string,
+    createdAt: Date,
+    expiration: Date,
+    postCount: number,
+}
+
 export const getStats = async ({
     store,
     dateStart,
@@ -66,6 +73,52 @@ export const listFailed = async ({
         return await res.json() as T_CrossPostEvent[]
     } catch (e) {
         console.error('crosspost-events/list-failed', e)
+        return false
+    }
+}
+
+export const getTwitterRateLimitHitters = async ({
+    store,
+    limit,
+}: {
+    store: IMainStore
+    limit: number
+}): Promise<false | any[]> => {
+    try {
+        if (!limit) limit = 100
+        const res = await fetchWAuth(store, `${API_BASE}/admin/twitter-rate-limit-hitters?limit=${limit}`, {
+            method: 'GET',
+        })
+        if (!res.ok) {
+            console.error('twitter-rate-limit-hitters: not 200', res)
+            return false
+        }
+        return await res.json() as T_TW_RateLimit[]
+    } catch (e) {
+        console.error('twitter-rate-limit-hitters', e)
+        return false
+    }
+}
+
+export const getTwitterRateLimitTopProConsumers = async ({
+    store,
+    limit,
+}: {
+    store: IMainStore
+    limit: number
+}): Promise<false | any[]> => {
+    try {
+        if (!limit) limit = 100
+        const res = await fetchWAuth(store, `${API_BASE}/admin/twitter-rate-limit-top-pro-consumers?limit=${limit}`, {
+            method: 'GET',
+        })
+        if (!res.ok) {
+            console.error('twitter-rate-limit-top-pro-consumers: not 200', res)
+            return false
+        }
+        return await res.json() as T_TW_RateLimit[]
+    } catch (e) {
+        console.error('twitter-rate-limit-top-pro-consumers', e)
         return false
     }
 }

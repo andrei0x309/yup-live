@@ -70,15 +70,26 @@ const twitterAuthCheck = async (
     }
 };
 
+
 export const unlinkTwitter = async (store: IMainStore): Promise<IErrorObj> => {
     try {
-        const result = await fetchWAuth(store, `${API_BASE}/oauth/twitter`, {
+        const resultP = fetchWAuth(store, `${API_BASE}/oauth/twitter`, {
             method: "DELETE",
             headers: {
                 'Content-Type': 'application/json'
             },
         })
-        if (result.ok) {
+
+        const reqP = fetchWAuth(store, `${API_BASE}/web3-auth`, {
+            method: 'DELETE',
+            body: JSON.stringify({
+                platforms: ['twitter']
+            })
+        })
+
+        const [result, req] = await Promise.all([resultP, reqP])
+
+        if (result.ok && req.ok) {
             if (store.userData.connected) store.userData.connected.twitter = false
             return { error: false, msg: "Twitter account unlinked successfully.", stage: "success" }
         }

@@ -10,6 +10,13 @@
               >CossPosts Events</router-link
             >
           </li>
+          <li>
+            <router-link
+              :class="activePage === pages[1] ? 'navActive' : ''"
+              :to="`/team-panel?page=${pages[1]}`"
+              >Twitter Limits</router-link
+            >
+          </li>
         </ul>
       </nav>
     </div>
@@ -17,6 +24,9 @@
   <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto">
     <template v-if="activePage === pages[0]">
       <CrossPostEvents />
+    </template>
+    <template v-else-if="activePage === pages[1]">
+      <TwitterLimits />
     </template>
   </div>
 </template>
@@ -30,6 +40,8 @@ import {
   Ref,
   ref,
   shallowRef,
+  computed,
+  watch,
 } from "vue";
 import { useHead } from "unhead";
 // import DangLoader from "components/vote-list/loader.vue";
@@ -56,6 +68,7 @@ import { OTooltip } from "@oruga-ui/oruga-next";
 import type { TChannel } from "shared/src/types/web3-posting";
 // import DeleteIcon from "icons/src/delete.vue";
 import CrossPostEvents from "./team/cross-post-events.vue";
+import TwitterLimits from "./team/twitter-limits.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -75,11 +88,12 @@ export default defineComponent({
   name: "TeamPanel",
   components: {
     CrossPostEvents,
+    TwitterLimits,
   },
   setup() {
     const route = useRoute();
     const loading = ref(true);
-    const pages = ["cross-post-events"];
+    const pages = ["cross-post-events", "twitter-limits"];
     const defaultPage = (route.query.page as string) || pages[0];
     const posts = ref([]) as Ref<Array<IPost>>;
     const activePage = ref(defaultPage) as Ref<string>;
@@ -92,6 +106,18 @@ export default defineComponent({
     const channels = ref([]) as Ref<TChannel[]>;
     const favChannels = ref([]) as Ref<TChannel[]>;
     const farcasterChannel = ref(undefined) as Ref<TChannel | undefined | string>;
+    const queryParams = computed(() => {
+      return route.query;
+    });
+
+    watch(queryParams, (newParams) => {
+      if (newParams.page) {
+        const foundPage = pages.find((p) => p === newParams.page);
+        if (foundPage && foundPage !== activePage.value) {
+          activePage.value = foundPage;
+        }
+      }
+    });
 
     const siteData = reactive({
       title: `YUP Team Panel`,
