@@ -22,6 +22,7 @@ const useMainStore = defineStore('main', {
       },
       farcasterFeed: false,
       personalized: false,
+      disableNativeLikes: false,
       deletePost: '',
       isLoggedIn: false,
       openConnectModal: false,
@@ -58,7 +59,14 @@ const closeConnectModal = (state: IMainStore) => {
 const openPostModal = (state: IMainStore, reply: any | null, platforms = PLATFORMS) => {
   state.openPostModalReply = reply
   state.openPostPlatforms = platforms
-  state.openPostModal = true
+  if (state.openPostModal) {
+    state.openPostModal = false
+    setTimeout(() => {
+      state.openPostModal = true
+    }, 100)
+  } else {
+    state.openPostModal = true
+  }
 }
 
 const closePostModal = (state: IMainStore) => {

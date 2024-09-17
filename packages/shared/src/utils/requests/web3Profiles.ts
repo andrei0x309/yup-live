@@ -52,8 +52,9 @@ export const getProfilesData = async (accounts: string[]) => {
 }
 
 
-export const searchWeb3ProfileByHandle = async (apiBase: string = API_BASE, handle: string, platforms = PLATFORMS): Promise<IWeb3Profile | null> => {
+export const searchWeb3ProfileByHandle = async (apiBase: string = API_BASE, handle: string, platforms = PLATFORMS): Promise<IWeb3Profile[] | null> => {
     try {
+        handle = handle.replace(/@/g, '')
         const res = await fetch(`${apiBase}/web3-profiles/search-by-handle?searchText=${handle}&platforms=${platforms.join(',')}`)
         const req = await res.json()
         if (res.ok) {

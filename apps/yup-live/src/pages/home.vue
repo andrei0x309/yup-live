@@ -13,7 +13,8 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, ref, reactive, computed, onUnmounted, watch, defineAsyncComponent } from 'vue'
-import { useHead } from 'unhead'
+import { useHead } from '@unhead/vue'
+
 import TokenMetrics from '@/components/content/token-metrics.vue'
 import YupList from '@/components/content/yup-list.vue'
 import TableNav from '@/components/content/table-nav.vue'

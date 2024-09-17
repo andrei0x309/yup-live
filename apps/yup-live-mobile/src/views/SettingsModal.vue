@@ -256,6 +256,20 @@
                   @ion-change="changeSetting('accountTracking')"
                 ></ion-toggle>
               </ion-item>
+              <ion-item>
+                Disable like native propagation, this will make likes to not be forwarded
+                to native social networks.
+              </ion-item>
+              <ion-item>
+                <ion-label>Disable native propagation</ion-label>
+                <ion-toggle
+                  :key="updateKey"
+                  slot="end"
+                  aria-label="Enable Feed Personalization"
+                  :checked="store?.settings?.disableNativeLikes"
+                  @ion-change="changeSetting('disableNativeLikes')"
+                ></ion-toggle>
+              </ion-item>
             </ion-list>
           </div>
         </ion-accordion>
@@ -521,7 +535,8 @@
                   <li>Identifier is your email or blueSky handle</li>
                   <li>
                     Password is either an app password(recommended) or your blue sky
-                    account password.
+                    account password, if you have 2-auth enabled you need to use an app
+                    password.
                   </li>
                   <li>Login session will be forwarded to YUP API</li>
                 </ul></small

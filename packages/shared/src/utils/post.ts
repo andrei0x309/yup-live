@@ -53,7 +53,7 @@ const parseBody = (text: string, linkPreviews: linkPreviewTypeEx[]) => {
     return breakify(linkify(text))
 }
 
-const parseBodyMentions = (text: string, platform: string) => {
+const parseBodyMentionsAndChannels = (text: string, platform: string) => {
     const defaultRegex = /(?!.*?<.*?>)(@.*?)(:|’|\/|!|\*|"|'|`|\||\\|\&|\|\^|\%|\$|\#|\@|\(|\)|\[|\]| |,|\n|\t|\r|$)+?/gms
     const lensRegex = /(?!.*?<.*?>)(@.*?)(:|’|!|\*|"|'|`|\||\\|\&|\|\^|\%|\$|\#|\@|\(|\)|\[|\]| |,|\n|\t|\r|$)+?/gms
 
@@ -75,6 +75,20 @@ const parseBodyMentions = (text: string, platform: string) => {
                 const e = match[1]
                 const mentionHandle = `<span style="color:#2d7726d8" class="mention-handle">@${e?.replace('@', '')}</span>`
                 text = text.replace(e, mentionHandle)
+            }
+        }
+    }
+    if (platform === 'farcaster') {
+        console.log('farcaster, parsing channels')
+        console.log(text)
+        const channelRegex = /(?!<.*?>)(^| |\n|\t|\r)+(\/.*?)(:|’|!|\*|"|'|`|\||\\|\&|\|\^|\%|\$|\#|\@|\(|\)|\[|\]| |,|\n|\t|\r|$)+?/gms
+        const channel = text.matchAll(channelRegex)
+        for (const match of channel) {
+            console.log('match[1]', match)
+            if (match[2]) {
+                const e = match[2]
+                const channelHandle = `<span style="color:#2d7726d8" class="channel-handle">${e}</span>`
+                text = text.replace(e, channelHandle)
             }
         }
     }
@@ -289,7 +303,7 @@ export const normalizePost = (fullPost: IPost): PostBodyProcessed => {
 
     postBuilder.embeds = emebeds.embeds
 
-    postBuilder.body = parseBodyMentions(parseBody(emebeds.content ?? 'N/A', postBuilder.linkPreviews ?? []), postTag)
+    postBuilder.body = parseBodyMentionsAndChannels(parseBody(emebeds.content ?? 'N/A', postBuilder.linkPreviews ?? []), postTag)
     postBuilder.createdAt = timeAgo(fullPost?.web3Preview?.createdAt ?? fullPost?.createdAt ?? new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString())
     postBuilder.lens = {
         pubId: '',

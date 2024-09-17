@@ -105,7 +105,8 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref, ref } from 'vue'
-import { useHead } from 'unhead'
+import { useHead } from '@unhead/vue'
+
 import DangLoader from 'components/vote-list/loader.vue'
 import DateIcon from 'icons/src/date.vue'
 import { useRoute } from 'vue-router'

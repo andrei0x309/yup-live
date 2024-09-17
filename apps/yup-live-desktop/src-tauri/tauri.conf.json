@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "yup-live-tauri",
-    "version": "1.2.3"
+    "version": "1.4.2"
   },
   "tauri": {
     "allowlist": {

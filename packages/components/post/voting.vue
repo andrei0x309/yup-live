@@ -228,13 +228,10 @@ export default defineComponent({
         like: true,
       } as Record<string, unknown>;
 
-      if (!props.mobile) {
-        const disableNative = !!(
-          localStorage.getItem("disableLikeNativePropagation") || ""
-        );
-        if (disableNative) {
-          body.disableNativePropagation = true;
-        }
+      const disableNative = props.deps.useMainStore().settings?.disableNativeLikes;
+
+      if (disableNative) {
+        body.disableNativePropagation = true;
       }
 
       const req = await fetchWAuth(store, `${props.deps.apiBase}/votes`, {

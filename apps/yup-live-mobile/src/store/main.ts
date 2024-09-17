@@ -13,7 +13,8 @@ const useMainStore = defineStore('main', {
                 forcedVersion: '',
                 updateMessage: 'The current version of the app is no longer supported. You must update to the latest version to continue using the app. Do you want to update now?',
                 updateUrl: 'https://play.google.com/store/apps/details?id=gf.info.yup',
-                updatePaused: false
+                updatePaused: false,
+                disableNativeLikes: false,
             },
             userData: {
                 account: '',

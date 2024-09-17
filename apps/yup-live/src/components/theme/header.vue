@@ -109,7 +109,7 @@
         <!-- logo - start -->
         <router-link
           to="/"
-          class="logo inline-flex items-center text-black-800 text-xl md:text-3xl font-bold gap-2.5"
+          class="hidden logo md:inline-flex items-center text-black-800 text-xl md:text-3xl font-bold gap-2.5"
           aria-label="logo"
         >
           <h1 class="inline gradient-text">YUP</h1>
@@ -230,7 +230,7 @@
         <button
           v-if="!noAccess"
           type="button"
-          class="sm:inline-flex lg:hidden items-center text-sm md:text-base font-semibold rounded-lg gap-2 px-2.5 py-2 headerMenuBtn"
+          class="sm:inline-flex lg:hidden items-center text-sm md:text-base font-semibold rounded-lg gap-2 px-2.5 py-2 headerMenuBtn mr-2"
           @click="toggleSidebar()"
         >
           <svg

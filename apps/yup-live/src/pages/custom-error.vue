@@ -28,7 +28,8 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, reactive, computed, onUnmounted } from 'vue'
-import { useHead } from 'unhead'
+import { useHead } from '@unhead/vue'
+
 import { useRoute, useRouter } from 'vue-router'
 
 export default defineComponent({

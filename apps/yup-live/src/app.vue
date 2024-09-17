@@ -97,6 +97,10 @@ export default defineComponent({
           mainStore.userData.authToken = localStorage.getItem("authToken") || "";
           getConnected(mainStore, mainStore.userData.account, mainStore.userData.address);
           mainStore.isLoggedIn = true;
+          if (mainStore.settings) {
+            mainStore.settings.disableNativeLikes =
+              localStorage.getItem("disableLikeNativePropagation") === "true";
+          }
           collectionStore.collectionsPromise = getCollections(
             collectionStore,
             mainStore.userData.account

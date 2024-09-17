@@ -17,6 +17,13 @@
               >Twitter Limits</router-link
             >
           </li>
+          <li>
+            <router-link
+              :class="activePage === pages[2] ? 'navActive' : ''"
+              :to="`/team-panel?page=${pages[2]}`"
+              >Active Users</router-link
+            >
+          </li>
         </ul>
       </nav>
     </div>
@@ -27,6 +34,9 @@
     </template>
     <template v-else-if="activePage === pages[1]">
       <TwitterLimits />
+    </template>
+    <template v-else-if="activePage === pages[2]">
+      <ActiveUsers />
     </template>
   </div>
 </template>
@@ -43,7 +53,7 @@ import {
   computed,
   watch,
 } from "vue";
-import { useHead } from "unhead";
+import { useHead } from "@unhead/vue";
 // import DangLoader from "components/vote-list/loader.vue";
 // import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 // import DateIcon from 'icons/src/date.vue'
@@ -69,6 +79,7 @@ import type { TChannel } from "shared/src/types/web3-posting";
 // import DeleteIcon from "icons/src/delete.vue";
 import CrossPostEvents from "./team/cross-post-events.vue";
 import TwitterLimits from "./team/twitter-limits.vue";
+import ActiveUsers from "./team/active-users.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -89,11 +100,12 @@ export default defineComponent({
   components: {
     CrossPostEvents,
     TwitterLimits,
+    ActiveUsers,
   },
   setup() {
     const route = useRoute();
     const loading = ref(true);
-    const pages = ["cross-post-events", "twitter-limits"];
+    const pages = ["cross-post-events", "twitter-limits", "active-users"];
     const defaultPage = (route.query.page as string) || pages[0];
     const posts = ref([]) as Ref<Array<IPost>>;
     const activePage = ref(defaultPage) as Ref<string>;

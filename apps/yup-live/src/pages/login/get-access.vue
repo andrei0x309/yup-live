@@ -86,7 +86,8 @@
 
 <script setup lang="ts">
 import { ref, Ref, onMounted } from "vue";
-import { useHead } from 'unhead'
+import { useHead } from '@unhead/vue'
+
 import { getAccess, setAccess, checkAccess } from "shared/src/utils/get-access";
 import { TWeb3Libs, web3Libs } from "shared/src/utils/evmTxs";
 import WalletIcon from "icons/src/walletIcon.vue";

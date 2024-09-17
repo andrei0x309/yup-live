@@ -107,7 +107,8 @@ import ShareIcon from "icons/src/share.vue";
 import RadarIcon from "icons/src/radar.vue"
 import DangLoader from "components/vote-list/loader.vue"
 import Alert from "components/functional/alert.vue"
-import { useHead } from 'unhead'
+import { useHead } from '@unhead/vue'
+
 
 export default defineComponent({
   name: "MeetingRecordings",

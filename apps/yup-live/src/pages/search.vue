@@ -310,7 +310,8 @@ import {
   shallowRef,
   watch,
 } from "vue";
-import { useHead } from "unhead";
+import { useHead } from '@unhead/vue'
+;
 import DangLoader from "components/vote-list/loader.vue";
 // import { useRoute } from 'vue-router'
 import SearchIcon from "icons/src/search.vue";

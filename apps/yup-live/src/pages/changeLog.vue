@@ -53,7 +53,8 @@
 import { ref } from "vue";
 import CustomButton from "components/functional/customButton.vue";
 import AddIcon from "icons/src/add.vue";
-import { useHead } from 'unhead'
+import { useHead } from '@unhead/vue'
+
 import { changes } from "shared/src/utils/changeLog";
 
     const siteData = {

@@ -151,7 +151,8 @@ import {
   defineAsyncComponent,
   shallowRef,
 } from "vue";
-import { useHead } from "unhead";
+import { useHead } from '@unhead/vue'
+;
 import DangLoader from "components/vote-list/loader.vue";
 import { useMainStore, openConnectModal } from "@/store/main";
 import { useRoute } from "vue-router";

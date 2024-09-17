@@ -1,5 +1,18 @@
 export const recentChanges = [
     {
+        date: "17 Sept - 2024",
+        title: "Changes",
+        changes: [
+            'updated function for meta tags on web app',
+            'updated to consider /channel.id as a farcaster channel in posts',
+            'added ablitity to disable native likes on mobile too',
+            'added mentions handle in post creation',
+            'small design changes',
+            'released new desktop app version',
+            'simplify user menu on web app'
+        ]
+    },
+    {
         date: "21 August - 2024",
         title: "Changes",
         changes: [

@@ -250,7 +250,8 @@ import {
   defineAsyncComponent,
   shallowRef,
 } from "vue";
-import { useHead } from "unhead";
+import { useHead } from '@unhead/vue'
+;
 import DangLoader from "components/vote-list/loader.vue";
 import ProfileCard from "@/components/content/profile/profileCard.vue";
 import ProfileInfoCard from "@/components/content/profile/infoCard.vue";

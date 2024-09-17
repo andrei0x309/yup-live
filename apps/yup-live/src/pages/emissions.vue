@@ -44,7 +44,8 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, ref, reactive, computed, onUnmounted } from 'vue'
-import { useHead } from 'unhead'
+import { useHead } from '@unhead/vue'
+
 import ChartD3 from '@/components/content/chart-d3.vue'
 import { useMainStore } from '@/store/main'
 import { useRoute } from 'vue-router'

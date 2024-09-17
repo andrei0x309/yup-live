@@ -13,8 +13,8 @@
                 right: 1rem;
                 top: 1rem;
                 padding-right: 0.5rem;
-                background-color: #1f2937;
               "
+              class="bg-stone-800 hover:bg-stone-700 rounded text-lg"
               icon-left="times"
               label="X"
               @click="
@@ -64,22 +64,36 @@
                 style="width: 2.3rem; height: 2.3rem; margin: auto"
               />
               <label
-                for="castField"
+                :for="`post${index}`"
                 class="leading-7 text-sm dark:text-gray-300 text-stone-100"
                 >Content</label
               >
-              <textarea
-                id="castField"
-                v-model="post.postContent"
-                :disabled="isSendPost"
-                class="txt-box w-full bg-stone-200 text-gray-800 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
+              <div
+                :id="`post${index}`"
+                editable
+                :contenteditable="!isSendPost"
+                placeholder="Write here..."
+                class="txt-box w-full bg-stone-700 text-gray-200 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
                 @input="
-                  () => {
+                  (e: any) => {
+                    post.postContent = e?.target?.textContent;
                     postContentCharCount[index] = post.postContent.length;
+                    checkForMentions(post.postContent, index);
                   }
                 "
-              >
-              </textarea>
+              ></div>
+              <MentionList
+                v-if="mentionsOpen"
+                :mentions="mentions"
+                :positionCoords="mentionsCoords"
+                :loading="false"
+                @mention-selected="
+                  (mention) => {
+                    insertMention(mention, index);
+                  }
+                "
+              />
+
               <small
                 >Character limit: {{ postContentCharCount[index] }} /
                 {{ maxCharCount }}</small
@@ -371,6 +385,9 @@ import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import AddIcon from "icons/src/add.vue";
 import SubstractIcon from "icons/src/substract.vue";
 import VideoUploadIcon from "icons/src/videoUpload.vue";
+import MentionList from "components/post/mention.vue";
+import { searchWeb3ProfileByHandle } from "shared/src/utils/requests/web3Profiles";
+import { IWeb3Profile } from "shared/src/types/web3Profile";
 
 export default defineComponent({
   name: "CrossPost",
@@ -389,6 +406,7 @@ export default defineComponent({
     AddIcon,
     SubstractIcon,
     VideoUploadIcon,
+    MentionList,
   },
   props: {
     crossPost: {
@@ -467,6 +485,9 @@ export default defineComponent({
     const isChannelSearching = ref(false);
     const showFcChannel = ref(!!postPlatforms?.value?.includes("farcaster"));
     let searchString = "";
+    const mentionsOpen = ref(false);
+    const mentionsCoords = ref({ x: 0, y: 0 });
+    const mentions = ref([]) as Ref<IWeb3Profile[]>;
 
     const addToThread = () => {
       if (posts.length > 30) {
@@ -819,6 +840,52 @@ export default defineComponent({
       document.removeEventListener("paste", pasteListner);
     });
 
+    const checkForMentions = async (text: string, index: number) => {
+      const checkMentions = text.match(/@[a-zA-Z0-9_]+$/gms);
+      if (checkMentions) {
+        const inputEl = document.getElementById(`post${index}`);
+        const inputElRect = inputEl?.getBoundingClientRect();
+        const range = window.getSelection()?.getRangeAt(0);
+        const rect = range?.getBoundingClientRect();
+        mentionsCoords.value = { x: rect?.x ?? 0, y: rect?.y ?? 0 };
+        mentionsCoords.value.x -= inputElRect?.x ?? 0;
+        mentionsCoords.value.y -= (inputElRect?.y ?? 0) / 3.2;
+        const searchMentions = await searchWeb3ProfileByHandle(
+          undefined,
+          checkMentions[0]
+        );
+        mentions.value = searchMentions ?? [];
+        mentionsOpen.value = true;
+      } else {
+        mentionsOpen.value = false;
+      }
+    };
+
+    const insertMention = (mention: IWeb3Profile, index: number) => {
+      const postEl = document.getElementById(`post${index}`);
+      // const range = window.getSelection()?.getRangeAt(0);
+      const mentionNode = document.createElement("span");
+      mentionNode.innerText = `@${mention.handle}`;
+      mentionNode.style.color = "coral";
+      mentionNode.style.fontWeight = "bold";
+      mentionNode.style.cursor = "pointer";
+      mentionNode.contentEditable = "false";
+      mentionNode.onclick = () => {
+        mentionsOpen.value = false;
+      };
+      if (postEl) {
+        postEl.innerHTML = postEl.innerHTML.replace(/@[a-zA-Z0-9_]+$/gms, "");
+        postEl.appendChild(mentionNode);
+        const sel = window.getSelection();
+        if (!sel) return;
+        sel.selectAllChildren(postEl);
+        sel.collapseToEnd();
+
+        posts[index].postContent = postEl.textContent ?? "";
+      }
+      mentionsOpen.value = false;
+    };
+
     return {
       openPostModal,
       isSendPost,
@@ -857,6 +924,11 @@ export default defineComponent({
       postErrorType,
       localReplyTo,
       intialPlatforms,
+      checkForMentions,
+      mentionsOpen,
+      mentionsCoords,
+      mentions,
+      insertMention,
     };
   },
 });
@@ -867,9 +939,17 @@ export default defineComponent({
   background-color: #a1a5a952;
   border: 4px solid #3333339e;
   border-radius: 0.7rem;
+  min-height: 13rem;
   color: aliceblue;
   min-height: 25vh;
   min-width: 35vw;
+  text-align: left;
+}
+
+[contenteditable="true"]:empty:before {
+  content: attr(placeholder);
+  pointer-events: none;
+  display: block; /* For Firefox */
 }
 
 .add-channel {

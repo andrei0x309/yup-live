@@ -160,6 +160,7 @@ header .loggedBtn {
   top: 0.1rem;
   box-shadow: inset -1px -1px 3rem 2px var(--logoBg), -2px 2px 2px 2px var(--logoBg),
     2px -2px 2px 2px var(--logoBg);
+  margin-left: 0.6rem;
 }
 
 .connectButton {

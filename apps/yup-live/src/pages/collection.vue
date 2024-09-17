@@ -58,7 +58,8 @@
 
 <script lang="ts">
 import { onMounted, defineComponent, reactive, computed, onUnmounted, Ref, ref, shallowRef } from 'vue'
-import { useHead } from 'unhead'
+import { useHead } from '@unhead/vue'
+
 import DangLoader from 'components/vote-list/loader.vue'
 import { useRoute } from 'vue-router'
 import InfScroll from 'components/functional/inf-scroll/infScroll.vue'

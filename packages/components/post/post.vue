@@ -365,6 +365,17 @@ export default defineComponent({
           });
           el.setAttribute("listener", "true");
         });
+        if (props.post?.tag === "farcaster") {
+          const farcaster = document.querySelector(`#${postElId} .channel-handle`);
+          if (farcaster) {
+            farcaster.addEventListener("click", (e) => {
+              const channel = (e?.target as any)?.innerText;
+              if (channel) {
+                router.push(`/channel/${channel?.replace("/", "")}`);
+              }
+            });
+          }
+        }
       }, 1150);
     });
 

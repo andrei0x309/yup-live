@@ -64,7 +64,8 @@ import {
   Ref,
   ref,
 } from "vue";
-import { useHead } from "unhead";
+import { useHead } from '@unhead/vue'
+;
 import DangLoader from "components/vote-list/loader.vue";
 import CustomButton from "components/functional/customButton.vue";
 import { TWeb3Libs, web3Libs, prepareForTransaction } from "shared/src/utils/evmTxs";

@@ -102,14 +102,15 @@ import type { PropType } from "vue";
 import { makeRandAvatar } from "shared/src/utils/accounts";
 import DangLoader from "components/vote-list/loader.vue";
 import type { IWeb3Profile } from "shared/src/types/web3Profile";
+
 import ProfileLensIcon from "icons/src/profileLens.vue";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import ProfileEthIcon from "icons/src/profileEth.vue";
 import ProfileYupIcon from "icons/src/profileYup.vue";
 import ProfileBskyIcon from "icons/src/bskyClouds.vue";
 import ThreadsIcon from "icons/src/threads.vue";
-
 import TwitterIcon from "icons/src/twitter.vue";
+
 import StarIcon from "icons/src/star.vue";
 import FollowersIcon from "icons/src/followers.vue";
 import FollowUnfollwBtn from "components/profile/followUnfollowBtn.vue";
@@ -127,11 +128,11 @@ export default defineComponent({
     ProfileFarcasterIcon,
     ProfileLensIcon,
     TwitterIcon,
+    ProfileBskyIcon,
+    ThreadsIcon,
     StarIcon,
     FollowersIcon,
     FollowUnfollwBtn,
-    ProfileBskyIcon,
-    ThreadsIcon,
     LinkIcon,
   },
   props: {

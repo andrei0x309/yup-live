@@ -192,7 +192,8 @@ import {
   Ref,
   ref,
 } from "vue";
-import { useHead } from "unhead";
+import { useHead } from '@unhead/vue'
+;
 import DangLoader from "components/vote-list/loader.vue";
 import { useMainStore } from "@/store/main";
 import { useRoute } from "vue-router";

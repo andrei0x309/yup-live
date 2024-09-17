@@ -30,6 +30,31 @@ export type T_TW_RateLimit = {
     postCount: number,
 }
 
+export const getStatsActiveUsers = async ({
+    store,
+    dateStart,
+    dateEnd,
+}: {
+    store: IMainStore
+    dateStart: string
+    dateEnd: string
+}): Promise<false | T_FAIL> => {
+    try {
+        const res = await fetchWAuth(store, `${API_BASE}/admin/stats-active-users?startDate=${dateStart}&endDate=${dateEnd}`, {
+            method: 'GET'
+        })
+        if (!res.ok) {
+            console.error('crosspost-events/stats', res)
+            return false
+        }
+        return await res.json() as T_FAIL
+    } catch (e) {
+        console.error('crosspost-events/stats', e)
+        return false
+    }
+}
+
+
 export const getStats = async ({
     store,
     dateStart,

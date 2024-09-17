@@ -39,6 +39,7 @@ export interface IMainStore {
     updateMessage?: string
     updateUrl?: string
     updatePaused?: boolean
+    disableNativeLikes?: boolean
   }
   pushNotifications?: string[]
   version?: string,
