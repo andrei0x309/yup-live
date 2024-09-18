@@ -40,6 +40,18 @@ export const getStaticMetaFrame = (image: string) => {
             "name": "fc:frame:button:2:target",
             "content": "https://yup.live/sign-up"
         },
+        {
+            "name": "fc:frame:button:3",
+            "content": "MiniApp"
+        },
+        {
+            "name": "fc:frame:button:3:action",
+            "content": "link"
+        },
+        {
+            "name": "fc:frame:button:2:target",
+            "content": "https://warpcast.com/?composerActionURL=https://yup.live"
+        },
     ] as { name: string, content: string }[];
     return meta;
 };
