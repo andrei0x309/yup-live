@@ -32,231 +32,229 @@
             />
           </div>
 
-          <template v-if="modalContent == 'posting'">
-            <h2 class="text-lg mb-1 font-medium title-font">
-              {{ intialPlatforms?.length > 1 ? "Create New Post" : "Reply" }}
-            </h2>
-            <div v-if="intialPlatforms?.length > 1" class="block my-4">
-              <o-checkbox
-                v-for="platfrom of userPlatforms"
-                :key="platfrom"
-                v-model="postPlatforms"
-                class="p-2"
-                :native-value="platfrom"
-              >
-                <span class="ml-2">{{ platfrom }}</span>
-              </o-checkbox>
-            </div>
-            <div class="relative mb-4">
-              <Alert
-                :key="postErrorKey"
-                :hidden="!postError.length"
-                :message="postError"
-                :timeout="6000"
-                title="Error"
-                :type="postErrorType"
-              />
-            </div>
-            <div v-for="(post, index) in posts" :key="index">
-              <AvatarBtn
-                :useMainStore="useMainStore"
-                class="mr-2"
-                style="width: 2.3rem; height: 2.3rem; margin: auto"
-              />
-              <label
-                :for="`post${index}`"
-                class="leading-7 text-sm dark:text-gray-300 text-stone-100"
-                >Content</label
-              >
-              <div
-                :id="`post${index}`"
-                editable
-                :contenteditable="!isSendPost"
-                placeholder="Write here..."
-                class="txt-box w-full bg-stone-700 text-gray-200 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
-                @input="
+          <h2 class="text-lg mb-1 font-medium title-font">
+            {{ intialPlatforms?.length > 1 ? "Create New Post" : "Reply" }}
+          </h2>
+          <div v-if="intialPlatforms?.length > 1" class="block my-4">
+            <o-checkbox
+              v-for="platfrom of userPlatforms"
+              :key="platfrom"
+              v-model="postPlatforms"
+              class="p-2"
+              :native-value="platfrom"
+            >
+              <span class="ml-2">{{ platfrom }}</span>
+            </o-checkbox>
+          </div>
+          <div class="relative mb-4">
+            <Alert
+              :key="postErrorKey"
+              :hidden="!postError.length"
+              :message="postError"
+              :timeout="6000"
+              title="Error"
+              :type="postErrorType"
+            />
+          </div>
+          <div v-for="(post, index) in posts" :key="index">
+            <AvatarBtn
+              :useMainStore="useMainStore"
+              class="mr-2"
+              style="width: 2.3rem; height: 2.3rem; margin: auto"
+            />
+            <label
+              :for="`post${index}`"
+              class="leading-7 text-sm dark:text-gray-300 text-stone-100"
+              >Content</label
+            >
+            <div
+              :id="`post${index}`"
+              editable
+              :contenteditable="!isSendPost"
+              placeholder="Write here..."
+              class="txt-box w-full bg-stone-700 text-gray-200 rounded border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-36 text-base outline-none py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
+              @input="
                   (e: any) => {
                     post.postContent = e?.target?.textContent;
                     postContentCharCount[index] = post.postContent.length;
                     checkForMentions(post.postContent, index);
                   }
                 "
-              ></div>
-              <MentionList
-                v-if="mentionsOpen"
-                :mentions="mentions"
-                :positionCoords="mentionsCoords"
-                :loading="false"
-                @mention-selected="
-                  (mention) => {
-                    insertMention(mention, index);
-                  }
-                "
-              />
+            ></div>
+            <MentionList
+              v-if="mentionsOpen"
+              :mentions="mentions"
+              :positionCoords="mentionsCoords"
+              :loading="false"
+              @mention-selected="
+                (mention) => {
+                  insertMention(mention, index);
+                }
+              "
+            />
 
-              <small
-                >Character limit: {{ postContentCharCount[index] }} /
-                {{ maxCharCount }}</small
-              >
-              <div class="flex flex-col">
-                <div v-if="post.images.length" class="flex">
-                  <div
-                    v-for="image of post.images"
-                    :key="image.id"
-                    class="flex flex-col items-center"
+            <small
+              >Character limit: {{ postContentCharCount[index] }} /
+              {{ maxCharCount }}</small
+            >
+            <div class="flex flex-col">
+              <div v-if="post.images.length" class="flex">
+                <div
+                  v-for="image of post.images"
+                  :key="image.id"
+                  class="flex flex-col items-center"
+                >
+                  <img :src="image.img" class="max-w-20 max-h-20 mx-2" />
+                  <button
+                    class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
+                    @click="() => !isSendPost && deleteImage(image.id, index)"
                   >
-                    <img :src="image.img" class="max-w-20 max-h-20 mx-2" />
-                    <button
-                      class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
-                      @click="() => !isSendPost && deleteImage(image.id, index)"
-                    >
-                      <DeleteIcon class="inline w-6" />
-                    </button>
-                  </div>
+                    <DeleteIcon class="inline w-6" />
+                  </button>
                 </div>
-                <div v-if="post.videos.length" class="flex">
-                  <div
-                    v-for="video of post.videos"
-                    :key="video.id"
-                    class="flex flex-col items-center"
+              </div>
+              <div v-if="post.videos.length" class="flex">
+                <div
+                  v-for="video of post.videos"
+                  :key="video.id"
+                  class="flex flex-col items-center"
+                >
+                  <video class="max-w-20 max-h-20 mx-2" controls>
+                    <source :src="video.source" :type="video.type" />
+                  </video>
+                  <button
+                    class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
+                    @click="deleteVideo(video.id, index)"
                   >
-                    <video class="max-w-20 max-h-20 mx-2" controls>
-                      <source :src="video.source" :type="video.type" />
-                    </video>
-                    <button
-                      class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
-                      @click="deleteVideo(video.id, index)"
-                    >
-                      <DeleteIcon class="inline w-6" />
-                    </button>
-                  </div>
+                    <DeleteIcon class="inline w-6" />
+                  </button>
                 </div>
-                <input
-                  :ref="el => {
+              </div>
+              <input
+                :ref="el => {
                 if(el && posts[index]) {
                   posts[index].fileInput = el as HTMLInputElement;
                 }
               }"
-                  type="file"
-                  style="display: none"
-                  accept="image/*"
-                  @change="(f) => onFileUpload(f, index)"
-                />
-                <input
-                  :ref="e => {
+                type="file"
+                style="display: none"
+                accept="image/*"
+                @change="(f) => onFileUpload(f, index)"
+              />
+              <input
+                :ref="e => {
               if (e && posts[index]) {
                 posts[index].videoFileInput = e as HTMLInputElement;
               }
             }"
-                  type="file"
-                  style="display: none"
-                  accept="video/*"
-                  @change="(f) => onVideoFileUpload(f, index)"
-                />
-                <div class="flex justify-between">
-                  <button
-                    class="w-1/2 mr-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
-                    @click="triggerFileInput(index)"
-                  >
-                    <BtnSpinner
-                      v-if="isFileUploading"
-                      class="inline mr-2 w-4"
-                    /><ImageUploadIcon class="inline mr-2 w-4" />
-                    Add Image
-                  </button>
-                  <button
-                    class="w-1/2 ml-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
-                    @click="triggerVideoFileInput(index)"
-                  >
-                    <BtnSpinner
-                      v-if="isVideoUploading"
-                      class="inline mr-2 w-4"
-                    /><VideoUploadIcon class="inline mr-2 w-4" />
-                    Add Video
-                  </button>
-                </div>
+                type="file"
+                style="display: none"
+                accept="video/*"
+                @change="(f) => onVideoFileUpload(f, index)"
+              />
+              <div class="flex justify-between">
+                <button
+                  class="w-1/2 mr-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+                  @click="triggerFileInput(index)"
+                >
+                  <BtnSpinner
+                    v-if="isFileUploading"
+                    class="inline mr-2 w-4"
+                  /><ImageUploadIcon class="inline mr-2 w-4" />
+                  Add Image
+                </button>
+                <button
+                  class="w-1/2 ml-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+                  @click="triggerVideoFileInput(index)"
+                >
+                  <BtnSpinner
+                    v-if="isVideoUploading"
+                    class="inline mr-2 w-4"
+                  /><VideoUploadIcon class="inline mr-2 w-4" />
+                  Add Video
+                </button>
               </div>
             </div>
-            <div>
-              <div class="flex justify-center mb-4">
-                <button
-                  v-if="intialPlatforms?.length > 1"
-                  :disabled="isSendPost"
-                  class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-                  @click="addToThread"
-                >
-                  <BtnSpinner v-if="isSendPost" class="inline mr-2" /><AddIcon
-                    class="w-6 inline mr-2"
-                  />
-                  {{ posts.length > 1 ? "Add new post to Thread" : "Create Thread" }}
-                </button>
-                <button
-                  v-if="posts.length > 1"
-                  :disabled="isSendPost"
-                  class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-                  @click="substractFromThread"
-                >
-                  <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SubstractIcon
-                    class="w-6 inline mr-2"
-                  />
-                  {{
-                    posts.length === 2
-                      ? "Convert To single Post"
-                      : "Remove post from Thread"
-                  }}
-                </button>
-              </div>
+          </div>
+          <div>
+            <div class="flex justify-center mb-4">
               <button
-                v-show="intialPlatforms?.length > 1 && showFcChannel"
-                class="bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mb-4"
-                @click="
-                  () => {
-                    if (farcasterChannel) {
-                      farcasterChannel = undefined;
-                    } else {
-                      modalContent = 'selectFatscasterChannel';
-                    }
-                  }
-                "
+                v-if="intialPlatforms?.length > 1"
+                :disabled="isSendPost"
+                class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                @click="addToThread"
               >
-                <img
-                  v-if="farcasterChannel"
-                  :src="
-                    typeof farcasterChannel === 'object'
-                      ? farcasterChannel.image_url
-                      : undefined
-                  "
-                  class="w-5 inline mr-2"
+                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><AddIcon
+                  class="w-6 inline mr-2"
                 />
-                <ProfileFarcasterIcon v-else class="w-5 inline mr-2" />
+                {{ posts.length > 1 ? "Add new post to Thread" : "Create Thread" }}
+              </button>
+              <button
+                v-if="posts.length > 1"
+                :disabled="isSendPost"
+                class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                @click="substractFromThread"
+              >
+                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SubstractIcon
+                  class="w-6 inline mr-2"
+                />
                 {{
-                  farcasterChannel ? "Remove farcaster channel" : "Add farcaster channel"
+                  posts.length === 2
+                    ? "Convert To single Post"
+                    : "Remove post from Thread"
                 }}
               </button>
-              <div class="flex justify-between mb-4">
-                <button
-                  v-if="intialPlatforms?.length > 1"
-                  :disabled="isSendPost"
-                  class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-                  @click="modalContent = 'scheduling'"
-                >
-                  <BtnSpinner v-if="isSendPost" class="inline mr-2" /><ClockIcon
-                    class="w-6 inline mr-2"
-                  />Schedule
-                </button>
-                <button
-                  :disabled="isSendPost"
-                  class="w-1/2 ml-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-                  @click="doSendPost"
-                >
-                  <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SendIcon
-                    class="w-5 inline mr-2"
-                  />Send
-                </button>
-              </div>
             </div>
-          </template>
-          <template v-else-if="modalContent == 'scheduling'">
+            <button
+              v-show="intialPlatforms?.length > 1 && showFcChannel"
+              class="bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mb-4"
+              @click="
+                () => {
+                  if (farcasterChannel) {
+                    farcasterChannel = undefined;
+                  } else {
+                    modalContent = 'selectFatscasterChannel';
+                  }
+                }
+              "
+            >
+              <img
+                v-if="farcasterChannel"
+                :src="
+                  typeof farcasterChannel === 'object'
+                    ? farcasterChannel.image_url
+                    : undefined
+                "
+                class="w-5 inline mr-2"
+              />
+              <ProfileFarcasterIcon v-else class="w-5 inline mr-2" />
+              {{
+                farcasterChannel ? "Remove farcaster channel" : "Add farcaster channel"
+              }}
+            </button>
+            <div class="flex justify-between mb-4">
+              <button
+                v-if="intialPlatforms?.length > 1"
+                :disabled="isSendPost"
+                class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                @click="modalContent = 'scheduling'"
+              >
+                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><ClockIcon
+                  class="w-6 inline mr-2"
+                />Schedule
+              </button>
+              <button
+                :disabled="isSendPost"
+                class="w-1/2 ml-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                @click="doSendPost"
+              >
+                <BtnSpinner v-if="isSendPost" class="inline mr-2" /><SendIcon
+                  class="w-5 inline mr-2"
+                />Send
+              </button>
+            </div>
+          </div>
+          <template v-if="modalContent == 'scheduling'">
             <h2 class="text-lg mb-1 font-medium title-font">Schedule Post</h2>
             <p>
               <DateIcon /> Maximum allowed date:
@@ -832,8 +830,13 @@ export default defineComponent({
           }
         }
       };
-      console.log("intialPlatforms", intialPlatforms.value);
       document.addEventListener("paste", pasteListner);
+      for (let i = 0; i < posts.length; i++) {
+        const postEl = document.getElementById(`post${i}`);
+        if (postEl) {
+          postEl.innerHTML = posts[i].postContent;
+        }
+      }
     });
 
     onUnmounted(() => {

@@ -248,18 +248,6 @@ export default defineComponent({
 
     const siteData = reactive({
       title: `Yup Content rewards claim`,
-      description: `Interact with the Yup content rewards contracts.`,
-      meta: [
-        {
-          name: "description",
-          content: `Interact with the Yup content rewards contracts.`,
-        },
-        {
-          name: "og:image",
-          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`,
-        },
-        ...getStaticMetaFrame(`${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`),
-      ],
     });
 
     onUnmounted(() => {
@@ -271,8 +259,13 @@ export default defineComponent({
       meta: [
         {
           name: "description",
-          content: computed(() => siteData.description).value,
+          content: `Interact with the Yup content rewards contracts.`,
         },
+        {
+          name: "og:image",
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`,
+        },
+        ...getStaticMetaFrame(`${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`),
       ],
     });
 

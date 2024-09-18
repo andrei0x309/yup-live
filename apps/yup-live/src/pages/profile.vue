@@ -298,6 +298,7 @@ import {
 import { getStaticMetaFrame } from "shared/src/utils/frame";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const postDeps: IPostDeps = {
   stackAlertError,
@@ -431,7 +432,7 @@ export default defineComponent({
         },
         {
           name: "og:image",
-          content: `share/yup-live-ogs/og-yup-live-web3-profile.png`,
+          content: `${BASE_URL}share/yup-live-ogs/og-yup-live-web3-profile.png`,
         },
         {
           name: "twitter:card",
@@ -453,7 +454,9 @@ export default defineComponent({
           name: "twitter:image",
           content: `/share/yup-live-ogs/og-yup-live-web3-profile.png`,
         },
-        ...getStaticMetaFrame(`/share/yup-live-ogs/og-yup-live-web3-profile.png`),
+        ...getStaticMetaFrame(
+          `${BASE_URL}/share/yup-live-ogs/og-yup-live-web3-profile.png`
+        ),
       ],
     });
 

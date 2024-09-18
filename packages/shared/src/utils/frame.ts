@@ -6,11 +6,11 @@ export const getStaticMetaFrame = (image: string) => {
         },
         {
             "name": "fc:frame:image",
-            "content": "https://moxie-frames.airstack.xyz/MoxieBalance/starting.png?v=1"
+            "content": image
         },
         {
             "name": "fc:frame:post_url",
-            "content": "https://moxie-frames.airstack.xyz/mb/frame?r="
+            "content": 'https://yup.live'
         },
         {
             "name": "fc:frame:image:aspect_ratio",
@@ -49,8 +49,8 @@ export const getStaticMetaFrame = (image: string) => {
             "content": "link"
         },
         {
-            "name": "fc:frame:button:2:target",
-            "content": "https://warpcast.com/?composerActionURL=https://yup.live"
+            "name": "fc:frame:button:3:target",
+            "content": 'https://warpcast.com/?composerActionURL=https%3A%2F%2Fapi.paragraph.xyz%2Ffarcaster%2Fv2%2Faction%3Furl%3Dhttps%3A%2F%2Fyup.live'
         },
     ] as { name: string, content: string }[];
     return meta;

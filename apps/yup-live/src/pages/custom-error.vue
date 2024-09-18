@@ -42,6 +42,8 @@ import { getStaticMetaFrame } from "shared/src/utils/frame";
 
 import { useRoute, useRouter } from "vue-router";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 export default defineComponent({
   name: "ErrorPage",
   components: {},
@@ -96,9 +98,9 @@ export default defineComponent({
         },
         {
           name: "og:image",
-          content: `/share/yup-live-ogs/og-yup-live-default.png`,
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`,
         },
-        ...getStaticMetaFrame(`/share/yup-live-ogs/og-yup-live-default.png`),
+        ...getStaticMetaFrame(`${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`),
       ],
     });
 

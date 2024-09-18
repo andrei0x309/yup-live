@@ -260,6 +260,7 @@ import DeleteIcon from "icons/src/delete.vue";
 import { getStaticMetaFrame } from "shared/src/utils/frame";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const deps: IPostDeps = {
   stackAlertError,
@@ -355,7 +356,7 @@ export default defineComponent({
       meta: [
         {
           name: "og:image",
-          content: `/share/yup-live-ogs/og-yup-live-feeds.png`,
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-feeds.png`,
         },
         {
           name: "description",
@@ -393,7 +394,7 @@ export default defineComponent({
           name: "twitter:description",
           content: siteData.description,
         },
-        ...getStaticMetaFrame(`/share/yup-live-ogs/og-yup-live-feeds.png`),
+        ...getStaticMetaFrame(`${BASE_URL}/share/yup-live-ogs/og-yup-live-feeds.png`),
       ],
     });
 

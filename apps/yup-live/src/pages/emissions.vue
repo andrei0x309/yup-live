@@ -60,6 +60,8 @@ import { useMainStore } from "@/store/main";
 import { useRoute } from "vue-router";
 import { getStaticMetaFrame } from "shared/src/utils/frame";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 export default defineComponent({
   name: "EmissionsPage",
   components: {
@@ -100,7 +102,7 @@ export default defineComponent({
       meta: [
         {
           name: "og:image",
-          content: `/share/yup-live-ogs/og-yup-live-default.png`,
+          content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`,
         },
         {
           name: "description",
@@ -138,7 +140,7 @@ export default defineComponent({
           name: "twitter:description",
           content: computed(() => siteData.description).value,
         },
-        ...getStaticMetaFrame(`/share/yup-live-ogs/og-yup-live-default.png`),
+        ...getStaticMetaFrame(`${BASE_URL}/share/yup-live-ogs/og-yup-live-default.png`),
       ],
     });
 

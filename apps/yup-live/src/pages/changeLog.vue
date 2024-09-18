@@ -58,6 +58,8 @@ import { useHead } from "@unhead/vue";
 import { changes } from "shared/src/utils/changeLog";
 import { getStaticMetaFrame } from "shared/src/utils/frame";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const siteData = {
   title: `Yup Live ChangeLog`,
   description: `Sumary of changes to yup live, all code is open source and available on github`,
@@ -72,9 +74,9 @@ useHead({
     },
     {
       name: "og:image",
-      content: `/share/yup-live-ogs/og-yup-live-changelog.png`,
+      content: `${BASE_URL}/share/yup-live-ogs/og-yup-live-changelog.png`,
     },
-    ...getStaticMetaFrame(`/share/yup-live-ogs/og-yup-live-changelog.png`),
+    ...getStaticMetaFrame(`${BASE_URL}/share/yup-live-ogs/og-yup-live-changelog.png`),
   ],
 });
 
