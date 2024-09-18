@@ -819,9 +819,15 @@ export default defineComponent({
       if (LNP === "true") {
         disableLikeNativePropagation.value = !!"";
         localStorage.setItem("disableLikeNativePropagation", "");
+        if (store.settings) {
+          store.settings.disableNativeLikes = false;
+        }
       } else {
         disableLikeNativePropagation.value = !!"true";
         localStorage.setItem("disableLikeNativePropagation", "true");
+        if (store.settings) {
+          store.settings.disableNativeLikes = true;
+        }
       }
     };
 

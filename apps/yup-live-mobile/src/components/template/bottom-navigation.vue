@@ -258,8 +258,10 @@ export default defineComponent({
     };
 
     const doOpenPostModal = () => {
-      console.log("doOpenPostModal");
-      openPostModal(store, undefined, PLATFORMS);
+      openPostModal({
+        state: store,
+        platforms: PLATFORMS,
+      });
     };
 
     const clearNot = () => {

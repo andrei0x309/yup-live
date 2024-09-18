@@ -3,8 +3,24 @@
   <ion-page>
     <HeaderBar text="Rewards" :menu="true" />
 
-    <ion-content :fullscreen="false" class="mt-2">
-      <div class="text-center">
+    <ion-content :fullscreen="false">
+      <div class="ion-padding mt-4">
+        <ion-segment
+          style="width: auto"
+          :value="currentSegment"
+          mode="ios"
+          @ion-change="segmentChange"
+        >
+          <ion-segment-button value="yup">
+            <ion-label>All</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="moxie">
+            <ion-label>Rewards</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </div>
+
+      <div class="text-center" v-if="currentSegment === 'yup'">
         <h2 class="text-[1.3rem] p-6 tracking-wide uppercase">CLAIM - Content rewards</h2>
         <template v-if="loading">
           <p class="p-4">Loading rewards claim data</p>
@@ -45,6 +61,15 @@
           </div>
         </template>
       </div>
+      <div class="text-center" v-if="currentSegment === 'moxie'">
+        <h2 class="text-[1.3rem] p-6 tracking-wide uppercase">CLAIM - MOXIE Rewards</h2>
+        <FcFrame
+          url="https://moxie-frames.airstack.xyz/mb"
+          post-id=""
+          :cast-dep="castDep"
+          :deps="deps"
+        />
+      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -52,7 +77,14 @@
 <script lang="ts">
 import { defineComponent, Ref, ref } from "vue";
 import DangLoader from "components/vote-list/loader.vue";
-import { IonContent, IonPage, IonLabel, onIonViewWillEnter } from "@ionic/vue";
+import {
+  IonContent,
+  IonPage,
+  IonLabel,
+  onIonViewWillEnter,
+  IonSegment,
+  IonSegmentButton,
+} from "@ionic/vue";
 import StakeIcon from "icons/src/stake.vue";
 import NoStakeIcon from "icons/src/noStake.vue";
 import YUPPOLY from "icons/src/yup-poly.vue";
@@ -61,7 +93,11 @@ import NoInput from "components/staking/noInput.vue";
 import CustomButton from "components/functional/customButton.vue";
 import { useMainStore } from "@/store/main";
 import YUPCollectIcon from "icons/src/yup-collect.vue";
-import { stackAlertSuccess, stackAlertWarning } from "@/store/alert-store";
+import {
+  stackAlertSuccess,
+  stackAlertWarning,
+  stackAlertError,
+} from "@/store/alert-store";
 import HeaderBar from "@/components/template/header-bar.vue";
 import { fetchUnclaimedReward, onReward } from "shared/src/utils/claim";
 import { TWeb3Libs, web3Libs, prepareForTransaction } from "shared/src/utils/evmTxs";
@@ -69,6 +105,9 @@ import type { TClaim } from "shared/src/types/claim";
 import { formatEther } from "viem";
 import RetryIcon from "icons/src/retry.vue";
 import BtnSpinner from "icons/src/btnSpinner.vue";
+import FcFrame from "components/post/frame.vue";
+import type { IMainStore } from "shared/src/types/store";
+import type { IPostDeps } from "shared/src/types/post";
 
 const refYupRewardsIcon = YUPCollectIcon;
 const refRecheckIcon = RetryIcon;
@@ -90,6 +129,9 @@ export default defineComponent({
     IonPage,
     HeaderBar,
     IonLabel,
+    IonSegment,
+    IonSegmentButton,
+    FcFrame,
   },
   setup() {
     const loading = ref(true);
@@ -107,8 +149,25 @@ export default defineComponent({
       store?.userData?.address || localStorage.getItem("address") || ""
     );
     const isLoggedIn = ref(store.isLoggedIn);
+    const currentSegment = ref("yup");
+
+    const segmentChange = (e: CustomEvent) => {
+      currentSegment.value = e.detail.value;
+    };
 
     const Web3Libs = (ref(null) as unknown) as Ref<TWeb3Libs>;
+
+    const deps: IPostDeps = {
+      stackAlertError,
+      stackAlertSuccess,
+      stackAlertWarning,
+      useMainStore: (useMainStore as unknown) as () => IMainStore,
+    } as IPostDeps;
+
+    const castDep = {
+      hash: "0x308e83977ec5d357eb387e1fca6281641e98364f",
+      fid: "1791",
+    };
 
     store.$subscribe(() => {
       address.value = store.userData.address;
@@ -181,6 +240,10 @@ export default defineComponent({
       doOnReward,
       checkForRewards,
       refRecheckIcon,
+      segmentChange,
+      currentSegment,
+      castDep,
+      deps,
     };
   },
 });

@@ -4,7 +4,12 @@
       <div class="flex flex-col lg:flex-row">
         <div>
           <h2 class="mt-1 mb-4 text-[1.2rem]">
-           <component :is="icons?.[processedPost?.tag ?? '']" v-if="icons?.[processedPost?.tag ?? '']" class="w-6 h-6 inline-block" /> Post <span class="opacity-80 text-[0.95rem]">ID: {{ postId }}</span>
+            <component
+              :is="icons?.[processedPost?.tag ?? '']"
+              v-if="icons?.[processedPost?.tag ?? '']"
+              class="w-6 h-6 inline-block"
+            />
+            Post <span class="opacity-80 text-[0.95rem]">ID: {{ postId }}</span>
           </h2>
           <DangLoader v-if="isDataLoading" />
           <Post
@@ -85,51 +90,55 @@ import {
   onUnmounted,
   Ref,
   ref,
-  PropType
+  PropType,
 } from "vue";
 import { useHead, HeadObject } from "@vueuse/head";
 import DangLoader from "components/vote-list/loader.vue";
 import { useRoute } from "vue-router";
 import { postTypesPromises } from "components/post-types/post-types";
 import Web3ProfileCard from "components/profile/web3ProfileCard.vue";
-import { stackAlertSuccess, stackAlertWarning, stackAlertError } from "@/store/alertStore";
+import {
+  stackAlertSuccess,
+  stackAlertWarning,
+  stackAlertError,
+} from "@/store/alertStore";
 import Post from "components/post/post.vue";
 import type { IPost } from "shared/src/types/post";
 import { useMainStore, openConnectModal } from "@/store/main";
 import { getFollowers } from "shared/src/utils/requests/web3Follows";
-import { IPostDeps } from 'shared/src/types/post'
+import { IPostDeps } from "shared/src/types/post";
 import type { IMainStore } from "shared/src/types/store";
-import PostMenu from '@/components/content/post/menu/postMenu.vue'
-import CollectMenu from '@/components/content/post/menu/collectMenu.vue'
-import { IWeb3Profile } from 'shared/src/types/web3Profile'
-import { OTooltip } from '@oruga-ui/oruga-next'
+import PostMenu from "@/components/content/post/menu/postMenu.vue";
+import CollectMenu from "@/components/content/post/menu/collectMenu.vue";
+import { IWeb3Profile } from "shared/src/types/web3Profile";
+import { OTooltip } from "@oruga-ui/oruga-next";
 import TwitterIcon from "icons/src/twitter.vue";
 import ProfileFarcasterIcon from "icons/src/profileFarcaster.vue";
 import ProfileLensIcon from "icons/src/profileLens.vue";
 import BlueSkyIcon from "icons/src/bsky.vue";
+import { getStaticMetaFrame } from "shared/src/utils/frame";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 const postDeps: IPostDeps = {
-      stackAlertError,
-      stackAlertSuccess,
-      stackAlertWarning,
-      openConnectModal,
-      useMainStore: useMainStore as unknown as () => IMainStore,
-      apiBase: API_BASE,
-      PostMenu: PostMenu,
-      CollectMenu: CollectMenu,
-      ToolTip: OTooltip
-    }
+  stackAlertError,
+  stackAlertSuccess,
+  stackAlertWarning,
+  openConnectModal,
+  useMainStore: (useMainStore as unknown) as () => IMainStore,
+  apiBase: API_BASE,
+  PostMenu: PostMenu,
+  CollectMenu: CollectMenu,
+  ToolTip: OTooltip,
+};
 
 const web3Deps = {
   openConnectModal,
-  useMainStore: useMainStore as unknown as () => IMainStore,
+  useMainStore: (useMainStore as unknown) as () => IMainStore,
   stackAlertWarning,
   stackAlertSuccess,
   apiBase: API_BASE,
 };
-
 
 export default defineComponent({
   name: "PostDetail",
@@ -146,7 +155,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    type  ExIPost  =  IPost  &  {  web3CreatorProfile:  IWeb3Profile  |  null  |  undefined  }
+    type ExIPost = IPost & { web3CreatorProfile: IWeb3Profile | null | undefined };
     const route = useRoute();
     const postId = ref(route.params.postId as string);
     const isDataLoading = ref(true);
@@ -159,7 +168,7 @@ export default defineComponent({
       farcaster: ProfileFarcasterIcon,
       lens: ProfileLensIcon,
       bsky: BlueSkyIcon,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     const openInfoModal = () => {
@@ -217,6 +226,7 @@ export default defineComponent({
           name: "twitter:description",
           content: computed(() => siteData.description),
         },
+        ...getStaticMetaFrame(`/share/yup-live-ogs/og-yup-live-default.png`),
       ],
     } as unknown) as Ref<HeadObject>);
 
@@ -230,7 +240,6 @@ export default defineComponent({
     };
 
     onMounted(async () => {
-
       if (!props?.post?._id?.postid) {
         processedPost.value = await getPostbyId(postId.value);
         postId.value = processedPost.value._id.postid;
@@ -248,7 +257,7 @@ export default defineComponent({
           }
         });
       }
- 
+
       siteData.description =
         processedPost.value.previewData?.description ?? "Atricle on YUP";
       siteData.title = `YUP LIVE - ${processedPost.value.previewData?.title}`;
@@ -268,7 +277,7 @@ export default defineComponent({
       followersCount,
       infoModalOpen,
       postDeps,
-      icons
+      icons,
     };
   },
 });

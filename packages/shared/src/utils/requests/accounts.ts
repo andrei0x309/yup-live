@@ -297,7 +297,6 @@ export const getConnected = async (store: IMainStore, account: string, address?:
     const uD = await createUserData(account, true)
     if (!uD.error) {
       connected = uD.data.userData.connected
-      console.log('connected', connected)
       localStorage.setItem('connected', JSON.stringify(connected))
     } else {
       connected = {

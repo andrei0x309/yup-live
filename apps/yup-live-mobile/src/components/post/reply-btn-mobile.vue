@@ -1,7 +1,7 @@
 <template>
   <button class="view-btn flex ml-2 h-6 w-14" @click="openCrossPostModal">
     <ReplyIcon class="inline-block w-4" />
-    <span class="inline-block" style="margin-top: 0.2rem" >Reply</span>
+    <span class="inline-block" style="margin-top: 0.2rem">Reply</span>
   </button>
 </template>
 
@@ -34,7 +34,11 @@ export default defineComponent({
     const store = useMainStore();
 
     const openCrossPostModal = () => {
-      openPostModal(store, props.replyTo, props.platforms);
+      openPostModal({
+        state: store,
+        reply: props.replyTo,
+        platforms: props.platforms,
+      });
     };
 
     return {

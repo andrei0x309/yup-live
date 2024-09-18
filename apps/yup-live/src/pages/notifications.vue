@@ -134,8 +134,7 @@ import {
   ref,
   watch,
 } from "vue";
-import { useHead } from '@unhead/vue'
-;
+import { useHead } from "@unhead/vue";
 import DangLoader from "components/vote-list/loader.vue";
 import { useRoute } from "vue-router";
 import {
@@ -153,6 +152,7 @@ import MultiNotifications from "components/notifications/follow-mention-repost.v
 import CommentNotification from "components/notifications/comment.vue";
 import { useMainStore } from "@/store/main";
 import { router } from "@/router";
+import { getStaticMetaFrame } from "shared/src/utils/frame";
 
 export default defineComponent({
   name: "Notifications",
@@ -225,6 +225,7 @@ export default defineComponent({
           name: "twitter:description",
           content: computed(() => siteData.description).value,
         },
+        ...getStaticMetaFrame(`/share/yup-live-ogs/og-yup-live-default.png`),
       ],
     });
 

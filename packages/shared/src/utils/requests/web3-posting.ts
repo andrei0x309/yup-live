@@ -335,9 +335,15 @@ export const postFrameAction = async (
             buttonIndex?: number,
             state?: string
             txHash?: string
+            action?: string;
+            target?: string;
         }
     }) => {
     try {
+        console.info('sendData', JSON.stringify(sendData));
+        if (sendData?.action === 'post' && sendData?.target) {
+            sendData.url = sendData.target;
+        }
 
         const req = await fetchWAuth(store, `${API_BASE}/farcaster/frame-packet-action`, {
             body: JSON.stringify(sendData),

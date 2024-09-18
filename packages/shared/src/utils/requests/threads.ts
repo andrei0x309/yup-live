@@ -1,6 +1,6 @@
 import type { Ref } from 'vue';
 import type { IMainStore } from '../../types/store'
-import { fetchWAuth, getWeb3Auth } from '../auth'
+import { fetchWAuth } from '../auth'
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 // const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
@@ -198,7 +198,7 @@ export const disconnectThreads = async ({
     if (isDisconnectFromThreads.value) return
     isDisconnectFromThreads.value = true
 
-    console.log(await getWeb3Auth({ store }))
+    // console.log(await getWeb3Auth({ store }))
 
     const req = await fetchWAuth(store, `${apiBase}/web3-auth`, {
         method: 'DELETE',

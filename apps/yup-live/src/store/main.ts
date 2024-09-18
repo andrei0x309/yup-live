@@ -22,7 +22,6 @@ const useMainStore = defineStore('main', {
       },
       farcasterFeed: false,
       personalized: false,
-      disableNativeLikes: false,
       deletePost: '',
       isLoggedIn: false,
       openConnectModal: false,
@@ -30,6 +29,9 @@ const useMainStore = defineStore('main', {
       openPostModal: false,
       openPostModalReply: null,
       openPostPlatforms: PLATFORMS,
+      settings: {
+        disableNativeLikes: false,
+      }
     }
   }
 }) as unknown as () => IMainStore

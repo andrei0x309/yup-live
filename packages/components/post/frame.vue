@@ -15,10 +15,10 @@
         :noLightbox="true"
         :noBorder="true"
       />
-      <div v-if="textInput" class="flex flex-row">
+      <div v-if="textInput" class="flex flex-row mx-[0.5rem]">
         <input
           type="text"
-          class="w-1/2 rounded-lg bg-gray-800 text-white p-2"
+          class="rounded-lg bg-stone-800 text-white p-2 w-full"
           :placeholder="textPlaceholder"
           v-model="inputText"
         />
@@ -115,12 +115,13 @@ export default defineComponent({
     const isLoadedFrame = ref(false) as Ref<boolean>;
     const inputText = ref("") as Ref<string>;
     const secondLoading = ref(false) as Ref<boolean>;
-    const sendData = {
+    const intitalSendData = {
       castFid: Number(props.castDep.fid),
       castHash: props.castDep.hash,
       inputText: undefined,
       txHash: undefined,
-    } as {
+    };
+    let sendData = intitalSendData as {
       url: string;
       castFid: number;
       castHash: string;
@@ -128,6 +129,8 @@ export default defineComponent({
       buttonIndex?: number;
       state?: string;
       txHash?: string;
+      action?: string;
+      target?: string;
     };
     let frame: {
       imageUrl: string;
@@ -181,15 +184,14 @@ export default defineComponent({
       if (!secLoad) {
         frame = await getInitialFrame(url);
       }
-      console.log("frame", frame);
-
       canInteractWithFrame.value = store?.userData?.connected?.farcaster || false;
       frameImage.value = sanitizeFrameImage(frame?.imageUrl || "");
-      textInput.value = !!frame?.textInput;
+      textInput.value = !!frame?.textInput || !!frame?.inputText || false;
       textPlaceholder.value = frame?.inputText || "";
       sendData.url = frame?.postUrl || url || "";
       buttons.value = frame?.buttons || [];
       sendData.state = frame?.state || "";
+
       if (frame?.imageUrl && sendData.url) isLoadedFrame.value = true;
       return frame;
     };
@@ -201,8 +203,22 @@ export default defineComponent({
       post_url?: string;
     }) => {
       try {
+        sendData = intitalSendData as {
+          url: string;
+          castFid: number;
+          castHash: string;
+          inputText?: string;
+          buttonIndex?: number;
+          state?: string;
+          txHash?: string;
+          action?: string;
+          target?: string;
+        };
         sendData.inputText = inputText.value;
         sendData.buttonIndex = button.index;
+        sendData.action = button.type;
+        sendData.state = frame?.state || "";
+        sendData.target = button.target;
         secondLoading.value = true;
 
         if (isRedirectBtnLink(button) && button?.target) {
@@ -227,7 +243,6 @@ export default defineComponent({
         }
 
         if (isTxBtn(button)) {
-          console.log("button", button);
           if (!button?.target) {
             props?.deps?.stackAlertError &&
               props.deps.stackAlertError("Error Tx is missing target url");

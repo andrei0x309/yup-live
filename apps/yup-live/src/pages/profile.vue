@@ -250,8 +250,7 @@ import {
   defineAsyncComponent,
   shallowRef,
 } from "vue";
-import { useHead } from '@unhead/vue'
-;
+import { useHead } from "@unhead/vue";
 import DangLoader from "components/vote-list/loader.vue";
 import ProfileCard from "@/components/content/profile/profileCard.vue";
 import ProfileInfoCard from "@/components/content/profile/infoCard.vue";
@@ -296,6 +295,7 @@ import {
   getScheduledThreads,
   deleteScheduledTask,
 } from "shared/src/utils/requests/web3-posting";
+import { getStaticMetaFrame } from "shared/src/utils/frame";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -453,6 +453,7 @@ export default defineComponent({
           name: "twitter:image",
           content: `/share/yup-live-ogs/og-yup-live-web3-profile.png`,
         },
+        ...getStaticMetaFrame(`/share/yup-live-ogs/og-yup-live-web3-profile.png`),
       ],
     });
 
@@ -513,7 +514,6 @@ export default defineComponent({
 
     const scrollIntoView = (id: string) => {
       const el = document.getElementById(id);
-      console.log(el);
       if (el) {
         setTimeout(() => {
           el.scrollIntoView({ behavior: "smooth" });

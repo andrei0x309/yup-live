@@ -17,15 +17,6 @@
         :duration="5000"
       >
       </ion-loading>
-      <CrossPost
-        :key="`${openPostModal}k`"
-        :openModal="openPostModal"
-        :platforms="PLATFORMS"
-        :shareLink="shareLink"
-        :crossPostShare="true"
-        @update:open-modal="(v: boolean) => (openPostModal = v)"
-        @success="postSent"
-      />
     </ion-page>
   </ion-app>
   <AlertStack
@@ -37,7 +28,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { useMainStore } from "@/store/main";
+import { useMainStore, openPostModal } from "@/store/main";
 import {
   IonApp,
   IonRouterOutlet,
@@ -65,10 +56,9 @@ import { getExpoPushTokenAndRegister } from "@/utils/expo-push-not-re";
 import { checkForUpdateAndNotify, getVersion } from "@/utils/update-version";
 import UpdateModal from "@/views/UpdateModal.vue";
 import { getPushSettings } from "@/utils/expo-push-not-re";
-import { PLATFORMS } from "shared/src/utils/requests/web3-posting";
 import { updateNotify } from "shared/src/utils/changeLog";
 
-const CrossPost = defineAsyncComponent(() => import("@/views/CrossPostModal.vue"));
+// const CrossPost = defineAsyncComponent(() => import("@/views/CrossPostModal.vue"));
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -77,12 +67,15 @@ const router = useRouter();
 const toastState = ref(false);
 const toastMsg = ref("");
 const loading = ref(false);
-const openPostModal = ref(false);
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const promisePostResolved = ref((_a: unknown) => {});
 const ionRouter = useIonRouter();
 
-const shareLink = ref("");
+store.$subscribe(async (newValue) => {
+  if (newValue?.openPostModal === false) {
+    promisePostResolved.value(1);
+  }
+});
 
 const openToast = (msg: string) => {
   toastState.value = true;
@@ -124,6 +117,10 @@ const executeVote = async (like: boolean, url: string) => {
 onBeforeUnmount(() => {
   loading.value = false;
 });
+
+// store.$subscribe(async (newValue) => {
+
+// });
 
 const presentActionSheet = async (url: string) => {
   const urlSub = url.length > 15 ? url.substring(0, 15) + '..."' : url;
@@ -168,8 +165,10 @@ const presentActionSheet = async (url: string) => {
         break;
       }
       case "newPost": {
-        shareLink.value = url;
-        openPostModal.value = true;
+        await openPostModal({
+          state: store,
+          shareLink: url,
+        });
         await new Promise((resolve) => {
           promisePostResolved.value = resolve;
         });
@@ -270,7 +269,7 @@ onBeforeMount(async () => {
                 stackAlertSuccess,
                 router,
               });
-            }, 1000);
+            }, 1500);
             import("@capacitor/app").then((lib) => {
               if (res?.update && res?.forced) {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -331,20 +330,6 @@ onBeforeMount(async () => {
     }
   }
   loading.value = false;
-});
-
-const postSent = async () => {
-  openPostModal.value = false;
-  openToast("Post sent, you'll be redirected back after 3 seconds");
-  await wait(3000);
-};
-
-watch(openPostModal, (v) => {
-  if (v) {
-    promisePostResolved.value = () => {};
-  } else {
-    promisePostResolved.value(1);
-  }
 });
 </script>
 

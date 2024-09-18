@@ -102,6 +102,8 @@ import CollectMenu from "@/components/content/post/menu/collectMenu.vue";
 import { OTooltip } from "@oruga-ui/oruga-next";
 import { searchChannel } from "shared/src/utils/requests/web3-posting";
 
+import { getStaticMetaFrame } from "shared/src/utils/frame";
+
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
 const deps: IPostDeps = {
@@ -200,6 +202,7 @@ export default defineComponent({
           name: "twitter:description",
           content: siteData.description,
         },
+        ...getStaticMetaFrame(`/share/yup-live-ogs/og-yup-live-feeds.png`),
       ],
     });
 

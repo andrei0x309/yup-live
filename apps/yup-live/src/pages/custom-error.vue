@@ -1,19 +1,28 @@
 <template>
   <div class="page lg:max-w-[90rem] md:max-w-[60rem] py-2 mx-auto">
-    <div :key="`${isMobile}-error`" :class="`main-error bg-color w-full ${isMobile ? 'flex-column' : ''}`">
+    <div
+      :key="`${isMobile}-error`"
+      :class="`main-error bg-color w-full ${isMobile ? 'flex-column' : ''}`"
+    >
       <div>
         <div :class="`${isMobile ? 'm-14 error-fs-mobile' : 'm-20 error-fs-desktop'}`">
           <span>error&nbsp;code:&nbsp;{{ code }}</span>
           <span>{{ message }}</span>
         </div>
       </div>
-      <svg :class="`crack ${isMobile ? 'm-4 crack-rotate svg-mobile' : 'm-16'}`" viewBox="0 0 200 600">
+      <svg
+        :class="`crack ${isMobile ? 'm-4 crack-rotate svg-mobile' : 'm-16'}`"
+        viewBox="0 0 200 600"
+      >
         <polyline
           points="118.302698 8 59.5369448 66.7657528 186.487016 193.715824 14 366.202839 153.491505 505.694344 68.1413353 591.044514"
         ></polyline>
       </svg>
       <div>
-        <div :class="`${isMobile ? 'm-4 error-fs-msg-mobile' : 'm-2 error-fs-msg-desktop'}`" style="font-size: 1.4rem">
+        <div
+          :class="`${isMobile ? 'm-4 error-fs-msg-mobile' : 'm-2 error-fs-msg-desktop'}`"
+          style="font-size: 1.4rem"
+        >
           <span>sorry&nbsp;about&nbsp;that!</span>
           <span>
             <a @click="goHome()">
@@ -27,78 +36,80 @@
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, reactive, computed, onUnmounted } from 'vue'
-import { useHead } from '@unhead/vue'
+import { onMounted, defineComponent, reactive, computed, onUnmounted } from "vue";
+import { useHead } from "@unhead/vue";
+import { getStaticMetaFrame } from "shared/src/utils/frame";
 
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter } from "vue-router";
 
 export default defineComponent({
-  name: 'ErrorPage',
+  name: "ErrorPage",
   components: {},
   setup() {
-    const route = useRoute()
-    const router = useRouter()
+    const route = useRoute();
+    const router = useRouter();
     // const grid = useGrid('tailwind')
-    const isMobile = false
+    const isMobile = false;
 
     const internalErrors: { [key: string]: { code: string; message: string } } = {
-      '403': {
-        code: '403',
-        message: 'forbidden'
+      "403": {
+        code: "403",
+        message: "forbidden",
       },
-      '404': {
-        code: '404',
-        message: 'page not found'
+      "404": {
+        code: "404",
+        message: "page not found",
       },
-      '500': {
-        code: '500',
-        message: 'internal server error'
-      }
-    }
+      "500": {
+        code: "500",
+        message: "internal server error",
+      },
+    };
 
-    let code = route.params?.pathMatch?.[2] ?? '404'
-    if (!code) code = '404'
-    const message = internalErrors[code] ? internalErrors[code].message : 'Unknown error'
+    let code = route.params?.pathMatch?.[2] ?? "404";
+    if (!code) code = "404";
+    const message = internalErrors[code] ? internalErrors[code].message : "Unknown error";
 
     const siteData = reactive({
       title: `YUP Live - Error Code - ${code}`,
       description: `YUP Live - Error Code - ${code}`,
-    })
+    });
 
     const goHome = () => {
-      router.push({ path: '/' })
-    }
+      router.push({ path: "/" });
+    };
 
     onMounted(async () => {
       // do nothing
-    })
+    });
 
     onUnmounted(() => {
       // do nothing
-    })
+    });
 
     useHead({
       title: computed(() => siteData.title).value,
       meta: [
         {
-          name: 'description',
-          content: computed(() => siteData.description).value
+          name: "description",
+          content: computed(() => siteData.description).value,
         },
         {
-          name: 'og:image',
-          content: `/share/yup-live-ogs/og-yup-live-default.png`
+          name: "og:image",
+          content: `/share/yup-live-ogs/og-yup-live-default.png`,
         },
-      ]
-    })
+        ...getStaticMetaFrame(`/share/yup-live-ogs/og-yup-live-default.png`),
+      ],
+    });
 
     return {
       goHome,
       message,
       code,
-      isMobile
-    }
-  }
-})
+      isMobile,
+    };
+  },
+});
 </script>
 
 <style scoped lang="scss">
@@ -107,8 +118,8 @@ $red: #a8246d;
 $green: #43cb9d;
 
 $p: 12px;
-$f: 'brandon-grotesque', 'Brandon Grotesque', 'Source Sans Pro', 'Segoe UI', Frutiger, 'Frutiger Linotype', 'Dejavu Sans', 'Helvetica Neue',
-  Arial, sans-serif;
+$f: "brandon-grotesque", "Brandon Grotesque", "Source Sans Pro", "Segoe UI", Frutiger,
+  "Frutiger Linotype", "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
 
 $easeOutExpo: cubic-bezier(0.19, 1, 0.22, 1);
 
@@ -311,7 +322,7 @@ svg {
   }
 }
 
-html[class='dark'] .main-error {
+html[class="dark"] .main-error {
   color: ghostwhite;
   box-shadow: 0.2rem 0.5rem 0rem #1b1b1b;
 }

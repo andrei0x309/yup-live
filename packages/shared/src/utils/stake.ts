@@ -122,7 +122,6 @@ export const fetchContractsData = ({
             if (polyStaked.value && totalStakePoly) {
                 poolShare.value = (100 * polyStaked.value) / totalStakePoly
             }
-            console.log('polyStaked', polyStaked.value)
         })
     })
 }

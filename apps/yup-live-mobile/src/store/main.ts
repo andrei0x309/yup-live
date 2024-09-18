@@ -38,6 +38,7 @@ const useMainStore = defineStore('main', {
             version: '',
             openPostModal: false,
             openPostModalReply: null,
+            openPostShareLink: '',
             openPostPlatforms: PLATFORMS
         }
     }
@@ -45,8 +46,9 @@ const useMainStore = defineStore('main', {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const openPostModal = (state: IMainStore, reply: any | null, platforms = PLATFORMS) => {
+const openPostModal = ({ state, reply = null, platforms = PLATFORMS, shareLink = '' }: { state: IMainStore, reply?: any, platforms?: any, shareLink?: any }) => {
     state.openPostModalReply = reply
+    state.openPostShareLink = shareLink
     state.openPostPlatforms = platforms
     state.openPostModal = true
 }

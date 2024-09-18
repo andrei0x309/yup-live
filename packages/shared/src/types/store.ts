@@ -45,6 +45,7 @@ export interface IMainStore {
   version?: string,
   openPostModalReply?: any
   openPostModal?: boolean
+  openPostShareLink?: string
   openPostPlatforms?: TPlatform[]
 
 

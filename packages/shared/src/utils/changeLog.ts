@@ -1,11 +1,19 @@
 export const recentChanges = [
     {
+        date: "18 Sept - 2024",
+        title: "Changes",
+        changes: [
+            'added moxie claim on web app and android',
+            'added basic static farcaster frame on web app',
+        ]
+    },
+    {
         date: "17 Sept - 2024",
         title: "Changes",
         changes: [
             'updated function for meta tags on web app',
             'updated to consider /channel.id as a farcaster channel in posts',
-            'added ablitity to disable native likes on mobile too',
+            'added ability to disable native likes on mobile too',
             'added mentions handle in post creation',
             'small design changes',
             'released new desktop app version',

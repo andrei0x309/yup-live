@@ -207,7 +207,6 @@ const isLoadingStats = ref(false);
 
 const getStatsData = async () => {
   isLoadingStats.value = true;
-  console.log("timePeriod.value", timePeriod.value);
   const dateStart = new Date(
     Date.now() - periodsInDays[timePeriod.value] * 24 * 60 * 60 * 1000
   ).toISOString();

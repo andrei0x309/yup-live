@@ -467,11 +467,6 @@ export default defineComponent({
       required: false,
       default: false,
     },
-    shareLink: {
-      type: String,
-      required: false,
-      default: "",
-    },
     crossPostShare: {
       type: Boolean,
       required: false,
@@ -521,8 +516,6 @@ export default defineComponent({
     ]);
 
     const postContentCharCount = reactive(posts.map((p) => p.postContent.length));
-
-    const refTxtEl = ref<HTMLTextAreaElement | null>(null);
 
     const maxCharCount = ref(getMaxCharCount(postPlatforms.value));
     const modalContent = ref("posting");
@@ -622,6 +615,50 @@ export default defineComponent({
           postPlatforms.value = (intialPlatforms.value ?? PLATFORMS).filter((p) =>
             userPlatforms.value.includes(p)
           );
+          if (store.openPostShareLink) {
+            const location = document.getElementById("app");
+
+            const observer = new MutationObserver(() => {
+              const el = document.getElementById("post0");
+              if (el) {
+                observer.disconnect();
+                posts[0].postContent = ` ${store.openPostShareLink}`;
+                postContentCharCount[0] = posts[0].postContent.length;
+                const s = window.getSelection();
+                if (el && s) {
+                  // insert a space before the link
+                  el.appendChild(document.createTextNode("‎ "));
+
+                  el.appendChild(
+                    document.createTextNode(`${store.openPostShareLink}` ?? "")
+                  );
+                  setTimeout(() => {
+                    const r = document.createRange();
+                    r.setStart(el, 0);
+                    r.setEnd(el, 0);
+                    s.removeAllRanges();
+                    s.addRange(r);
+                  }, 100);
+
+                  // r.selectNodeContents(el);
+                  // r.collapse(false); // <-- Set the cursor at the end of the selection
+                  // s?.removeAllRanges();
+                  // s?.addRange(r);
+                  // el.focus();
+                }
+              }
+            });
+
+            if (location) {
+              observer.observe(location, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                characterData: true,
+              });
+            }
+          }
+
           openPostModal.value = newVal;
         } else {
           resetModalState();
@@ -785,6 +822,10 @@ export default defineComponent({
       if (result) {
         ctx.emit("success");
         sendClose();
+        if (store.openPostShareLink) {
+          stackAlertSuccess("Post sent, you'll be redirected back after 3 seconds");
+          await wait(3000);
+        }
       }
     };
 
@@ -878,13 +919,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      if (props.shareLink) {
-        const el = document.getElementById("castField");
-        if (el) {
-          el.innerHTML = " " + props.shareLink;
-          el.focus();
-        }
-      }
+      // ignore
     });
 
     const checkForMentions = async (text: string, index: number) => {

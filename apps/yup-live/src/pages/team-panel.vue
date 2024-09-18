@@ -80,6 +80,7 @@ import type { TChannel } from "shared/src/types/web3-posting";
 import CrossPostEvents from "./team/cross-post-events.vue";
 import TwitterLimits from "./team/twitter-limits.vue";
 import ActiveUsers from "./team/active-users.vue";
+import { getStaticMetaFrame } from "shared/src/utils/frame";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -141,7 +142,7 @@ export default defineComponent({
       meta: [
         {
           name: "og:image",
-          content: `/share/yup-live-ogs/og-yup-live-feeds.png`,
+          content: `/share/yup-live-ogs/og-yup-live-default.png`,
         },
         {
           name: "description",
@@ -179,6 +180,7 @@ export default defineComponent({
           name: "twitter:description",
           content: siteData.description,
         },
+        ...getStaticMetaFrame(`/share/yup-live-ogs/og-yup-live-default.png`),
       ],
     });
 

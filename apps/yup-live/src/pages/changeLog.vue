@@ -53,42 +53,41 @@
 import { ref } from "vue";
 import CustomButton from "components/functional/customButton.vue";
 import AddIcon from "icons/src/add.vue";
-import { useHead } from '@unhead/vue'
+import { useHead } from "@unhead/vue";
 
 import { changes } from "shared/src/utils/changeLog";
+import { getStaticMetaFrame } from "shared/src/utils/frame";
 
-    const siteData = {
-      title: `Yup Live ChangeLog`,
-      description: `Sumary of changes to yup live, all code is open source and available on github`,
-    };
+const siteData = {
+  title: `Yup Live ChangeLog`,
+  description: `Sumary of changes to yup live, all code is open source and available on github`,
+};
 
-    useHead({
-      title: siteData.title,
-      meta: [
-        {
-          name: "description",
-          content: siteData.description,
-        },
-        {
-          name: "og:image",
-          content: `/share/yup-live-ogs/og-yup-live-changelog.png`,
-        },
-      ],
-    });
+useHead({
+  title: siteData.title,
+  meta: [
+    {
+      name: "description",
+      content: siteData.description,
+    },
+    {
+      name: "og:image",
+      content: `/share/yup-live-ogs/og-yup-live-changelog.png`,
+    },
+    ...getStaticMetaFrame(`/share/yup-live-ogs/og-yup-live-changelog.png`),
+  ],
+});
 
-    
+const subsetChanges = ref(changes.slice(0, 10));
+const hasMore = ref(true);
 
-    const subsetChanges = ref(changes.slice(0, 10));
-    const hasMore = ref(true);
-
-    const loadMore = () => {
-      const len = subsetChanges.value.length;
-      subsetChanges.value.push(...changes.slice(len, len + 10));
-      if (len + 10 >= changes.length) {
-        hasMore.value = false;
-      }
-    };
-
+const loadMore = () => {
+  const len = subsetChanges.value.length;
+  subsetChanges.value.push(...changes.slice(len, len + 10));
+  if (len + 10 >= changes.length) {
+    hasMore.value = false;
+  }
+};
 </script>
 
 <style scoped lang="scss">

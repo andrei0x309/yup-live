@@ -226,8 +226,7 @@ import {
   shallowRef,
   watch,
 } from "vue";
-import { useHead } from '@unhead/vue'
-;
+import { useHead } from "@unhead/vue";
 import DangLoader from "components/vote-list/loader.vue";
 import InfScroll from "components/functional/inf-scroll/infScroll.vue";
 // import DateIcon from 'icons/src/date.vue'
@@ -258,6 +257,7 @@ import type { TChannel } from "shared/src/types/web3-posting";
 import { searchChannel } from "shared/src/utils/requests/web3-posting";
 import { wait } from "shared/src";
 import DeleteIcon from "icons/src/delete.vue";
+import { getStaticMetaFrame } from "shared/src/utils/frame";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -393,6 +393,7 @@ export default defineComponent({
           name: "twitter:description",
           content: siteData.description,
         },
+        ...getStaticMetaFrame(`/share/yup-live-ogs/og-yup-live-feeds.png`),
       ],
     });
 
@@ -467,7 +468,6 @@ export default defineComponent({
     onMounted(async () => {
       (async () => (catComp.value = (await import("icons/src/catEmpty.vue")).default))();
       getFavoriteChannels(store).then((res: TChannel[]) => {
-        console.log("favChannels", res);
         favChannels.value = res;
       });
       feedPersonalization.value = localStorage.getItem("feedPersonalization") ?? "";
