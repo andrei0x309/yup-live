@@ -307,15 +307,25 @@
                 Select Farcaster Channel
               </h2>
               <p>Search</p>
-              <input
-                id="farcasterChannelSearch"
-                type="text"
-                placeholder="channel name"
-                class="mb-4 rounded p-2 text-[#e0e0e0] bg-stone-800 border-purple-800 border-2"
-                @input="(e) => {
+              <div class="flex justify-between">
+                <input
+                  id="farcasterChannelSearch"
+                  type="text"
+                  placeholder="channel name"
+                  class="mb-4 rounded p-2 text-[#e0e0e0] bg-stone-800 border-purple-800 border-2 w-full"
+                  @input="(e) => {
                 searchChannels((e?.target as any)?.value)
             }"
-              />
+                />
+                <button
+                  class="w-1/3 ml-1 bg-stone-600 border-0 py-0 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg h-[2.9rem]"
+                  @click="modalContent = 'posting'"
+                >
+                  <BtnSpinner v-if="isChannelSearching" class="inline mr-2" /><GoToIcon
+                    class="w-3 inline mr-2 rotate-180"
+                  />Cancel
+                </button>
+              </div>
               <div v-if="channels?.length === 0">
                 <p>No channels found</p>
               </div>
@@ -520,7 +530,7 @@ export default defineComponent({
       let searchTerm = "";
       do {
         searchTerm = searchString;
-        result = await searchChannel(searchString);
+        result = (await searchChannel(searchString)) as TChannel[];
       } while (searchTerm !== searchString);
       channels.value = result;
       isChannelSearching.value = false;
@@ -588,7 +598,7 @@ export default defineComponent({
       if (!imageFile) return;
       isFileUploading.value = true;
       const imageBase64 = await fileToBase64(imageFile);
-      const upload = await mediaUpload(store, postPlatforms.value, imageFile);
+      const upload = (await mediaUpload(store, postPlatforms.value, imageFile)) as any;
 
       if (upload?.errors) {
         const platforms = [] as TPlatform[];
@@ -637,7 +647,7 @@ export default defineComponent({
         );
         postPlatforms.value = postPlatforms.value.filter((p) => p !== "bsky");
       }
-      const upload = await mediaUpload(store, postPlatforms.value, videoFile);
+      const upload = (await mediaUpload(store, postPlatforms.value, videoFile)) as any;
       if (upload?.errors) {
         const platforms = [] as TPlatform[];
         for (const error of upload.errors) {

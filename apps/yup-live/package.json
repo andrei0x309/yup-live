@@ -8,9 +8,11 @@
     "lint": "eslint --ext .ts,.vue --ignore-path .gitignore --fix src&&prettier . -w -u",
     "build-no-ssg": "vite build",
     "build-ssg": "vite-ssg build",
+    "build-worker": "npx wrangler deploy worker/worker.ts --dry-run --outdir dist --name worker --compatibility-date 2024-09-19 --node-compat true",
+    "move-worker": "bun run worker/bun-move-worker.ts",
     "encrypt": "node ./scripts/build-encrypt.mjs --env-file=.env",
     "preview": "vite preview",
-    "build": "yarn build-ssg"
+    "build": "yarn build-ssg && yarn build-worker && yarn move-worker"
   },
   "husky": {
     "hooks": {
@@ -46,6 +48,7 @@
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240909.0",
     "@types/d3": "^7.4.0",
     "@types/node": "^18.19.6",
     "@types/video.js": "^7.3.56",
@@ -56,6 +59,7 @@
     "@vue/eslint-config-prettier": "^7.1.0",
     "@vue/eslint-config-typescript": "^11.0.3",
     "autoprefixer": "^10.4.16",
+    "dotenv": "^16.4.5",
     "eslint": "^8.56.0",
     "eslint-config-mourner": "^3.0.0",
     "eslint-config-prettier": "^8.10.0",

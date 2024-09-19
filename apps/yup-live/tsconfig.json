@@ -15,7 +15,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["@cloudflare/workers-types/2023-07-01"]
   },
   "include": [
     "./src/**/*.js",
@@ -24,6 +25,7 @@
     "./src/**/*.tsx",
     "./src/**/*.vue",
     "./src/**/*.vue",
+    "./worker/**/*.ts",
     "../../packages/icons/src/**/*.vue",
     "../../packages/shared/src/**/*.*",
     "../../packages/components/**/*.vue"

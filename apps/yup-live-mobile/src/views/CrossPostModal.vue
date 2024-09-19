@@ -22,7 +22,7 @@
             <div
               class="glassCard rounded-lg p-4 flex flex-col md:ml-auto w-full mt-4 relative shadow-md"
             >
-              <template v-if="modalContent == 'posting'">
+              <div v-show="modalContent == 'posting'">
                 <div v-if="intialPlatforms?.length > 1" class="block my-4">
                   <ion-checkbox
                     v-for="platfrom of userPlatforms"
@@ -245,8 +245,8 @@
                     />Send
                   </button>
                 </div>
-              </template>
-              <template v-else-if="modalContent == 'scheduling'">
+              </div>
+              <template v-if="modalContent == 'scheduling'">
                 <h2 class="text-lg mb-1 font-medium title-font">Schedule Post</h2>
                 <p>
                   <DateIcon /> Maximum allowed date:
@@ -272,39 +272,10 @@
                     picker-format="MMM DD, YYYY HH:mm"
                   />
                 </section>
-                <button
-                  :v-if="intialPlatforms?.length > 1 && showFcChannel"
-                  class="w-1/3 ml-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
-                  @click="
-                    () => {
-                      if (farcasterChannel) {
-                        farcasterChannel = undefined;
-                      } else {
-                        modalContent = 'selectFatscasterChannel';
-                      }
-                    }
-                  "
-                >
-                  <img
-                    v-if="farcasterChannel"
-                    :src="
-                      typeof farcasterChannel === 'object'
-                        ? farcasterChannel.image_url
-                        : undefined
-                    "
-                    class="w-5 inline mr-2"
-                  />
-                  <ProfileFarcasterIcon v-else class="w-5 inline mr-2" />
-                  {{
-                    farcasterChannel
-                      ? "Remove farcaster channel"
-                      : "Add farcaster channel"
-                  }}
-                </button>
                 <div class="flex justify-between">
                   <button
                     :disabled="isSheduling"
-                    class="text-[0.9rem] w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                    class="text-[0.9rem] w-1/2 mr-1 bg-stone-600 border-0 py-2 px-2 focus:outline-none hover:bg-stone-700 rounded text-lg"
                     @click="modalContent = 'posting'"
                   >
                     <BtnSpinner v-if="isSheduling" class="inline mr-2" /><GoToIcon
@@ -328,15 +299,27 @@
                     Select Farcaster Channel
                   </h2>
                   <p>Search</p>
-                  <input
-                    id="farcasterChannelSearch"
-                    type="text"
-                    placeholder="channel name"
-                    class="mb-4 rounded p-2 text-[#e0e0e0] bg-stone-800 border-purple-800 border-2 w-full"
-                    @input="(e) => {
+                  <div class="flex justify-between">
+                    <input
+                      id="farcasterChannelSearch"
+                      type="text"
+                      placeholder="channel name"
+                      class="mb-4 rounded p-2 text-[#e0e0e0] bg-stone-800 border-purple-800 border-2 w-full"
+                      @input="(e) => {
                 searchChannels((e?.target as any)?.value)
             }"
-                  />
+                    />
+                    <button
+                      class="w-1/3 ml-1 bg-stone-600 border-0 py-0 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg h-[2.9rem]"
+                      @click="modalContent = 'posting'"
+                    >
+                      <BtnSpinner
+                        v-if="isChannelSearching"
+                        class="inline mr-2"
+                      /><GoToIcon class="w-3 inline mr-2 rotate-180" />Cancel
+                    </button>
+                  </div>
+
                   <div v-if="channels?.length === 0">
                     <p>No channels found</p>
                   </div>
@@ -1012,6 +995,7 @@ export default defineComponent({
       mentionsCoords,
       mentions,
       insertMention,
+      isChannelSearching,
     };
   },
 });
