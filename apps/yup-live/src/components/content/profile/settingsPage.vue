@@ -421,7 +421,7 @@
           </button>
           <template v-else>
             <p class="mb-3">Scan Qr code to approve in Warpcast App.</p>
-            <div class="flex justify-center">
+            <div class="flex justify-center" style="border: 16px solid #fff">
               <qrcode-vue :value="farcasterDeepLink" :size="300" />
             </div>
             <p class="my-4">
@@ -614,7 +614,6 @@ export default defineComponent({
     const isDisconnectFromFarcaster = ref(false);
     const isDisconnectFromBlueSky = ref(false);
     const router = useRouter();
-    const farcasterToken = ref("");
     const farcasterDeepLink = ref("");
     const farcasterTimeout = ref(600000);
     const farcasterConnecWarpCancel = ref(false);
@@ -738,7 +737,6 @@ export default defineComponent({
             stackAlertSuccess,
             store,
             web3Libs: Web3Libs.value,
-            apiBase: API_BASE,
             withWarpCast: false,
             showQr: false,
             deepLink: farcasterDeepLink,
@@ -754,7 +752,6 @@ export default defineComponent({
             stackAlertSuccess,
             store,
             web3Libs: Web3Libs.value,
-            apiBase: API_BASE,
             withWarpCast: true,
             showQr: true,
             deepLink: farcasterDeepLink,
@@ -790,13 +787,11 @@ export default defineComponent({
 
     const doDisconnectFromFarcaster = async () => {
       const disResult = await disconnectFromFarcaster({
-        farcasterToken,
         isConnectedToFarcaster,
         isDisconnectFromFarcaster,
         stackAlertError,
         stackAlertSuccess,
         store,
-        apiBase: API_BASE,
       });
       if (disResult) {
         setConnected(store, "farcaster", false);

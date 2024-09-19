@@ -12,7 +12,8 @@
     "move-worker": "bun run worker/bun-move-worker.ts",
     "encrypt": "node ./scripts/build-encrypt.mjs --env-file=.env",
     "preview": "vite preview",
-    "build": "yarn build-ssg && yarn build-worker && yarn move-worker"
+    "build-with-worker": "yarn build-ssg && yarn build-worker && yarn move-worker",
+    "build": "yarn build-ssg"
   },
   "husky": {
     "hooks": {

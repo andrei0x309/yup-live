@@ -732,7 +732,6 @@ export default defineComponent({
     const isConnectedToBsky = ref(store.userData.connected?.bsky ?? false);
     const isDisconnectFromFarcaster = ref(false);
     const isDisconnectFromBlueSky = ref(false);
-    const farcasterToken = ref("");
     const farcasterDeepLink = ref("");
     const farcasterTimeout = ref(600000);
     const farcasterConnecWarpCancel = ref(false);
@@ -918,7 +917,6 @@ export default defineComponent({
             stackAlertError,
             stackAlertSuccess,
             store,
-            apiBase: API_BASE,
             withWarpCast: false,
             showQr: false,
             deepLink: farcasterDeepLink,
@@ -934,7 +932,6 @@ export default defineComponent({
             stackAlertError,
             stackAlertSuccess,
             store,
-            apiBase: API_BASE,
             withWarpCast: true,
             showQr: false,
             deepLink: farcasterDeepLink,
@@ -969,13 +966,11 @@ export default defineComponent({
 
     const doDisconnectFromFarcaster = async () => {
       const disResult = await disconnectFromFarcaster({
-        farcasterToken,
         isConnectedToFarcaster,
         isDisconnectFromFarcaster,
         stackAlertError,
         stackAlertSuccess,
         store,
-        apiBase: API_BASE,
       });
       if (disResult) {
         setConnected(store, "farcaster", false);

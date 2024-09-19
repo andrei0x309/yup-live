@@ -1,4 +1,4 @@
-
+declare const Bun: any;
 import { unlinkSync } from "node:fs";
 const path = "dist/worker.js";
 const file = Bun.file(path);

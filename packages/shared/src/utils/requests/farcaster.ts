@@ -9,7 +9,9 @@ import { wait } from '../time'
 import { walletDisconnect } from '../login-signup'
 import { TChannel } from 'shared/src/types/web3-posting';
 
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+// const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
+
 
 export const EIP_712_FARCASTER_DOMAIN = {
     name: 'Farcaster Verify Ethereum Address',
@@ -25,31 +27,9 @@ export const EIP_712_FARCASTER_MESSAGE_DATA = [
     },
 ];
 
-
-export const getComments = async (apiBase: string = API_BASE, thread: string) => {
+export const makeAddSignerRequest = async (store: IMainStore) => {
     try {
-        const req = await fetch(`${apiBase}/farcaster/v2/thread-casts?castHash=${thread}`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-        })
-        if (req.ok) {
-            const result = await req.json()
-            return {
-                comments: result?.result?.casts ?? [],
-                numComments: result?.result?.casts.length ?? 0,
-            }
-        } else {
-            null
-        }
-    } catch (error) {
-        console.error('Failed to fetch comments', error)
-        return null
-    }
-}
-
-export const makeAddSignerRequest = async (store: IMainStore, apiBase: string = API_BASE) => {
-    try {
-        const req = await fetchWAuth(store, `${apiBase}/farcaster/signer-request`, {
+        const req = await fetchWAuth(store, `${API_BASE}/farcaster/signer-request`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
         })
@@ -57,6 +37,12 @@ export const makeAddSignerRequest = async (store: IMainStore, apiBase: string = 
             const result = await req.json()
             return result
         }
+        const isRateLimit = (await req.text()).includes('eached max')
+
+        if (isRateLimit) {
+            return -1
+        }
+
         return null
     }
     catch (error) {
@@ -65,59 +51,15 @@ export const makeAddSignerRequest = async (store: IMainStore, apiBase: string = 
     }
 }
 
-
-
-export const farcasterAuthCheck = async (store: IMainStore, apiBase: string = API_BASE) => {
-    const farcaster = localStorage.getItem("farcaster");
-    if (farcaster) {
-        store.farcaster = farcaster;
-        const fid = localStorage.getItem("fid");
-        if (fid) {
-            store.fid = fid;
-        } else {
-            getFidByToken(farcaster, apiBase).then((fid) => {
-                if (fid) {
-                    store.fid = fid as string;
-                    localStorage.setItem("fid", fid as string);
-                }
-            });
-        }
-        return true;
-    } else {
-        const res = await fetchWAuth(store, `${apiBase}/web3-auth`);
-                try {
-                    const req = await res.json();
-                    if (res.ok) {
-                        if (req?.auth?.farcaster) {
-                            store.farcaster = req.auth.farcaster.appToken;
-                            localStorage.setItem("farcaster", req.auth.farcaster.appToken);
-                            getFidByToken(req.auth.farcaster.appToken, API_BASE).then((fid) => {
-                                if (fid) {
-                                    store.fid = fid as string;
-                                    localStorage.setItem("fid", fid as string);
-                                }
-                            });
-                            return true;
-                        }
-                    }
-                } catch (error) {
-                    console.error("Failed to parse farcaster", error);
-                }
-        return false;
-    }
-}
-
 const poolTokenInfo = async ({
     reqToken,
     store,
-    apiBase = API_BASE
 }: {
     reqToken: string
-    store: IMainStore
-    apiBase?: string
+        store: IMainStore
 }) => {
     try {
-        const reqInfo = await fetchWAuth(store, `${apiBase}/farcaster/signer-request/${reqToken}`, {
+        const reqInfo = await fetchWAuth(store, `${API_BASE}/farcaster/signer-request/${reqToken}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
         })
@@ -139,7 +81,6 @@ export const connectToFarcaster = async ({
     stackAlertSuccess,
     store,
     isConnectedToFarcaster,
-    apiBase = API_BASE,
     withWarpCast = true,
     deepLink = ref(''),
     showQr = false,
@@ -151,8 +92,7 @@ export const connectToFarcaster = async ({
     stackAlertError: (msg: string) => void
     stackAlertSuccess: (msg: string) => void
     store: IMainStore
-    isConnectedToFarcaster: Ref<boolean>
-    apiBase?: string
+        isConnectedToFarcaster: Ref<boolean>
     withWarpCast?: boolean
     deepLink: Ref<string>
     showQr?: boolean
@@ -163,23 +103,20 @@ export const connectToFarcaster = async ({
         isConnectToFarcaster.value = true;
         if (withWarpCast) {
             isCancel.value = false;
-            const addSignerRequest = await makeAddSignerRequest(store, apiBase);
+            const addSignerRequest = await makeAddSignerRequest(store);
             if (!addSignerRequest) {
-                stackAlertError("Failed to make signer request");
+                if (addSignerRequest === -1) {
+                    stackAlertError("You have reached the maximum number of signer requests, please try again later");
+                } else {
+                    stackAlertError("Failed to make signer request");
+                }
                 isConnectToFarcaster.value = false;
                 return false;
             }
             const reqToken = addSignerRequest._id
             const deeplinkUrl = addSignerRequest.deeplinkUrl
-            let signerInfo
+            let signerInfo = await poolTokenInfo({ reqToken, store })
             let signerInfoRetries = 0
-            while (!signerInfo && signerInfoRetries < 20) {
-                signerInfo = await poolTokenInfo({ reqToken, store, apiBase })
-                if (!signerInfo?.result?.signerRequest) {
-                    await wait(500)
-                    signerInfoRetries++
-                }
-            }
             if (!signerInfo) {
                 stackAlertError("Failed to pool add signer request info info");
                 isConnectToFarcaster.value = false;
@@ -194,8 +131,8 @@ export const connectToFarcaster = async ({
             signerInfoRetries = 0
             let failed = true
             while (failed && signerInfoRetries < 600) {
-                signerInfo = await poolTokenInfo({ reqToken, store, apiBase })
-                if (signerInfo?.result?.signerRequest?.base64SignedMessage) {
+                signerInfo = await poolTokenInfo({ reqToken, store })
+                if (signerInfo?.confirmed) {
                     failed = false
                 } else {
                     await wait(500)
@@ -213,6 +150,7 @@ export const connectToFarcaster = async ({
             }
             stackAlertSuccess("Connected to farcaster successfully");
             isConnectedToFarcaster.value = true;
+            if (store.userData.connected) store.userData.connected.farcaster = true
             isConnectToFarcaster.value = false;
             return true;
         } else {
@@ -225,7 +163,7 @@ export const connectToFarcaster = async ({
             }
             const wgamiCore = wgamiLib.wgamiCore
             const address = (await wgamiCore.getAccount(wgamiLib.wgConfig.wagmiConfig)).address ?? ''
-            const fidNo = await getFidByAddress(store, address, apiBase);
+            const fidNo = await getFidByAddress(store, address);
             if (!fidNo) {
                 walletDisconnect()
                 stackAlertError("This address does not have a Farcaster account use the farcaster address to sign");
@@ -233,7 +171,7 @@ export const connectToFarcaster = async ({
                 return false;
             }
 
-            const reqAddSignerData = await fetchWAuth(store, `${apiBase}/farcaster/hub/signer-add-msg-create/${fidNo}`, {
+            const reqAddSignerData = await fetchWAuth(store, `${API_BASE}/farcaster/hub/signer-add-msg-create/${fidNo}`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
             })
@@ -261,7 +199,7 @@ export const connectToFarcaster = async ({
             }
 
 
-            const reqAddSignerSubmit = await fetchWAuth(store, `${apiBase}/farcaster/hub/signer-add-msg-broadcast`, {
+            const reqAddSignerSubmit = await fetchWAuth(store, `${API_BASE}/farcaster/hub/signer-add-msg-broadcast`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -298,20 +236,16 @@ export const connectToFarcaster = async ({
 
 export const disconnectFromFarcaster = async ({
     isDisconnectFromFarcaster,
-    farcasterToken,
     stackAlertError,
     isConnectedToFarcaster,
     store,
     stackAlertSuccess,
-    apiBase = API_BASE
 }: {
-    isDisconnectFromFarcaster: Ref<boolean>;
-    farcasterToken: Ref<string>;
+        isDisconnectFromFarcaster: Ref<boolean>;
     stackAlertError: (msg: string) => void
     isConnectedToFarcaster: Ref<boolean>
     store: IMainStore
-    stackAlertSuccess: (msg: string) => void
-    apiBase?: string
+        stackAlertSuccess: (msg: string) => void
     }): Promise<boolean> => {
     try {
         if (!isConnectedToFarcaster.value) {
@@ -325,25 +259,10 @@ export const disconnectFromFarcaster = async ({
                 timestamp: Date.now(),
             }
         }
-        try {
-            const req = await fetch(`${apiBase}/proxy/farcaster/v2/auth`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${farcasterToken.value}`,
-                },
-                body: JSON.stringify(payload),
-            });
-            if (!req.ok) {
-                console.warn("Failed to revoke farcaster token", await req.text());
-            }
-        } catch (e) {
-            // ignore
-        }
         const delBody = {
             platforms: ['farcaster']
         }
-        const reqDel = await fetchWAuth(store, `${apiBase}/web3-auth`, {
+        const reqDel = await fetchWAuth(store, `${API_BASE}/web3-auth`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
