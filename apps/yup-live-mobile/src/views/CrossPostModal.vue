@@ -8,7 +8,7 @@
             <ion-button @click="sendClose">Cancel</ion-button>
             <button
               :disabled="isSendPost"
-              class="bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+              class="bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-[0.8rem]"
               @click="doSendPost"
             >
               <BtnSpinner v-if="isSendPost" class="inline mr-2" />Send
@@ -59,7 +59,7 @@
                     class="leading-7 text-sm text-gray-600 dark:text-gray-300"
                     >Content</label
                   >
-                  <div
+                  <pre
                     :id="`post${index}`"
                     editable
                     :contenteditable="!isSendPost"
@@ -72,7 +72,7 @@
                     checkForMentions(post.postContent, index);
                   }
                 "
-                  ></div>
+                  ></pre>
                   <MentionList
                     v-if="mentionsOpen"
                     style="padding: 0"
@@ -98,7 +98,7 @@
                     >
                       <img :src="image.img" class="max-w-20 max-h-20 mx-2" />
                       <button
-                        class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
+                        class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-[0.8rem]"
                         @click="deleteImage(image.id, index)"
                       >
                         <DeleteIcon class="inline w-6" />
@@ -115,7 +115,7 @@
                         <source :src="video.source" :type="video.type" />
                       </video>
                       <button
-                        class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-lg"
+                        class="bg-rose-700 border-0 p-1 mx-auto my-2 focus:outline-none hover:bg-rose-900 rounded text-[0.8rem]"
                         @click="deleteVideo(video.id, index)"
                       >
                         <DeleteIcon class="inline w-6" />
@@ -146,17 +146,17 @@
                   />
                   <div class="flex justify-between">
                     <button
-                      class="w-1/2 mr-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+                      class="w-1/2 mr-1 bg-stone-600 mb-2 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-[0.8rem]"
                       @click="triggerFileInput(index)"
                     >
                       <BtnSpinner
                         v-if="isFileUploading"
-                        class="inline mr-2 w-4"
-                      /><ImageUploadIcon class="inline mr-2 w-4" />
+                        class="inline w-4"
+                      /><ImageUploadIcon class="inline w-4" />
                       Add Image
                     </button>
                     <button
-                      class="w-1/2 ml-1 bg-stone-600 mb-4 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+                      class="w-1/2 ml-1 bg-stone-600 mb-2 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-[0.8rem]"
                       @click="triggerVideoFileInput(index)"
                     >
                       <BtnSpinner
@@ -167,25 +167,25 @@
                     </button>
                   </div>
                 </div>
-                <div class="flex justify-between mb-4">
+                <div class="flex justify-between mb-2">
                   <button
                     v-if="intialPlatforms?.length > 1"
                     :disabled="isSendPost"
-                    class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+                    class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-[0.8rem]"
                     @click="addToThread"
                   >
-                    <BtnSpinner v-if="isSendPost" class="inline w-4 mr-2" /><AddIcon
-                      class="w-4 inline mr-2"
+                    <BtnSpinner v-if="isSendPost" class="inline w-4" /><AddIcon
+                      class="w-4 inline"
                     />
                     {{ posts.length > 1 ? "Add new post to Thread" : "Create Thread" }}
                   </button>
                   <button
                     v-if="posts.length > 1"
                     :disabled="isSendPost"
-                    class="w-1/2 ml-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg text-[0.8rem]"
+                    class="w-1/2 ml-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-[0.8rem]"
                     @click="substractFromThread"
                   >
-                    <BtnSpinner v-if="isSendPost" class="inline w-4 mr-2" /><SubstractIcon
+                    <BtnSpinner v-if="isSendPost" class="inline w-4" /><SubstractIcon
                       class="w-4 inline mr-2"
                     />
                     {{
@@ -195,53 +195,55 @@
                     }}
                   </button>
                 </div>
-                <button
-                  v-show="!localReplyTo && showFcChannel"
-                  class="bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg mb-4"
-                  @click="
-                    () => {
-                      if (farcasterChannel) {
-                        farcasterChannel = undefined;
-                      } else {
-                        modalContent = 'selectFatscasterChannel';
+                <div class="flex justify-between mb-2">
+                  <button
+                    v-show="!localReplyTo && showFcChannel"
+                    class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-[0.8rem]"
+                    @click="
+                      () => {
+                        if (farcasterChannel) {
+                          farcasterChannel = undefined;
+                        } else {
+                          modalContent = 'selectFatscasterChannel';
+                        }
                       }
-                    }
-                  "
-                >
-                  <img
-                    v-if="farcasterChannel && intialPlatforms?.length > 1"
-                    :src="
-                      typeof farcasterChannel === 'object'
-                        ? farcasterChannel.image_url
-                        : undefined
                     "
-                    class="w-5 inline mr-2"
-                  />
-                  <ProfileFarcasterIcon v-else class="w-5 inline mr-2" />
-                  {{
-                    farcasterChannel
-                      ? "Remove farcaster channel"
-                      : "Add farcaster channel"
-                  }}
-                </button>
-                <div class="flex justify-between">
+                  >
+                    <img
+                      v-if="farcasterChannel && intialPlatforms?.length > 1"
+                      :src="
+                        typeof farcasterChannel === 'object'
+                          ? farcasterChannel.image_url
+                          : undefined
+                      "
+                      class="w-4 inline"
+                    />
+                    <ProfileFarcasterIcon v-else class="w-4 inline" />
+                    {{
+                      farcasterChannel
+                        ? "Remove farcaster channel"
+                        : "Add farcaster channel"
+                    }}
+                  </button>
+                </div>
+                <div class="flex justify-between mb-2">
                   <button
                     v-if="intialPlatforms?.length > 1"
                     :disabled="isSendPost"
-                    class="text-[0.85rem] w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                    class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-[0.8rem]"
                     @click="modalContent = 'scheduling'"
                   >
-                    <BtnSpinner v-if="isSendPost" class="inline w-4 mr-2" /><ClockIcon
-                      class="w-4 inline mr-2"
+                    <BtnSpinner v-if="isSendPost" class="inline w-4 mr-1" /><ClockIcon
+                      class="w-4 inline mr-1"
                     />Schedule
                   </button>
                   <button
                     :disabled="isSendPost"
-                    class="text-[0.85rem] w-1/2 ml-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                    class="w-1/2 ml-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-[0.8rem]"
                     @click="doSendPost"
                   >
-                    <BtnSpinner v-if="isSendPost" class="w-4 inline mr-2" /><SendIcon
-                      class="w-4 inline mr-2"
+                    <BtnSpinner v-if="isSendPost" class="w-4 inline mr-1" /><SendIcon
+                      class="w-4 inline mr-1"
                     />Send
                   </button>
                 </div>
@@ -275,7 +277,7 @@
                 <div class="flex justify-between">
                   <button
                     :disabled="isSheduling"
-                    class="text-[0.9rem] w-1/2 mr-1 bg-stone-600 border-0 py-2 px-2 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                    class="w-1/2 mr-1 bg-stone-600 border-0 py-2 px-2 focus:outline-none hover:bg-stone-700 rounded text-[0.8rem]"
                     @click="modalContent = 'posting'"
                   >
                     <BtnSpinner v-if="isSheduling" class="inline mr-2" /><GoToIcon
@@ -284,7 +286,7 @@
                   </button>
                   <button
                     :disabled="isSheduling"
-                    class="text-[0.9rem] w-1/2 ml-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg"
+                    class="w-1/2 ml-1 bg-stone-600 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-[0.8rem]"
                     @click="doSchedulePost"
                   >
                     <BtnSpinner v-if="isSheduling" class="inline mr-2" /><ClockIcon
@@ -300,6 +302,12 @@
                   </h2>
                   <p>Search</p>
                   <div class="flex justify-between">
+                    <button
+                      class="bg-stone-600 border-0 py-0 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg h-[2.9rem] w-[2.9rem] mx-2"
+                      @click="modalContent = 'posting'"
+                    >
+                      <span class="inline-block -ml-[0.3rem]">x</span>
+                    </button>
                     <input
                       id="farcasterChannelSearch"
                       type="text"
@@ -309,18 +317,15 @@
                 searchChannels((e?.target as any)?.value)
             }"
                     />
-                    <button
-                      class="w-1/3 ml-1 bg-stone-600 border-0 py-0 px-6 focus:outline-none hover:bg-stone-700 rounded text-lg h-[2.9rem]"
-                      @click="modalContent = 'posting'"
-                    >
-                      <BtnSpinner
-                        v-if="isChannelSearching"
-                        class="inline mr-2"
-                      /><GoToIcon class="w-3 inline mr-2 rotate-180" />Cancel
-                    </button>
                   </div>
 
-                  <div v-if="channels?.length === 0">
+                  <div
+                    v-if="
+                      channels?.length === 0 &&
+                      searchChannelTerm !== '' &&
+                      !isChannelSearching
+                    "
+                  >
                     <p>No channels found</p>
                   </div>
                   <ion-list v-else class="flex flex-col">
@@ -514,6 +519,7 @@ export default defineComponent({
     const mentionsOpen = ref(false);
     const mentionsCoords = ref({ x: 0, y: 0 });
     const mentions = ref([]) as Ref<IWeb3Profile[]>;
+    const searchChannelTerm = ref("");
 
     const addToThread = () => {
       if (posts.length > 30) {
@@ -545,11 +551,11 @@ export default defineComponent({
       if (isChannelSearching.value) return;
       isChannelSearching.value = true;
       let result: TChannel[];
-      let searchTerm = "";
+      searchChannelTerm.value = "";
       do {
-        searchTerm = searchString;
+        searchChannelTerm.value = searchString;
         result = await searchChannel(searchString);
-      } while (searchTerm !== searchString);
+      } while (searchChannelTerm.value !== searchString);
       channels.value = result;
       isChannelSearching.value = false;
     };
@@ -996,6 +1002,7 @@ export default defineComponent({
       mentions,
       insertMention,
       isChannelSearching,
+      searchChannelTerm,
     };
   },
 });
@@ -1019,5 +1026,10 @@ export default defineComponent({
   border-radius: 0.7rem;
   min-height: 13rem;
   color: aliceblue;
+  overflow-y: scroll;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  overflow-x: hidden;
+  white-space: pre-wrap;
 }
 </style>

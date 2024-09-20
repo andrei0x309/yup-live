@@ -67,7 +67,7 @@
               class="leading-7 text-sm dark:text-gray-300 text-stone-100"
               >Content</label
             >
-            <div
+            <pre
               :id="`post${index}`"
               editable
               :contenteditable="!isSendPost"
@@ -80,14 +80,14 @@
                     checkForMentions(post.postContent, index);
                   }
                 "
-            ></div>
+            ></pre>
             <MentionList
               v-if="mentionsOpen"
               :mentions="mentions"
               :positionCoords="mentionsCoords"
               :loading="false"
               @mention-selected="
-                (mention) => {
+                (mention: any) => {
                   insertMention(mention, index);
                 }
               "
@@ -954,9 +954,11 @@ export default defineComponent({
   border-radius: 0.7rem;
   min-height: 13rem;
   color: aliceblue;
-  min-height: 25vh;
-  min-width: 35vw;
-  text-align: left;
+  overflow-y: scroll;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  overflow-x: hidden;
+  white-space: pre-wrap;
 }
 
 [contenteditable="true"]:empty:before {
