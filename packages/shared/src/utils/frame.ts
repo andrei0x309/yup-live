@@ -50,7 +50,7 @@ export const getStaticMetaFrame = (image: string) => {
         },
         {
             "name": "fc:frame:button:3:target",
-            "content": 'https://warpcast.com/?composerActionURL=https%3A%2F%2Fapi.paragraph.xyz%2Ffarcaster%2Fv2%2Faction%3Furl%3Dhttps%3A%2F%2Fyup.live'
+            "content": 'https%3A%2F%2Fwarpcast.com%2F%3FcomposerActionURL%3Dhttps%3A%2F%2Fapi.paragraph.xyz%2Ffarcaster%2Fv2%2Faction%3Furl%3Dhttps%3A%2F%2Fparagraph.xyz.yup.live'
         },
     ] as { name: string, content: string }[];
     return meta;
