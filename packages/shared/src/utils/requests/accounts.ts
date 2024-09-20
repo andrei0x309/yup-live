@@ -8,8 +8,8 @@ import type { TPlatform } from '../../types/web3-posting'
 import { fetchWAuth } from '../auth'
 import { fetchWeb3Profile } from './web3Profiles'
 
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-// const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
+export const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+//export const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
 
 
 export const getActionUsage = async (userId: string) => {

@@ -3,10 +3,9 @@ import { fetchWAuth } from '../auth';
 import type { IMainStore } from '../../types/store';
 import type { Ref } from 'vue';
 
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-// const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.', 'dev.api.');
-// const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'localhost:4001').replace('https', 'http');
-// const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
+export const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+// export const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.', 'dev.api.');
+// export const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
 
 export const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens", "bsky", "threads"];
 

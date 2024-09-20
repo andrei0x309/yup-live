@@ -2,8 +2,8 @@ import type { Ref } from 'vue';
 import type { IMainStore } from '../../types/store'
 import { fetchWAuth } from '../auth'
 
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-// const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
+export const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+// export const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
 
 const deviceID = 'android-k3wpbt5bk5c0000'
 

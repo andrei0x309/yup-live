@@ -9,8 +9,8 @@ import { wait } from '../time'
 import { walletDisconnect } from '../login-signup'
 import { TChannel } from 'shared/src/types/web3-posting';
 
-// const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
+export const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+//export const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
 
 
 export const EIP_712_FARCASTER_DOMAIN = {

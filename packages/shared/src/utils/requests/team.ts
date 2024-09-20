@@ -1,9 +1,9 @@
 import { fetchWAuth } from '../auth'
 import type { IMainStore } from '../../types/store'
 
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
-// const API_BASE = (import.meta.env.VITE_YUP_API_BASE).replace('api.', 'dev.api.')
-// const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
+export const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+// export const API_BASE = (import.meta.env.VITE_YUP_API_BASE).replace('api.', 'dev.api.')
+// export const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
 
 
 type T_FAIL = {
