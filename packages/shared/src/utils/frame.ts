@@ -40,18 +40,18 @@ export const getStaticMetaFrame = (image: string) => {
             "name": "fc:frame:button:2:target",
             "content": "https://yup.live/sign-up"
         },
-        {
-            "name": "fc:frame:button:3",
-            "content": "MiniApp"
-        },
-        {
-            "name": "fc:frame:button:3:action",
-            "content": "link"
-        },
-        {
-            "name": "fc:frame:button:3:target",
-            "content": 'https%3A%2F%2Fwarpcast.com%2F%3FcomposerActionURL%3Dhttps%3A%2F%2Fapi.paragraph.xyz%2Ffarcaster%2Fv2%2Faction%3Furl%3Dhttps%3A%2F%2Fparagraph.xyz.yup.live'
-        },
+        // {
+        //     "name": "fc:frame:button:3",
+        //     "content": "MiniApp"
+        // },
+        // {
+        //     "name": "fc:frame:button:3:action",
+        //     "content": "link"
+        // },
+        // {
+        //     "name": "fc:frame:button:3:target",
+        //     "content": 'https%3A%2F%2Fwarpcast.com%2F%3FcomposerActionURL%3Dhttps%3A%2F%2Fapi.paragraph.xyz%2Ffarcaster%2Fv2%2Faction%3Furl%3Dhttps%3A%2F%2Fparagraph.xyz.yup.live'
+        // },
     ] as { name: string, content: string }[];
     return meta;
 };

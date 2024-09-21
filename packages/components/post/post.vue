@@ -302,6 +302,7 @@ export default defineComponent({
               processedPost.web3Preview = props.post.web3Preview;
               postTypeCom.value = (await props.postTypesPromises.preloadPoap).default;
               break;
+            case "paragraph":
             case "mirror":
               processedPost.web3Preview = props.post.web3Preview;
               postTypeCom.value = (await props.postTypesPromises.preloadMirror).default;
@@ -381,6 +382,7 @@ export default defineComponent({
 
     const tags = [
       "mirror",
+      "paragraph",
       "poap",
       "farcaster",
       "lens",

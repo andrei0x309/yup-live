@@ -1,37 +1,77 @@
 <template>
   <div>
-  <BtnSpinner v-if="loading" />
-  <template v-else>
-    <div class="flex justify-between mt-4 px-4" style="z-index: 1;z-index: 1;position: absolute;width: 100%;">
-    <span class="flex mtime h-min space-x-1 items-center rounded-full text-xs font-medium mt-2">
-      <ClockIcon class="w-5 h-5" />
-      <p class="font-semibold text-xs">
-        {{ post.createdAt }}
-      </p>
-    </span>
-    <span class="flex mfavIco">
-      <MirrorIcon class="w-5 tIcon" />
-    </span>
-  </div>
-    <div class="py-2 px-4" style="margin: 0.9rem 1rem 1rem 1rem; font-size: 1.1rem">
-     <template v-if="full">
-      <router-link :to="`/post/${post?.id}`">
-      <h1 class="text-xl font-medium leading-6 tracking-wide dark:text-gray-300 text-gray-900 cursor-pointer mt-8">
-        {{ mirrorPost.title }}
-      </h1>
-      </router-link>
-      </template>
-      <template v-else>
-      <h2 class="text-xl font-medium leading-6 tracking-wide dark:text-gray-300 text-gray-900 cursor-pointer  mt-8">
-        {{ mirrorPost.title }}
-      </h2>
-      </template>
+    <BtnSpinner v-if="loading" />
+    <template v-else>
+      <div
+        class="flex justify-between mt-4 px-4"
+        style="z-index: 1; z-index: 1; position: absolute; width: 100%"
+      >
+        <span
+          class="flex mtime h-min space-x-1 items-center rounded-full text-xs font-medium mt-2"
+        >
+          <ClockIcon class="w-5 h-5" />
+          <p class="font-semibold text-xs">
+            {{ post.createdAt }}
+          </p>
+        </span>
+        <span class="flex mfavIco">
+          <template v-if="isMirror">
+            <MirrorIcon class="w-5 tIcon" />
+          </template>
+          <template v-else>
+            <ParagraphIcon class="w-5 tIcon" />
+          </template>
+        </span>
+      </div>
+      <div class="py-2 px-4" style="margin: 0.9rem 1rem 1rem 1rem; font-size: 1.1rem">
+        <template v-if="!full">
+          <router-link :to="`/post/${post?.id}`">
+            <h1
+              class="text-xl font-medium leading-6 tracking-wide dark:text-gray-300 text-gray-900 mt-8"
+            >
+              {{ mirrorPost.title }}
+            </h1>
+          </router-link>
+          <h4
+            v-if="originalUrl"
+            class="text-[0.7rem] opacity-70 text-center block-inline w-full mt-4"
+          >
+            View on:
+            <a :href="originalUrl" target="_blank">{{
+              isMirror ? "Mirror" : "Paragraph"
+            }}</a>
+          </h4>
+        </template>
+        <template v-else>
+          <h2
+            class="text-xl font-medium leading-6 tracking-wide dark:text-gray-300 text-gray-900 cursor-pointer mt-8"
+          >
+            {{ mirrorPost.title }}
+          </h2>
+          <h4
+            v-if="originalUrl"
+            class="text-[0.7rem] opacity-70 text-center block-inline w-full mt-4"
+          >
+            View on:
+            <a :href="originalUrl" target="_blank">{{
+              isMirror ? "Mirror" : "Paragraph"
+            }}</a>
+          </h4>
+        </template>
 
-      <span v-if="!mirrorCreator" class="text-[0.7rem] opacity-70 text-center block-inline w-full mt-4">Author: {{ mirrorPost.author }}</span>
-      <div v-else>
-      <router-link :to="`/web3-profile/${mirrorCreator?._id}`">
-      <div class="flex items-center space-x-2 mt-2 justify-center cursor-pointer">
-        <AvatarBtn
+        <span
+          v-if="!mirrorCreator"
+          class="text-[0.7rem] opacity-70 text-center block-inline w-full mt-4"
+        >
+          <template v-if="mirrorPost.author">Author: {{ mirrorPost.author }}</template>
+        </span>
+        <div v-else>
+          <router-link
+            v-if="mirrorCreator?._id"
+            :to="`/web3-profile/${mirrorCreator?._id}`"
+          >
+            <div class="flex items-center space-x-2 mt-2 justify-center cursor-pointer">
+              <AvatarBtn
                 :key="mirrorCreator?.avatar"
                 class="w-8 h-8 mt-2"
                 imgClass="w-8 h-8"
@@ -40,105 +80,160 @@
                 :isTwitter="false"
                 :pAccount="mirrorCreator?.handle"
               />
-        <span class="text-[0.7rem] opacity-70 text-center block-inline mt-2">{{ mirrorCreator.handle || `${mirrorCreator._id.slice(0, 6)}...` }}</span>
+              <span class="text-[0.7rem] opacity-70 text-center block-inline mt-2">{{
+                mirrorCreator?.handle || `${mirrorCreator._id.slice(0, 6)}...`
+              }}</span>
+            </div>
+          </router-link>
+          <template v-else>
+            <div class="flex items-center space-x-2 mt-2 justify-center cursor-pointer">
+              <AvatarBtn
+                :key="mirrorCreator?.avatar"
+                class="w-8 h-8 mt-2"
+                imgClass="w-8 h-8"
+                :pSource="mirrorCreator?.avatar"
+                :isSelf="false"
+                :isTwitter="false"
+                :pAccount="mirrorCreator?.handle"
+              />
+              <span class="text-[0.7rem] opacity-70 text-center block-inline mt-2">{{
+                mirrorCreator?.handle || `${mirrorCreator?._id.slice(0, 6)}...`
+              }}</span>
+            </div>
+          </template>
         </div>
-        </router-link>
       </div>
-    </div>
-    <div class="px-4 space-y-2" style="font-size: 0.9rem">
-      <div class="font-normal leading-6 indent-4 mirror-content" v-html="mirrorPost.content"></div>
-      <div v-if="!full && (post?.web3Preview?.content ?? '').length >= 500" class="flex justify-center">
-        <router-link :to="`/post/${post?.id}`">
-        <CustomButton
-          class="text-xs font-medium"
-          :text="`Read&nbsp;&nbsp;&nbsp;more`"
-        />
-      </router-link>
+      <div class="px-4 space-y-2" style="font-size: 0.9rem">
+        <div
+          class="font-normal leading-6 indent-4 mirror-content"
+          v-html="mirrorPost.content"
+        ></div>
+        <div
+          v-if="!full && (post?.web3Preview?.content ?? '').length >= 500"
+          class="flex justify-center"
+        >
+          <router-link :to="`/post/${post?.id}`">
+            <CustomButton
+              class="text-xs font-medium"
+              :text="`Read&nbsp;&nbsp;&nbsp;more`"
+            />
+          </router-link>
+        </div>
       </div>
-    </div>
-  </template>
-</div>
+    </template>
+  </div>
 </template>
 
 <script lang="ts">
-import { onMounted, defineComponent, ref, Ref } from 'vue'
-import ClockIcon from 'icons/src/clock.vue'
-import MirrorIcon from 'icons/src/mirror.vue'
-import { marked } from 'marked'
-import clip from 'shared/src/utils/3p/clipper'
-import BtnSpinner from 'icons/src/btnSpinner.vue'
+import { onMounted, defineComponent, ref, Ref } from "vue";
+import ClockIcon from "icons/src/clock.vue";
+import MirrorIcon from "icons/src/mirror.vue";
+import ParagraphIcon from "icons/src/paragraph.vue";
+import { marked } from "marked";
+import clip from "shared/src/utils/3p/clipper";
+import BtnSpinner from "icons/src/btnSpinner.vue";
 // import { parseIpfs } from 'shared/src/utils/web3/ipfs'
-import CustomButton from 'components/functional/customButton.vue'
-import AvatarBtn from 'components/functional/avatarBtn.vue'
+import CustomButton from "components/functional/customButton.vue";
+import AvatarBtn from "components/functional/avatarBtn.vue";
 
 export default defineComponent({
-  name: 'PostMirror',
+  name: "PostMirror",
   inheritAttrs: false,
   components: {
     ClockIcon,
     MirrorIcon,
     BtnSpinner,
     CustomButton,
-    AvatarBtn
+    AvatarBtn,
+    ParagraphIcon,
   },
   props: {
     post: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
     full: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup(props) {
     const mirrorPost = ref({
-      content: '',
-      author: '',
-      title: '',
-      createdAt: ''
-    })
+      content: "",
+      author: "",
+      title: "",
+      createdAt: "",
+    });
     type MirrorCreator = {
-      _id: string
-      handle: string
-      avatar: string
-    }
+      _id: string;
+      handle: string;
+      avatar: string;
+    };
 
-    const mirrorCreator = ref(null) as Ref<MirrorCreator | null>
-    const featureImage = ref('')
-    const loading = ref(true)
+    const mirrorCreator = ref(null) as Ref<MirrorCreator | null>;
+    const featureImage = ref("");
+    const loading = ref(true);
+    const isMirror = ref(props?.post?.web3Preview?.protocol === "mirror");
+    const originalUrl = isMirror.value
+      ? props.post?.url
+      : props?.post?.web3Preview?.meta?.paragraphUrl ?? null;
 
     onMounted(async () => {
-      const dom = new DOMParser().parseFromString(marked.parse((props.post?.web3Preview?.content ?? '').replace(/\\/gi, '')), 'text/html')
-      
-      const html = (dom.querySelector('body')?.innerHTML ?? '').replace(/([^>])(https?.*? )( |\n|\t|$)/gms, '$1<a href="$2">$2</a>$3')
+      console.log("props.post", props.post);
 
-      mirrorPost.value.content = props.full ? html : clip(html, 500, { html: true, maxLines: 8 })
-      mirrorPost.value.title = props.post.web3Preview?.title
-      mirrorCreator.value = props.post?.web3CreatorProfile ?? null
+      const dom = new DOMParser().parseFromString(
+        marked.parse((props.post?.web3Preview?.content ?? "").replace(/\\/gi, "")),
+        "text/html"
+      );
 
-      let ens = props.post.web3Preview?.creator?.ens
-      if (ens?.includes('%')) {
-        ens = undefined
+      const html = (dom.querySelector("body")?.innerHTML ?? "").replace(
+        /([^>])(https?.*? )( |\n|\t|$)/gms,
+        '$1<a href="$2">$2</a>$3'
+      );
+
+      mirrorPost.value.content = props.full
+        ? html
+        : clip(html, 500, { html: true, maxLines: 8 });
+      mirrorPost.value.title =
+        props.post.web3Preview?.title ?? props.post.previewData?.title;
+      mirrorCreator.value =
+        props.post?.web3CreatorProfile ?? props?.post?.web3Preview?.creator ?? null;
+      if (!mirrorCreator.value?._id && mirrorCreator.value) {
+        if (props.post.previewData?.creator) {
+          mirrorCreator.value._id = props.post.previewData.creator;
+        }
       }
-      mirrorPost.value.author = ens ?? props.post.web3Preview?.creator?.address
-      mirrorPost.value.createdAt = props.post.createdAt
+
+      let ens = props.post.web3Preview?.creator?.ens;
+      if (ens?.includes("%")) {
+        ens = undefined;
+      }
+      mirrorPost.value.author =
+        ens ??
+        props?.post?.web3Preview?.creator?.fullname ??
+        props.post?.web3Preview?.creator?.handle ??
+        props.post.web3Preview?.creator?.fullanme ??
+        props.post.web3Preview?.creator?.address ??
+        null;
+      mirrorPost.value.createdAt = props.post.createdAt;
       // const wnftImage = props.post.web3Preview?.wnft?.imageURI
       // if(wnftImage) {
       //   featureImage.value = parseIpfs(`ipfs://${wnftImage}`)
       // }
-      loading.value = false
-    })
+      loading.value = false;
+    });
 
     return {
       mirrorPost,
       featureImage,
       loading,
-      mirrorCreator
-    }
-  }
-})
+      mirrorCreator,
+      isMirror,
+      originalUrl,
+    };
+  },
+});
 </script>
 
 <style lang="scss">
@@ -171,6 +266,6 @@ div.mirror-content {
   pre {
     white-space: pre-wrap;
     word-wrap: break-word;
-  } 
+  }
 }
 </style>

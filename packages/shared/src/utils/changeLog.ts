@@ -1,5 +1,13 @@
 export const recentChanges = [
     {
+        date: "21 Sept - 2024",
+        title: "Changes",
+        changes: [
+            'changes to cross-post modal',
+            'integrated paragraph.xyz posts in mirror feed & rename mirror to articles'
+        ]
+    },
+    {
         date: "18 Sept - 2024",
         title: "Changes",
         changes: [

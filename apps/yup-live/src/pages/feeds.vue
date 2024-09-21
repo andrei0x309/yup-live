@@ -21,7 +21,7 @@
             <router-link
               :class="activeFeed === feeds[3] ? 'navActive' : ''"
               :to="`/feeds/${feeds[3]}${userId ? '?userId=' + userId : ''}`"
-              >Mirror</router-link
+              >Articles</router-link
             >
           </li>
         </ul>

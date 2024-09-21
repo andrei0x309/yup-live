@@ -151,7 +151,7 @@ export default defineComponent({
       ["farcaster", "Farcaster"],
       ["lens", "Lens"],
       ["threads", "Threads"],
-      ["mirror", "Mirror"],
+      ["mirror", "Articles"],
       ["twitter", "Twitter"],
       ["recent", "Recent"],
     ];
