@@ -155,6 +155,7 @@ export interface OpenGraphPreview {
 export interface mediaType {
   type: string
   url: string
+  poster?: string
 }
 
 export interface IPostDeps extends IVotingDeps {

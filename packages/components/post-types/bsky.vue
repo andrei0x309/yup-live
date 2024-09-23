@@ -16,7 +16,8 @@
   <div></div>
 </template>
 
-<script lang="ts">getPostType
+<script lang="ts">
+getPostType;
 // import { useMainStore } from '@/store/main'
 import { onMounted, defineComponent, ref, Ref, PropType } from "vue";
 import BskyPostBody from "./inner/bskyPostBody.vue";
@@ -88,6 +89,8 @@ export default defineComponent({
     const replyPost = ref(userObject) as Ref<PostBodyProcessed>;
 
     onMounted(() => {
+      console.log("props.post", props.post);
+
       postType.value = getPostType(props.post);
       mainPost.value.crossPostGroup = props.post?.crossPostGroup ?? {};
 
@@ -97,10 +100,10 @@ export default defineComponent({
           break;
         }
         case "reply": {
-            mainPost.value = normalizePost(
-              props.post?.web3Preview?.meta?.parentPost as IPost
-            );
-            replyPost.value = normalizePost(props.post);
+          mainPost.value = normalizePost(
+            props.post?.web3Preview?.meta?.parentPost as IPost
+          );
+          replyPost.value = normalizePost(props.post);
           break;
         }
       }

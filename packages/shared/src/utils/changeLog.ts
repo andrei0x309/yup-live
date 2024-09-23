@@ -1,5 +1,14 @@
 export const recentChanges = [
     {
+        date: "22 Sept - 2024",
+        title: "Changes",
+        changes: [
+            'changes to cross-post modal, better handle video uploads',
+            'fixed static emissions data',
+            'added bluesky videos'
+        ]
+    },
+    {
         date: "21 Sept - 2024",
         title: "Changes",
         changes: [

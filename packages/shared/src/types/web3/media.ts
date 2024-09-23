@@ -4,4 +4,5 @@ export type Web3Media = Array<{
   url?: string
   title?: string
   description?: string
+  videoPreview?: string
 }>

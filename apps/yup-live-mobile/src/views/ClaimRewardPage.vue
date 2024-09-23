@@ -12,10 +12,10 @@
           @ion-change="segmentChange"
         >
           <ion-segment-button value="yup">
-            <ion-label>All</ion-label>
+            <ion-label>Yup</ion-label>
           </ion-segment-button>
           <ion-segment-button value="moxie">
-            <ion-label>Rewards</ion-label>
+            <ion-label>Moxie</ion-label>
           </ion-segment-button>
         </ion-segment>
       </div>

@@ -45,7 +45,7 @@
                     title="Error"
                     :type="postErrorType"
                     class="mb-4"
-                    :timeout="6000"
+                    :timeout="36000"
                   />
                 </div>
                 <div v-for="(post, index) in posts" :key="index">
@@ -147,6 +147,7 @@
                   <div class="flex justify-between">
                     <button
                       class="w-1/2 mr-1 bg-stone-600 mb-2 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-[0.8rem]"
+                      :disabled="isFileUploading || isSendPost"
                       @click="triggerFileInput(index)"
                     >
                       <BtnSpinner
@@ -157,6 +158,7 @@
                     </button>
                     <button
                       class="w-1/2 ml-1 bg-stone-600 mb-2 border-0 py-2 px-6 focus:outline-none hover:bg-stone-700 rounded text-[0.8rem]"
+                      :disabled="isVideoUploading || isSendPost"
                       @click="triggerVideoFileInput(index)"
                     >
                       <BtnSpinner
@@ -672,7 +674,6 @@ export default defineComponent({
 
     const triggerVideoFileInput = (index: number) => {
       if (posts?.[index]?.videoFileInput) {
-        isVideoUploading.value = true;
         posts?.[index]?.videoFileInput?.click();
       }
     };
@@ -709,24 +710,27 @@ export default defineComponent({
 
     const onVideoFileUpload = async (f: File | Event, index: number) => {
       const videoFile = (posts?.[index]?.videoFileInput?.files?.[0] ?? f) as File;
-      if (!videoFile) return;
 
-      if (postPlatforms.value.includes("bsky")) {
-        showError(
-          "Video upload is not supported on BlueSky, your Bluesky post will be sent without the video.",
-          true
-        );
-        postPlatforms.value = postPlatforms.value.filter((p) => p !== "bsky");
+      if (!videoFile) {
+        isVideoUploading.value = false;
+        return;
       }
-      const upload = await mediaUpload(store, postPlatforms.value, videoFile);
+      isVideoUploading.value = true;
+
+      const upload = (await mediaUpload(store, postPlatforms.value, videoFile)) as any;
       if (upload?.errors) {
         const platforms = [] as TPlatform[];
+        let errorString = "";
         for (const error of upload.errors) {
           platforms.push(error.platform);
+          errorString += `${error.platform}: ${error.message}\n`;
         }
         postPlatforms.value = postPlatforms.value.filter((p) => !platforms.includes(p));
+
         showError(
-          `Error uploading video to ${platforms.join(", ")}, platforms removed from post`,
+          `Error uploading video to ${platforms.join(
+            ", "
+          )}, platforms removed from post: ${errorString}`,
           true
         );
         if (Object.keys(upload.results).length) {
@@ -735,6 +739,9 @@ export default defineComponent({
           upload.results.id = Math.random().toString(36).substring(7);
           posts[index].videos.push(upload.results);
         }
+      } else if (upload.ok === false) {
+        showError("Error uploading video, due to unknown error", true);
+        postPlatforms.value = [];
       } else {
         upload.source = URL.createObjectURL(videoFile);
         upload.type = videoFile.type;

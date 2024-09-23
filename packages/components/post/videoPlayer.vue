@@ -36,6 +36,11 @@ export default defineComponent({
       type: String,
       default: "",
     },
+    poster: {
+      required: false,
+      type: String,
+      default: "",
+    },
     noPreviewClass: {
       required: false,
       type: String,
@@ -48,6 +53,7 @@ export default defineComponent({
     const isError = ref(false);
     const isHls = ref(props.videoSource.includes(".m3u8"));
     const videType = getVideoTypeFromUrl(props.videoSource);
+    const poster = ref("");
 
     const scriptComp = document.createElement("script");
     scriptComp.src = vJs;
@@ -101,6 +107,7 @@ export default defineComponent({
       isHls,
       videType,
       videoPlayer,
+      poster,
     };
   },
 });
