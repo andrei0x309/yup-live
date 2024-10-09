@@ -101,6 +101,7 @@ export default defineComponent({
         authToken: account.authToken,
         weight: Number(account.weight ?? "1"),
         fid: "",
+        isTwitterBlue: false,
       };
       await storage.set("authInfo", JSON.stringify(userAuth));
       store.userData = userAuth;

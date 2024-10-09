@@ -2,12 +2,13 @@
 import type { TPlatform } from "shared/src/types/web3-posting";
 import type { IMainStore } from "shared/src/types/store";
 
-export const getMaxCharCount = (platforms: TPlatform[]) => {
-    if (platforms.includes('twitter')) return 280
+export const getMaxCharCount = (platforms: TPlatform[], isTwitterBlue = false) => {
+    if (platforms.includes('twitter')) return isTwitterBlue ? 2000 : 280
     else if (platforms.includes('bsky')) return 300
     else if (platforms.includes('farcaster')) return 1024
     else if (platforms.includes('lens')) return 1024
     else if (platforms.includes('threads')) return 500
+    else if (platforms.includes('mastodon')) return 500
     return 1000
 }
 

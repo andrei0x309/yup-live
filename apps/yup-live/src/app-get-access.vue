@@ -8,12 +8,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, shallowRef, ShallowRef} from "vue";
+import { defineComponent, onMounted, shallowRef, ShallowRef } from "vue";
 import HeaderComp from "@/components/theme/header.vue";
 import FooterCom from "@/components/theme/footer.vue";
 import { getThemeMode } from "./utils";
 import { useRoute } from "vue-router";
-
 
 // const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -21,7 +20,7 @@ export default defineComponent({
   name: "AppGetAccess",
   components: {
     HeaderComp,
-    FooterCom
+    FooterCom,
   },
   setup() {
     (function setTheme() {
@@ -68,7 +67,7 @@ export default defineComponent({
 
     return {
       route,
-      headBar
+      headBar,
     };
   },
 });
@@ -154,7 +153,7 @@ html {
 }
 
 html[class="dark"] {
-  --bg-color: #111;
+  --bg-color: #0a0a0a;
   --bg-content: #222;
   --logoBg: #080808cf;
   --post-card-bg: #2626263b;
@@ -176,8 +175,8 @@ html[class="dark"] {
   --stake-counter: #b6b326a1;
 }
 
-html[class='dark'] .table-list,
-html[class='dark'] .bg-color {
+html[class="dark"] .table-list,
+html[class="dark"] .bg-color {
   color: #d9d9d9;
   box-shadow: 0.2rem 0.5rem 0rem #1b1b1b;
 
@@ -357,5 +356,4 @@ input {
   color: var(--color-text-faded);
   min-height: 80vh;
 }
-
 </style>

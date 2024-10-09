@@ -4,7 +4,8 @@ import { API_BASE as API_BASE_THREADS } from 'shared/src/utils/requests/threads'
 import { API_BASE as API_BASE_TEAM } from 'shared/src/utils/requests/team'
 import { API_BASE as API_BASE_FARCASTER } from 'shared/src/utils/requests/farcaster'
 import { API_BASE as API_BASE_ACCOUNTS } from 'shared/src/utils/requests/accounts'
-
+import { API_BASE as API_BASE_BSKY } from 'shared/src/utils/requests/bsky'
+import { API_BASE as API_MASTODON } from 'shared/src/utils/requests/mastodon'
 
 const ENDPOINTS = [
     API_BASE_AUTH,
@@ -13,6 +14,8 @@ const ENDPOINTS = [
     API_BASE_TEAM,
     API_BASE_FARCASTER,
     API_BASE_ACCOUNTS,
+    API_BASE_BSKY,
+    API_MASTODON
 ]
 
 const checkEndpointsForProd = () => {

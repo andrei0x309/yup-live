@@ -202,8 +202,8 @@ html {
 }
 
 html[class="dark"] {
-  --bg-color: #111;
-  --bg-content: #222;
+  --bg-color: #161616;
+  --bg-content: #0f0f0f;
   --logoBg: #080808cf;
   --post-card-bg: #2626263b;
 

@@ -108,7 +108,8 @@ export default defineComponent({
 
     const currentDayEmission = async () => {
       const today = new Date();
-      if (today.getFullYear() >= 2024 && today.getMonth() >= 8 && today.getDate() >= 22) {
+      const fixedEmissionDate = new Date("2024-09-22");
+      if (today > fixedEmissionDate) {
         return 10000;
       }
 
@@ -186,7 +187,7 @@ export default defineComponent({
           };
         });
       });
-      const gKP = getGeckoData().then((gecko) => {
+      const gKP = getGeckoData().then((gecko: any) => {
         dataGecko.value = computed(() => {
           return {
             price: formatNumber(gecko.market_data.current_price.usd, 4),
@@ -198,7 +199,7 @@ export default defineComponent({
           };
         });
       });
-      getSupply().then((supply) => {
+      getSupply().then((supply: any) => {
         gKP.then(() => {
           dataSupply.value = computed(() => {
             return {
@@ -209,7 +210,7 @@ export default defineComponent({
           });
         });
       });
-      getActionsCount().then((actionCount) => {
+      getActionsCount().then((actionCount: any) => {
         dataActionCount.value = computed(() => {
           return {
             actCount: formatNumber(actionCount.total, 0),

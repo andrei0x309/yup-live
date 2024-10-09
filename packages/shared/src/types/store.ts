@@ -14,10 +14,12 @@ export interface IStoreUserData {
     lens: boolean
     bsky: boolean
     threads: boolean
+    mastodon: boolean
   }
   bio?: string
   fullname?: string
   isOwner?: boolean
+  isTwitterBlue: boolean
 }
 
 export interface IMainStore {

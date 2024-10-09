@@ -445,7 +445,10 @@ export default defineComponent({
     const intialPlatforms = ref(store.openPostPlatforms ?? PLATFORMS);
     const userPlatforms = ref(PLATFORMS.filter((p) => store.userData?.connected?.[p]));
     const postPlatforms = ref(
-      (intialPlatforms.value ?? PLATFORMS).filter((p) => userPlatforms.value.includes(p))
+      (intialPlatforms.value ?? PLATFORMS)
+
+        .filter((p) => userPlatforms.value.includes(p))
+        .filter((p) => p !== "threads") as TPlatform[]
     );
     const isFileUploading = ref(false);
     const maxCharCount = ref(getMaxCharCount(postPlatforms.value));
@@ -461,6 +464,8 @@ export default defineComponent({
           farcaster: string;
           lens: string;
           bsky: string;
+          threads: string;
+          mastodon: string;
           img: string;
           id: string;
         }[],
@@ -468,6 +473,9 @@ export default defineComponent({
           twiter: string;
           farcaster: string;
           lens: string;
+          threads: string;
+          mastodon: string;
+          bsky: string;
           source: string;
           id: string;
           type: string;
@@ -597,7 +605,7 @@ export default defineComponent({
     const onFileUpload = async (f: File | Event, index: number) => {
       const isFile = f instanceof File;
       const imageFile = (isFile ? f : posts?.[index]?.fileInput?.files?.[0]) as File;
-      if (!imageFile) return;
+      if (!imageFile || isFileUploading.value) return;
       isFileUploading.value = true;
       const imageBase64 = await fileToBase64(imageFile);
       const upload = (await mediaUpload(store, postPlatforms.value, imageFile)) as any;
@@ -621,7 +629,7 @@ export default defineComponent({
 
       upload.img = imageBase64 as string;
       upload.id = Math.random().toString(36).substring(7);
-
+      posts[index].fileInput?.value && (posts[index].fileInput.value = "");
       isFileUploading.value = false;
     };
 
@@ -966,6 +974,7 @@ export default defineComponent({
   overflow-wrap: break-word;
   overflow-x: hidden;
   white-space: pre-wrap;
+  text-align: left;
 }
 
 [contenteditable="true"]:empty:before {

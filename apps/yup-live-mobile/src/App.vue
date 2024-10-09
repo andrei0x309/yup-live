@@ -350,18 +350,16 @@ body.dark {
 .gradient-text {
   background-color: #ca4246;
   background-image: linear-gradient(
-    45deg,
-    #ca4246 16.666%,
-    #e16541 16.666%,
-    #e16541 33.333%,
-    #f18f43 33.333%,
-    #f18f43 50%,
-    #8b9862 50%,
-    #8b9862 66.666%,
-    #476098 66.666%,
-    #476098 83.333%,
-    #a7489b 83.333%
+    -90deg,
+    #ca4246 0.666%,
+    #ca4246 45.666%,
+    #f18f43 40.333%,
+    #f18f43 60%,
+    #829641 66.666%,
+    #829641 75.333%,
+    #3b7a57 83.333%
   );
+  font-size: 1.3rem;
 
   background-size: 100%;
   background-repeat: repeat;

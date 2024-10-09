@@ -18,7 +18,8 @@ const useMainStore = defineStore('main', {
           twitter: false,
           lens: false,
           bsky: false,
-        }
+        },
+        isTwitterBlue: false,
       },
       farcasterFeed: false,
       personalized: false,

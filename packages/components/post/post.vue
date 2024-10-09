@@ -51,12 +51,12 @@
           </div>
           <div class="flex items-center flex-shrink-0 px-2">
             <div v-if="!noYUPPost" class="flex items-center space-x-1">
-              <component
+              <!-- <component
                 v-if="deps.CollectMenu"
                 v-bind:is="deps.CollectMenu"
                 :key="deps.CollectMenu"
                 :postId="processedPost.id"
-              />
+              /> -->
               <component
                 v-if="deps.PostMenu"
                 :key="`${menuKey}-${deps.PostMenu}`"
@@ -294,6 +294,10 @@ export default defineComponent({
               processedPost.web3Preview = props.post.web3Preview;
               postTypeCom.value = (await props.postTypesPromises.preloadThreads).default;
               break;
+            case "mastodon":
+              processedPost.web3Preview = props.post.web3Preview;
+              postTypeCom.value = (await props.postTypesPromises.preloadMastodon).default;
+              break;
             case "erc721":
               processedPost.web3Preview = props.post.web3Preview;
               postTypeCom.value = (await props.postTypesPromises.preloadErc721).default;
@@ -390,6 +394,7 @@ export default defineComponent({
       "erc721",
       "bsky",
       "threads",
+      "mastodon",
     ];
 
     const checkPostType = async (post: { url: string; tag: string }) => {

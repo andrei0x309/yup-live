@@ -130,7 +130,40 @@
 
             Disconnect from BlueSky
           </button>
-          <template v-if="!isConnectedToThreads">
+
+          <template v-if="!isConnectedToMastodon">
+            <button
+              :disabled="isConnectToMastodon"
+              class="mt-4 bg-teal-500 border-0 py-2 px-6 focus:outline-none hover:bg-teal-600 rounded text-lg"
+              @click="
+                () => {
+                  settingsModalContent = 'mastodon-connect';
+                  settingsModal = true;
+                }
+              "
+            >
+              <MastodonIcon class="w-6 inline mr-2 rounded-full" />
+              <BtnSpinner v-if="isConnectToMastodon" class="inline mr-2" />Connect to
+              Mastodon
+            </button>
+          </template>
+          <button
+            v-else
+            :disabled="isDisconnectFromMastodon"
+            class="mt-4 bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded text-lg"
+            @click="doDisconnectFromMastodon"
+          >
+            <BtnSpinner
+              v-if="isDisconnectFromMastodon"
+              class="inline mr-2"
+            /><MastodonIcon class="w-6 inline mr-2 rounded-full" />
+
+            Disconnect from Mastodon
+          </button>
+
+          <!--  Disabled Threads connection for now -->
+
+          <!-- <template v-if="!isConnectedToThreads">
             <button
               :disabled="isConnectToBsky"
               class="mt-4 bg-gray-600 border-0 py-2 px-6 focus:outline-none hover:bg-gray-900 rounded text-lg"
@@ -163,7 +196,7 @@
             />
 
             Disconnect from Threads
-          </button>
+          </button> -->
         </div>
       </div>
     </section>
@@ -515,6 +548,36 @@
         </button>
       </div>
     </template>
+    <template v-else-if="settingsModalContent === 'mastodon-connect'">
+      <div class="mx-8 flex flex-col">
+        <p class="text-[1rem]">Conect to Mastodon</p>
+        <small class="my-4">
+          <ul>
+            <li>Enter your mastodon instance bellow</li>
+          </ul></small
+        >
+        <input
+          v-model="mastodonInstance"
+          type="text"
+          name="ident"
+          placeholder="mastodon.social or mastodon.online etc"
+          class="mb-4 rounded p-2 text-[#222]"
+        />
+        <button
+          :disabled="isConnectedToMastodon"
+          class="bg-teal-500 border-0 py-2 px-6 focus:outline-none hover:bg-teal-600 rounded text-lg mt-4"
+          @click="
+            () => {
+              settingsModal = false;
+              doConnectToMastodon();
+            }
+          "
+        >
+          <MastodonIcon class="w-6 inline mr-2 rounded-full" />
+          <BtnSpinner v-if="isConnectToMastodon" class="inline mr-2" />Connect to Mastodon
+        </button>
+      </div>
+    </template>
   </o-modal>
 </template>
 
@@ -557,14 +620,19 @@ import "vue-cup-avatar/dist/style.css";
 import QrcodeVue from "qrcode.vue";
 // import WalletIcon from "icons/src/walletIcon.vue";
 import { CancelablePromise } from "shared/src/utils/misc";
-import ThreadsIcon from "icons/src/threads.vue";
-import {
-  connectToThreadsOauth,
-  disconnectThreads,
-} from "shared/src/utils/requests/threads";
+// import ThreadsIcon from "icons/src/threads.vue";
+// import {
+//   connectToThreadsOauth,
+//   disconnectThreads,
+// } from "shared/src/utils/requests/threads";
 import AddDevice from "@/components/content/profile/settings/addDevice.vue";
 import AddAccount from "@/components/content/profile/settings/addAccount.vue";
 import Teams from "@/components/content/profile/settings/teams.vue";
+import MastodonIcon from "icons/src/mastodon.vue";
+import {
+  connectToMastodon,
+  disconnectMastodon,
+} from "shared/src/utils/requests/mastodon";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -581,7 +649,8 @@ export default defineComponent({
     QrcodeVue,
     // WalletIcon,
     BlueSkyIcon,
-    ThreadsIcon,
+    // ThreadsIcon,
+    MastodonIcon,
     AddDevice,
     AddAccount,
     Teams,
@@ -652,6 +721,12 @@ export default defineComponent({
     const isDisconnectFromThreads = ref(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const lensSelectedProfile = ref(undefined) as Ref<any | undefined | string>;
+
+    const mastodonInstance = ref("");
+    const isConnectedToMastodon = ref(store.userData.connected?.mastodon ?? false);
+    const isConnectToMastodon = ref(false);
+    const isDisconnectFromMastodon = ref(false);
+    const isMastodonCancel = ref(false);
 
     watch(
       () => lensSelectedProfile.value,
@@ -914,7 +989,6 @@ export default defineComponent({
         stackAlertError,
         stackAlertSuccess,
         store,
-        apiBase: API_BASE,
         isConnectedToBsky,
         isConnectToBsky,
         settingsModal,
@@ -929,7 +1003,6 @@ export default defineComponent({
         stackAlertError,
         stackAlertSuccess,
         store,
-        apiBase: API_BASE,
         isDisconnectFromBlueSky,
         isConnectedToBsky,
       });
@@ -953,30 +1026,75 @@ export default defineComponent({
     };
 
     const doConnectThreads = async () => {
-      const threads = await connectToThreadsOauth({
-        stackAlertError,
-        stackAlertSuccess,
-        store,
-        isConnectedToThreads,
-        isConnectToThreads,
-        isThreadsCancel,
-      });
-      if (threads) {
-        setConnected(store, "threads", true);
-      }
+      // const threads = await connectToThreadsOauth({
+      //   stackAlertError,
+      //   stackAlertSuccess,
+      //   store,
+      //   isConnectedToThreads,
+      //   isConnectToThreads,
+      //   isThreadsCancel,
+      // });
+      // if (threads) {
+      //   setConnected(store, "threads", true);
+      // }
     };
 
     const doDisconnectThreads = async () => {
-      const threads = await disconnectThreads({
+      // const threads = await disconnectThreads({
+      //   stackAlertError,
+      //   stackAlertSuccess,
+      //   store,
+      //   apiBase: API_BASE,
+      //   isDisconnectFromThreads,
+      //   isConnectedToThreads,
+      // });
+      // if (threads) {
+      //   setConnected(store, "threads", false);
+      // }
+    };
+
+    const doConnectToMastodon = async () => {
+      console.log("doConnectToMastodon", mastodonInstance.value);
+      if (mastodonInstance.value === "") {
+        stackAlertError("Please enter a mastodon instance");
+        return;
+      }
+      let textMastodon: string;
+      if (mastodonInstance.value.includes("http")) {
+        textMastodon = mastodonInstance.value;
+      } else {
+        textMastodon = `https://${mastodonInstance.value}`;
+      }
+      try {
+        const url = new URL(textMastodon);
+        textMastodon = url.hostname;
+      } catch (error) {
+        stackAlertError("Invalid mastodon instance");
+        return;
+      }
+
+      await connectToMastodon({
+        cancelWaiting: isMastodonCancel,
+        stackAlertError,
+        instanceURL: textMastodon,
+        store,
+        isConnectedToMastodon,
+        isConnectToMastodon,
+        settingsModal,
+        stackAlertSuccess,
+      });
+    };
+
+    const doDisconnectFromMastodon = async () => {
+      const mastodon = await disconnectMastodon({
         stackAlertError,
         stackAlertSuccess,
         store,
-        apiBase: API_BASE,
-        isDisconnectFromThreads,
-        isConnectedToThreads,
+        isDisconnectFromMastodon,
+        isConnectedToMastodon,
       });
-      if (threads) {
-        setConnected(store, "threads", false);
+      if (mastodon) {
+        setConnected(store, "mastodon", false);
       }
     };
 
@@ -1044,6 +1162,13 @@ export default defineComponent({
       lensSelectedProfile,
       transferData,
       isThreadsCancel,
+      isConnectedToMastodon,
+      isConnectToMastodon,
+      isDisconnectFromMastodon,
+      isMastodonCancel,
+      doConnectToMastodon,
+      doDisconnectFromMastodon,
+      mastodonInstance,
     };
   },
 });

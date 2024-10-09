@@ -620,9 +620,7 @@ export default defineComponent({
                   // insert a space before the link
                   el.appendChild(document.createTextNode("‎ "));
 
-                  el.appendChild(
-                    document.createTextNode(`${store.openPostShareLink}` ?? "")
-                  );
+                  el.appendChild(document.createTextNode(`${store.openPostShareLink}`));
                   setTimeout(() => {
                     const r = document.createRange();
                     r.setStart(el, 0);
@@ -704,6 +702,9 @@ export default defineComponent({
 
       upload.img = imageBase64 as string;
       upload.id = Math.random().toString(36).substring(7);
+      if (posts[index]?.fileInput?.value) {
+        (posts[index] as any).fileInput.value = "";
+      }
 
       isFileUploading.value = false;
     };

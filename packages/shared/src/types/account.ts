@@ -13,6 +13,7 @@ export interface IUserData {
   evmAddress: string
   fullname: string
   isPro: boolean
+  isTwitterBlue: boolean
   connected: {
     farcaster: boolean
     twitter: boolean

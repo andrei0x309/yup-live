@@ -180,8 +180,6 @@ export default defineComponent({
       : props?.post?.web3Preview?.meta?.paragraphUrl ?? null;
 
     onMounted(async () => {
-      console.log("props.post", props.post);
-
       const dom = new DOMParser().parseFromString(
         marked.parse((props.post?.web3Preview?.content ?? "").replace(/\\/gi, "")),
         "text/html"

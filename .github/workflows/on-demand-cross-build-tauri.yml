@@ -80,10 +80,10 @@ jobs:
           cache: 'yarn' # Set this to npm, yarn or pnpm.
 
       - name: Install frontend dependencies && build
-        run: cd apps/yup-live && yarn install && yarn build-no-ssg && cd ../..
+        run: cd apps/yup-live && yarn install --network-timeout 1000000 && yarn build-no-ssg && cd ../..
 
       - name: Build the app
-        timeout-minutes: 30
+        timeout-minutes: 35
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

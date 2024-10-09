@@ -272,7 +272,6 @@ export const checkNetwork = async ({ wgamiLib, stackAlertWarning, switchTo }:
                 return false
             }
             const neededChains = [...wgamiLib.wgConfig.wagmiConfig.chains, newChain]
-            console.log(neededChains)
             newWgami = await prepareForTransaction({ stackAlertWarning, localWeb3Libs: web3Libs(), neededChains }) as typeof wgamiLib
             if (!newWgami) {
                 stackAlertWarning && stackAlertWarning('Failed to intialize new chain')
@@ -280,7 +279,6 @@ export const checkNetwork = async ({ wgamiLib, stackAlertWarning, switchTo }:
             }
             wgamiLib = newWgami
         }
-        console.log('Switching to chain: ', switchTo, ' from: ', chainId, newWgami)
 
         await wgamiLib.wgamiCore.switchChain(wgamiLib.wgConfig.wagmiConfig, { chainId: switchTo })
         chainId = await wgamiLib.wgamiCore.getChainId(wgamiLib.wgConfig.wagmiConfig)

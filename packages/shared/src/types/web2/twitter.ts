@@ -33,8 +33,19 @@ export interface TweetRaw {
           url: string
         }>
       }
+      url?: string
       type?: string
       media_url_https?: string
     }>
   }
+  media?: Array<{
+    video_info?: {
+      variants: Array<{
+        url: string
+      }>
+    }
+    type?: string
+    url?: string
+    media_url_https?: string
+  }>
 }

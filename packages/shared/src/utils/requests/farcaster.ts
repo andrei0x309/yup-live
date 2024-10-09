@@ -2,7 +2,7 @@ import { fetchWAuth } from '../auth'
 import type { IMainStore } from 'shared/src/types/store'
 import { ref, Ref } from 'vue'
 import { prepareForTransaction, TWeb3Libs } from '../evmTxs'
-import { getFidByToken, getFidByAddress } from 'shared/src/utils/farcaster';
+import { getFidByAddress } from 'shared/src/utils/farcaster';
 // import { FCSendCast } from "shared/src/utils/farcaster";
 // import { digestSha256 } from "shared/src/utils/misc";
 import { wait } from '../time'
