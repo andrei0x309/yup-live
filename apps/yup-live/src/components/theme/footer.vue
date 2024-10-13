@@ -27,9 +27,9 @@
             >YUP Live</a
           >
           <a
-            href="https://forum.yup.io"
+            href="https://github.com/andrei0x309/yup-live"
             class="text-gray-600 dark:text-gray-300 hover:text-indigo-500 active:text-indigo-600 transition duration-100"
-            >YUP Forum</a
+            >Source Code</a
           >
           <o-dropdown v-model="menuDropDownBuyYUP" aria-role="list">
             <template #trigger>

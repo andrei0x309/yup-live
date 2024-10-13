@@ -18,3 +18,14 @@ Yup gets data from EVM blockchains, arewaeve and farcaster and aggregates it int
 - `packages/shared` - TS types/utils and other shared code
 - `packages/components` - shared components
 - `packages/icons` - shared icon components
+
+## DEMOS
+
+### YUP-Live WebApp
+
+https://github.com/user-attachments/assets/186fd5e3-7acb-4ef4-b8b6-f58fe3386fa6
+
+
+### YUP-Live Mobile
+
+https://github.com/user-attachments/assets/1344d485-6807-4940-b9e9-7205ef2581d1

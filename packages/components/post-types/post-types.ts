@@ -10,4 +10,5 @@ export const postTypesPromises = {
   preloadErc721: import(`./erc721.vue`),
   preloadBsky: import(`./bsky.vue`),
   preloadThreads: import(`./threads.vue`),
+  preloadMastodon: import(`./mastodon.vue`),
 }

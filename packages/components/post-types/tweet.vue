@@ -4,14 +4,26 @@
       <div class="flex p-2">
         <AvatarBtn
           :key="mainTweet.userAvatar"
-          class="w-9 h-9"
+          class="w-9 h-9 cursor-pointer"
           imgClass="w-9 h-9"
           :pSource="mainTweet.userAvatar"
           :isSelf="false"
           :isTwitter="true"
           :pAccount="mainTweet.userHandle"
+          @click="
+            () => {
+              goToCreator();
+            }
+          "
         />
-        <div class="flex flex-col text-justify pl-3">
+        <div
+          class="flex flex-col text-justify pl-3 cursor-pointer"
+          @click="
+            () => {
+              goToCreator();
+            }
+          "
+        >
           <span>{{ mainTweet.userName }}</span>
           <span class="opacity-70"
             >@{{ mainTweet.userHandle }}
@@ -58,9 +70,7 @@
     <div v-else-if="tweetType === 'missing'">
       <div v-if="!embedLoaded">
         <p><WarningIcon class="w-10 mx-auto mt-2" /></p>
-        <p class="p-2" v-if="deleted">
-          Sorry the tweet data is not available on yup!
-        </p>
+        <p class="p-2" v-if="deleted">Sorry the tweet data is not available on yup!</p>
         <div v-else>
           <p>Preview for this tweet is missing.</p>
           <p>Do you want to try to load an embed?</p>
@@ -287,7 +297,7 @@
 
 <script lang="ts">
 // import { useMainStore } from '@/store/main'
-import { onMounted, defineComponent, ref, Ref } from "vue";
+import { onMounted, defineComponent, ref, Ref, PropType } from "vue";
 import AvatarBtn from "components/functional/avatarBtn.vue";
 // import { loadTwitterFactory, createTweetEmbed } from '@/utils/twitter'
 import TwitterIcon from "icons/src/twitter.vue";
@@ -302,6 +312,8 @@ import VerifiedIcon from "icons/src/verified.vue";
 import type { mediaType } from "shared/src/types/post";
 import type { TweetData, TweetRaw } from "shared/src/types/web2/twitter";
 import CrossIconGroup from "components/post-types/misc/crossicon-group.vue";
+import type { IPostDeps } from "shared/src/types/post";
+import { useRouter } from "vue-router";
 
 const refGoTo = GoTo;
 const refBtnSpinner = BtnSpinner;
@@ -326,6 +338,10 @@ export default defineComponent({
       type: Object,
       default: () => ({}),
     },
+    deps: {
+      type: Object as PropType<IPostDeps>,
+      default: () => ({}),
+    },
   },
   setup(props) {
     const tweet = ref(null);
@@ -334,6 +350,8 @@ export default defineComponent({
     const embedLoaded = ref(false);
     const deleted = ref(false);
     const missingTweetId = ref("") as Ref<string>;
+    const router = useRouter();
+    const creatorAddress = ref("");
 
     const mainTweet = ref({
       userName: "",
@@ -385,7 +403,6 @@ export default defineComponent({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ((window as unknown) as { twttr: Record<string, any> }).twttr
             .ready(() => {
-
               const tweetEl = tweet.value || document.getElementById(id);
 
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -422,22 +439,25 @@ export default defineComponent({
 
     const checkMedia = (filler: TweetRaw) => {
       const mediaEntities: mediaType[] = [];
-      if ((filler?.extended_entities?.media?.length ?? 0) > 0) {
-        const twMediaEntities = filler?.extended_entities?.media;
-        twMediaEntities?.forEach((e) => {
-          if (e?.type === "video" || e?.type === "animated_gif") {
-            for (const pVideo of e?.video_info?.variants ?? []) {
-              if ("bitrate" in pVideo) {
-                mediaEntities.push({ type: "video", url: pVideo.url ?? "" });
-                break;
-              }
+
+      const twMediaEntities = filler?.extended_entities?.media ?? filler?.media ?? [];
+      twMediaEntities?.forEach((e) => {
+        if (e?.type === "video" || e?.type === "animated_gif") {
+          for (const pVideo of e?.video_info?.variants ?? []) {
+            if ("bitrate" in pVideo) {
+              mediaEntities.push({ type: "video", url: pVideo.url ?? "" });
+              break;
             }
           }
-          if (e?.type === "photo") {
-            mediaEntities.push({ type: "image", url: e?.media_url_https as string });
-          }
-        });
-      }
+        }
+        if (e?.type === "photo") {
+          mediaEntities.push({
+            type: "image",
+            url: e?.media_url_https ?? (e.url as string),
+          });
+        }
+      });
+
       return mediaEntities;
     };
 
@@ -477,6 +497,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
+      creatorAddress.value = props.post.web3CreatorProfile?._id;
       tweetType.value = getTweetType();
       switch (tweetType.value) {
         case "missing": {
@@ -530,6 +551,15 @@ export default defineComponent({
       mainTweet.value.crossPostGroup = props.post?.crossPostGroup ?? {};
     });
 
+    const goToCreator = () => {
+      if (creatorAddress.value) {
+        router.push(`/web3-profile/${creatorAddress.value}`);
+      } else {
+        props?.deps?.stackAlertWarning &&
+          props.deps.stackAlertWarning("User does not have a connected address");
+      }
+    };
+
     return {
       tweet,
       mainTweet,
@@ -540,6 +570,7 @@ export default defineComponent({
       loadingEmebed,
       embedLoaded,
       loadEmbed,
+      goToCreator,
       missingTweetId,
       deleted,
     };

@@ -79,12 +79,9 @@ const parseBodyMentionsAndChannels = (text: string, platform: string) => {
         }
     }
     if (platform === 'farcaster') {
-        console.log('farcaster, parsing channels')
-        console.log(text)
         const channelRegex = /(?!<.*?>)(^| |\n|\t|\r)+(\/.*?)(:|’|!|\*|"|'|`|\||\\|\&|\|\^|\%|\$|\#|\@|\(|\)|\[|\]| |,|\n|\t|\r|$)+?/gms
         const channel = text.matchAll(channelRegex)
         for (const match of channel) {
-            console.log('match[1]', match)
             if (match[2]) {
                 const e = match[2]
                 const channelHandle = `<span style="color:#2d7726d8" class="channel-handle">${e}</span>`
@@ -131,7 +128,6 @@ const parseMedia = (mediaObject: Web3Media, linkPreviews: linkPreviewTypeEx[], e
                 return
             }
             if (isImage(e.url, e?.images ?? [])) {
-                console.log('H1')
                 retArr.push({ type: 'image', url: parseIpfs(e.url) })
                 return
             } else if (isVideo(e.url)) {

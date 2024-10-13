@@ -1,5 +1,15 @@
 export const recentChanges = [
     {
+        date: "08 August - 2024",
+        title: "Changes",
+        changes: [
+            'added mastodon  integration on web app',
+            'removed threads integration',
+            'minor display changes',
+            'added character count based on Twitter blue check for Twitter'
+        ]
+    },
+    {
         date: "22 Sept - 2024",
         title: "Changes",
         changes: [

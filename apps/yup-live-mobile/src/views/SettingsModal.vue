@@ -186,7 +186,10 @@
 
               Disconnect from BlueSky
             </button>
-            <template v-if="!isConnectedToThreads">
+
+            <!--  Disabled Threads connection for now -->
+
+            <!-- <template v-if="!isConnectedToThreads">
               <button
                 :disabled="isConnectToBsky"
                 class="mt-4 bg-gray-600 border-0 py-2 px-6 focus:outline-none hover:bg-gray-900 rounded text-lg"
@@ -220,7 +223,7 @@
               /><ThreadsIcon class="w-6 inline mr-2" />
 
               Disconnect from Threads
-            </button>
+            </button> -->
           </div>
         </ion-accordion>
         <ion-accordion value="settings">
@@ -638,11 +641,11 @@ import DangLoader from "components/vote-list/loader.vue";
 import { connectBlueSky, disconnectBlueSky } from "shared/src/utils/requests/bsky";
 import { PUSH_NOTIFICATION_TYPES, setPushSettings } from "@/utils/expo-push-not-re";
 import BlueSkyIcon from "icons/src/bsky.vue";
-import ThreadsIcon from "icons/src/threads.vue";
-import {
-  connectToThreadsOauth,
-  disconnectThreads,
-} from "shared/src/utils/requests/threads";
+// import ThreadsIcon from "icons/src/threads.vue";
+// import {
+//   connectToThreadsOauth,
+//   disconnectThreads,
+// } from "shared/src/utils/requests/threads";
 import AddAccount from "@/components/settings/addAccount.vue";
 
 const API_BASE = import.meta.env.VITE_YUP_API_BASE;
@@ -681,7 +684,7 @@ export default defineComponent({
     BlueSkyIcon,
     CustomButton,
     DangLoader,
-    ThreadsIcon,
+    // ThreadsIcon,
     AddAccount,
     IonRadioGroup,
     IonRadio,
@@ -769,6 +772,11 @@ export default defineComponent({
       (a: unknown) => typeof a & void
     >;
 
+    const isConnectedToMastodon = ref(store.userData.connected?.mastodon ?? false);
+    const isConnectToMastodon = ref(false);
+    const isDisconnectFromMastodon = ref(false);
+    const isMastodonCancel = ref(false);
+
     store.$subscribe(() => {
       if (store.userData) {
         bio.value = store.userData.bio ?? "";
@@ -779,6 +787,7 @@ export default defineComponent({
         isConnectedToFarcaster.value = store.userData.connected?.farcaster ?? false;
         isConnectedToBsky.value = store.userData.connected?.bsky ?? false;
         isConnectedToThreads.value = store.userData.connected?.threads ?? false;
+        isConnectedToMastodon.value = store.userData.connected?.mastodon ?? false;
       }
     });
 
@@ -1037,7 +1046,6 @@ export default defineComponent({
         stackAlertError,
         stackAlertSuccess,
         store,
-        apiBase: API_BASE,
         isConnectedToBsky,
         isConnectToBsky,
         settingsModal,
@@ -1052,7 +1060,6 @@ export default defineComponent({
         stackAlertError,
         stackAlertSuccess,
         store,
-        apiBase: API_BASE,
         isDisconnectFromBlueSky,
         isConnectedToBsky,
       });
@@ -1062,31 +1069,31 @@ export default defineComponent({
     };
 
     const doConnectThreads = async () => {
-      const threads = await connectToThreadsOauth({
-        stackAlertError,
-        stackAlertSuccess,
-        store,
-        isConnectedToThreads,
-        isConnectToThreads,
-        isThreadsCancel,
-      });
-      if (threads) {
-        setConnected(store, "threads", true);
-      }
+      // const threads = await connectToThreadsOauth({
+      //   stackAlertError,
+      //   stackAlertSuccess,
+      //   store,
+      //   isConnectedToThreads,
+      //   isConnectToThreads,
+      //   isThreadsCancel,
+      // });
+      // if (threads) {
+      //   setConnected(store, "threads", true);
+      // }
     };
 
     const doDisconnectThreads = async () => {
-      const threads = await disconnectThreads({
-        stackAlertError,
-        stackAlertSuccess,
-        store,
-        apiBase: API_BASE,
-        isDisconnectFromThreads,
-        isConnectedToThreads,
-      });
-      if (threads) {
-        setConnected(store, "threads", false);
-      }
+      // const threads = await disconnectThreads({
+      //   stackAlertError,
+      //   stackAlertSuccess,
+      //   store,
+      //   apiBase: API_BASE,
+      //   isDisconnectFromThreads,
+      //   isConnectedToThreads,
+      // });
+      // if (threads) {
+      //   setConnected(store, "threads", false);
+      // }
     };
 
     const openAlert = (msg: string) => {

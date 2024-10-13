@@ -30,6 +30,7 @@ const useMainStore = defineStore('main', {
                 },
                 bio: '',
                 fullname: '',
+                isTwitterBlue: false
             },
             deletePost: '',
             isLoggedIn: false,

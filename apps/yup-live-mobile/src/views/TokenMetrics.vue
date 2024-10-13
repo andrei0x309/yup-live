@@ -117,7 +117,8 @@ export default defineComponent({
 
     const currentDayEmission = async () => {
       const today = new Date();
-      if (today.getFullYear() >= 2024 && today.getMonth() >= 8 && today.getDate() >= 22) {
+      const fixedEmissionDate = new Date("2024-09-22");
+      if (today > fixedEmissionDate) {
         return 10000;
       }
       const yr = await Promise.all([

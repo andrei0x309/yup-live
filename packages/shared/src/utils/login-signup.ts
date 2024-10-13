@@ -20,12 +20,14 @@ type TloginMap = {
     isOwner: boolean
     bio: string,
     fullname: string
+    isTwitterBlue: boolean
     connected: {
         farcaster: boolean
         twitter: boolean
         lens: boolean
         bsky: boolean
         threads: boolean
+        mastodon: boolean
     }
 }
 
@@ -427,6 +429,7 @@ export const onLogin = async ({
                 authToken: item.jwt,
                 account: item.accountId,
                 isOwner: item.isOwner,
+                isTwitterBlue: item.isTwitterBlue,
                 bio: item.bio,
                 fullname: item.fullname,
                 fid: item?.fid || ''

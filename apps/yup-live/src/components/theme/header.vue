@@ -22,37 +22,7 @@
     />
     <div class="mx-auto">
       YUP
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="w-10 inline"
-        viewBox="0 0 27.015619 12.00781"
-      >
-        <path
-          id="live-1"
-          fill="#f04545"
-          d="M 0,6.0039 C 0,5.60937 0.0391,5.21875 0.11328,4.83203 0.19138,4.44531 0.30469,4.07031 0.45703,3.70312 0.60547,3.33984 0.79297,2.99609 1.01172,2.66797 1.23047,2.33984 1.48047,2.03515 1.75781,1.75781 2.03516,1.47656 2.33984,1.23047 2.66797,1.01172 2.99609,0.79297 3.33984,0.60547 3.70703,0.45703 4.07031,0.30469 4.44531,0.1914 4.83203,0.11328 5.21875,0.03518 5.60937,0 6.00391,0 h 15.00781 c 0.39453,0 0.78515,0.0352 1.17187,0.11328 0.38672,0.0781 0.76172,0.19141 1.125,0.34375 0.36719,0.14844 0.71094,0.33594 1.03907,0.55469 0.32812,0.21875 0.63281,0.46484 0.91015,0.74609 0.27735,0.27734 0.52735,0.58203 0.7461,0.91016 0.21875,0.32812 0.40625,0.67187 0.55468,1.03515 0.15235,0.36719 0.26563,0.74219 0.34375,1.12891 0.0742,0.38672 0.11328,0.77734 0.11328,1.17187 0,0.39063 -0.0391,0.78125 -0.11328,1.16797 -0.0781,0.38672 -0.1914,0.76172 -0.34375,1.12891 -0.14843,0.36328 -0.33593,0.71094 -0.55468,1.03516 -0.21875,0.32812 -0.46875,0.63281 -0.7461,0.91015 -0.27734,0.28125 -0.58203,0.52735 -0.91015,0.7461 -0.32813,0.22265 -0.67188,0.40625 -1.03907,0.55859 -0.36328,0.14844 -0.73828,0.26172 -1.125,0.33984 -0.38672,0.0781 -0.77734,0.11719 -1.17187,0.11719 H 6.00391 c -0.39454,0 -0.78516,-0.0391 -1.17188,-0.11719 -0.38672,-0.0781 -0.76172,-0.1914 -1.125,-0.33984 C 3.33984,11.39844 2.99609,11.21484 2.66797,10.99609 2.33984,10.77344 2.03516,10.52734 1.75781,10.24609 1.48047,9.96875 1.23047,9.66406 1.01172,9.33594 0.79297,9.01172 0.60547,8.66406 0.45703,8.30078 0.30469,7.93359 0.19141,7.55859 0.11328,7.17187 0.03908,6.78515 0,6.39453 0,6.0039 Z m 0,0"
-        />
-        <path
-          id="live-2"
-          fill="#fff"
-          d="m 8.8538666,9.0041491 h -3.4375 v -6.203125 h 1.203125 v 5.140625 h 2.0625 z m 0,0"
-        />
-        <path
-          id="live-3"
-          fill="#fff"
-          d="M 10.966965,9.0041491 H 9.7638397 v -6.203125 h 1.2031253 z m 0,0"
-        />
-        <path
-          id="live-4"
-          fill="#fff"
-          d="m 17.635117,2.8010241 -2.3125,6.234375 h -1.21875 l -2.265625,-6.09375 1.25,-0.203125 1.671875,4.75 1.609375,-4.6875 z m 0,0"
-        />
-        <path
-          id="live-5"
-          fill="#fff"
-          d="m 22.175171,9.0041491 h -3.703125 v -6.203125 h 3.609375 v 1 h -2.421875 v 1.484375 h 1.859375 l 0.171875,1 h -2.03125 v 1.71875 h 2.515625 z m 0,0"
-        />
-      </svg>
+      <ActivityIcon class="text-red-700 w-6 h-6" />
     </div>
     <h3 class="menu-title">Main Pages</h3>
     <ul>
@@ -84,7 +54,7 @@
           <FeedsIcon class="inline w-3 mr-2" /> Feeds
         </router-link>
         <router-link class="menu-pill" to="/claim" @click="toggleSidebar()">
-          <GetCoinIcon class="inline w-5 mr-2" /> Claim Rewards
+          <GetCoinIcon class="inline w-5 mr-2" /> Rewards
         </router-link>
       </li>
     </ul>
@@ -113,17 +83,7 @@
           aria-label="logo"
         >
           <h1 class="inline gradient-text">YUP</h1>
-          <svg
-            class="w-10"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 27.015619 12.00781"
-          >
-            <use xlink:href="#live-1"></use>
-            <use xlink:href="#live-2"></use>
-            <use xlink:href="#live-3"></use>
-            <use xlink:href="#live-4"></use>
-            <use xlink:href="#live-5"></use>
-          </svg>
+          <ActivityIcon class="text-red-700 w-6 h-6" />
         </router-link>
         <!-- logo - end -->
 
@@ -161,7 +121,7 @@
             class="text-gray-800 dark:text-gray-200 hover:text-yellow-500 active:text-yellow-700 font-semibold transition duration-100"
             to="/claim"
           >
-            <GetCoinIcon class="inline w-6 mr-2" />Claim Rewards
+            <GetCoinIcon class="inline w-6 mr-2" />Rewards
           </router-link>
           <router-link
             style="line-height: 1.7rem"
@@ -264,6 +224,7 @@
 import { defineComponent, ref, onMounted, watch } from "vue";
 import ConnectButton from "@/components/content/connect/connectBtn.vue";
 import GetCoinIcon from "icons/src/getCoin.vue";
+import ActivityIcon from "icons/src/active.vue";
 import FeedsIcon from "icons/src/feeds.vue";
 import SearchIcon from "icons/src/search.vue";
 import { useRouter } from "vue-router";
@@ -284,6 +245,7 @@ export default defineComponent({
     CrossPost,
     CrossPostIcon,
     ConnectPlatformIcon,
+    ActivityIcon,
   },
   props: {
     noAccess: {
@@ -492,18 +454,16 @@ nav .o-drop__menu {
 .gradient-text {
   background-color: #ca4246;
   background-image: linear-gradient(
-    45deg,
-    #ca4246 16.666%,
-    #e16541 16.666%,
-    #e16541 33.333%,
-    #f18f43 33.333%,
-    #f18f43 50%,
-    #8b9862 50%,
-    #8b9862 66.666%,
-    #476098 66.666%,
-    #476098 83.333%,
-    #a7489b 83.333%
+    -90deg,
+    #ca4246 0.666%,
+    #ca4246 45.666%,
+    #f18f43 40.333%,
+    #f18f43 60%,
+    #829641 66.666%,
+    #829641 75.333%,
+    #3b7a57 83.333%
   );
+  font-size: 1.3rem;
 
   background-size: 100%;
   background-repeat: repeat;

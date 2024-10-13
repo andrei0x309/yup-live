@@ -7,7 +7,7 @@ export const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 // export const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.', 'dev.api.');
 // export const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
 
-export const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens", "bsky", "threads"];
+export const PLATFORMS: TPlatform[] = ["farcaster", "twitter", "lens", "bsky", "threads", "mastodon"];
 
 export const mediaUpload = async (store: IMainStore, platforms: TPlatform[], file: File) => {
     try {
@@ -192,6 +192,7 @@ export const makeSendData = (
             if (media.lens) ret['lens'] = media.lens
             if (media.bsky) ret['bsky'] = media.bsky
             if (media.threads) ret['threads'] = media.threads
+            if (media.mastodon) ret['mastodon'] = media.mastodon
             return ret
         }),
     } as ISendPostData;

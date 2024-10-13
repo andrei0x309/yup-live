@@ -77,7 +77,8 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
     ethInfo,
     web3Handles,
     connected,
-    isPro
+    isPro,
+    isTwitterBlue
   } = d.data
   const returnData = {
     userData: {
@@ -94,6 +95,7 @@ export const createUserData = async (userId: string, refreshWeight = false) => {
       web3Handles,
       twitterInfo,
       isPro: isPro,
+      isTwitterBlue: isTwitterBlue,
       connected: connected || {
         farcaster: false,
         twitter: false,
@@ -298,6 +300,7 @@ export const getConnected = async (store: IMainStore, account: string, address?:
     if (!uD.error) {
       connected = uD.data.userData.connected
       localStorage.setItem('connected', JSON.stringify(connected))
+      store.userData.isTwitterBlue = uD.data.userData.isTwitterBlue
     } else {
       connected = {
         farcaster: false,
@@ -333,7 +336,8 @@ export const setConnected = (store: IMainStore, platform: TPlatform, value: bool
       twitter: false,
       lens: false,
       bsky: false,
-      threads: false
+      threads: false,
+      mastodon: false
     }
   }
   store.userData.connected[platform] = value

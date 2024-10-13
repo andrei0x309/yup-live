@@ -2,7 +2,9 @@ import type { IMainStore } from 'shared/src/types/store'
 import type { Ref } from 'vue'
 import { fetchWAuth } from '../auth'
 
-const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+export const API_BASE = import.meta.env.VITE_YUP_API_BASE;
+// export const API_BASE = import.meta.env.VITE_YUP_API_BASE.replace('api.yup.io', 'fstun.flashsoft.eu');
+
 
 export const BLUESKY_SERVICE_URL = 'https://bsky.social';
 
@@ -12,7 +14,6 @@ export const disconnectBlueSky = async ({
     stackAlertSuccess,
     isDisconnectFromBlueSky,
     isConnectedToBsky,
-    apiBase = API_BASE,
 }: {
     store: IMainStore
     stackAlertError: (msg: string) => void
@@ -24,7 +25,7 @@ export const disconnectBlueSky = async ({
     if (isDisconnectFromBlueSky.value) return
     isDisconnectFromBlueSky.value = true
 
-    const req = await fetchWAuth(store, `${apiBase}/web3-auth`, {
+    const req = await fetchWAuth(store, `${API_BASE}/web3-auth`, {
         method: 'DELETE',
         body: JSON.stringify({
             platforms: ['bsky']
@@ -54,7 +55,6 @@ export const connectBlueSky = async ({
     stackAlertSuccess,
     isConnectedToBsky,
     isConnectToBsky,
-    apiBase = API_BASE,
     settingsModal
 }: {
     store: IMainStore
@@ -87,11 +87,17 @@ export const connectBlueSky = async ({
 
     const data = {
         auth: {
-            bsky
+            bsky: {
+                session: bsky,
+                credentials: {
+                    identity: bskyUser,
+                    appPass: bskyAppPassword
+                }
+            }
         }
     }
 
-    const reqSave = await fetchWAuth(store, `${apiBase}/web3-auth`, {
+    const reqSave = await fetchWAuth(store, `${API_BASE}/web3-auth`, {
         method: 'POST',
         body: JSON.stringify(data)
     })

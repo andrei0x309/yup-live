@@ -51,7 +51,7 @@
                 fill="none"
                 viewBox="0 0 146 36"
                 width="145px"
-                class="relative z-50 max-sm:w-[116px]"
+                class="relative max-sm:w-[116px]"
               >
                 <path
                   fill="#E8DDFF"

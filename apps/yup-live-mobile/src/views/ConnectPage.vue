@@ -468,6 +468,7 @@ const doLogin = (params: Awaited<ReturnType<typeof onSignup>>) => {
         authToken: params?.authToken ?? "",
         weight: params?.weight ?? "1",
         fid: "",
+        isTwitterBlue: false,
       };
       storage.set("authInfo", JSON.stringify(userAuth));
       mainStore.userData = userAuth;
@@ -517,6 +518,7 @@ const doStoreLogin = async (params: Awaited<ReturnType<typeof onLogin>>) => {
         authToken: account.authToken,
         fid: "",
         connected: account.connected,
+        isTwitterBlue: account.isTwitterBlue,
       };
 
       await storage.set("authInfo", JSON.stringify(userAuth));
