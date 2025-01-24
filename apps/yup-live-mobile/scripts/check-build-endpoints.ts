@@ -6,6 +6,7 @@ import { API_BASE as API_BASE_FARCASTER } from 'shared/src/utils/requests/farcas
 import { API_BASE as API_BASE_ACCOUNTS } from 'shared/src/utils/requests/accounts'
 import { API_BASE as API_BASE_BSKY } from 'shared/src/utils/requests/bsky'
 import { API_BASE as API_MASTODON } from 'shared/src/utils/requests/mastodon'
+import { API_BASE as API_BASE_VOTE } from 'shared/src/utils/requests/vote'
 
 const ENDPOINTS = [
     API_BASE_AUTH,
@@ -15,7 +16,8 @@ const ENDPOINTS = [
     API_BASE_FARCASTER,
     API_BASE_ACCOUNTS,
     API_BASE_BSKY,
-    API_MASTODON
+    API_MASTODON,
+    API_BASE_VOTE,
 ]
 
 const checkEndpointsForProd = () => {

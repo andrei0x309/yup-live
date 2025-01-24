@@ -234,10 +234,15 @@ export default defineComponent({
         body.disableNativePropagation = true;
       }
 
-      const req = await fetchWAuth(store, `${props.deps.apiBase}/votes`, {
-        method: "POST",
-        body: JSON.stringify(body),
-      });
+      const req = await fetchWAuth(
+        store,
+        // `${props.deps.apiBase.replace("api.yup.io", "fstun.flashsoft.eu")}/votes`,
+        `${props.deps.apiBase}/votes`,
+        {
+          method: "POST",
+          body: JSON.stringify(body),
+        }
+      );
       if (req.ok) {
         refNumLikes.value += 1;
         refHasVote.value = true;

@@ -46,7 +46,7 @@ export default defineComponent({
                 "https://tauri.localhost",
                 "http://tauri.localhost",
                 "http://localhost",
-                "https://yup.live",
+                "https://live.yup.io",
                 "https://yup-live.pages.dev",
                 "https://yup.info.gf",
               ];

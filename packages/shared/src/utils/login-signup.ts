@@ -131,7 +131,7 @@ const signChallenge = async ({
     cancelPromise?: null | Promise<any>
     mobile?: boolean
 }) => {
-    const uri = window?.location?.hostname ?? 'yup.live'
+    const uri = window?.location?.hostname ?? 'live.yup.io'
     const isHttps = window?.location?.protocol?.includes('https') ?? true
 
     const req = await fetch(`${API_BASE}/v1/eth/challenge?address=${address}&uri=${uri}&https=${isHttps}&enableSIWE=${mobile ? 'false' : 'true'}`, {

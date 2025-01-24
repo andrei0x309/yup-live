@@ -34,7 +34,7 @@ jobs:
 
             const updateJson = {
               "version": `v${version}`,
-              "notes": "Check all changes at https://yup.live/change-log",
+              "notes": "Check all changes at https://live.yup.io/change-log",
               "platforms": {
                 "darwin-x86_64": {
                   "signature": "==",

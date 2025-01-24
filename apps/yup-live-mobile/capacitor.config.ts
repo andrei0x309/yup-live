@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    hostname: 'yup.live'
+    hostname: 'live.yup.io'
   },
   plugins: {
     SplashScreen: {

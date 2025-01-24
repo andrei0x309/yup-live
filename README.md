@@ -5,7 +5,7 @@ Yup gets data from EVM blockchains, arewaeve and farcaster and aggregates it int
 
 ## Deployments and Binaries
 
-- [Yup live webapp](https://yup.live/)
+- [Yup live webapp](https://live.yup.io/)
 - [Yup live mobile PlayStore](https://play.google.com/store/apps/details?id=live.yup)
 - [Yup live Desktop Linux|MAC|Windows](https://github.com/andrei0x309/yup-live/releases)
 - [Yup live Browser Extension Repo](https://github.com/andrei0x309/yup-live-chrome-extension)

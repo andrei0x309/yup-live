@@ -72,7 +72,7 @@ const main = async () => {
         if (ENABLED && !GithubEvent.forced && GithubEvent?.head_commit?.message.includes('chore:')) {
             const commiter = GithubEvent?.head_commit?.author.username || GithubEvent?.head_commit?.committer?.username || ''
             const message = `Github YupLive new repo commit!\n
-            Deployment: https://yup.live \n
+            Deployment: https://live.yup.io \n
             Commit: ${GithubEvent.head_commit.url} \n
             ${commiter ? `By: ${commiter}` : ''}
             `;

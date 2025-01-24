@@ -282,7 +282,7 @@
         <ion-card-content class="ion-justify-content-center">
           <ion-item mode="ios">
             <p class="p-4">
-              Open desktop at <a href="https://yup.live" target="_blank">yup.live</a> or
+              Open desktop at <a href="https://live.yup.io" target="_blank">live.yup.io</a> or
               <a href="https://yup-live.pages.dev" target="_blank">yup-live.pages.dev</a>
               after you signed in, go to setting "Connect Device" and click "Generate Auth
               Code", then input the code below to login

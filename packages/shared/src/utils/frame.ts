@@ -10,7 +10,7 @@ export const getStaticMetaFrame = (image: string) => {
         },
         {
             "name": "fc:frame:post_url",
-            "content": 'https://yup.live'
+            "content": 'https://live.yup.io'
         },
         {
             "name": "fc:frame:image:aspect_ratio",
@@ -18,7 +18,7 @@ export const getStaticMetaFrame = (image: string) => {
         },
         {
             "name": "fc:frame:button:1",
-            "content": "Visit Yup.live"
+            "content": "Visit live.yup.io"
         },
         {
             "name": "fc:frame:button:1:action",
@@ -26,7 +26,7 @@ export const getStaticMetaFrame = (image: string) => {
         },
         {
             "name": "fc:frame:button:1:target",
-            "content": "https://yup.live"
+            "content": "https://live.yup.io"
         },
         {
             "name": "fc:frame:button:2",
@@ -38,20 +38,8 @@ export const getStaticMetaFrame = (image: string) => {
         },
         {
             "name": "fc:frame:button:2:target",
-            "content": "https://yup.live/sign-up"
+            "content": "https://live.yup.io/sign-up"
         },
-        // {
-        //     "name": "fc:frame:button:3",
-        //     "content": "MiniApp"
-        // },
-        // {
-        //     "name": "fc:frame:button:3:action",
-        //     "content": "link"
-        // },
-        // {
-        //     "name": "fc:frame:button:3:target",
-        //     "content": 'https%3A%2F%2Fwarpcast.com%2F%3FcomposerActionURL%3Dhttps%3A%2F%2Fapi.paragraph.xyz%2Ffarcaster%2Fv2%2Faction%3Furl%3Dhttps%3A%2F%2Fparagraph.xyz.yup.live'
-        // },
     ] as { name: string, content: string }[];
     return meta;
 };

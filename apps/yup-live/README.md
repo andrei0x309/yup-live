@@ -1,6 +1,6 @@
-# YUP.LIVE
+# live.yup.io
 
-Depoyed at https://yup.info.gf/
+Depoyed at https://live.yup.io/
 
 ## Main Techstack - Vue 3/Typescript/Vite/Oruga
 

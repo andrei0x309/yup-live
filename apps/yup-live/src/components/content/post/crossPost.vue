@@ -975,6 +975,8 @@ export default defineComponent({
   overflow-x: hidden;
   white-space: pre-wrap;
   text-align: left;
+  -webkit-user-modify: read-write-plaintext-only;
+  user-modify: read-write-plaintext-only;
 }
 
 [contenteditable="true"]:empty:before {
