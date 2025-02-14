@@ -1,5 +1,7 @@
 # Yup - Live Turborepo
 
+> Yup was acquired by thirdtweb around 11 FEB 2025. There are no plans to continue development on this project, depolyments will stop working. Repo will stay open for historical purposes.
+
 A monorepo build with turborepo for yup live, open source client apps for yup backend.
 Yup gets data from EVM blockchains, arewaeve and farcaster and aggregates it into a single data source.
 

@@ -1,8 +1,8 @@
 {
-  "version": "1.4.10",
-  "forced": false,
+  "version": "1.5.10",
+  "forced": true,
   "paused": false,
-  "message": "A new version of the app is available. It is recommended to update to the latest version. Do you want to update now?",
-  "forcedMessage": "The current version of the app is no longer supported. You must update to the latest version to continue using the app. Do you want to update now?",
+  "message": "Yup was acquired by thirdtweb. Yup services will be discontinued, and yup live will ceease to work as it relies on yup services, open source repo of yup live will still be available on github.",
+  "forcedMessage": "Yup was acquired by thirdtweb. Yup services will be discontinued, and yup live will ceease to work as it relies on yup services, open source repo of yup live will still be available on github.",
   "url": "https://play.google.com/store/apps/details?id=gf.info.yup"
 }

@@ -7,10 +7,35 @@
   <FooterCom />
 
   <AlertStack :useAlertStack="useAlertStack" :setAlertStack="setAlertStack" />
+  <o-modal
+    v-model:active="aquiredModal"
+    contentClass="modal-body grid grid-cols-1 gap-4 content-center"
+    :canCancel="false"
+    @close="aquiredModal = true"
+  >
+    <h2 class="mt-2 p-4 text-[1.3rem]">Yup was acquired</h2>
+    <p class="p-1 mb-1 text-[1.15rem]">
+      Yup was acquired by <a style="color: #0077ff" href="thirdweb.com">thirdtweb</a>.
+    </p>
+    <p class="p-1 mb-1 text-[1.15rem]">
+      Yup services will be discontinued, and yup live will ceease to work as it relies on
+      yup services, open source repo of yup live will still be available on
+      <a style="color: #0077ff" href="https://github.com/andrei0x309/yup-live">github</a>.
+    </p>
+    <div class="flex">
+      <CustomButton
+        class="mx-auto"
+        :icon="refGoTo"
+        iconClass="transform -rotate-180"
+        text="Check Announcement"
+        @click="onAnnouncementClick"
+      />
+    </div>
+  </o-modal>
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, shallowRef, ShallowRef } from "vue";
+import { defineComponent, onBeforeMount, shallowRef, ShallowRef, ref } from "vue";
 import HeaderComp from "@/components/theme/header.vue";
 import FooterCom from "@/components/theme/footer.vue";
 import { getThemeMode } from "./utils";
@@ -23,6 +48,8 @@ import AlertStack from "components/functional/alertStack.vue";
 import { getConnected } from "shared/src/utils/requests/accounts";
 // import { checkAccess, isOnLocalhost, isBot } from "shared/src/utils/get-access";
 import { updateNotify } from "shared/src/utils/changeLog";
+import GoToIcon from "icons/src/goTo.vue";
+import CustomButton from "components/functional/customButton.vue";
 
 // const API_BASE = import.meta.env.VITE_YUP_API_BASE;
 
@@ -32,12 +59,14 @@ export default defineComponent({
     HeaderComp,
     FooterCom,
     AlertStack,
+    CustomButton,
   },
   setup() {
     (function setTheme() {
       document.documentElement.setAttribute("class", getThemeMode());
     })();
     const mainStore = useMainStore();
+    const aquiredModal = ref(true);
     const collectionStore = useCollectionStore();
     const route = useRoute();
     const headBar = shallowRef(null) as ShallowRef<
@@ -45,6 +74,12 @@ export default defineComponent({
       | Awaited<typeof import("@/components/content/desktop/head-bar.vue")>["default"]
     >;
     const router = useRouter();
+
+    const refGoTo = GoToIcon;
+
+    const onAnnouncementClick = () => {
+      window.open("https://blog.thirdweb.com/thirdweb-acquires-yup-io-2/", "_system");
+    };
 
     onBeforeMount(async () => {
       try {
@@ -116,6 +151,9 @@ export default defineComponent({
       headBar,
       useAlertStack,
       setAlertStack,
+      refGoTo,
+      onAnnouncementClick,
+      aquiredModal,
     };
   },
 });
