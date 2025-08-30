@@ -8,6 +8,9 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
     hostname: 'live.yup.io'
   },
+  android: {
+    adjustMarginsForEdgeToEdge: "auto"
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 8000,
@@ -26,6 +29,17 @@ const config: CapacitorConfig = {
     },
     FirebaseMessaging: {
       presentationOptions: ["badge", "sound", "alert"],
+    },
+    Keyboard: {
+      resizeOnFullScreen: false
+    },
+    EdgeToEdge: {
+      backgroundColor: "#1e1e1e",
+    },
+    StatusBar: {
+      overlaysWebView: false,
+      style: "DARK",
+      backgroundColor: "#1e1e1e",
     }
   },
 };

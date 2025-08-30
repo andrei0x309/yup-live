@@ -53,10 +53,11 @@ import { cleanBlockedPosts } from "shared/src/utils/post";
 import AlertStack from "components/functional/alertStack.vue";
 import { setAlertStack, useAlertStack, stackAlertSuccess } from "@/store/alert-store";
 import { getExpoPushTokenAndRegister } from "@/utils/expo-push-not-re";
-import { checkForUpdateAndNotify, getVersion } from "@/utils/update-version";
-import UpdateModal from "@/views/UpdateModal.vue";
+// import { checkForUpdateAndNotify, getVersion } from "@/utils/update-version";
+import AnnounceModal from "@/views/AnnounceModal.vue";
 import { getPushSettings } from "@/utils/expo-push-not-re";
-import { updateNotify } from "shared/src/utils/changeLog";
+// import { updateNotify } from "shared/src/utils/changeLog";
+import { App } from "@capacitor/app";
 
 // const CrossPost = defineAsyncComponent(() => import("@/views/CrossPostModal.vue"));
 
@@ -216,25 +217,10 @@ if (isAndroid()) {
     });
 }
 
-const openUpdateModal = async ({
-  forced,
-  message,
-  url,
-  paused,
-}: {
-  forced: boolean;
-  message: string;
-  url: string;
-  paused: boolean;
-}) => {
+const openAnnounceModal = async ({}: {}) => {
   const modal = await modalController.create({
-    component: UpdateModal,
-    componentProps: {
-      forced,
-      message: message,
-      url: url,
-      paused,
-    },
+    component: AnnounceModal,
+    componentProps: {},
   });
   modal.present();
   const { role } = await modal.onWillDismiss();
@@ -246,65 +232,17 @@ onBeforeMount(async () => {
   loading.value = true;
   clearProfileBlocks();
   cleanBlockedPosts();
+
+  useBackButton(99, () => {
+    App.minimizeApp();
+  });
+
+  openAnnounceModal({});
+
   if (!store.isLoggedIn) {
     const authInfo = storage.get("authInfo");
     const settings = storage.get("settings");
     const authInfoVal = await authInfo;
-
-    getVersion()
-      .then((vinfo) => {
-        store.version = vinfo.versionString;
-        if (authInfoVal) {
-          checkForUpdateAndNotify(store, vinfo.versionString).then((res) => {
-            if (res?.update) {
-              openUpdateModal({
-                forced: res.forced,
-                paused: !!res.paused,
-                message: res.updateMessage,
-                url: res.url,
-              });
-            }
-            setTimeout(() => {
-              updateNotify({
-                stackAlertSuccess,
-                router,
-              });
-            }, 1500);
-            import("@capacitor/app").then((lib) => {
-              if (res?.update && res?.forced) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                useBackButton(99, () => {
-                  lib.App.minimizeApp();
-                });
-              } else {
-                useBackButton(99, () => {
-                  if ((window as any)?.closeLightbox) {
-                    const source = (window as any)?.closeLightboxSource;
-                    (window as any)?.closeLightbox?.(source);
-                    (window as any).closeLightbox = null;
-                    return;
-                  }
-                  if (!ionRouter.canGoBack()) {
-                    lib.App.minimizeApp();
-                  } else if (
-                    router.currentRoute.value.path === "/" &&
-                    router.currentRoute.value.redirectedFrom?.path === "/tabs/feeds" &&
-                    store.isLoggedIn
-                  ) {
-                    router.replace("/tabs/feeds");
-                    lib.App.minimizeApp();
-                    return;
-                  }
-                  router.back();
-                });
-              }
-            });
-          });
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-      });
 
     if (authInfoVal) {
       setTimeout(async () => {
